@@ -1,0 +1,487 @@
+// When paired with an iOS device, this stylesheet will apply
+
+.ios-theme {
+  // _modules
+
+  .module-message__container--outgoing {
+    background-color: $app-color-background-blue-light;
+    color: $app-color-text-primary-light;
+  }
+
+  .module-message__container--incoming {
+    background-color: $app-color-background-3-light;
+    color: $app-color-text-primary-light;
+  }
+
+  .module-message__text {
+    font-size: 14px;
+    a {
+      text-decoration: none;
+      color: $app-color-text-info-light;
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+
+    .module-message-mention {
+      border-radius: 4px;
+      padding: 0 4px;
+      border: 1px solid transparent;
+      color: $app-color-text-info-light;
+      cursor: pointer;
+    }
+  }
+
+  .module-message__text--incoming {
+    a {
+      text-decoration: none;
+      color: $app-color-text-info-light;
+    }
+  }
+
+  .module-message__translate__text,
+  .module-message__translate__text--incoming,
+  .module-message__translate__text--outgoing {
+    color: #1b1b1b;
+    font-size: 14px;
+    a {
+      text-decoration: underline;
+      color: #1b1b1b;
+    }
+  }
+
+  .module-message__container__translate--incoming,
+  .module-message__container__translate--outgoing {
+    background-color: #e9e9e9;
+  }
+
+  .module-message__container__transcribe--incoming,
+  .module-message__container__transcribe--outgoing {
+    background-color: var(--dst-color-background-four);
+  }
+
+  .module-message__metadata__date {
+    color: $app-color-text-third-light;
+  }
+  .module-message__metadata__date--incoming {
+    flex: 1;
+    text-align: right;
+  }
+  .module-message__metadata__date--with-image-no-caption {
+    color: $color-white;
+  }
+
+  .module-message__metadata__status-icon--sending {
+    @include color-svg('../images/sending.svg', $app-color-text-third-light);
+  }
+
+  .module-message__metadata__status-icon--sent {
+    @include color-svg('../images/check-circle-outline.svg', $color-white-08);
+  }
+  .module-message__metadata__status-icon--delivered {
+    @include color-svg('../images/double-check.svg', $color-white-08);
+  }
+  .module-message__metadata__status-icon--read {
+    @include color-svg('../images/read.svg', $color-white-08);
+  }
+
+  .module-message__metadata__status-icon--with-image-no-caption {
+    background-color: $color-white;
+  }
+
+  .module-message__metadata__status-new-icon--read {
+    @include color-svg(
+      '../images/check-circle-outline.svg',
+      $app-color-text-third-light
+    );
+  }
+  .module-message__metadata__status-new-icon--read-exceed {
+    @include color-svg(
+      '../images/read-exceed.svg',
+      $app-color-text-third-light
+    );
+  }
+  .module-message__metadata__status-new-icon--read-count {
+    @include color-svg('../images/read-count.svg', $app-color-text-third-light);
+  }
+
+  //.module-message__generic-attachment__file-name {
+  //  color: $color-white;
+  //}
+
+  .module-message__generic-attachment__file-name--incoming {
+    color: $app-color-text-primary-light;
+  }
+
+  //.module-message__generic-attachment__file-size {
+  //  color: $color-white;
+  //}
+
+  .module-message__generic-attachment__file-size--incoming {
+    color: $app-color-text-primary-light;
+  }
+
+  .module-expire-timer {
+    background-color: $color-white-08;
+  }
+
+  .module-expire-timer--incoming {
+    background-color: $color-gray-60;
+  }
+
+  .module-quote--outgoing {
+    border-left-color: var(--dst-color-primary);
+    background-color: #056ffa33;
+  }
+
+  .module-quote--incoming {
+    border-left-color: $app-color-text-info-light;
+    background-color: #056ffa33;
+  }
+
+  .module-quote__reference-warning--incoming {
+    background-color: $color-signal-blue-mix;
+  }
+
+  // When you're composing a new quote
+  .bottom-bar {
+    .module-quote {
+      background-color: $color-signal-blue-025;
+      border-left-color: $color-signal-blue;
+    }
+  }
+
+  .module-embedded-contact-block {
+    cursor: pointer;
+    min-width: 280px;
+    border-radius: 8px;
+    border: 1px solid $app-color-line-light;
+
+    .contact-card-title {
+      font-size: 12px;
+      height: 36px;
+      border-bottom: 1px solid $app-color-line-light;
+      display: flex;
+      line-height: 36px;
+      color: $app-color-text-secondary-light;
+
+      .contact-icon {
+        @include color-svg(
+          '../images/contact-title.svg',
+          $app-color-text-secondary-light
+        );
+        // height: 16px;
+        width: 16px;
+        display: inline-block;
+        margin: 0 4px 0 10px;
+      }
+    }
+  }
+
+  // .module-embedded-contact__contact-name {
+  //   color: $color-white;
+  // }
+
+  .module-embedded-contact__contact-method {
+    color: $color-white-07;
+  }
+
+  .module-embedded-contact__contact-name--incoming {
+    color: $color-gray-90;
+  }
+
+  .module-embedded-contact__contact-method--incoming {
+    color: $color-light-60;
+  }
+
+  .module-typing-animation__dot {
+    background-color: $color-gray-60;
+  }
+
+  .module-typing-animation__dot--light {
+    background-color: $color-gray-60;
+  }
+
+  .module-spinner__circle--incoming {
+    background-color: $color-white-04;
+  }
+  .module-spinner__arc--incoming {
+    background-color: $color-gray-60;
+  }
+
+  .module-spinner__circle--outgoing {
+    background-color: $color-white-04;
+  }
+  .module-spinner__arc--outgoing {
+    background-color: $color-white;
+  }
+
+  &.dark-theme {
+    // _modules
+    .discussion-container {
+      //background-color: red;
+      background-image: url('../images/sending.svg') center no-repeat;
+    }
+    .module-message__container--outgoing {
+      background-color: $app-color-background-blue-dark;
+      color: $app-color-text-primary-dark;
+    }
+
+    .module-message__container--incoming {
+      background-color: $app-color-background-3-dark;
+      color: $app-color-text-primary-dark;
+    }
+
+    .module-message__text {
+      a {
+        color: $app-color-text-info-dark;
+      }
+      .module-message-mention {
+        color: $app-color-text-info-dark;
+      }
+    }
+
+    .module-message__text--incoming {
+      a {
+        color: $app-color-text-info-dark;
+      }
+    }
+
+    .module-message__container__translate--outgoing {
+      background-color: $color-gray-85;
+    }
+
+    .module-message__container__translate--incoming {
+      background-color: $color-gray-85;
+    }
+
+    // .module-message__metadata__status-new-icon--read {
+    //   opacity: 0.6;
+    //   @include color-svg(
+    //     '../images/check-circle-outline.svg',
+    //     $app-color-text-primary-dark
+    //   );
+    // }
+    // .module-message__metadata__status-new-icon--read-exceed {
+    //   opacity: 0.6;
+    //   @include color-svg(
+    //     '../images/read-exceed.svg',
+    //     $app-color-text-primary-dark
+    //   );
+    // }
+    // .module-message__metadata__status-new-icon--read-count {
+    //   opacity: 0.6;
+    //   @include color-svg(
+    //     '../images/read-count.svg',
+    //     $app-color-text-primary-dark
+    //   );
+    // }
+
+    // .module-message__metadata__status-text--read-count {
+    //   opacity: 0.6;
+    //   color: $app-color-text-primary-dark;
+    // }
+
+    .module-message__metadata__status-icon--sending {
+      @include color-svg('../images/sending.svg', $app-color-text-third-dark);
+    }
+
+    .module-message__metadata__status-icon--sent {
+      @include color-svg('../images/check-circle-outline.svg', $color-white-08);
+    }
+    .module-message__metadata__status-icon--delivered {
+      @include color-svg('../images/double-check.svg', $color-white-08);
+    }
+    .module-message__metadata__status-icon--read {
+      @include color-svg('../images/read.svg', $color-white-08);
+    }
+
+    .module-message__generic-attachment__file-name--incoming {
+      color: $app-color-text-primary-dark;
+    }
+    .module-message__generic-attachment__file-size--incoming {
+      color: $app-color-text-primary-dark;
+    }
+
+    .module-message__reply-to--incoming,
+    .module-message__forward-header--incoming,
+    .module-message__forward-from--incoming {
+      color: $app-color-text-secondary-dark;
+      font-size: 12px;
+      line-height: 14px;
+      overflow-wrap: break-word;
+      word-break: break-word;
+    }
+
+    .module-message__reply-to--outgoing,
+    .module-message__forward-header--outgoing,
+    .module-message__forward-from--outgoing {
+      color: $app-color-text-secondary-dark;
+      font-size: 12px;
+      line-height: 14px;
+      overflow-wrap: break-word;
+      word-break: break-word;
+    }
+
+    .module-message__forward-header-origin-time {
+      margin-left: 5px;
+      font-size: 10px;
+      color: $color-white-06;
+    }
+
+    .module-message__forward-header-origin-time--incoming {
+      color: $color-gray-45;
+    }
+
+    .module-expire-timer {
+      background-color: $color-white-08;
+    }
+
+    .module-expire-timer--incoming {
+      background-color: $color-gray-25;
+    }
+
+    .module-quote--outgoing {
+      background-color: #82c1fc33;
+    }
+
+    .module-quote--incoming {
+      border-left-color: $app-color-text-info-dark;
+      background-color: #82c1fc33;
+    }
+
+    .module-quote__primary__author {
+      color: $color-gray-05;
+    }
+
+    .module-quote__primary__text {
+      color: $color-gray-05;
+      a {
+        color: $color-gray-05;
+      }
+    }
+
+    .module-quote__primary__type-label {
+      color: $color-gray-05;
+    }
+
+    .module-quote__primary__type-label--incoming {
+      color: $color-gray-05;
+    }
+
+    .module-quote__primary__author--incoming {
+      color: $color-gray-05;
+    }
+
+    .module-quote__primary__text--incoming {
+      color: $color-gray-05;
+      a {
+        color: $color-gray-05;
+      }
+    }
+
+    .module-quote__generic-file__text {
+      color: $color-gray-05;
+    }
+
+    .module-quote__generic-file__text--incoming {
+      color: $color-gray-05;
+    }
+
+    .module-quote__reference-warning {
+      background-color: $color-white-04;
+    }
+
+    .module-quote__reference-warning--incoming {
+      background-color: $color-signal-blue-050;
+    }
+
+    .module-quote__reference-warning__text {
+      color: $color-gray-90;
+    }
+
+    .module-quote__reference-warning__text--incoming {
+      color: $color-gray-05;
+    }
+
+    .module-quote__reference-warning__icon {
+      @include color-svg('../images/broken-link.svg', $color-signal-blue);
+    }
+
+    .module-quote__reference-warning__icon--incoming {
+      @include color-svg('../images/broken-link.svg', $color-gray-75);
+    }
+
+    // When you're composing a new quote
+    .bottom-bar {
+      .module-quote__primary__author {
+        color: $color-gray-05;
+      }
+
+      .module-quote__primary__type-label {
+        color: $color-gray-05;
+      }
+
+      .module-quote__generic-file__text {
+        color: $color-gray-05;
+      }
+
+      .module-quote__primary__text {
+        color: $color-gray-05;
+        a {
+          color: $color-gray-05;
+        }
+      }
+    }
+
+    .module-embedded-contact-block {
+      border: 1px solid $app-color-line-dark;
+
+      .contact-card-title {
+        border-bottom: 1px solid $app-color-line-dark;
+        color: $app-color-text-secondary-dark;
+
+        .contact-icon {
+          @include color-svg(
+            '../images/contact-title.svg',
+            $app-color-text-secondary-dark
+          );
+        }
+      }
+    }
+
+    .module-embedded-contact__contact-name--incoming {
+      color: $color-gray-05;
+    }
+
+    .module-embedded-contact__contact-method--incoming {
+      color: $color-gray-25;
+    }
+
+    .module-spinner__circle--incoming {
+      background-color: $color-white-04;
+    }
+    .module-spinner__arc--incoming {
+      background-color: $color-gray-25;
+    }
+    .module-spinner__circle--small-incoming {
+      background-color: $color-white-04;
+    }
+    .module-spinner__arc--small-incoming {
+      background-color: $color-gray-25;
+    }
+
+    .module-spinner__circle--outgoing {
+      background-color: $color-white-04;
+    }
+    .module-spinner__arc--outgoing {
+      background-color: $color-gray-05;
+    }
+    .module-spinner__circle--small-outgoing {
+      background-color: $color-white-04;
+    }
+    .module-spinner__arc--small-outgoing {
+      background-color: $color-gray-05;
+    }
+  }
+}

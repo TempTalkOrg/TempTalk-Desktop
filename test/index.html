@@ -1,0 +1,416 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>TextSecure test runner</title>
+    <link rel="stylesheet" href="../node_modules/mocha/mocha.css" />
+    <link rel="stylesheet" href="../stylesheets/manifest.css" />
+  </head>
+
+  <body>
+    <div id="mocha"></div>
+    <div id="tests"></div>
+    <div
+      id="render-light-theme"
+      class="index"
+      style="width: 800; height: 500; margin: 10px; border: solid 1px black"
+    ></div>
+    <div
+      id="render-dark-theme"
+      class="index"
+      style="width: 800; height: 500; margin: 10px; border: solid 1px black"
+    ></div>
+
+    <script type="text/x-tmpl-mustache" id="app-lock-screen">
+      <div class='content'>
+        <img src='images/icon_256.png' height='150'>
+        <div class='message'>{{ message }}</div>
+        <span>{{ instructions }}</span>
+      </div>
+      {{ #action }}
+        <div class="action">
+          <button class='small blue {{ buttonClass }}'>{{ action }}</button>
+        </div>
+      {{/action }}
+    </script>
+
+    <script type="text/x-tmpl-mustache" id="app-loading-screen">
+      <div class='content'>
+        <img src='images/icon_256.png' height='150'>
+        <div class='container'>
+          <span class='dot'></span>
+          <span class='dot'></span>
+          <span class='dot'></span>
+        </div>
+        <div class='message'>{{ message }}</div>
+      </div>
+    </script>
+
+    <script type="text/x-tmpl-mustache" id="conversation-loading-screen">
+      <div class='content'>
+        <img src='images/icon_128.png'>
+        <div class='container'>
+          <span class='dot'></span>
+          <span class='dot'></span>
+          <span class='dot'></span>
+        </div>
+      </div>
+    </script>
+
+    <script type="text/x-tmpl-mustache" id="three-column">
+      <div class='gutter'>
+        <div class='network-status-container'></div>
+        <div class='left-pane-placeholder'></div>
+      </div>
+      <div class='conversation-stack'>
+        <div class='conversation placeholder'>
+          <div class='conversation-header'></div>
+          <div class='container'>
+            <div class='content'>
+              <img src='images/icon_128.png' />
+              <h3>{{ welcomeToDesktop }}</h3>
+              <p>{{ selectAContact }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class='lightbox-container'></div>
+    </script>
+
+    <script type="text/x-tmpl-mustache" id="expired_alert">
+      <a target='_blank' href='https://temptalk.app'>
+        <button class='upgrade'>{{ upgrade }}</button>
+      </a>
+      {{ expiredWarning }}
+    </script>
+
+    <script type="text/x-tmpl-mustache" id="toast">
+      {{ toastMessage }}
+    </script>
+
+    <script type="text/x-tmpl-mustache" id="conversation">
+      <div class='conversation-header'></div>
+      <div class='main panel'>
+        <div class='discussion-container'>
+            <div class='bar-container hide'>
+              <div class='bar active progress-bar-striped progress-bar'></div>
+            </div>
+        </div>
+
+        <div class='bottom-bar' id='footer'>
+            <div class='attachment-list'></div>
+            <div class='compose'>
+              <form class='send clearfix file-input'>
+                <div class='flex'>
+                  <button class='emoji'></button>
+                  <textarea class='send-message' placeholder='{{ send-message }}' rows='1' dir='auto'></textarea>
+                  <div class='capture-audio'>
+                      <button class='microphone'></button>
+                  </div>
+                  <div class='choose-file'>
+                      <button class='paperclip thumbnail'></button>
+                      <input type='file' class='file-input' multiple='multiple'>
+                  </div>
+                </div>
+              </form>
+            </div>
+        </div>
+      </div>
+    </script>
+
+    <script type="text/x-tmpl-mustache" id="message-list">
+      <div class='messages'></div>
+      <div class='typing-container'></div>
+    </script>
+
+    <script type="text/x-tmpl-mustache" id="recorder">
+      <button class='finish'><span class='icon'></span></button>
+      <span class='time'>0:00</span>
+      <button class='close'><span class='icon'></span></button>
+    </script>
+
+    <script type="text/x-tmpl-mustache" id="confirmation-dialog">
+      <div class="content">
+        <div class='message'>{{ message }}</div>
+        <div class='buttons'>
+          {{ #showCancel }}
+            <button class='cancel' tabindex='2'>{{ cancel }}</button>
+          {{ /showCancel }}
+          <button class='ok' tabindex='1'>{{ ok }}</button>
+        </div>
+      </div>
+    </script>
+
+    <script type="text/x-tmpl-mustache" id="identicon-svg">
+      <svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'>
+         <circle cx='50' cy='50' r='40' fill='{{ color }}' />
+          <text text-anchor='middle' fill='white' font-family='sans-serif' font-size='24px' x='50' y='50' baseline-shift='-8px'>
+              {{ content }}
+          </text>
+      </svg>
+    </script>
+
+    <script type="text/x-tmpl-mustache" id="phone-number">
+      <div class='phone-input-form'>
+          <div class='number-container'>
+              <input type='tel' class='number' placeholder="Phone Number" />
+          </div>
+      </div>
+    </script>
+
+    <script type="text/x-tmpl-mustache" id="file-size-modal">
+      {{ file-size-warning }}
+      ({{ limit }}{{ units }})
+    </script>
+
+    <script type="text/x-tmpl-mustache" id="attachment-type-modal">
+      Sorry, your attachment has a type, {{type}}, that is not currently supported.
+    </script>
+
+    <script type="text/x-tmpl-mustache" id="clear-data">
+      {{#isStep1}}
+      <div class='step'>
+        <div class='inner'>
+          <div class='step-body'>
+            <span class='banner-icon alert-outline-red'></span>
+            <div class='header'>{{ header }}</div>
+            <div class='body-text-wide'>{{ body }}</div>
+          </div>
+          <div class='nav'>
+            <div>
+              <a class='button neutral cancel'>{{ cancelButton }}</a>
+              <a class='button destructive delete-all-data'>{{ deleteButton }}</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      {{/isStep1}}
+      {{#isStep2}}
+      <div id='step3' class='step'>
+        <div class='inner'>
+          <div class='step-body'>
+            <span class='banner-icon delete'></span>
+            <div class='header'>{{ deleting }}</div>
+          </div>
+          <div class='progress'>
+            <div class='bar-container'>
+              <div class='bar progress-bar progress-bar-striped active'></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {{/isStep2}}
+    </script>
+
+    <script type="text/x-tmpl-mustache" id="networkStatus">
+      <div class='network-status-message'>
+        <h3>{{ message }}</h3>
+        <span>{{ instructions }}</span>
+      </div>
+      {{ #reconnectDurationAsSeconds }}
+      <div class="network-status-message">
+        {{ attemptingReconnectionMessage }}
+      </div>
+      {{/reconnectDurationAsSeconds }}
+      {{ #action }}
+        <div class="action">
+          <button class='small blue {{ buttonClass }}'>{{ action }}</button>
+        </div>
+      {{/action }}
+    </script>
+
+    <script type="text/x-tmpl-mustache" id="link-flow-template">
+      {{#isStep3}}
+      <div id='step3' class='step'>
+        <div class='inner'>
+          <div class='step-body'>
+            <div class='header'>{{ linkYourPhone }}</div>
+            <div id="qr">
+              <div class='container'>
+                <span class='dot'></span>
+                <span class='dot'></span>
+                <span class='dot'></span>
+              </div>
+            </div>
+          </div>
+          <div class='nav'>
+            <div class='instructions'>
+              <div class='android'>
+                <div class='label'>
+                  <span class='os-icon android'></span>
+                </div>
+                <div class='body'>
+                  <div>→ {{ desktopSettings }}</div>
+                  <div>→ {{ linkedDevices }}</div>
+                  <div>→ {{ androidFinalStep }}</div>
+                </div>
+              </div>
+              <div class='apple'>
+                <div class='label'>
+                  <span class='os-icon apple'></span>
+                </div>
+                <div class='body'>
+                  <div>→ {{ desktopSettings }}</div>
+                  <div>→ {{ linkedDevices }}</div>
+                  <div>→ {{ appleFinalStep }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {{/isStep3}}
+      {{#isStep4}}
+      <form id='link-phone'>
+        <div id='step4' class='step'>
+          <div class='inner'>
+            <div class='step-body'>
+              <span class='banner-icon lead-pencil'></span>
+              <div class='header'>{{ chooseName }}</div>
+              <div>
+                <input type='text' class='device-name' spellcheck='false' maxlength='50' />
+              </div>
+            </div>
+
+              <div class='nav'>
+                <div>
+                  <a class='button finish'>{{ finishLinkingPhoneButton }}</a>
+                </div>
+              </div>
+          </div>
+        </div>
+      </form>
+      {{/isStep4}}
+      {{#isStep5}}
+      <div id='step5' class='step'>
+        <div class='inner'>
+          <div class='step-body'>
+            <span class='banner-icon sync'></span>
+            <div class='header'>{{ syncing }}</div>
+          </div>
+          <div class='progress'>
+            <div class='bar-container'>
+              <div class='bar progress-bar progress-bar-striped active'></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {{/isStep5}}
+
+      {{#isError}}
+      <div id='error' class='step'>
+        <div class='inner'>
+          <div class='step-body'>
+            <span class='banner-icon alert-outline'></span>
+            <div class='header'>{{ errorHeader }}</div>
+            <div class='body'>{{ errorMessage }}</div>
+          </div>
+          <div class='nav'>
+            <a class='button try-again'>{{ errorButton }}</a>
+          </div>
+        </div>
+      </div>
+      {{/isError}}
+    </script>
+
+    <script type="text/x-tmpl-mustache" id="standalone">
+      <div class='step'>
+        <div class='inner'>
+          <div class='step-body'>
+            <img class='banner-image' src='images/icon_128.png' />
+            <div class='header'>Create your Difft Account</div>
+            <div id='phone-number-input'>
+              <div class='phone-input-form'>
+                  <div id='number-container' class='number-container'>
+                    <input type='tel' class='number' placeholder='Phone Number' />
+                  </div>
+              </div>
+            </div>
+            <div class='clearfix'>
+              <a class='button' id='request-sms'>Send SMS</a>
+              <a class='link' id='request-voice' tabindex=-1>Call</a>
+            </div>
+            <input class='form-control' type='text' pattern='\s*[0-9]{3}-?[0-9]{3}\s*' title='Enter your 6-digit verification code. If you did not receive a code, click Call or Send SMS to request a new one' id='code' placeholder='Verification Code' autocomplete='off'>
+            <div id='error' class='collapse'></div>
+            <div id=status></div>
+          </div>
+          <div class='nav'>
+            <a class='button' id='verifyCode' data-loading-text='Please wait...'>Register</a>
+          </div>
+        </div>
+      </div>
+    </script>
+
+    <script src="../libtextsecure/test/fake_web_api.js"></script>
+
+    <script src="../js/components.js"></script>
+    <script src="../js/reliable_trigger.js" data-cover></script>
+    <script src="test.js"></script>
+
+    <script src="../js/registration.js" data-cover></script>
+    <script src="../js/expire.js" data-cover></script>
+    <script src="../js/chromium.js" data-cover></script>
+    <script src="../js/storage.js" data-cover></script>
+    <script src="../js/signal_protocol_store.js" data-cover></script>
+    <script src="../js/libtextsecure.js" data-cover></script>
+
+    <script src="../js/models/messages.js" data-cover></script>
+    <script src="../js/models/conversations.js" data-cover></script>
+    <script src="../js/conversation_controller.js" data-cover></script>
+    <script src="../js/message_controller.js" data-cover></script>
+    <script src="../js/expiring_messages.js" data-cover></script>
+    <script src="../js/notifications.js" data-cover></script>
+    <script src="../js/focus_listener.js"></script>
+
+    <script src="../js/chromium.js" data-cover></script>
+
+    <script src="../js/views/react_wrapper_view.js"></script>
+    <script src="../js/views/whisper_view.js" data-cover></script>
+    <script src="../js/views/toast_view.js" data-cover></script>
+    <script src="../js/views/file_input_view.js" data-cover></script>
+    <script src="../js/views/timestamp_view.js" data-cover></script>
+    <script src="../js/views/message_view.js" data-cover></script>
+    <script src="../js/views/message_list_view.js" data-cover></script>
+    <script src="../js/views/recorder_view.js" data-cover></script>
+    <script src="../js/views/conversation_view.js" data-cover></script>
+    <script src="../js/views/hint_view.js" data-cover></script>
+    <script src="../js/views/inbox_view.js" data-cover></script>
+    <script src="../js/views/network_status_view.js"></script>
+    <script src="../js/views/confirmation_dialog_view.js" data-cover></script>
+    <script src="../js/views/identicon_svg_view.js" data-cover></script>
+    <script src="../js/views/last_seen_indicator_view.js" data-cover></script>
+    <script src="../js/views/scroll_down_button_view.js" data-cover></script>
+    <script src="../js/views/clear_data_view.js"></script>
+
+    <script src="metadata/SecretSessionCipher_test.js"></script>
+
+    <script src="views/whisper_view_test.js"></script>
+    <script src="views/timestamp_view_test.js"></script>
+    <script src="views/inbox_view_test.js"></script>
+    <script src="views/network_status_view_test.js"></script>
+    <script src="views/last_seen_indicator_view_test.js"></script>
+    <script src="views/scroll_down_button_view_test.js"></script>
+
+    <script src="models/conversations_test.js"></script>
+    <script src="models/messages_test.js"></script>
+
+    <script src="conversation_controller_test.js"></script>
+    <script src="storage_test.js"></script>
+    <script src="keychange_listener_test.js"></script>
+    <script src="reliable_trigger_test.js"></script>
+    <script src="crypto_test.js"></script>
+    <script src="i18n_test.js"></script>
+
+    <script src="fixtures.js"></script>
+    <script src="fixtures_test.js"></script>
+
+    <!-- Comment out to turn off code coverage. Useful for getting real callstacks. -->
+    <!--   NOTE: blanket doesn't support modern syntax and will choke until we find a replacement. :0( -->
+    <!-- <script src="blanket_mocha.js"></script> -->
+
+    <!-- Uncomment to start tests without code coverage enabled -->
+    <script>
+      mocha.run();
+    </script>
+  </body>
+</html>

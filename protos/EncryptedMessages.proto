@@ -1,0 +1,9 @@
+package signalservice;
+
+message EncryptedContent {
+  optional uint32 version     = 1;
+  optional bytes cipherText   = 2;
+  optional bytes signedEKey   = 3;
+  optional bytes eKey         = 4;
+  optional bytes identityKey  = 5;
+}

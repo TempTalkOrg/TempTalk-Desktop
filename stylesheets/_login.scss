@@ -1,0 +1,87 @@
+.login-view-wrapper,
+.login-page-root {
+  height: 100%;
+  width: 100%;
+}
+
+.login-page-root {
+  background-image: url('../images/message-bg-dark.png');
+  background-size: cover;
+}
+
+.qr-login-container {
+  height: 67.7%;
+  width: 84%;
+  min-height: 250px;
+  min-width: 750px;
+  padding: 50px;
+  position: absolute;
+  background-color: #1e2329;
+  border-radius: 8px;
+  app-region: none;
+  margin: auto;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 64px;
+
+  .ant-qrcode {
+    padding: 4px;
+  }
+
+  .guide {
+    text-align: left;
+  }
+
+  .guide-title {
+    font-size: 24px;
+    font-weight: 590;
+    line-height: 32px;
+    color: #eaecef;
+  }
+
+  .guide-steps {
+    margin-top: 16px;
+
+    .guide-step-item {
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 20px;
+      color: #eaecef;
+      display: flex;
+      align-items: center;
+    }
+  }
+}
+
+.qr-login-error {
+  height: 100%;
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+
+  .ant-result-title,
+  .ant-result-subtitle {
+    color: #eaecef;
+  }
+
+  .ant-result-title,
+  .ant-result-subtitle,
+  .ant-result-extra {
+    -webkit-app-region: no-drag;
+  }
+}
+
+.scan-icon {
+  -webkit-app-region: no-drag;
+  @include color-svg('../images/scan-icon.svg', #eaecef);
+  height: 12px;
+  width: 12px;
+  display: inline-block;
+  margin-left: 3px;
+}
+
+.syncing-data-spin {
+  background-color: #1e2329;
+}

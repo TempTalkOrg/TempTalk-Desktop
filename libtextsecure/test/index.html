@@ -1,0 +1,55 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>libtextsecure test runner</title>
+    <link rel="stylesheet" href="../../node_modules/mocha/mocha.css" />
+  </head>
+  <body>
+    <div id="mocha"></div>
+    <div id="tests"></div>
+
+    <script src="fake_web_api.js"></script>
+
+    <script src="test.js"></script>
+    <script src="in_memory_signal_protocol_store.js"></script>
+
+    <script src="../components.js"></script>
+    <script src="../libsignal-protocol.js"></script>
+    <script src="../crypto.js"></script>
+    <script src="../protobufs.js" data-cover></script>
+    <script src="../errors.js" data-cover></script>
+    <script src="../storage.js" data-cover></script>
+    <script src="../protocol_wrapper.js" data-cover></script>
+
+    <script src="../event_target.js" data-cover></script>
+    <script src="../websocket-resources.js" data-cover></script>
+    <script src="../helpers.js" data-cover></script>
+    <script src="../stringview.js" data-cover></script>
+    <script src="../api.js"></script>
+    <script src="../sendmessage.js" data-cover></script>
+    <script src="../account_manager.js" data-cover></script>
+    <script src="../contacts_parser.js" data-cover></script>
+    <script src="../task_with_timeout.js" data-cover></script>
+
+    <script src="errors_test.js"></script>
+    <script src="helpers_test.js"></script>
+    <script src="storage_test.js"></script>
+    <script src="crypto_test.js"></script>
+    <script src="protocol_wrapper_test.js"></script>
+    <script src="contacts_parser_test.js"></script>
+    <script src="generate_keys_test.js"></script>
+    <script src="websocket-resources_test.js"></script>
+    <script src="task_with_timeout_test.js"></script>
+    <script src="account_manager_test.js"></script>
+
+    <!-- Comment out to turn off code coverage. Useful for getting real callstacks. -->
+    <!--   NOTE: blanket doesn't support modern syntax and will choke until we find a replacement. :0( -->
+    <!-- <script src="blanket_mocha.js"></script> -->
+
+    <!-- Uncomment to start tests without code coverage enabled -->
+    <script>
+      mocha.run();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,351 @@
+{
+  "name": "temptalk-desktop",
+  "productName": "TempTalk",
+  "description": "TempTalk Desktop",
+  "repository": "https://github.com/TempTalkOrg/TempTalk-Desktop.git",
+  "version": "2.7.25091901",
+  "license": "GPL-3.0",
+  "author": {
+    "name": "TempTalk Developer Team",
+    "email": "support@temptalk.app"
+  },
+  "main": "main.js",
+  "scripts": {
+    "postinstall": "patch-package && electron-builder install-app-deps && rimraf node_modules/dtrace-provider",
+    "proxy_start": "cross-env https_proxy=http://127.0.0.1:8888 electron .",
+    "start": "electron .",
+    "dev": "electron . & grunt watch",
+    "start-with-remote-debugging": "electron . --remote-debugging-port=9222",
+    "grunt": "grunt",
+    "generate": "yarn grunt",
+    "watch": "grunt watch",
+    "generate-ci": "yarn grunt ci",
+    "build": "electron-builder --config.extraMetadata.environment=$SIGNAL_ENV",
+    "build:release": "cross-env SIGNAL_ENV=production npm run build -- --config.directories.output=release --publish=never",
+    "build-release": "yarn build:release",
+    "sign-release": "node ts/updater/generateSignature.js",
+    "notarize": "node ts/build/notarize.js",
+    "build-module-protobuf": "pbjs --target static-module --wrap commonjs --out ts/protobuf/compiled.js protos/*.proto && pbts --out ts/protobuf/compiled.d.ts ts/protobuf/compiled.js",
+    "clean-module-protobuf": "rm -f ts/protobuf/compiled.d.ts ts/protobuf/compiled.js",
+    "build-protobuf": "yarn build-module-protobuf",
+    "clean-protobuf": "yarn clean-module-protobuf",
+    "prepare-test-build": "node prepare_test_build.js",
+    "prepare-linux-build": "node prepare_linux_build.js",
+    "prepare-windows-build": "node prepare_windows_build.js",
+    "test": "yarn test-node && yarn test-electron",
+    "test-electron": "yarn grunt test",
+    "test-node": "mocha --recursive test/app test/modules ts/test",
+    "test-node-coverage": "nyc --reporter=lcov --reporter=text mocha --recursive test/app test/modules ts/test",
+    "eslint": "eslint .",
+    "lint": "yarn format --list-different && yarn lint-windows",
+    "lint-windows": "yarn eslint",
+    "lint-deps": "node ts/util/lint/linter.js",
+    "format": "pprettier --write '**/*.{ts,tsx,d.ts,js,json,scss,html}'",
+    "transpile": "tsc",
+    "clean-transpile": "rimraf ts/**/*.js && rimraf ts/*.js && rimraf tsconfig.tsbuildinfo",
+    "open-coverage": "open coverage/lcov-report/index.html",
+    "ready": "yarn clean-transpile && yarn grunt && yarn lint && yarn test-node && yarn test-electron && yarn lint-deps",
+    "svgr": "yarn svgr:cleanup && yarn svgr:generate",
+    "svgr:cleanup": "rimraf -I -g ./ts/components/shared/icons/*.{tsx,ts}",
+    "svgr:generate": "svgr --config-file scripts/svg/svgr.config.js --svgo-config scripts/svg/svgo.config.js ./ts/components/shared/icons/raw"
+  },
+  "dependencies": {
+    "@cc-kit/node-screenshots": "0.2.9",
+    "@cc-kit/react-screenshots": "1.0.5",
+    "@cc-livekit/components-styles": "3.0.45",
+    "@cc-livekit/denoise-plugin": "1.0.5",
+    "@cc-livekit/livekit-client": "2.15.15",
+    "@electron/remote": "2.1.2",
+    "@emoji-mart/data": "1.2.1",
+    "@emoji-mart/react": "1.1.1",
+    "@lottiefiles/dotlottie-web": "0.47.0",
+    "@react-spring/web": "9.7.4",
+    "@signalapp/better-sqlite3": "8.8.1",
+    "@use-gesture/react": "10.3.1",
+    "ahooks": "3.8.4",
+    "antd": "5.22.7",
+    "backbone": "1.6.0",
+    "blob-util": "2.0.2",
+    "blueimp-canvas-to-blob": "3.29.0",
+    "blueimp-load-image": "5.16.0",
+    "bs58": "5.0.0",
+    "bunyan": "1.8.15",
+    "chokidar": "3.6.0",
+    "classnames": "2.5.1",
+    "config": "3.3.12",
+    "dashdash": "1.14.1",
+    "electron-context-menu": "3.6.1",
+    "electron-is-dev": "0.3.0",
+    "emoji-mart": "5.6.0",
+    "emoji-regex": "10.4.0",
+    "encoding": "0.1.13",
+    "file-saver": "2.0.5",
+    "filesize": "3.6.1",
+    "firstline": "1.2.1",
+    "fs-extra": "11.3.0",
+    "glob": "7.1.2",
+    "google-libphonenumber": "3.2.40",
+    "got": "11.8.6",
+    "humanize-duration": "3.32.1",
+    "jotai": "2.12.1",
+    "jquery": "3.7.1",
+    "jquery-migrate": "3.5.2",
+    "js-yaml": "3.14.1",
+    "linkify-it": "2.2.0",
+    "lodash": "4.17.21",
+    "mkdirp": "1.0.4",
+    "moment": "2.30.1",
+    "mustache": "2.3.2",
+    "node-fetch": "2.6.7",
+    "os-locale": "5.0.0",
+    "p-queue": "6.6.2",
+    "pify": "3.0.0",
+    "polygon-clipping": "0.15.7",
+    "protobufjs": "6.11.4",
+    "proxy-agent": "6.5.0",
+    "rc-progress": "3.5.1",
+    "react": "17.0.2",
+    "react-aria": "3.40.0",
+    "react-dom": "17.0.2",
+    "react-draggable": "4.4.6",
+    "react-redux": "7.2.9",
+    "react-virtualized": "9.22.5",
+    "read-last-lines": "1.8.0",
+    "redux": "4.1.2",
+    "redux-logger": "3.0.6",
+    "redux-promise-middleware": "6.1.3",
+    "reselect": "4.1.8",
+    "rimraf": "2.7.1",
+    "rxjs": "7.8.1",
+    "sanitize-filename": "1.6.3",
+    "semver": "5.7.2",
+    "tar": "6.2.1",
+    "threads": "1.7.0",
+    "tmp": "0.2.5",
+    "to-arraybuffer": "1.0.1",
+    "underscore": "1.13.7",
+    "use-async-effect": "2.2.7",
+    "usehooks-ts": "3.1.0",
+    "uuid": "11.1.0",
+    "websocket": "1.0.35"
+  },
+  "devDependencies": {
+    "@electron/asar": "3.2.18",
+    "@electron/fuses": "1.8.0",
+    "@electron/notarize": "2.5.0",
+    "@rdil/parallel-prettier": "3.0.0",
+    "@svgr/cli": "8.1.0",
+    "@types/better-sqlite3": "7.6.12",
+    "@types/blueimp-load-image": "5.16.6",
+    "@types/chai": "4.3.20",
+    "@types/config": "3.3.5",
+    "@types/dashdash": "1.14.3",
+    "@types/file-saver": "2.0.5",
+    "@types/filesize": "3.6.0",
+    "@types/fs-extra": "11.0.4",
+    "@types/google-libphonenumber": "7.4.30",
+    "@types/humanize-duration": "3.27.4",
+    "@types/jquery": "3.5.32",
+    "@types/js-yaml": "3.12.5",
+    "@types/linkify-it": "2.1.0",
+    "@types/lodash": "4.17.16",
+    "@types/mkdirp": "1.0.2",
+    "@types/mocha": "10.0.10",
+    "@types/node": "22.x",
+    "@types/pify": "3.0.2",
+    "@types/react": "17.0.83",
+    "@types/react-dom": "17.0.26",
+    "@types/react-redux": "7.1.34",
+    "@types/react-virtualized": "9.22.2",
+    "@types/redux-logger": "3.0.9",
+    "@types/rimraf": "2.0.4",
+    "@types/semver": "5.5.0",
+    "@types/sinon": "10.0.3",
+    "@types/tar": "6.1.13",
+    "@types/uuid": "10.0.0",
+    "bower": "1.8.14",
+    "chai": "4.5.0",
+    "cross-env": "7.0.3",
+    "electron": "36.9.1",
+    "electron-builder": "26.0.12",
+    "eslint": "8.27.0",
+    "eslint-config-prettier": "8.3.0",
+    "eslint-plugin-mocha": "9.0.0",
+    "eslint-plugin-more": "1.0.5",
+    "grunt": "1.6.1",
+    "grunt-cli": "1.5.0",
+    "grunt-contrib-concat": "2.1.0",
+    "grunt-contrib-copy": "1.0.0",
+    "grunt-contrib-watch": "1.1.0",
+    "grunt-exec": "3.0.0",
+    "grunt-gitinfo": "0.1.9",
+    "grunt-sass": "3.1.0",
+    "mocha": "10.8.2",
+    "node-gyp": "11.2.0",
+    "nyc": "15.1.0",
+    "patch-package": "8.0.0",
+    "prettier": "3.3.3",
+    "prop-types": "15.8.1",
+    "sass": "1.79.6",
+    "sinon": "15.0.1",
+    "ts-node": "10.9.2",
+    "typescript": "5.6.3"
+  },
+  "resolutions": {
+    "**/getobject": "1.1.1"
+  },
+  "engines": {
+    "node": "22.19.0"
+  },
+  "build": {
+    "appId": "org.difft.chative-desktop",
+    "protocols": {
+      "name": "weekly_protocol_name",
+      "schemes": [
+        "chative",
+        "temptalk"
+      ]
+    },
+    "afterPack": "ts/build/after-pack.js",
+    "afterSign": "ts/build/after-sign.js",
+    "mac": {
+      "artifactName": "${name}-mac-${arch}-latest.${ext}",
+      "category": "public.app-category.social-networking",
+      "icon": "build/icons/mac/icon.icns",
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.plist",
+      "releaseInfo": {
+        "vendor": {
+          "minOSVersion": "20.0.0"
+        }
+      },
+      "target": [
+        {
+          "target": "zip",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        },
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
+      "bundleVersion": "1"
+    },
+    "pkg": {
+      "isRelocatable": false,
+      "isVersionChecked": false
+    },
+    "dmg": {
+      "sign": false
+    },
+    "win": {
+      "artifactName": "${name}-win-latest.${ext}",
+      "icon": "build/icons/win/icon.ico",
+      "releaseInfo": {
+        "vendor": {
+          "minOSVersion": "10.0.10240"
+        }
+      },
+      "target": [
+        "nsis"
+      ]
+    },
+    "linux": {
+      "category": "Network;InstantMessaging;Chat",
+      "artifactName": "${name}-${os}-${arch}-latest.${ext}",
+      "executableName": "TempTalk",
+      "target": [
+        {
+          "target": "rpm",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "deb",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icons/png"
+    },
+    "deb": {
+      "packageName": "temptalk",
+      "depends": [
+        "libnotify4",
+        "libxtst6",
+        "libnss3",
+        "libasound2",
+        "libxss1"
+      ]
+    },
+    "rpm": {
+      "packageName": "temptalk",
+      "fpm": [
+        "--rpm-rpmbuild-define=_build_id_links none"
+      ]
+    },
+    "asarUnpack": [
+      "**/*.node"
+    ],
+    "files": [
+      "package.json",
+      "config/default.json",
+      "config/${env.SIGNAL_ENV}.json",
+      "config/local-${env.SIGNAL_ENV}.json",
+      "background.html",
+      "about.html",
+      "local_search.html",
+      "local_search_preload.js",
+      "permissions_popup.html",
+      "livekit/**/*",
+      "_locales/**",
+      "image-gallery/**/*",
+      "protos/*",
+      "js/**",
+      "ts/**/*.js",
+      "ts/*.js",
+      "stylesheets/*.css",
+      "!js/register.js",
+      "app/*",
+      "preload.js",
+      "about_preload.js",
+      "permissions_popup_preload.js",
+      "main.js",
+      "audio/**/*",
+      "images/**",
+      "lotties/**",
+      "build/assets",
+      "node_modules/**",
+      "!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme,test,__tests__,tests,powered-test,example,examples,*.d.ts}",
+      "!**/node_modules/.bin",
+      "!**/node_modules/*/build/**",
+      "!**/*.{o,hprof,orig,pyc,pyo,rbc,c,h,m,map}",
+      "!**/._*",
+      "!**/{.DS_Store,.git,.hg,.svn,CVS,RCS,SCCS,__pycache__,thumbs.db,.gitignore,.gitattributes,.editorconfig,.flowconfig,.yarn-metadata.json,.idea,appveyor.yml,.travis.yml,circle.yml,npm-debug.log,.nyc_output,yarn.lock,.yarn-integrity}",
+      "node_modules/yuv-canvas/build/shaders.js",
+      "node_modules/websocket/build/Release/*.node",
+      "node_modules/socks/build/*.js",
+      "node_modules/socks/build/common/*.js",
+      "node_modules/socks/build/client/*.js",
+      "node_modules/smart-buffer/build/*.js",
+      "!node_modules/@signalapp/better-sqlite3/deps/*",
+      "!node_modules/@signalapp/better-sqlite3/src/*",
+      "!node_modules/@signalapp/better-sqlite3/build/**/*",
+      "node_modules/@signalapp/better-sqlite3/build/Release/better_sqlite3.node",
+      "node_modules/human-signals/build/src/*.js",
+      "lib-crypto-client/${platform}/${arch}/index.node",
+      "separate-message-viewer/**/*",
+      "node_modules/react-draggable/build/**/*.js"
+    ]
+  }
+}

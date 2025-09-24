@@ -1,0 +1,89 @@
+<!doctype html>
+<html>
+  <head>
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none';
+            child-src 'self';
+            connect-src 'self' https: wss:;
+            font-src 'self';
+            form-action 'self';
+            frame-src 'none';
+            img-src 'self' blob: data:;
+            media-src 'self' blob:;
+            object-src 'none';
+            script-src 'self';
+            style-src 'self' 'unsafe-inline';"
+    />
+    <link href="stylesheets/manifest.css" rel="stylesheet" type="text/css" />
+    <style>
+      body {
+        text-align: center;
+        color: rgb(88, 88, 88);
+        font-size: 14px;
+        -webkit-app-region: drag;
+        user-select: none;
+
+        .about-body {
+          background-color: rgb(246, 246, 246);
+        }
+      }
+
+      img {
+        margin-top: 4em;
+        margin-bottom: 1em;
+        width: 110px;
+        height: 110px;
+        -webkit-app-region: no-drag;
+      }
+
+      a {
+        -webkit-app-region: no-drag;
+        color: #2090ea;
+      }
+
+      .app-name {
+        -webkit-app-region: no-drag;
+        font-size: 32px;
+        padding: 0;
+        margin: 0;
+      }
+
+      .version {
+        margin: 1em;
+        font-size: 14px;
+        color: black;
+        user-select: text;
+        -webkit-app-region: no-drag;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div style="height: 100%; overflow: auto" class="about-body">
+      <img src="images/icon_128.png" />
+      <div class="app-name">TempTalk</div>
+      <div class="version"></div>
+      <div class="check-for-update" style="margin: 1em">
+        <a href="" id="check-for-update">Check for Updates</a>
+      </div>
+      <div class="environment"></div>
+      <div>
+        <a href="https://temptalk.app"
+          >Visit temptalk.app for more information</a
+        >
+      </div>
+      <br />
+      <div style="display: none">
+        <a class="privacy" href="https://temptalk.app/legal.html"
+          >Terms &amp; Privacy Policy</a
+        >
+      </div>
+      <div>Copyright © 2021-2025 TempTalk. All rights reserved.</div>
+      <div id="magic-box"></div>
+    </div>
+    <script src="js/components.js"></script>
+    <script src="js/views/react_wrapper_view.js"></script>
+    <script src="js/about_start.js"></script>
+  </body>
+</html>

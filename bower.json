@@ -1,0 +1,61 @@
+{
+  "name": "temptalk-desktop",
+  "version": "0.0.0",
+  "homepage": "https://github.com/TempTalkOrg/TempTalk-Desktop",
+  "license": "GPLV3",
+  "private": true,
+  "dependencies": {
+    "autosize": "~4.0.0",
+    "mp3lameencoder": "https://github.com/higuma/mp3-lame-encoder-js.git",
+    "protobuf": "~3.8.0",
+    "webaudiorecorder": "https://github.com/higuma/web-audio-recorder-js.git"
+  },
+  "devDependencies": {
+    "mock-socket": "~0.3.2"
+  },
+  "preen": {
+    "autosize": [
+      "dist/autosize.js"
+    ],
+    "bytebuffer": [
+      "dist/ByteBufferAB.js"
+    ],
+    "long": [
+      "dist/Long.js"
+    ],
+    "mock-socket": [
+      "dist/mock-socket.js"
+    ],
+    "mp3lameencoder": [
+      "lib/Mp3LameEncoder.js"
+    ],
+    "protobuf": [
+      "dist/ProtoBuf.js"
+    ],
+    "webaudiorecorder": [
+      "lib/WebAudioRecorder.js",
+      "lib/WebAudioRecorderMp3.js"
+    ]
+  },
+  "concat": {
+    "app": [
+      "node_modules/jquery/dist/jquery.js",
+      "node_modules/jquery-migrate/dist/jquery-migrate.js",
+      "js/jquery-migrate/jquery-migrate.js",
+      "components/long/**/*.js",
+      "components/bytebuffer/**/*.js",
+      "components/protobuf/**/*.js",
+      "node_modules/mustache/mustache.js",
+      "node_modules/underscore/underscore.js",
+      "node_modules/backbone/backbone.js",
+      "node_modules/intl-tel-input/build/js/intlTelInput.js",
+      "components/autosize/**/*.js",
+      "components/webaudiorecorder/lib/WebAudioRecorder.js"
+    ],
+    "libtextsecure": [
+      "components/long/**/*.js",
+      "components/bytebuffer/**/*.js",
+      "components/protobuf/**/*.js"
+    ]
+  }
+}

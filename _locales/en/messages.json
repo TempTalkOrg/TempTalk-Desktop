@@ -1,0 +1,3057 @@
+{
+  "lang": {
+    "message": "en"
+  },
+  "privacyPolicy": {
+    "message": "Terms & Privacy Policy",
+    "description": "Shown in the about box for the legal link"
+  },
+  "copyErrorAndQuit": {
+    "message": "Copy error and quit",
+    "description": "Shown in the top-level error popup, allowing user to copy the error text and close the app"
+  },
+  "unknownGroup": {
+    "message": "Unknown group",
+    "description": "Shown as the name of a group if we don't have any information about it"
+  },
+  "databaseError": {
+    "message": "Database Error",
+    "description": "Shown in a popup if the database cannot start up properly"
+  },
+  "deleteAndRestart": {
+    "message": "Delete all data and restart",
+    "description": "Shown in a popup if the database cannot start up properly; allows user to dalete database and restart"
+  },
+  "safetyTip": {
+    "message": "Safety Tip"
+  },
+  "greyLink": {
+    "message": "Not sure if this link is safe. Are you sure to open it?"
+  },
+  "redLink": {
+    "message": "This link is confirmed to be a malicious link. We have blocked the access."
+  },
+  "greyFile": {
+    "message": "Not sure if this file is safe. Are you sure to download?"
+  },
+  "ublockFriendMessage": {
+    "message": "Are you sure you want to do this?"
+  },
+  "redFile": {
+    "message": "This file is confirmed to be a malicious file. We have blocked the access."
+  },
+  "open": {
+    "message": "Open"
+  },
+  "understand": {
+    "message": "I understand"
+  },
+  "mainMenuFile": {
+    "message": "&File",
+    "description": "The label that is used for the File menu in the program main menu. The '&' indicates that the following letter will be used as the keyboard 'shortcut letter' for accessing the menu with the Alt-<letter> combination."
+  },
+  "mainMenuEdit": {
+    "message": "&Edit",
+    "description": "The label that is used for the Edit menu in the program main menu. The '&' indicates that the following letter will be used as the keyboard 'shortcut letter' for accessing the menu with the Alt-<letter> combination."
+  },
+  "mainMenuView": {
+    "message": "&View",
+    "description": "The label that is used for the View menu in the program main menu. The '&' indicates that the following letter will be used as the keyboard 'shortcut letter' for accessing the menu with the Alt-<letter> combination."
+  },
+  "mainMenuWindow": {
+    "message": "&Window",
+    "description": "The label that is used for the Window menu in the program main menu. The '&' indicates that the following letter will be used as the keyboard 'shortcut letter' for accessing the menu with the Alt-<letter> combination."
+  },
+  "mainMenuHelp": {
+    "message": "&Help",
+    "description": "The label that is used for the Help menu in the program main menu. The '&' indicates that the following letter will be used as the keyboard 'shortcut letter' for accessing the menu with the Alt-<letter> combination."
+  },
+  "mainMenuSettings": {
+    "message": "Preferences",
+    "description": "The label that is used for the Preferences menu in the program main menu. This should be consistent with the standard naming for ‘Preferences’ on the operating system."
+  },
+  "appMenuCheckForUpdates": {
+    "message": "Check for Updates"
+  },
+  "appMenuHide": {
+    "message": "Hide",
+    "description": "Application menu command to hide the window"
+  },
+  "appMenuHideOthers": {
+    "message": "Hide Others",
+    "description": "Application menu command to hide all other windows"
+  },
+  "appMenuUnhide": {
+    "message": "Show All",
+    "description": "Application menu command to show all application windows"
+  },
+  "appMenuQuit": {
+    "message": "Quit TempTalk",
+    "description": "Application menu command to close the application"
+  },
+  "editMenuUndo": {
+    "message": "Undo",
+    "description": "Edit menu command to remove recently-typed text"
+  },
+  "editMenuRedo": {
+    "message": "Redo",
+    "description": "Edit menu command to restore previously undone typed text"
+  },
+  "editMenuCut": {
+    "message": "Cut",
+    "description": "Edit menu command to remove selected text and add it to clipboard"
+  },
+  "editMenuCopy": {
+    "message": "Copy",
+    "description": "Edit menu command to add selected text to clipboard"
+  },
+  "editMenuPaste": {
+    "message": "Paste",
+    "description": "Edit menu command to insert text from clipboard at cursor location"
+  },
+  "editMenuPasteAndMatchStyle": {
+    "message": "Paste and Match Style",
+    "description": "Edit menu command to insert text from clipboard at cursor location, taking only text and not style information"
+  },
+  "editMenuDelete": {
+    "message": "Delete",
+    "description": "Edit menu command to remove the selected text"
+  },
+  "editMenuSelectAll": {
+    "message": "Select All",
+    "description": "Edit menu comand to select all of the text in selected text box"
+  },
+  "editMenuStartSpeaking": {
+    "message": "Start speaking",
+    "description": "Edit menu item under 'speech' to start dictation"
+  },
+  "editMenuStopSpeaking": {
+    "message": "Stop speaking",
+    "description": "Edit menu item under 'speech' to stop dictation"
+  },
+  "windowMenuClose": {
+    "message": "Close Window",
+    "description": "Window menu command to close the current window"
+  },
+  "windowMenuMinimize": {
+    "message": "Minimize",
+    "description": "Window menu command to minimize the current window"
+  },
+  "windowMenuZoom": {
+    "message": "Zoom",
+    "description": "Window menu command to make the current window the size of the whole screen"
+  },
+  "windowMenuBringAllToFront": {
+    "message": "Bring All to Front",
+    "description": "Window menu command to bring all windows of current applicatinon to front"
+  },
+  "viewMenuResetZoom": {
+    "message": "Actual Size",
+    "description": "View menu command to go back to the default zoom"
+  },
+  "viewMenuZoomIn": {
+    "message": "Zoom In",
+    "description": "View menu command to make everything bigger"
+  },
+  "viewMenuZoomOut": {
+    "message": "Zoom Out",
+    "description": "View menu command to make everything smaller"
+  },
+  "viewMenuToggleFullScreen": {
+    "message": "Toggle Full Screen",
+    "description": "View menu command to enter or leave Full Screen mode"
+  },
+  "viewMenuToggleDevTools": {
+    "message": "Toggle Developer Tools",
+    "description": "View menu command to show or hide the developer tools"
+  },
+  "menuSetupAsNewDevice": {
+    "message": "Set Up as New Device",
+    "description": "When the application is not yet set up, menu option to start up the set up as fresh device"
+  },
+  "menuSetupAsStandalone": {
+    "message": "Set Up as Standalone Device",
+    "description": "Only available on development modes, menu option to open up the standalone device setup sequence"
+  },
+  "loading": {
+    "message": "Loading...",
+    "description": "Message shown on the loading screen before we've loaded any messages"
+  },
+  "optimizingApplication": {
+    "message": "Optimizing application, this may take a few minutes...",
+    "description": "Message shown on the loading screen while we are doing application optimizations"
+  },
+  "migratingToSQLCipher": {
+    "message": "Optimizing messages... $status$ complete.",
+    "description": "Message shown on the loading screen while we are doing application optimizations",
+    "placeholders": {
+      "status": {
+        "content": "$1",
+        "example": "45/200"
+      }
+    }
+  },
+  "archivedConversations": {
+    "message": "Archived Conversations",
+    "description": "Shown in place of the search box when showing archived conversation list"
+  },
+  "archiveHelperText": {
+    "message": "These conversations are archived. They will appear in your inbox when you receive new messages.",
+    "description": "Shown at the top of the archived converations list in the left pane"
+  },
+  "archiveConversation": {
+    "message": "Archive Conversation",
+    "description": "Shown in menu for conversation, and moves conversation out of main conversation list"
+  },
+  "moveConversationToInbox": {
+    "message": "Move Conversation to Inbox",
+    "description": "Undoes Archive Conversation action, and moves archived conversation back to the main conversation list"
+  },
+  "chooseDirectory": {
+    "message": "Choose folder",
+    "description": "Button to allow the user to find a folder on disk"
+  },
+  "chooseFile": {
+    "message": "Choose file",
+    "description": "Button to allow the user to find a file on disk"
+  },
+  "loadingMessages": {
+    "message": "Loading messages. $count$ so far...",
+    "description": "Message shown on the loading screen when we're catching up on the backlog of messages",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "me": {
+    "message": "Me",
+    "description": "The label for yourself when shown in a group member list"
+  },
+  "view": {
+    "message": "View",
+    "description": "Used as a label on a button allowing user to see more information"
+  },
+  "youJoinedTheGroup": {
+    "message": "You joined the group",
+    "description": "Displayed when a user can't send a message because they have joined the group"
+  },
+  "youLeftTheGroup": {
+    "message": "You left the group.All the messages have been deleted.",
+    "description": "Displayed when a user can't send a message because they have left the group"
+  },
+  "youWereRemovedFromTheGroup": {
+    "message": "You have been removed from the group. All the messages have been deleted.",
+    "description": "Displayed when you were removed from the group by administrator"
+  },
+  "scrollDown": {
+    "message": "Scroll to bottom of conversation",
+    "description": "Alt text for button to take user down to bottom of conversation, shown when user scrolls up"
+  },
+  "messageBelow": {
+    "message": "New message below",
+    "description": "Alt text for button to take user down to bottom of conversation with a new message out of screen"
+  },
+  "messagesBelow": {
+    "message": "New messages below",
+    "description": "Alt text for button to take user down to bottom of conversation with more than one message out of screen"
+  },
+  "unreadMessage": {
+    "message": "1 Unread Message",
+    "description": "Text for unread message separator, just one message"
+  },
+  "unreadMessages": {
+    "message": "$count$ Unread Messages",
+    "description": "Text for unread message separator, with count",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "youMarkedAsVerified": {
+    "message": "You marked your Safety Number with $name$ as verified",
+    "description": "Shown in the conversation history when the user marks a contact as verified.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Bob"
+      }
+    }
+  },
+  "youMarkedAsNotVerified": {
+    "message": "You marked your Safety Number with $name$ as not verified",
+    "description": "Shown in the conversation history when the user marks a contact as not verified, whether on the Safety Number screen or by dismissing a banner or dialog.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Bob"
+      }
+    }
+  },
+  "youMarkedAsVerifiedOtherDevice": {
+    "message": "You marked your Safety Number with $name$ as verified from another device",
+    "description": "Shown in the conversation history when we discover that the user marked a contact as verified on another device.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Bob"
+      }
+    }
+  },
+  "youMarkedAsNotVerifiedOtherDevice": {
+    "message": "You marked your Safety Number with $name$ as not verified from another device",
+    "description": "Shown in the conversation history when we discover that the user marked a contact as not verified on another device.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Bob"
+      }
+    }
+  },
+  "membersNeedingVerification": {
+    "message": "Your safety numbers with these group members have changed since you last verified. Click a group member to see your new safety number with them.",
+    "description": "When there are multiple previously-verified group members with safety number changes, a banner will be shown. The list of contacts with safety number changes is shown, and this text introduces that list."
+  },
+  "changedSinceVerifiedMultiple": {
+    "message": "Your safety numbers with multiple group members have changed since you last verified. This could mean that someone is trying to intercept your communication or that they have simply reinstalled TempTalk.",
+    "description": "Shown on confirmation dialog when user attempts to send a message"
+  },
+  "changedSinceVerified": {
+    "message": "Your safety number with $name$ has changed since you last verified. This could mean that someone is trying to intercept your communication or that $name$ has simply reinstalled TempTalk.",
+    "description": "Shown on confirmation dialog when user attempts to send a message",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Bob"
+      }
+    }
+  },
+  "changedRightAfterVerify": {
+    "message": "The safety number you are trying to verify has changed. Please review your new safety number with $name$. Remember, this change could mean that someone is trying to intercept your communication or that $name$ has simply reinstalled TempTalk.",
+    "description": "Shown on the safety number screen when the user has selected to verify/unverify a contact's safety number, and we immediately discover a safety number change",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Bob"
+      }
+    }
+  },
+  "changedRecentlyMultiple": {
+    "message": "Your safety numbers with multiple group members have changed recently. This could mean that someone is trying to intercept your communication or that they have simply reinstalled TempTalk.",
+    "description": "Shown on confirmation dialog when user attempts to send a message"
+  },
+  "changedRecently": {
+    "message": "Your safety number with $name$ has changed recently. This could mean that someone is trying to intercept your communication or that $name$ has simply reinstalled TempTalk.",
+    "description": "Shown on confirmation dialog when user attempts to send a message",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Bob"
+      }
+    }
+  },
+  "identityKeyErrorOnSend": {
+    "message": "Your safety number with $name$ has changed. This could either mean that someone is trying to intercept your communication or that $name$ has simply reinstalled TempTalk. You may wish to verify your saftey number with this contact.",
+    "description": "Shown when user clicks on a failed recipient in the message detail view after an identity key change",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Bob"
+      }
+    }
+  },
+  "sendAnyway": {
+    "message": "Send Anyway",
+    "description": "Used on a warning dialog to make it clear that it might be risky to send the message."
+  },
+  "noLongerVerified": {
+    "message": "Your safety number with $name$ has changed and is no longer verified. Click to show.",
+    "description": "Shown in converation banner when user's safety number has changed, but they were previously verified.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Bob"
+      }
+    }
+  },
+  "multipleNoLongerVerified": {
+    "message": "Your safety numbers with multiple members of this group have changed and are no longer verified. Click to show.",
+    "description": "Shown in conversation banner when more than one group member's safety number has changed, but they were previously verified."
+  },
+  "reportIssue": {
+    "message": "Report an issue",
+    "description": "Link to open the issue tracker"
+  },
+  "gotIt": {
+    "message": "Got it!",
+    "description": "Label for a button that dismisses a dialog. The user clicks it to confirm that they understand the message in the dialog."
+  },
+  "submit": {
+    "message": "Submit"
+  },
+  "acceptNewKey": {
+    "message": "Accept",
+    "description": "Label for a button to accept a new safety number"
+  },
+  "verify": {
+    "message": "Mark as verified"
+  },
+  "unverify": {
+    "message": "Mark as not verified"
+  },
+  "isVerified": {
+    "message": "You have verified your safety number with $name$.",
+    "description": "Summary state shown at top of the safety number screen if user has verified contact.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Bob"
+      }
+    }
+  },
+  "isNotVerified": {
+    "message": "You have not verified your safety number with $name$.",
+    "description": "Summary state shown at top of the safety number screen if user has not verified contact.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Bob"
+      }
+    }
+  },
+  "verified": {
+    "message": "Verified"
+  },
+  "newIdentity": {
+    "message": "New safety number",
+    "description": "Header for a key change dialog"
+  },
+  "identityChanged": {
+    "message": "Your safety number with this contact has changed. This could either mean that someone is trying to intercept your communication, or this contact simply reinstalled TempTalk. You may wish to verify the new safety number below."
+  },
+  "incomingError": {
+    "message": "Error handling incoming message"
+  },
+  "media": {
+    "message": "Media",
+    "description": "Header of the default pane in the media gallery, showing images and videos"
+  },
+  "mediaEmptyState": {
+    "message": "You don’t have any media in this conversation",
+    "description": "Message shown to user in the media gallery when there are no messages with media attachments (images or video)"
+  },
+  "documents": {
+    "message": "Documents",
+    "description": "Header of the secondary pane in the media gallery, showing every non-media attachment"
+  },
+  "documentsEmptyState": {
+    "message": "You don’t have any documents in this conversation",
+    "description": "Message shown to user in the media gallery when there are no messages with document attachments (anything other than images or video)"
+  },
+  "today": {
+    "message": "Today",
+    "description": "Section header in the media gallery"
+  },
+  "yesterday": {
+    "message": "Yesterday",
+    "description": "Section header in the media gallery"
+  },
+  "thisWeek": {
+    "message": "This Week",
+    "description": "Section header in the media gallery"
+  },
+  "thisMonth": {
+    "message": "This Month",
+    "description": "Section header in the media gallery"
+  },
+  "unsupportedAttachment": {
+    "message": "Unsupported attachment type. Click to save.",
+    "description": "Displayed for incoming unsupported attachment"
+  },
+  "clickToSave": {
+    "message": "Click to save",
+    "description": "Hover text for attachment filenames"
+  },
+  "unnamedFile": {
+    "message": "Unnamed File",
+    "description": "Hover text for attachment filenames"
+  },
+  "voiceMessage": {
+    "message": "[Voice Message]",
+    "description": "Name for a voice message attachment"
+  },
+  "dangerousFileType": {
+    "message": "Attachment type not allowed for security reasons",
+    "description": "Shown in toast when user attempts to send .exe file, for example"
+  },
+  "stagedImageAttachment": {
+    "message": "Draft image attachment: $path$",
+    "description": "Alt text for staged attachments",
+    "placeholders": {
+      "path": {
+        "content": "$1",
+        "example": "dog.jpg"
+      }
+    }
+  },
+  "oneNonImageAtATimeToast": {
+    "message": "When including a non-image attachment, the limit is one attachment per message.",
+    "description": "An error popup when the user has attempted to add an attachment"
+  },
+  "cannotMixImageAdnNonImageAttachments": {
+    "message": "You cannot mix non-image and image attachments in one message.",
+    "description": "An error popup when the user has attempted to add an attachment"
+  },
+  "maximumAttachments": {
+    "message": "You cannot add any more attachments to this message.",
+    "description": "An error popup when the user has attempted to add an attachment"
+  },
+  "fileSizeWarning": {
+    "message": "Sorry, the selected file exceeds message size restrictions."
+  },
+  "unableToLoadAttachment": {
+    "message": "Unable to load selected attachment."
+  },
+  "disconnected": {
+    "message": "Disconnected",
+    "description": "Displayed when the desktop client cannot connect to the server."
+  },
+  "connecting": {
+    "message": "Connecting",
+    "description": "Displayed when the desktop client is currently connecting to the server."
+  },
+  "offline": {
+    "message": "Offline",
+    "description": "Displayed when the desktop client has no network connection."
+  },
+  "checkNetworkConnection": {
+    "message": "Check your network connection.",
+    "description": "Obvious instructions for when a user's computer loses its network connection"
+  },
+  "attemptingReconnection": {
+    "message": "Attempting reconnect in $reconnect_duration_in_seconds$ seconds",
+    "placeholders": {
+      "reconnect_duration_in_seconds": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "openLogFolder": {
+    "message": "Reveal Logs In Finder",
+    "description": "Reveal Logs In Finder"
+  },
+  "goToReleaseNotes": {
+    "message": "Go to Release Notes",
+    "description": ""
+  },
+  "goToForums": {
+    "message": "Go to Forums",
+    "description": "Item under the Help menu, takes you to the forums"
+  },
+  "goToSupportPage": {
+    "message": "Go to Support Page",
+    "description": "Item under the Help menu, takes you to the support page"
+  },
+  "menuReportIssue": {
+    "message": "Report an Issue",
+    "description": "Item under the Help menu, takes you to GitHub new issue form (title case)"
+  },
+  "desktopPreferences": {
+    "message": "TempTalk Desktop Preferences",
+    "description": "Title of the window that pops up with TempTalk Desktop preferences in it"
+  },
+  "aboutDesktop": {
+    "message": "About",
+    "description": "Item under the Help menu, which opens a small about window"
+  },
+  "helfAndFeedback": {
+    "message": "Help & Feedback"
+  },
+  "speech": {
+    "message": "Speech",
+    "description": "Item under the Edit menu, with 'start/stop speaking' items below it"
+  },
+  "show": {
+    "message": "Show",
+    "description": "Command under Window menu, to show the window"
+  },
+  "hide": {
+    "message": "Hide",
+    "description": "Command in the tray icon menu, to hide the window"
+  },
+  "quit": {
+    "message": "Quit",
+    "description": "Command in the tray icon menu, to quit the application"
+  },
+  "desktopTitle": {
+    "message": "TempTalk Desktop",
+    "description": "Tooltip for the tray icon"
+  },
+  "search": {
+    "message": "Search",
+    "description": "Placeholder text in the search input"
+  },
+  "noSearchResults": {
+    "message": "No results for \"$searchTerm$\"",
+    "description": "Shown in the search left pane when no results were found",
+    "placeholders": {
+      "searchTerm": {
+        "content": "$1",
+        "example": "dog"
+      }
+    }
+  },
+  "recentHeader": {
+    "message": "Recent",
+    "description": "Shown to separate the types of search results"
+  },
+  "conversationsHeader": {
+    "message": "Conversations",
+    "description": "Shown to separate the types of search results"
+  },
+  "contactsHeader": {
+    "message": "Contacts",
+    "description": "Shown to separate the types of search results"
+  },
+  "groupsHeader": {
+    "message": "Groups",
+    "description": "Shown to separate the types of search results"
+  },
+  "messagesHeader": {
+    "message": "Messages",
+    "description": "Shown to separate the types of search results"
+  },
+  "welcomeToDesktop": {
+    "message": "Welcome to TempTalk"
+  },
+  "selectAContact": {
+    "message": "Select a contact or group to start chatting."
+  },
+  "noTopic": {
+    "message": "No topic"
+  },
+  "sendTopic": {
+    "message": "Try and use \"/Topic\" to start a message"
+  },
+  "typingAlt": {
+    "message": "Typing animation for this conversation",
+    "description": "Used as the 'title' attibute for the typing animation"
+  },
+  "contactAvatarAlt": {
+    "message": "Avatar for contact $name$",
+    "description": "Used in the alt tag for the image avatar of a contact",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John"
+      }
+    }
+  },
+  "sendMessageToContact": {
+    "message": "Send Message",
+    "description": "Shown when you are sent a contact and that contact has a TempTalk account"
+  },
+  "home": {
+    "message": "home",
+    "description": "Shown on contact detail screen as a label for an address/phone/email"
+  },
+  "work": {
+    "message": "work",
+    "description": "Shown on contact detail screen as a label for an address/phone/email"
+  },
+  "mobile": {
+    "message": "mobile",
+    "description": "Shown on contact detail screen as a label for aa phone or email"
+  },
+  "email": {
+    "message": "email",
+    "description": "Generic label shown if contact email has custom type but no label"
+  },
+  "phone": {
+    "message": "phone",
+    "description": "Generic label shown if contact phone has custom type but no label"
+  },
+  "address": {
+    "message": "address",
+    "description": "Generic label shown if contact address has custom type but no label"
+  },
+  "signature": {
+    "message": "signature",
+    "description": "Generic label shown if contact with searching"
+  },
+  "poBox": {
+    "message": "PO Box",
+    "description": "When rendering an address, used to provide context to a post office box"
+  },
+  "downloading": {
+    "message": "Downloading",
+    "description": "Shown in the message bubble while a long message attachment is being downloaded"
+  },
+  "downloadAttachment": {
+    "message": "Download Attachment",
+    "description": "Shown in a message's triple-dot menu if there isn't room for a dedicated download button"
+  },
+  "replyToMessage": {
+    "message": "Quote",
+    "description": "Shown in triple-dot menu next to message to allow user to start crafting a message with a quotation"
+  },
+  "message": {
+    "message": "Message"
+  },
+  "forwardMessage": {
+    "message": "Forward",
+    "description": "Shown in triple-dot menu next to message to allow user to show forward dialog"
+  },
+  "forwardMessageToMe": {
+    "message": "Save",
+    "description": "Shown in triple-dot menu next to message to allow user to forward message to Note(myself)"
+  },
+  "selectMessages": {
+    "message": "Select...",
+    "description": "Shown in triple-dot menu next to message to allow user to select multiple messages"
+  },
+  "oneByOneForward": {
+    "message": "Forward",
+    "description": "Title for one by one forward button"
+  },
+  "combineAndForward": {
+    "message": "Combine and Forward",
+    "description": "Title for one by one forward button"
+  },
+  "saveToNoteForward": {
+    "message": "Save",
+    "description": "Title for save to note forward button"
+  },
+  "forwardedPairPrivateMessageTitle": {
+    "message": "Chat History for $first$ and $second$",
+    "description": "forwarding private messages with sender and receiver"
+  },
+  "forwardedSinglePrivateMessageTitle": {
+    "message": "Chat History for $someone$",
+    "description": "forwarding private messages with one side"
+  },
+  "forwardedGroupMessageTitle": {
+    "message": "Group Chat History",
+    "description": "forwarding group messages"
+  },
+  "placeholderForChatHistory": {
+    "message": "Chat History",
+    "description": "a brief placeholder for chat history"
+  },
+  "placeholderWrapperForChatHistory": {
+    "message": "[Chat History]",
+    "description": "a brief placeholder for chat history"
+  },
+  "messageCannotBeDisplayedTip": {
+    "message": "[This message type cannot be displayed]",
+    "description": "message cannot be shown temporarily"
+  },
+  "unsupportedMessageTip": {
+    "message": "[Unsupported message, please upgrade to the latest version.]",
+    "description": "message cannot be shown temporarily"
+  },
+  "exceedingMaxNumberOfSelection": {
+    "message": "Select up to $number$ messages",
+    "description": "tips when exceeding maximum count of selected messages"
+  },
+  "originalMessageNotFound": {
+    "message": "Original message not found",
+    "description": "Shown in quote if reference message was not found as message was initially downloaded and processed"
+  },
+  "originalMessageNotAvailable": {
+    "message": "Original message no longer available",
+    "description": "Shown in toast if user clicks on quote that references message no longer in database"
+  },
+  "messageFoundButNotLoaded": {
+    "message": "Original message found, but not loaded. Scroll up to load it.",
+    "description": "Shown in toast if user clicks on quote references messages not loaded in view, but in database"
+  },
+  "voiceNoteMustBeOnlyAttachment": {
+    "message": "A voice note must be the only attachment included in a message.",
+    "description": "Shown in toast if tries to record a voice note with any staged attachments"
+  },
+  "you": {
+    "message": "You",
+    "description": "In Android theme, shown in quote if you or someone else replies to you"
+  },
+  "replyingTo": {
+    "message": "Replying to $name$",
+    "description": "Shown in iOS theme when you or someone quotes to a message which is not from you",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John"
+      }
+    }
+  },
+  "audioPermissionNeeded": {
+    "message": "To send audio messages, allow TempTalk Desktop to access your microphone.",
+    "description": "Shown if the user attempts to send an audio message without audio permssions turned on"
+  },
+  "allowAccess": {
+    "message": "Allow Access",
+    "description": "Button shown in popup asking to enable microphon/video permissions to send audio messages"
+  },
+  "showSettings": {
+    "message": "Show Settings",
+    "description": "A button shown in dialog requesting the user to turn on audio permissions"
+  },
+  "audio": {
+    "message": "Audio",
+    "description": "Shown in a quotation of a message containing an audio attachment if no text was originally provided with that attachment"
+  },
+  "video": {
+    "message": "Video",
+    "description": "Shown in a quotation of a message containing a video if no text was originally provided with that video"
+  },
+  "photo": {
+    "message": "Image",
+    "description": "Shown in a quotation of a message containing a photo if no text was originally provided with that image"
+  },
+  "Update": {
+    "message": "Update"
+  },
+  "cannotUpdate": {
+    "message": "Cannot Update",
+    "description": "Shown as the title of our update error dialogs on windows"
+  },
+  "cannotUpdateDetail": {
+    "message": "TempTalk Desktop failed to update, but there is a new version available. Please try again next restart, or go to https://temptalk.app/ and install the new version manually, then either contact support or file a bug about this problem.",
+    "description": "Shown if a general error happened while trying to install update package"
+  },
+  "cannotUpdateDueToUnsupportedOS": {
+    "message": "New version available! But your current OS version is no longer supported. Please upgrade your OS and try again."
+  },
+  "readOnlyVolume": {
+    "message": "TempTalk Desktop is likely in a macOS quarantine, and will not be able to auto-update. Please try moving TempTalk.app to /Applications with Finder.",
+    "description": "Shown on MacOS if running on a read-only volume and we cannot update"
+  },
+  "ok": {
+    "message": "OK"
+  },
+  "cancel": {
+    "message": "Cancel"
+  },
+  "send": {
+    "message": "Send $a$"
+  },
+  "failedToSend": {
+    "message": "Failed to send to some recipients. Check your network connection."
+  },
+  "error": {
+    "message": "Error"
+  },
+  "messageDetail": {
+    "message": "Message Detail"
+  },
+  "delete": {
+    "message": "Delete"
+  },
+  "deleteWarning": {
+    "message": "Really want to delete this message?"
+  },
+  "deleteThisMessage": {
+    "message": "Delete this message"
+  },
+  "from": {
+    "message": "From",
+    "description": "Label for the sender of a message"
+  },
+  "to": {
+    "message": "to",
+    "description": "Label for the receiver of a message"
+  },
+  "sent": {
+    "message": "Sent",
+    "description": "Label for the time a message was sent"
+  },
+  "received": {
+    "message": "Received",
+    "description": "Label for the time a message was received"
+  },
+  "expiring": {
+    "message": "Expiring",
+    "description": "Label for the time a message was expired"
+  },
+  "remained": {
+    "message": "Remained",
+    "description": "Label for the time a message was remained before expired"
+  },
+  "sendMessage": {
+    "message": "To $someone$, Shift+Enter for a new line",
+    "description": "Placeholder text in the message entry field"
+  },
+  "groupMembers": {
+    "message": "Group members"
+  },
+  "showMembers": {
+    "message": "Show members"
+  },
+  "showDetails": {
+    "message": "Show details"
+  },
+  "notifyAll": {
+    "message": "All Messages"
+  },
+  "notifyAtMe": {
+    "message": "@Mentions Only"
+  },
+  "notifyNone": {
+    "message": "Off"
+  },
+  "viewAllMedia": {
+    "message": "View all media",
+    "description": "This is a menu item for viewing all media (images + video) in a conversation, using the imperative case, as in a command."
+  },
+  "verifyHelp": {
+    "message": "If you wish to verify the security of your end-to-end encryption with $name$, compare the numbers above with the numbers on their device.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John"
+      }
+    }
+  },
+  "theirIdentityUnknown": {
+    "message": "You haven't exchanged any messages with this contact yet. Your safety number with them will be available after the first message."
+  },
+  "moreInfo": {
+    "message": "More Info...",
+    "description": "Shown on the drop-down menu for an individual message, takes you to message detail screen"
+  },
+  "retrySend": {
+    "message": "Retry Send",
+    "description": "Shown on the drop-down menu for an indinvidaul message, but only if it is an outgoing message that failed to send"
+  },
+  "deleteMessage": {
+    "message": "Delete",
+    "description": "Shown on the drop-down menu for an individual message, deletes single message"
+  },
+  "deleteMessages": {
+    "message": "Remove",
+    "description": "Menu item for deleting messages, title case."
+  },
+  "stickToTop": {
+    "message": "Stick",
+    "description": "Menu item for deleting messages, title case."
+  },
+  "onlyAdminCanInvite": {
+    "message": "Only moderators can add members"
+  },
+  "removeFromTop": {
+    "message": "Unstick",
+    "description": "Menu item for deleting messages, title case."
+  },
+  "blockAndReport": {
+    "message": "Block & Report"
+  },
+  "block": {
+    "message": "Block"
+  },
+  "archive": {
+    "message": "Archive Conversation"
+  },
+  "mute": {
+    "message": "Mute",
+    "description": "message do not disturb."
+  },
+  "unmute": {
+    "message": "Unmute",
+    "description": "message notification"
+  },
+  "stickMaxTips": {
+    "message": "Sorry, you can only stick $count$ chats to the top."
+  },
+  "leave": {
+    "message": "Leave",
+    "description": "Button title for leave group button"
+  },
+  "continue": {
+    "message": "Continue"
+  },
+  "leaveGroup": {
+    "message": "Leave Group",
+    "description": "Menu item for leave group, title case."
+  },
+  "leaveGroupConfirmation": {
+    "message": "Leaving this group will delete all its data from your device.",
+    "description": "Confirmation dialog text that asks the user if they really wish to leave the group. Answer buttons use the strings 'ok' and 'cancel'."
+  },
+  "disband": {
+    "message": "Disband",
+    "description": "Button title for disband group button"
+  },
+  "disbandGroup": {
+    "message": "Disband Group",
+    "description": "Menu item for disband group, title case."
+  },
+  "disbandGroupConfirmation": {
+    "message": "The data of this group will be deleted and all of the members in this group will be removed at the same time.",
+    "description": "Confirmation dialog text that asks the user if they really wish to disband the group. Answer buttons use the strings 'ok' and 'cancel'."
+  },
+  "deleteConversationConfirmation": {
+    "message": "Confirm to delete the selected chat/conversation. Note that this will only be deleted in this device.",
+    "description": "Confirmation dialog text that asks the user if they really wish to delete the conversation. Answer buttons use the strings 'ok' and 'cancel'. The deletion is permanent, i.e. it cannot be undone."
+  },
+  "sessionEnded": {
+    "message": "Secure session reset",
+    "description": "This is a past tense, informational message. In other words, your secure session has been reset."
+  },
+  "quoteThumbnailAlt": {
+    "message": "Thumbnail of image from quoted message",
+    "description": "Used in alt tag of thumbnail images inside of an embedded message quote"
+  },
+  "imageAttachmentAlt": {
+    "message": "Image attached to message",
+    "description": "Used in alt tag of image attachment"
+  },
+  "videoAttachmentAlt": {
+    "message": "Screenshot of video attached to message",
+    "description": "Used in alt tag of video attachment preview"
+  },
+  "lightboxImageAlt": {
+    "message": "Image sent in conversation",
+    "description": "Used in the alt tag for the image shown in a full-screen lightbox view"
+  },
+  "imageCaptionIconAlt": {
+    "message": "Icon showing that this image has a caption",
+    "description": "Used for the icon layered on top of an image in message bubbles"
+  },
+  "addACaption": {
+    "message": "Add a caption...",
+    "description": "Used as the placeholder text in the caption editor text field"
+  },
+  "save": {
+    "message": "Save",
+    "description": "Used as a 'commit changes' button in the Caption Editor for outgoing image attachments"
+  },
+  "fileIconAlt": {
+    "message": "File icon",
+    "description": "Used in the media gallery documents tab to visually represent a file"
+  },
+  "emojiAlt": {
+    "message": "Emoji image of '$title$'",
+    "description": "Used in the alt tag of all emoji images",
+    "placeholders": {
+      "title": {
+        "content": "$1",
+        "example": "grinning"
+      }
+    }
+  },
+  "installWelcome": {
+    "message": "Welcome to TempTalk Desktop",
+    "description": "Welcome title on the install page"
+  },
+  "installTagline": {
+    "message": "Privacy is possible. TempTalk makes it easy.",
+    "description": "Tagline displayed under 'installWelcome' string on the install page"
+  },
+  "linkYourPhone": {
+    "message": "Link your phone to TempTalk Desktop",
+    "description": "Shown on the front page when the application first starst, above the QR code"
+  },
+  "desktopSettings": {
+    "message": "TempTalk Settings",
+    "description": "Used in the guidance to help people find the 'link new device' area of their TempTalk mobile app"
+  },
+  "linkedDevices": {
+    "message": "Linked Devices",
+    "description": "Used in the guidance to help people find the 'link new device' area of their TempTalk mobile app"
+  },
+  "plusButton": {
+    "message": "'+' Button",
+    "description": "The button used in TempTalk Android to add a new linked device"
+  },
+  "linkNewDevice": {
+    "message": "Link New Device",
+    "description": "The menu option shown in TempTalk iOS to add a new linked device"
+  },
+  "linkDeviceStep1": {
+    "message": "Open TempTalk on you phone"
+  },
+  "linkDeviceStep2": {
+    "message": "Tap the \"+\" button on top right"
+  },
+  "linkDeviceStep3": {
+    "message": "Tap \"Scan\" to scan the QR code"
+  },
+  "deviceName": {
+    "message": "Device name",
+    "description": "The label in settings panel shown for the user-provided name for this desktop instance"
+  },
+  "chooseDeviceName": {
+    "message": "Choose this device's name",
+    "description": "The header shown on the 'choose device name' screen in the device linking process"
+  },
+  "finishLinkingPhone": {
+    "message": "Finish linking phone",
+    "description": "The text on the button to finish the linking process, after choosing the device name"
+  },
+  "initialSync": {
+    "message": "Syncing contacts and groups",
+    "description": "Shown during initial link while contacts and groups are being pulled from mobile device"
+  },
+  "installConnectionFailed": {
+    "message": "Failed to connect to server.",
+    "description": "Displayed when we can't connect to the server."
+  },
+  "installTooManyDevices": {
+    "message": "Sorry, you have too many devices linked already. Try removing some."
+  },
+  "settings": {
+    "message": "Settings",
+    "description": "Menu item and header for global settings"
+  },
+  "theme": {
+    "message": "Theme",
+    "description": "Header for theme settings"
+  },
+  "permissions": {
+    "message": "Permissions",
+    "description": "Header for permissions section of settings"
+  },
+  "mediaPermissionsDescription": {
+    "message": "Allow access to camera and microphone",
+    "description": "Description of the media permission description"
+  },
+  "quitTopicDescription": {
+    "message": "Auto-exit topic after sending a message"
+  },
+  "general": {
+    "message": "General",
+    "description": "Header for general options on the settings screen"
+  },
+  "language": {
+    "message": "Language"
+  },
+  "account": {
+    "message": "Account"
+  },
+  "restartToApplyChange": {
+    "message": "The change will take effect after you restart the app"
+  },
+  "spellCheckDescription": {
+    "message": "Enable spell check of text entered in message composition box",
+    "description": "Description of the media permission description"
+  },
+  "hardwareAccelerationDescription": {
+    "message": "Disable hardware acceleration"
+  },
+  "clearDataHeader": {
+    "message": "Logout",
+    "description": "Header in the settings dialog for the section dealing with data deletion"
+  },
+  "clearDataExplanation": {
+    "message": "Log out of the current account.",
+    "description": "Text describing what the clear data button will do."
+  },
+  "clearDataButton": {
+    "message": "Logout from This Device",
+    "description": "Button in the settings dialog starting process to delete all data"
+  },
+  "deleteAllDataProgress": {
+    "message": "Disconnecting and deleting all data",
+    "description": "Message shown to user when app is disconnected and data deleted"
+  },
+  "notifications": {
+    "message": "Notifications",
+    "description": "Header for notification settings"
+  },
+  "notificationSettingsDialog": {
+    "message": "When messages arrive, display notifications that reveal:",
+    "description": "Explain the purpose of the notification settings"
+  },
+  "disableNotifications": {
+    "message": "Disable notifications",
+    "description": "Label for disabling notifications"
+  },
+  "nameAndMessage": {
+    "message": "Both sender name and message",
+    "description": "Label for setting notifications to display name and message text"
+  },
+  "noNameOrMessage": {
+    "message": "Neither name nor message",
+    "description": "Label for setting notifications to display no name and no message text"
+  },
+  "nameOnly": {
+    "message": "Only sender name",
+    "description": "Label for setting notifications to display sender name only"
+  },
+  "newMessage": {
+    "message": "New Message",
+    "description": "Displayed in notifications for only 1 message"
+  },
+  "newMessages": {
+    "message": "New Messages",
+    "description": "Displayed in notifications for multiple messages"
+  },
+  "notificationMostRecentFrom": {
+    "message": "Most recent from:",
+    "description": "Displayed in notifications when setting is 'name only' and more than one message is waiting"
+  },
+  "notificationFrom": {
+    "message": "From:",
+    "description": "Displayed in notifications when setting is 'name only' and one message is waiting"
+  },
+  "notificationMostRecent": {
+    "message": "Most recent:",
+    "description": "Displayed in notifications when setting is 'name and message' and more than one message is waiting"
+  },
+  "sendFailed": {
+    "message": "Send failed",
+    "description": "Shown on outgoing message if it fails to send"
+  },
+  "showMore": {
+    "message": "Details",
+    "description": "Displays the details of a key change"
+  },
+  "showLess": {
+    "message": "Hide details",
+    "description": "Hides the details of a key change"
+  },
+  "learnMore": {
+    "message": "Learn more about verifying safety numbers",
+    "description": "Text that links to a support article on verifying safety numbers"
+  },
+  "blocked": {
+    "message": "Blocked"
+  },
+  "unblock": {
+    "message": "Unblock"
+  },
+  "unblocked": {
+    "message": "Unblocked"
+  },
+  "unSpeak": {
+    "message": "Only moderators can speak"
+  },
+  "expiredWarning": {
+    "message": "This version of TempTalk Desktop has expired. Please upgrade to the latest version to continue messaging.",
+    "description": "Warning notification that this version of the app has expired"
+  },
+  "upgrade": {
+    "message": "Upgrade",
+    "description": "Label text for button to upgrade the app to the latest version"
+  },
+  "mediaMessage": {
+    "message": "Media message",
+    "description": "Description of a message that has an attachment and no text, displayed in the conversation list as a preview."
+  },
+  "unregisteredUser": {
+    "message": "Number is not registered",
+    "description": "Error message displayed when sending to an unregistered user."
+  },
+  "timestamp_s": {
+    "message": "now",
+    "description": "Brief timestamp for messages sent less than a minute ago. Displayed in the conversation list and message bubble."
+  },
+  "timestamp_m": {
+    "message": "1 minute",
+    "description": "Brief timestamp for messages sent about one minute ago. Displayed in the conversation list and message bubble."
+  },
+  "timestamp_h": {
+    "message": "1 hour",
+    "description": "Brief timestamp for messages sent about one hour ago. Displayed in the conversation list and message bubble."
+  },
+  "hoursAgoShort": {
+    "message": "$hours$hr",
+    "description": "Even further contracted form of 'X hours ago' which works both for singular and plural, used in the left pane",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "hoursAgo": {
+    "message": "$hours$hr ago",
+    "description": "Contracted form of 'X hours ago' which works both for singular and plural",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "minutesAgoShort": {
+    "message": "$minutes$min",
+    "description": "Even further contracted form of 'X minutes ago' which works both for singular and plural, used in the left pane",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "minutesAgo": {
+    "message": "$minutes$min ago",
+    "description": "Contracted form of 'X minutes ago' which works both for singular and plural",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "justNow": {
+    "message": "Now",
+    "description": "Shown if a message is very recent, less than 60 seconds old"
+  },
+  "timestampFormat_M": {
+    "message": "MMM D",
+    "description": "Timestamp format string for displaying month and day (but not the year) of a date within the current year, ex: use 'MMM D' for 'Aug 8', or 'D MMM' for '8 Aug'."
+  },
+  "messageBodyTooLong": {
+    "message": "Exceeding 4096 character limit",
+    "description": "Shown if the user tries to send more than 4kb of text"
+  },
+  "youChangedTheTimer": {
+    "message": "You set the disappearing message timer to $time$",
+    "description": "Message displayed when you change the message expiration timer in a conversation.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "10m"
+      }
+    }
+  },
+  "timerSetOnSync": {
+    "message": "Updated disappearing message timer to $time$",
+    "description": "Message displayed when timer is set on initial link of desktop device.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "10m"
+      }
+    }
+  },
+  "theyChangedTheTimer": {
+    "message": "$name$ set the disappearing message timer to $time$",
+    "description": "Message displayed when someone else changes the message expiration timer in a conversation.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Bob"
+      },
+      "time": {
+        "content": "$2",
+        "example": "10m"
+      }
+    }
+  },
+  "timerOption_0_seconds": {
+    "message": "off",
+    "description": "Label for option to turn off message expiration in the timer menu"
+  },
+  "timerOption_5_seconds": {
+    "message": "5 seconds",
+    "description": "Label for a selectable option in the message expiration timer menu"
+  },
+  "timerOption_10_seconds": {
+    "message": "10 seconds",
+    "description": "Label for a selectable option in the message expiration timer menu"
+  },
+  "timerOption_30_seconds": {
+    "message": "30 seconds",
+    "description": "Label for a selectable option in the message expiration timer menu"
+  },
+  "timerOption_1_minute": {
+    "message": "1 minute",
+    "description": "Label for a selectable option in the message expiration timer menu"
+  },
+  "timerOption_5_minutes": {
+    "message": "5 minutes",
+    "description": "Label for a selectable option in the message expiration timer menu"
+  },
+  "timerOption_30_minutes": {
+    "message": "30 minutes",
+    "description": "Label for a selectable option in the message expiration timer menu"
+  },
+  "timerOption_1_hour": {
+    "message": "1 hour",
+    "description": "Label for a selectable option in the message expiration timer menu"
+  },
+  "timerOption_6_hours": {
+    "message": "6 hours",
+    "description": "Label for a selectable option in the message expiration timer menu"
+  },
+  "timerOption_12_hours": {
+    "message": "12 hours",
+    "description": "Label for a selectable option in the message expiration timer menu"
+  },
+  "timerOption_1_day": {
+    "message": "1 day",
+    "description": "Label for a selectable option in the message expiration timer menu"
+  },
+  "timerOption_1_week": {
+    "message": "1 week",
+    "description": "Label for a selectable option in the message expiration timer menu"
+  },
+  "disappearingMessages": {
+    "message": "Disappearing messages",
+    "description": "Conversation menu option to enable disappearing messages"
+  },
+  "timerOption_0_seconds_abbreviated": {
+    "message": "off",
+    "description": "Short format indicating current timer setting in the conversation list snippet"
+  },
+  "timerOption_5_seconds_abbreviated": {
+    "message": "5s",
+    "description": "Very short format indicating current timer setting in the conversation header"
+  },
+  "timerOption_10_seconds_abbreviated": {
+    "message": "10s",
+    "description": "Very short format indicating current timer setting in the conversation header"
+  },
+  "timerOption_30_seconds_abbreviated": {
+    "message": "30s",
+    "description": "Very short format indicating current timer setting in the conversation header"
+  },
+  "timerOption_1_minute_abbreviated": {
+    "message": "1m",
+    "description": "Very short format indicating current timer setting in the conversation header"
+  },
+  "timerOption_5_minutes_abbreviated": {
+    "message": "5m",
+    "description": "Very short format indicating current timer setting in the conversation header"
+  },
+  "timerOption_30_minutes_abbreviated": {
+    "message": "30m",
+    "description": "Very short format indicating current timer setting in the conversation header"
+  },
+  "timerOption_1_hour_abbreviated": {
+    "message": "1h",
+    "description": "Very short format indicating current timer setting in the conversation header"
+  },
+  "timerOption_6_hours_abbreviated": {
+    "message": "6h",
+    "description": "Very short format indicating current timer setting in the conversation header"
+  },
+  "timerOption_12_hours_abbreviated": {
+    "message": "12h",
+    "description": "Very short format indicating current timer setting in the conversation header"
+  },
+  "timerOption_1_day_abbreviated": {
+    "message": "1d",
+    "description": "Very short format indicating current timer setting in the conversation header"
+  },
+  "timerOption_1_week_abbreviated": {
+    "message": "1w",
+    "description": "Very short format indicating current timer setting in the conversation header"
+  },
+  "disappearingMessagesDisabled": {
+    "message": "Disappearing messages disabled",
+    "description": "Displayed in the left pane when the timer is turned off"
+  },
+  "disabledDisappearingMessages": {
+    "message": "$name$ disabled disappearing messages",
+    "description": "Displayed in the conversation list when the timer is turned off",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John"
+      }
+    }
+  },
+  "youDisabledDisappearingMessages": {
+    "message": "You disabled disappearing messages",
+    "description": "Displayed in the conversation list when the timer is turned off"
+  },
+  "timerSetTo": {
+    "message": "Timer set to $time$",
+    "description": "Displayed in the conversation list when the timer is updated by some automatic action, or in the left pane",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "1w"
+      }
+    }
+  },
+  "audioNotificationDescription": {
+    "message": "Play audio notification",
+    "description": "Description for audio notification setting"
+  },
+  "safetyNumberChanged": {
+    "message": "Safety Number has changed",
+    "description": "A notification shown in the conversation when a contact reinstalls"
+  },
+  "safetyNumberChangedGroup": {
+    "message": "Safety Number with $name$ has changed",
+    "description": "A notification shown in a group conversation when a contact reinstalls, showing the contact name",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John"
+      }
+    }
+  },
+  "verifyNewNumber": {
+    "message": "Verify Safety Number",
+    "description": "Label on button included with safety number change notification in the conversation"
+  },
+  "yourSafetyNumberWith": {
+    "message": "Your safety number with $name$:",
+    "description": "Heading for safety number view",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John"
+      }
+    }
+  },
+  "themeLight": {
+    "message": "Light",
+    "description": "Label text for light theme (normal)"
+  },
+  "themeDark": {
+    "message": "Dark",
+    "description": "Label text for dark theme"
+  },
+  "themeSystem": {
+    "message": "System",
+    "description": "Label text for system theme"
+  },
+  "noteToSelf": {
+    "message": "Saved",
+    "description": "Name for the conversation with your own phone number"
+  },
+  "hideMenuBar": {
+    "message": "Hide menu bar",
+    "description": "Label text for menu bar visibility setting"
+  },
+  "startConversation": {
+    "message": "Start new conversation…",
+    "description": "Label underneath number a user enters that is not an existing contact"
+  },
+  "newPhoneNumber": {
+    "message": "Enter a phone number to add a contact.",
+    "description": "Placeholder for adding a new number to a contact"
+  },
+  "invalidNumberError": {
+    "message": "Invalid number",
+    "description": "When a person inputs a number that is invalid"
+  },
+  "unlinkedWarning": {
+    "message": "Relink TempTalk Desktop to your mobile device to continue messaging."
+  },
+  "unlinked": {
+    "message": "Unlinked"
+  },
+  "relink": {
+    "message": "Relink"
+  },
+  "autoUpdateNewVersionTitle": {
+    "message": "TempTalk update available"
+  },
+  "autoUpdateNewVersionMessageInstall": {
+    "message": "There is a new version of TempTalk available, install now?"
+  },
+  "autoUpdateNewVersionMessage": {
+    "message": "There is a new version of TempTalk available."
+  },
+  "autoUpdateNewVersionInstructions": {
+    "message": "Press Restart TempTalk to apply the updates."
+  },
+  "autoUpdateRestartButtonLabel": {
+    "message": "Restart TempTalk"
+  },
+  "autoUpdateLaterButtonLabel": {
+    "message": "Later"
+  },
+  "groupDisbandedByOwner": {
+    "message": "You disbanded this group. All the messages have been deleted.",
+    "description": "Shown in the conversation history when this group has been disbanded"
+  },
+  "groupDisbanded": {
+    "message": "This group has been disbanded. All the messages have been deleted.",
+    "description": "Shown in the conversation history when this group has been disbanded"
+  },
+  "leftTheGroup": {
+    "message": "$name$ left the group",
+    "description": "Shown in the conversation history when a single person leaves the group",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Bob"
+      }
+    }
+  },
+  "multipleLeftTheGroup": {
+    "message": "$name$ left the group",
+    "description": "Shown in the conversation history when multiple people leave the group",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Alice, Bob"
+      }
+    }
+  },
+  "updatedTheGroup": {
+    "message": "Group updated",
+    "description": "Shown in the conversation history when someone updates the group"
+  },
+  "groupAvatarChange": {
+    "message": "Group Avatar changed."
+  },
+  "titleIsNow": {
+    "message": "Title is now '$name$'",
+    "description": "Shown in the conversation history when someone changes the title of the group",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Book Club"
+      }
+    }
+  },
+  "titleChangedBySomeone": {
+    "message": "$someone$ has changed the group name to $name$",
+    "description": "Shown in the conversation history when someone changes the title of the group"
+  },
+  "confirmNewGroupName": {
+    "message": "Group name will be: $name$",
+    "description": "Shown when confirm saving group new name."
+  },
+  "joinedTheGroup": {
+    "message": "$name$ joined the group",
+    "description": "Shown in the conversation history when a single person joins the group",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Alice"
+      }
+    }
+  },
+  "multipleJoinedTheGroup": {
+    "message": "$names$ joined the group",
+    "description": "Shown in the conversation history when more than one person joins the group",
+    "placeholders": {
+      "names": {
+        "content": "$1",
+        "example": "Alice, Bob"
+      }
+    }
+  },
+  "noChatHistory": {
+    "message": "No historical messages available"
+  },
+  "sendChatHistory": {
+    "message": " Send chat history"
+  },
+  "removedFromTheGroup": {
+    "message": "$name$ was removed from the group",
+    "description": "Shown in the conversation history when a single person was removed from the group",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Alice"
+      }
+    }
+  },
+  "multipleRemovedFromTheGroup": {
+    "message": "$names$ were removed from the group",
+    "description": "Shown in the conversation history when more than one person were removed from the group",
+    "placeholders": {
+      "names": {
+        "content": "$1",
+        "example": "Alice, Bob"
+      }
+    }
+  },
+  "onlyOwnerOrAdminCanSpeak": {
+    "message": "This group has been set to only moderators can speak"
+  },
+  "everyoneCanSpeak": {
+    "message": "This group has been set to allow everyone to speak"
+  },
+  "becomeNewOwnerOfTheGroup": {
+    "message": "$names$ become the new owner"
+  },
+  "becomeNewAdminOfTheGroup": {
+    "message": "$names$ become the new moderator"
+  },
+  "removeAdminOfTheGroup": {
+    "message": "$names$ has been removed as a group moderator"
+  },
+  "removeAdminOfTheGroupMultiple": {
+    "message": "$names$ were removed as group moderators"
+  },
+  "transferOwnerOfTheGroup": {
+    "message": "Select $names$ as the new group owner? You will automatically give up ownership"
+  },
+  "discard": {
+    "message": "Discard",
+    "description": "Button titile for discard button"
+  },
+  "discardUnsavedGroupChanges": {
+    "message": "Do you want to discard unsaved changes?",
+    "description": "Message shown when there are unsaved changes before go back."
+  },
+  "call_voice_calling": {
+    "message": "Calling..."
+  },
+  "call_voice_calling_waiting": {
+    "message": "Waiting for answering..."
+  },
+  "call_voice_20s": {
+    "message": "Other user may be busy. Try again later."
+  },
+  "call_voice_finished": {
+    "message": "Call ended"
+  },
+  "call_voice_refused": {
+    "message": "Call refused"
+  },
+  "call_voice_canceled": {
+    "message": "Call cancelled"
+  },
+  "call_voice_missed": {
+    "message": "Call missed"
+  },
+  "call_voice_connected": {
+    "message": "CONNECTED"
+  },
+  "call_voice_peer_hangup": {
+    "message": "Hung up"
+  },
+  "call_voice_peer_offline": {
+    "message": "Bad network, Try again later."
+  },
+  "call_voice_peer_refuse": {
+    "message": "Refused"
+  },
+  "call_voice_peer_busy": {
+    "message": "Busy"
+  },
+  "call_voice_peer_failed": {
+    "message": "Call failed"
+  },
+  "call_voice_peer_cancel": {
+    "message": "Cancelled"
+  },
+  "call_voice_video_is_off": {
+    "message": "video is off"
+  },
+  "call_voice_video_is_on": {
+    "message": "video is on"
+  },
+  "call_voice_mic_is_off": {
+    "message": "Mic is off"
+  },
+  "call_voice_mic_is_on": {
+    "message": "Mic is on"
+  },
+  "call_voice_screen_is_off": {
+    "message": "Share"
+  },
+  "call_voice_screen_is_on": {
+    "message": "Share"
+  },
+  "call_voice_add": {
+    "message": "Add"
+  },
+  "call_voice_are_you_there": {
+    "message": "Are you there? WILL CLOSE after the countdown."
+  },
+  "call_voice_continue": {
+    "message": "Continue"
+  },
+  "call_voice_end_after_seconds": {
+    "message": " second left"
+  },
+  "call_voice_initializing": {
+    "message": "Initializing..."
+  },
+  "joined_at": {
+    "message": "Joined"
+  },
+  "how_you_met": {
+    "message": "How you met"
+  },
+  "common_groups": {
+    "message": "Groups"
+  },
+  "uid_name": {
+    "message": "UID"
+  },
+  "group_call_voice_join_group": {
+    "message": "Join voice group"
+  },
+  "entire_screen": {
+    "message": "Entire Screen"
+  },
+  "select_one_to_share": {
+    "message": "Select one to share"
+  },
+  "already_in_screen_sharing": {
+    "message": "Already in screen sharing"
+  },
+  "max_audio_user": {
+    "message": "Support up to $a$ people to open microphone at the same time"
+  },
+  "max_video_user": {
+    "message": "Support up to $a$ people to open camera at the same time"
+  },
+  "dataLoadingText": {
+    "message": "Please wait ..."
+  },
+  "registerHeader": {
+    "message": "Register Your TempTalk Account"
+  },
+  "registerButton": {
+    "message": "Register"
+  },
+  "registerWarning": {
+    "message": "Notice: As a standalone device would lead to your existing TempTalk account on mobile device is not available anymore."
+  },
+  "youAreMentioned": {
+    "message": "[@You]"
+  },
+  "allAreMentioned": {
+    "message": "[@All]"
+  },
+  "mentionsAllTitle": {
+    "message": "All"
+  },
+  "atGroupMembers": {
+    "message": "GroupMembers"
+  },
+  "atGroupMembersBeNotified": {
+    "message": " - Users will be notified"
+  },
+  "atOtherContacts": {
+    "message": "Other contacts"
+  },
+  "atOtherContactsNotBeNotified": {
+    "message": " - Users will NOT be notified"
+  },
+  "incomingCallInvite": {
+    "message": "invites you to a voice call"
+  },
+  "incomingCallAccept": {
+    "message": "Accept"
+  },
+  "incomingCallRefuse": {
+    "message": "Refuse"
+  },
+  "incomingCallAlreadyExist": {
+    "message": "A call is currently active. Disconnect from the current call to place a new call"
+  },
+  "group_editor_create_new_group": {
+    "message": "Create New Group"
+  },
+  "group_editor_group_name": {
+    "message": "Group Name:"
+  },
+  "group_editor_input_placeholder": {
+    "message": "Input new name"
+  },
+  "group_editor_selected_group_members": {
+    "message": "Selected Group Members"
+  },
+  "jumpFailed": {
+    "message": "Jump failed"
+  },
+  "group_editor_selected_members": {
+    "message": "Selected Members"
+  },
+  "group_editor_select_at_least_one": {
+    "message": "Please select at least one member"
+  },
+  "group_editor_add_group_members_title": {
+    "message": "Add Group Members"
+  },
+  "group_editor_added_group_members": {
+    "message": "Added Group Member List"
+  },
+  "group_editor_please_set_group_name": {
+    "message": "Please set group name!"
+  },
+  "group_editor_remove_group_members": {
+    "message": "Remove Group Members"
+  },
+  "group_editor_removed_member_list": {
+    "message": "Removed Group Member List"
+  },
+  "group_editor_add_group_moderator": {
+    "message": "Add Group Moderators"
+  },
+  "group_editor_remove_group_moderator": {
+    "message": "Remove Group Moderators"
+  },
+  "group_editor_confirm_remove": {
+    "message": "Remove"
+  },
+  "group_editor_import": {
+    "message": "Import"
+  },
+  "group_editor_create_failed": {
+    "message": "Failed to create group, please try again later"
+  },
+  "group_editor_add_members_failed": {
+    "message": "Failed to add member(s), please try again later"
+  },
+  "group_editor_remove_members_failed": {
+    "message": "Failed to remove member(s), please try again later"
+  },
+  "group_editor_add_admin_failed": {
+    "message": "Failed to add moderator(s), please try again later"
+  },
+  "group_editor_remove_admin_failed": {
+    "message": "Failed to remove moderator(s), please try again later"
+  },
+  "group_editor_dialog_title_for_quick_group": {
+    "message": "SHARE link after creation"
+  },
+  "group_editor_title_template_for_quick_group": {
+    "message": "New group from \"$group$\""
+  },
+  "group_editor_menu_item_add_members": {
+    "message": "Add Members"
+  },
+  "group_editor_menu_item_fast_group": {
+    "message": "Quick Group"
+  },
+  "main_header_create_group": {
+    "message": "Create Group"
+  },
+  "main_header_add_friend": {
+    "message": "Add Friends"
+  },
+  "editButtonTitle": {
+    "message": "Edit"
+  },
+  "saveButtonTitle": {
+    "message": "Save"
+  },
+  "basicInfoTitle": {
+    "message": "Basic Info"
+  },
+  "groupChatsTitle": {
+    "message": "Groups"
+  },
+  "allBotsTitle": {
+    "message": "All Bots"
+  },
+  "active": {
+    "message": "Active"
+  },
+  "calling": {
+    "message": "Calling"
+  },
+  "active_minutes_ago": {
+    "message": "Active $a$ minutes ago"
+  },
+  "active_hours_ago": {
+    "message": "Active $a$ hours ago"
+  },
+  "active_days_ago": {
+    "message": "Active $a$ days ago"
+  },
+  "active_weeks_ago": {
+    "message": "Active $a$ weeks ago"
+  },
+  "active_months_ago": {
+    "message": "Active 1 month ago"
+  },
+  "update_error_title": {
+    "message": "Update Error!"
+  },
+  "update_error_detail": {
+    "message": "An error occurred in retrieving update information. Please try again later."
+  },
+  "update_up_to_date_title": {
+    "message": "You're up-to-date!"
+  },
+  "update_up_to_date_detail": {
+    "message": "TempTalk $a$ is currently the newest version available."
+  },
+  "update_new_version_found_title": {
+    "message": "Found a new version $a$"
+  },
+  "update_new_version_found_detail": {
+    "message": "The upgrade is in progress in the background, please wait."
+  },
+  "archiveIndicatorMessage": {
+    "message": "Messages received $expire_time$ days ago will be archived"
+  },
+  "forward_to": {
+    "message": "Forward to"
+  },
+  "up_to_9_conversation": {
+    "message": "Up to 9 chats"
+  },
+  "up_to_5_contacts": {
+    "message": "Up to 5 contacts"
+  },
+  "contact_info": {
+    "message": "Contact Info"
+  },
+  "chat": {
+    "message": "Chat"
+  },
+  "call": {
+    "message": "Call"
+  },
+  "forward": {
+    "message": "Forward"
+  },
+  "profile_id": {
+    "message": "ID:"
+  },
+  "profile_email": {
+    "message": "Email:"
+  },
+  "profile_time": {
+    "message": "Time:"
+  },
+  "profile_set_status": {
+    "message": "Set a signature"
+  },
+  "profile_copied": {
+    "message": "Copied!"
+  },
+  "profile_too_frequent": {
+    "message": "The operation is too frequent, please try again later!"
+  },
+  "profile_bad_avatar_image_size": {
+    "message": "File size error!(0~10MB)"
+  },
+  "profile_load_image_failed": {
+    "message": "File format error!"
+  },
+  "time_format_am": {
+    "message": "$a$ AM"
+  },
+  "time_format_pm": {
+    "message": "$a$ PM"
+  },
+  "time_format_noon": {
+    "message": "$a$ NOON"
+  },
+  "time_format_midnight": {
+    "message": "$a$ MIDNIGHT"
+  },
+  "please_enter_email_or_code": {
+    "message": "Please enter your Email or Code"
+  },
+  "enter_email_or_code": {
+    "message": "Enter your Email or Code"
+  },
+  "email_or_code_error": {
+    "message": "Email or Code Error"
+  },
+  "different_subteam_error": {
+    "message": "Operation denied"
+  },
+  "number_not_register_error": {
+    "message": "The user does not exist"
+  },
+  "number_not_active_error": {
+    "message": "User is inactive and cannot receive messages"
+  },
+  "number_not_friend_error": {
+    "message": "You can only send up to 3 messages per day to a user who is not your friend. Please wait for the other party to accept your request."
+  },
+  "contact_card": {
+    "message": "Contact Card"
+  },
+  "microphone_permission_check_title": {
+    "message": "Microphone access disabled"
+  },
+  "screen_permission_check_title": {
+    "message": "Screen recording access disabled"
+  },
+  "camera_permission_check_title": {
+    "message": "Camera access disabled"
+  },
+  "microphone_permission_check_content": {
+    "message": "Go to \"System Preferences\" and allow TempTalk to access your microphone"
+  },
+  "screen_permission_check_content": {
+    "message": "Go to \"System Preferences\" and allow TempTalk to access your screen recording"
+  },
+  "camera_permission_check_content": {
+    "message": "Go to \"System Preferences\" and allow TempTalk to access your camera"
+  },
+  "go_microphone_settings": {
+    "message": "Go to Settings"
+  },
+  "go_screen_settings": {
+    "message": "Go to Screen recording"
+  },
+  "recallTitle": {
+    "message": "Recall",
+    "description": "Title for recall message menu item"
+  },
+  "re-editButtonTitle": {
+    "message": "Re-edit",
+    "description": "Title for re-edit button for recalled message"
+  },
+  "recalledAMessage": {
+    "message": "$someone$ recalled a message",
+    "description": "Display when someone recalled a message."
+  },
+  "youRecalledAMessage": {
+    "message": "You recalled a message",
+    "description": "Display when you recalled a message."
+  },
+  "recallWarning": {
+    "message": "Are you sure you want to recall this message?",
+    "description": "Display when you try to recall a message."
+  },
+  "recallFailed": {
+    "message": "recall failed",
+    "description": "Shown on outgoing message if it fails to recall"
+  },
+  "retryRecall": {
+    "message": "Retry recall",
+    "description": "Shown on the drop-down menu for an indinvidaul message, but only if it is an outgoing message that failed to recall"
+  },
+  "canNotRecallWarning": {
+    "message": "Unable recall the message after 24 hours",
+    "description": "Display when try to recall a message was sent after 24 hours"
+  },
+  "decryptAudioFailed": {
+    "message": "The audio/video may not be played properly for the other party as they are using an older version."
+  },
+  "forwardHeader": {
+    "message": "Forwarded Message",
+    "description": "Forwarded Message header"
+  },
+  "forwardFrom": {
+    "message": "From: $someone$",
+    "description": "Display message forwarded from who."
+  },
+  "messageCannotBeEmptyWhenQuote": {
+    "message": "Can not send empty when quoting a message.",
+    "description": "Display when send quote message without body or attachments"
+  },
+  "translateTitle": {
+    "message": "Translate",
+    "description": "Menu item for translation."
+  },
+  "translatedBy": {
+    "message": "Translated by Google",
+    "description": "Tips for translation."
+  },
+  "translating": {
+    "message": "Translating ...",
+    "description": "Description for doing transalte."
+  },
+  "translateFailed": {
+    "message": "Translation failed, please try again!",
+    "description": "Description for translating error."
+  },
+  "exceedingMaxTranslatedTextLength": {
+    "message": "Unable to translate when messages over 4096!",
+    "description": "Display warning when text for translating exceeding max length."
+  },
+  "translationIsOff": {
+    "message": "Translation is off",
+    "description": "Description for translation is off."
+  },
+  "copyImage": {
+    "message": "Copy image",
+    "description": "Title for menu item copy image"
+  },
+  "pulllingFolderError": {
+    "message": "Folders are not supported",
+    "description": "Warning when failed to pulling folder"
+  },
+  "pulllingZeroSizeError": {
+    "message": "Empty attachment are not supported"
+  },
+  "pullingAttachmentError": {
+    "message": "The file cannot be read, please copy the file to another location and try again",
+    "description": "Warning when failed to pulling attachment"
+  },
+  "invalidGroupInviteLink": {
+    "message": "Invalid group invite link. "
+  },
+  "groupDisabledInviteLink": {
+    "message": "Failed to join the group. This group disabled invite link."
+  },
+  "groupOnlyAllowsModeratorsInvite": {
+    "message": "Failed to join the group. This group only allows moderators to invite."
+  },
+  "groupHasAlreadyBeenDisbanded": {
+    "message": " Failed to join the group. This group has already been disbanded"
+  },
+  "groupIsInvalid": {
+    "message": "Failed to join the group. This group is invalid."
+  },
+  "enableGroupInviteLink": {
+    "message": "Enable group invite link"
+  },
+  "groupMemberCountExceeded": {
+    "message": "Group limit reached. If you have special needs, please contact LargeGroupBot",
+    "description": "Warning when operation failed for group member count exceeded"
+  },
+  "groupMemberNotYouFriend": {
+    "message": "$names$ are not your friend yet, you cannot invite them to join a group. Please ask them to accept you first."
+  },
+  "shortForContactMessage": {
+    "message": "[Contact Card]",
+    "description": "Short for contact card message."
+  },
+  "shortForTaskMessage": {
+    "message": "[Task]",
+    "description": "Short for task message."
+  },
+  "shortForPollMessage": {
+    "message": "[Poll]",
+    "description": "Short for poll message."
+  },
+  "shortForCardMessage": {
+    "message": "[Card]",
+    "description": "Short for card message."
+  },
+  "shortForImage": {
+    "message": "[Image]",
+    "description": "Short for picture attachment message."
+  },
+  "shortForVideo": {
+    "message": "[Video]",
+    "description": "Short for video attachment message."
+  },
+  "shortForAudio": {
+    "message": "[Audio]",
+    "description": "Short for audio attachment message."
+  },
+  "shortForVoice": {
+    "message": "[Voice]",
+    "description": "Short for voice attachment message."
+  },
+  "shortForAttachment": {
+    "message": "[Attachment]",
+    "description": "Short for common attachment message."
+  },
+  "groupLink": {
+    "message": "Group Link",
+    "description": "Title for group link area on group meta view page."
+  },
+  "copyButton": {
+    "message": "Copy",
+    "description": "Title for button of copying group link"
+  },
+  "copiedButton": {
+    "message": "Copied",
+    "description": "Title for button of copying group link"
+  },
+  "shareButton": {
+    "message": "Share",
+    "description": "Title for button of sharing group link"
+  },
+  "refreshButton": {
+    "message": "Refresh",
+    "description": "Title for button of refreshing group link"
+  },
+  "shareGroupTitle": {
+    "message": "Share Group To",
+    "description": "Title for dialog of sharing group link"
+  },
+  "pleaseRefresh": {
+    "message": "Please refresh group link",
+    "description": "Warning text when load group link failed."
+  },
+  "joinGroup": {
+    "message": "Join Group",
+    "description": "Title for button of join group."
+  },
+  "unsupportedLink": {
+    "message": "Unsupported link",
+    "description": "Warning when tap unsupported link"
+  },
+  "cannotGetGroupInfoByInviteCode": {
+    "message": "Cannot get group info",
+    "description": "Warning when cannot get group info"
+  },
+  "cannotJoinGroupByInviteCode": {
+    "message": "Cannot join group",
+    "description": "Warning when cannot join group"
+  },
+  "noSuchGroup": {
+    "message": "No such group",
+    "description": "Warning when cannot join group for no such group"
+  },
+  "invitationLinkExpired": {
+    "message": "Invitation has expired",
+    "description": "Warning when server response has no permission"
+  },
+  "conversation_settings_group_members": {
+    "message": "Group members"
+  },
+  "conversation_settings_edit_group": {
+    "message": "Edit group info"
+  },
+  "conversation_settings_group_name": {
+    "message": "Group name"
+  },
+  "conversation_settings_admin": {
+    "message": "MODERATORS"
+  },
+  "conversation_settings_user": {
+    "message": "PARTICIPANTS"
+  },
+  "conversation_settings_group_manager": {
+    "message": "Group Management"
+  },
+  "conversation_settings_group_moderators": {
+    "message": "Group Moderators"
+  },
+  "conversation_settings_group_transfer": {
+    "message": "Transfer Group Ownership"
+  },
+  "conversation_settings_group_transfer_bot": {
+    "message": "Cannot transfer group owner to bot"
+  },
+  "confirmNumber": {
+    "message": "Confirm $a$"
+  },
+  "name": {
+    "message": "Name"
+  },
+  "new_group": {
+    "message": "New group"
+  },
+  "threadQuotedUserNamePrefix": {
+    "message": "Group/"
+  },
+  "threadTitlePrefix": {
+    "message": "To "
+  },
+  "replyFromBotHeader": {
+    "message": "Reply from $someone$:"
+  },
+  "replyToHeader": {
+    "message": "Reply To: $someone$"
+  },
+  "replyTopicHeader": {
+    "message": "Reply To: "
+  },
+  "replyButton": {
+    "message": "Reply"
+  },
+  "topicHeader": {
+    "message": "Topic:"
+  },
+  "topicFrom": {
+    "message": "(esc) Topic From "
+  },
+  "atBotTopicHeader": {
+    "message": "Topic SendTo $botName$ "
+  },
+  "replyAtBotTopicHeader": {
+    "message": "Reply SendTo $botName$ "
+  },
+  "productionName": {
+    "message": "TempTalk"
+  },
+  "messageDetailTitle": {
+    "message": "Message Detail",
+    "description": "Title for message detail page."
+  },
+  "messageSearchClear": {
+    "message": "Clear"
+  },
+  "messageSearchInputPlaceholder": {
+    "message": "Search chat history"
+  },
+  "messageSearchKeywordsToSearch": {
+    "message": "Enter keywords to search"
+  },
+  "messageSearchNoResult": {
+    "message": "No results found"
+  },
+  "historySearchTitle": {
+    "message": "Search chat history",
+    "description": "Title for history search button"
+  },
+  "searchResultIncludes": {
+    "message": "Includes:",
+    "description": "Prefix for group search includes members"
+  },
+  "press_and_hold": {
+    "message": "Press and hold spacebar to unmute your mic"
+  },
+  "microphone": {
+    "message": "Microphone"
+  },
+  "speakers": {
+    "message": "Speakers"
+  },
+  "no-conversation-tip": {
+    "message": "There is no conversation."
+  },
+  "all-no-conversation-tip": {
+    "message": "Start your first TempTalk conversation！"
+  },
+  "send-chat-history": {
+    "message": "Are you sure you want to send \ngroup recent history messages in the group? (up to 20)\n"
+  },
+  "mainMenuMessagesTooltip": {
+    "message": "Chats",
+    "description": "Tooltip for messages in the main menu "
+  },
+  "mainMenuContactTooltip": {
+    "message": "Contacts",
+    "description": "Tooltip for contacts in the main menu "
+  },
+  "mainMenuCalendarTooltip": {
+    "message": "Calendar",
+    "description": "Tooltip for calendar in the main menu "
+  },
+  "settingsTooltip": {
+    "message": "Settings",
+    "description": "Tooltip for settings"
+  },
+  "addGroupMembersTooltip": {
+    "message": "Add Group Members",
+    "description": "Tooltip for adding group members"
+  },
+  "sessionInformationTooltip": {
+    "message": "Session Information",
+    "description": "Tooltip for session information"
+  },
+  "stickersTooltip": {
+    "message": "Stickers",
+    "description": "Tooltip for stickers"
+  },
+  "attachmentTooltip": {
+    "message": "Attachment",
+    "description": "Tooltip for attachments"
+  },
+  "chooseMembersTooltip": {
+    "message": "Choose Members",
+    "description": "Tooltip for choose members"
+  },
+  "autoTranslateTooltip": {
+    "message": "Auto-translate",
+    "description": "Tooltip for auto-translate"
+  },
+  "topicListtip": {
+    "message": "Topic List"
+  },
+  "recordVoiceTooltip": {
+    "message": "Recording Voice",
+    "description": "Tooltip for record voice"
+  },
+  "moreTooltip": {
+    "message": "More",
+    "description": "Tooltip for more"
+  },
+  "translateTooltip": {
+    "message": "Translate",
+    "description": "Tooltip for translate"
+  },
+  "forwardTooltip": {
+    "message": "Forward",
+    "description": "Tooltip for forward"
+  },
+  "quoteTooltip": {
+    "message": "Quote",
+    "description": "Tooltip for quote"
+  },
+  "recallTooltip": {
+    "message": "Recall",
+    "description": "Tooltip for recall"
+  },
+  "downloadTooltip": {
+    "message": "Download",
+    "description": "Tooltip for download"
+  },
+  "detailsTooltip": {
+    "message": "Details",
+    "description": "Tooltip for details"
+  },
+  "visibleReplyTooltip": {
+    "message": "Visible Reply",
+    "description": "Tooltip for visible reply"
+  },
+  "invisibleReplyTooltip": {
+    "message": "Invisible Reply",
+    "description": "Tooltip for invisible reply"
+  },
+  "chatHistoryTooltip": {
+    "message": "Chat History",
+    "description": "Tooltip for chat history"
+  },
+  "forceUpdateLatestVersion": {
+    "message": "For your better experience, please download the latest version of TempTalk"
+  },
+  "quickGroupTooltip": {
+    "message": "Quick Group",
+    "description": "Tooltip for quick group"
+  },
+  "speaking": {
+    "message": "Speaking:"
+  },
+  "speaking_no_one": {
+    "message": "----------"
+  },
+  "reactionTooltip": {
+    "message": "Add Reaction",
+    "description": "Tooltip for emoji reaction button"
+  },
+  "changeNameOtherError": {
+    "message": "Save Failed"
+  },
+  "changeNameInterError": {
+    "message": "Interns are not allowed to change name, please contact SupportBot for special needs"
+  },
+  "changeNameAlreadyExist": {
+    "message": "Name already exists"
+  },
+  "changeNameBadFormat": {
+    "message": "The recommended name format is $a$. If you have special needs, you can contact SupportBot"
+  },
+  "changeNameTooLong": {
+    "message": "Name is too long(maximum 60 characters)"
+  },
+  "changeNameCannotBeEmpty": {
+    "message": "Name cannot be empty"
+  },
+  "changeNameUnsupportedChars": {
+    "message": "Unsupported character type in name"
+  },
+  "forbiddenOperation": {
+    "message": "Operation denied",
+    "description": "operation was denied by response code 403."
+  },
+  "markAsRead": {
+    "message": "Mark as read"
+  },
+  "markAsUnread": {
+    "message": "Mark as unread"
+  },
+  "prefixDraft": {
+    "message": "[Draft]"
+  },
+  "Private": {
+    "message": "Private"
+  },
+  "@Me": {
+    "message": "@Me"
+  },
+  "Unread": {
+    "message": "Unread"
+  },
+  "confirm": {
+    "message": "Confirm"
+  },
+  "sendToEveryone": {
+    "message": "Send to everyone"
+  },
+  "camera": {
+    "message": "Camera"
+  },
+  "messageExpiry": {
+    "message": "Timer"
+  },
+  "messageDefaultExpiry": {
+    "message": "Default ($value$)"
+  },
+  "messageNeverExpiry": {
+    "message": "do not archive"
+  },
+  "groupMessageExpiryUpdated": {
+    "message": "The following messages will expire within $days$ days after being read"
+  },
+  "messageExpiryUpdated": {
+    "message": "The following messages will expire after $days$ after being read."
+  },
+  "groupArchiveIndicatorTips1": {
+    "message": "- Archived messages will not be viewable and searchable."
+  },
+  "groupArchiveIndicatorTips2": {
+    "message": "- Messages sent after the group archive time is set will follow the new archive time, and old messages will follow the previous setting."
+  },
+  "be_new_presenter": {
+    "message": "This operation will stop the current sharing and let you be the new presenter."
+  },
+  "stop_screen_failed": {
+    "message": "The operation failed, the current sharer needs to upgrade to the latest version."
+  },
+  "reminder": {
+    "message": "Reminder"
+  },
+  "off": {
+    "message": "Off"
+  },
+  "daily": {
+    "message": "Every day"
+  },
+  "weekly": {
+    "message": "Every Sunday"
+  },
+  "monthly": {
+    "message": "Last day of month"
+  },
+  "remind_cycle_tip": {
+    "message": " set a $a$ group reminder: "
+  },
+  "daily_time_tip": {
+    "message": "Daily"
+  },
+  "weekly_time_tip": {
+    "message": "Weekly"
+  },
+  "monthly_time_tip": {
+    "message": "Monthly"
+  },
+  "turn_off_remind_cycle_tip": {
+    "message": " turned off group periodic reminders"
+  },
+  "group_remind": {
+    "message": " group reminder: "
+  },
+  "remind_default_cycle": {
+    "message": "Group reminder: "
+  },
+  "remind_default_immediate": {
+    "message": " changed reminder settings"
+  },
+  "profile": {
+    "message": "Profile"
+  },
+  "set_dont_distrub": {
+    "message": "Set do not disturb for"
+  },
+  "dont_distrub": {
+    "message": "Do not disturb"
+  },
+  "clear": {
+    "message": "Clear"
+  },
+  "date_30minutes": {
+    "message": "30 minutes"
+  },
+  "date_1hour": {
+    "message": "1 hour"
+  },
+  "date_2hours": {
+    "message": "2 hours"
+  },
+  "date_12hours": {
+    "message": "12 hours"
+  },
+  "date_7days": {
+    "message": "7 days"
+  },
+  "date_14days": {
+    "message": "14 days"
+  },
+  "notificationSoundDialog": {
+    "message": "Notification Sound"
+  },
+  "until_time": {
+    "message": "Until"
+  },
+  "confirmDelete": {
+    "message": "OK"
+  },
+  "anyoneCanRemoveMember": {
+    "message": "Anyone can remove members"
+  },
+  "reminderTips": {
+    "message": "The reminder will only take effect when there are no new messages 48 hours before the reminder time."
+  },
+  "memberCanRejoin": {
+    "message": "Removed members can rejoin"
+  },
+  "onlyModeratorsCanSpeak": {
+    "message": "Only moderators can speak"
+  },
+  "anyoneCanChangeGroupName": {
+    "message": "Anyone can edit the group name",
+    "description": "Title for anyoneChangeName checkbox."
+  },
+  "checkRejoinGroup": {
+    "message": "Really want to rejoin the group?"
+  },
+  "alreadyInGroup": {
+    "message": "you are already in the group"
+  },
+  "invalidArgument": {
+    "message": "Invalid argument"
+  },
+  "inviterPermissionException": {
+    "message": "Inviter permission exception"
+  },
+  "invalidGroup": {
+    "message": "The group does not exist or the status is abnormal"
+  },
+  "inviterNotExist": {
+    "message": "Inviter does not exist"
+  },
+  "canRejoinTip1": {
+    "message": "- Removed members can rejoin themselves within 48 hours"
+  },
+  "canRejoinTip2": {
+    "message": "- Only members removed by a user with invite privileges can choose to rejoin themselves"
+  },
+  "publishOnlyGroupTip": {
+    "message": "Only moderators can speak"
+  },
+  "memberRejoin": {
+    "message": "Rejoin"
+  },
+  "add_group_owners": {
+    "message": "Add Group Owners"
+  },
+  "groupOwner": {
+    "message": "Group owner"
+  },
+  "create-group-contact": {
+    "message": "Contact"
+  },
+  "selected-members": {
+    "message": "Selected members"
+  },
+  "no-results-found": {
+    "message": "No results found"
+  },
+  "select-all": {
+    "message": "Select all"
+  },
+  "tookAScreenshot": {
+    "message": "$someone$ took a screenshot",
+    "description": "Warning message for taking screenshot action."
+  },
+  "confidential-message-description": {
+    "message": "[Message]"
+  },
+  "confidential-message-tooltip-title": {
+    "message": "Message Mode"
+  },
+  "commonGroupTitle": {
+    "message": "Groups in common"
+  },
+  "groupCountTitle1": {
+    "message": "$count$ Group"
+  },
+  "groupCountTitle2": {
+    "message": "$count$ Groups"
+  },
+  "youAndContactName": {
+    "message": "You and $someone$"
+  },
+  "restartRequired": {
+    "message": "Restart Required"
+  },
+  "later": {
+    "message": "LATER"
+  },
+  "restart": {
+    "message": "RESTART"
+  },
+  "languageRestartToApplyChange": {
+    "message": "The language change will take effect after you restart the app"
+  },
+  "reminderBy": {
+    "message": "Reminder by"
+  },
+  "createdReminder": {
+    "message": "created a reminder"
+  },
+  "changedReminder": {
+    "message": "changed a reminder"
+  },
+  "deletedReminder": {
+    "message": "deleted a reminder"
+  },
+  "copiedInviteLink": {
+    "message": "Copied link"
+  },
+  "deleteContact": {
+    "message": "Delete Contact"
+  },
+  "deleteContactConfirmation": {
+    "message": "All the messages will also be permanently deleted from both your and the other party's devices."
+  },
+  "editContact": {
+    "message": "Edit Remark"
+  },
+  "logout.title": {
+    "message": "Logout from This Device"
+  },
+  "logout.confirmation": {
+    "message": "All the data on this device will be DELETED."
+  },
+  "logout.ok": {
+    "message": "Logout"
+  },
+  "accountName": {
+    "message": "Name"
+  },
+  "scanQrcode": {
+    "message": "Link TempTalk Desktop by QR Code"
+  },
+  "linkStep.step1": {
+    "message": "1. Open TempTalk on your phone"
+  },
+  "linkStep.step2": {
+    "message": "2. Tap the + button on the top corner and select Scan"
+  },
+  "linkStep.step3": {
+    "message": "3. Point your phone at the QR code to link"
+  },
+  "clearChatHistory": {
+    "message": "Clear Chat History"
+  },
+  "friendRequestSent": {
+    "message": "Friend request sent"
+  },
+  "friendRequest": {
+    "message": "Friend request"
+  },
+  "imageEditorOkButton": {
+    "message": "Finish and Copy to Clipboard"
+  },
+  "setting.account.id": {
+    "message": "ID"
+  },
+  "setting.account.deviceName": {
+    "message": "Device Name"
+  },
+  "setting.account.email": {
+    "message": "Email"
+  },
+  "setting.account.phoneNumber": {
+    "message": "Phone Number"
+  },
+  "setting.account.notLinked": {
+    "message": "Not Linked"
+  },
+  "setting.account.button.link": {
+    "message": "Link"
+  },
+  "setting.account.button.edit": {
+    "message": "Edit"
+  },
+  "setting.account.linkModal.input.placeholder.email": {
+    "message": "Email Address"
+  },
+  "setting.account.linkModal.input.placeholder.phoneNumber": {
+    "message": "Phone Number with +CountryCode (e.g., +1)"
+  },
+  "setting.account.linkModal.input.requiredTips": {
+    "message": "Please Input Your $field$!"
+  },
+  "setting.account.linkModal.input.invalidTips": {
+    "message": "The input is not valid $field$!"
+  },
+  "setting.account.linkModal.title.link": {
+    "message": "Link $field$"
+  },
+  "setting.account.linkModal.title.change": {
+    "message": "Change $field$"
+  },
+  "setting.account.linkModal.description.preparing": {
+    "message": "Please verify and input your new $field$"
+  },
+  "setting.account.linkModal.description.executing": {
+    "message": "OTP sent to $account$"
+  },
+  "setting.account.linkModal.button.executing": {
+    "message": "Save"
+  },
+  "setting.account.linkModal.button.preparing": {
+    "message": "Next"
+  },
+  "setting.account.linkModal.resend.tips": {
+    "message": "Didn't receive? "
+  },
+  "setting.account.linkModal.button.resend": {
+    "message": "Resend$seconds$"
+  },
+  "setting.account.linkModal.requestCode.error": {
+    "message": "Failed to send code, please try again later"
+  },
+  "setting.account.linkModal.confirm.linkedToAnother.title": {
+    "message": "$field$ Already Linked"
+  },
+  "setting.account.linkModal.confirm.linkedToAnother.content": {
+    "message": "Do you confirm replacing it as the current account's $field$?"
+  },
+  "setting.account.linkModal.confirm.linkedToAnother.ok": {
+    "message": "Yes"
+  },
+  "setting.account.linkModal.confirm.linkedToAnother.cancel": {
+    "message": "Cancel"
+  },
+  "setting.account.linkModal.verifyOTP.error": {
+    "message": "OTP is not correct, please try again"
+  },
+  "addFriend.entry": {
+    "message": "My Code"
+  },
+  "addFriend.drawer.enterCode": {
+    "message": "Enter Code"
+  },
+  "addFriend.drawer.copyLink": {
+    "message": "Copy Link"
+  },
+  "addFriend.drawer.joined": {
+    "message": "joined"
+  },
+  "addFriend.modal.title": {
+    "message": "Add new friend"
+  },
+  "addFriend.modal.subtitle": {
+    "message": "Enter a code to add a new friend"
+  },
+  "addFriend.modal.errorFriendCode": {
+    "message": "The code is not correct, please try again"
+  },
+  "addFriend.profileEntry": {
+    "message": "Add friend"
+  },
+  "shareContact": {
+    "message": "Share Contact"
+  },
+  "callTooltip": {
+    "message": "Call"
+  },
+  "call.finished": {
+    "message": "The call has ended"
+  },
+  "call.refused": {
+    "message": "Refused by other party"
+  },
+  "call.timeout": {
+    "message": "Timeout"
+  },
+  "call.hangup": {
+    "message": "Get hung up"
+  },
+  "call.noResponse": {
+    "message": "No response"
+  },
+  "call.calleeTimeout": {
+    "message": "The other party is not responding"
+  },
+  "call.AddMembers": {
+    "message": "Add Call Members"
+  },
+  "callError.rateLimitReached": {
+    "message": "The current server has reached the publish streaming limit. Please try again later"
+  },
+  "callError.screenShareExist": {
+    "message": "Screen share already exist"
+  },
+  "floatingMessage.join": {
+    "message": "joined"
+  },
+  "floatingMessage.micOn": {
+    "message": "turned ON mic 🙋🙋🙋"
+  },
+  "floatingMessage.micOff": {
+    "message": "turned OFF mic 🔕"
+  },
+  "floatingMessage.startScreen": {
+    "message": "starts sharing 🖥"
+  },
+  "call.allMemberSilenceReminder": {
+    "message": "No one has been speaking for a while. Would you like to leave the meeting?"
+  },
+  "call.noRemoteMemberReminder": {
+    "message": "No other participants are in the meeting. Would you like to leave?"
+  },
+  "call.timeLeft": {
+    "message": "$second$s left",
+    "placeholders": {
+      "second": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "call.confirmEndCall": {
+    "message": "Do you want to end the meeting for all?"
+  },
+  "call.confirmEndCallTitle": {
+    "message": "End Meeting"
+  },
+  "call.end": {
+    "message": "End for all"
+  },
+  "call.leave": {
+    "message": "Leave"
+  },
+  "call.forceEnd": {
+    "message": "Call ended"
+  },
+  "formatTime.isYear": {
+    "message": "$month$/$day$",
+    "placeholders": {
+      "month": {
+        "content": "$1",
+        "example": "1"
+      },
+      "day": {
+        "content": "$2",
+        "example": "1"
+      }
+    }
+  },
+  "recordTimeLimitTip": {
+    "message": "Recording will stop in $seconds$ seconds",
+    "placeholders": {
+      "seconds": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "speechToText": {
+    "message": "Voice to text"
+  },
+  "cancelSpeechToText": {
+    "message": "Discard Voice-to-Text"
+  },
+  "transcribingError.noTextDetected": {
+    "message": "No text recognized"
+  },
+  "transcribingError.serverError": {
+    "message": "Unable to convert to text"
+  },
+  "transcribeTextBy": {
+    "message": "Voice-to-Text converted by TempTalk server"
+  },
+  "addFriendError.accountLoggedOut": {
+    "message": "This account has logged out and messages can not be reached."
+  },
+  "blockUser": {
+    "message": "Block user"
+  },
+  "blockUserConfirmation": {
+    "message": "Block this user from messaging and calling you on Temptalk?"
+  },
+  "identityKeyResetNotification": {
+    "message": "$name$ reset the identity key and the history messages were cleared.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John"
+      }
+    }
+  },
+  "messageExpiry.extend.title": {
+    "message": "Extend timer?"
+  },
+  "messageExpiry.extend.content": {
+    "message": "Previously deleted messages can’t be recovered."
+  },
+  "messageExpiry.shorten.title": {
+    "message": "Shorten timer?"
+  },
+  "messageExpiry.shorten.content": {
+    "message": "More messages may be deleted and won’t be recoverable. This change applies to all your devices."
+  }
+}

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 23.1.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="图层_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 200 200" style="enable-background:new 0 0 200 200;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:#84562D;}
+	.st1{opacity:0.25;enable-background:new    ;}
+	.st2{fill:#FFFFFF;}
+</style>
+<g>
+	<path class="st0" d="M48.8-1h64.8l56.5,60.3V179c0,11-9,19.9-19.9,19.9H48.8c-11,0-19.9-9-19.9-19.9V19C28.9,8,37.8-1,48.8-1z"/>
+	<path class="st1" d="M113.6-1l56.5,60.3l-41-0.3c-9.4,0-15.6-6.2-15.6-15.6V-1L113.6-1z"/>
+</g>
+<g>
+	<path class="st2" d="M90.9,76.6H73.2v15.1H55.9v21.6c0,5.7,3.2,10.4,7.2,10.8h0.6h19.4c4.1,0,7.5-4.4,7.8-10v-0.8
+		C90.9,113.4,90.9,76.6,90.9,76.6z"/>
+	<rect x="55.9" y="57.5" class="st2" width="17.3" height="19.1"/>
+	<polygon class="st2" points="90.9,38.3 73.2,38.3 73.2,57.5 90.9,57.5 	"/>
+	<polygon class="st2" points="55.9,19.1 55.9,38.3 73.2,38.3 73.2,19.1 	"/>
+	<polygon class="st2" points="73.2,0 73.2,19.1 90.5,19.1 90.5,0 	"/>
+</g>
+</svg>

@@ -1,0 +1,117 @@
+@mixin button-reset {
+  background: none;
+  color: inherit;
+  border: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+  outline: inherit;
+}
+
+@mixin color-svg($svg, $color: currentColor) {
+  -webkit-mask: url($svg) no-repeat center;
+  -webkit-mask-size: 100%;
+  background-color: $color;
+}
+
+@mixin header-icon-white($svg) {
+  @include color-svg($svg, rgba(255, 255, 255, 0.8));
+  &:focus,
+  &:hover {
+    @include color-svg($svg, white);
+  }
+}
+@mixin header-icon-black($svg) {
+  @include color-svg($svg, rgba(0, 0, 0, 0.5));
+  &:focus,
+  &:hover {
+    @include color-svg($svg, black);
+  }
+}
+
+@mixin common-menu {
+  background: var(--dst-color-background-popup);
+  border-radius: var(--dst-radius-large);
+  box-shadow: var(--dst-elevation-2);
+  padding: 4.5px 0;
+}
+
+@mixin common-menu-item($status: 'default') {
+  cursor: pointer;
+  padding: 0;
+  padding-left: 12px;
+  padding-right: 8px;
+  margin: 2px 4px;
+  height: 32px;
+  line-height: 32px;
+  color: var(--dst-color-text-primary);
+  border-radius: var(--dst-radius-middle);
+  gap: 8px;
+  transition: none;
+  font-size: 14px;
+
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  user-select: none;
+
+  @if $status == 'danger' {
+    color: var(--dst-color-text-error);
+  } @else {
+    color: var(--dst-color-text-primary);
+  }
+
+  &:hover {
+    background: var(--dst-color-line);
+    @if $status == 'danger' {
+      color: var(--dst-color-text-error);
+    } @else {
+      color: var(--dst-color-text-primary);
+    }
+  }
+}
+
+@mixin profile-bottom-button($icon-path) {
+  height: 20px;
+  width: 20px;
+  opacity: 0.8;
+  display: inline-block;
+  cursor: pointer;
+  right: 0;
+  margin: 16px 28px;
+  @include color-svg($icon-path, var(--dst-color-text-primary));
+
+  &:focus,
+  &:hover {
+    outline: none;
+    opacity: 1;
+  }
+
+  &:active {
+    content: '';
+    display: inline-block;
+    height: 20px;
+    width: 20px;
+    @include color-svg($icon-path, #056ffa); // Fixed active color
+  }
+}
+
+@mixin common-menu-item-inner($width: 172px) {
+  flex: 1;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  gap: 8px;
+  width: $width;
+  user-select: none;
+}
+
+@mixin hover-background($base-color) {
+  background-color: color-mix(
+    in srgb,
+    #{$base-color} 88%,
+    var(--dst-color-hover-mixin) 12%
+  );
+}

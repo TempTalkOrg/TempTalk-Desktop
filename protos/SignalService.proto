@@ -1,0 +1,640 @@
+package signalservice;
+
+option java_package = "org.whispersystems.signalservice.internal.push";
+option java_outer_classname = "SignalServiceProtos";
+
+message Envelope {
+  enum Type {
+    UNKNOWN       = 0;
+    CIPHERTEXT    = 1;
+    KEY_EXCHANGE  = 2;
+    PREKEY_BUNDLE = 3;
+    RECEIPT       = 5;
+    NOTIFICATION  = 6;
+    PLAINTEXT     = 7;
+    ENCRYPTEDTEXT = 8;
+  }
+
+  enum MsgType {
+    MSG_UNKNOWN           = 0;
+    MSG_NORMAL            = 1;
+    MSG_SYNC              = 2; // synced message except 4 & 9
+    MSG_READ_RECEIPT      = 3;
+    MSG_SYNC_READ_RECEIPT = 4; // synced read receipt
+    MSG_DELIVERY_RECEIPT  = 5;
+    MSG_NOTIFY            = 6;
+    MSG_RECALL            = 7;
+    MSG_RECALLED          = 8;
+    MSG_SYNC_PREVIEWABLE  = 9; // synced previewable message
+    MSG_ENC_CALL          = 12;
+  }
+
+  optional Type     type                = 1;
+  optional string   source              = 2;
+  optional uint32   sourceDevice        = 7;
+  optional string   relay               = 3;
+  reserved                                4;
+  optional uint64   timestamp           = 5;
+  optional bytes    legacyMessage       = 6;  // Contains an encrypted DataMessage
+  optional bytes    content             = 8;  // Contains an encrypted Content
+  reserved                                9;  // optional string serverGuid      = 9;
+  reserved                                10; // optional uint64 serverTimestamp = 10;
+  optional uint64   sequenceId          = 11;
+  optional uint64   systemShowTimestamp = 12;
+  optional uint64   notifySequenceId    = 14;
+  optional MsgType  messageType         = 13;
+  optional string   identityKey         = 15;
+  optional string   peerContext         = 16;
+  reserved                                17;
+  reserved                                18;
+  optional uint64   pushTimestamp       = 19;
+  optional string   roomId              = 20;
+}
+
+message Content {
+  optional DataMessage    dataMessage    = 1;
+  optional SyncMessage    syncMessage    = 2;
+  reserved                                 3;
+  optional NullMessage    nullMessage    = 4;
+  optional ReceiptMessage receiptMessage = 5;
+  optional TypingMessage  typingMessage  = 6;
+  reserved                                 7;
+  optional CallMessage    callMessage    = 8;
+}
+
+message CallMessage {
+  message Calling {
+    optional string           roomId          = 1;
+    optional ConversationId   conversationId  = 2;
+    optional string           roomName        = 3;
+    optional string           caller          = 4;
+    optional bytes            emk             = 5;
+    optional bytes            publicKey       = 6;
+    optional bool             createCallMsg   = 7;
+    optional string           controlType     = 8;
+    repeated string           callees         = 9;
+    optional uint64           timestamp       = 10;
+  }
+
+  message Joined {
+    optional string roomId  = 1;
+  }
+
+  message Cancel {
+    optional string roomId  = 1;
+  }
+
+  message Reject {
+    optional string roomId  = 1;
+  }
+
+  message Hangup {
+    optional string roomId = 1;
+  }
+
+  optional Calling  calling = 1;
+  optional Joined   joined  = 2;
+  optional Cancel   cancel  = 3;
+  optional Reject   reject  = 4;
+  optional Hangup   hangup  = 5;
+}
+
+message RapidFile {
+  optional string rapidHash     = 1;
+  optional string authorizeId   = 2;
+}
+
+enum Mode {
+  NORMAL        = 0;
+  CONFIDENTIAL  = 1;
+}
+
+message DataMessage {
+  enum Flags {
+    END_SESSION             = 1;
+    EXPIRATION_TIMER_UPDATE = 2;
+    PROFILE_KEY_UPDATE      = 4;
+  }
+
+  message Quote {
+    message QuotedAttachment {
+      optional string            contentType = 1;
+      optional string            fileName    = 2;
+      optional AttachmentPointer thumbnail   = 3;
+    }
+
+    optional uint64           id          = 1;
+    optional string           author      = 2;
+    optional string           text        = 3;
+    repeated QuotedAttachment attachments = 4;
+  }
+
+  message Forward {
+    enum Type {
+      // normal forward, body/attachments/forwards/card
+      NORMAL = 0;
+      // end leaf when forwards exceed max depth limitation.
+      EOF    = 1;
+    }
+
+    optional uint64            id           = 1;
+    optional uint32            type         = 2;
+    optional bool              isFromGroup  = 3;
+    optional string            author       = 4;
+    optional string            body         = 5;
+    repeated AttachmentPointer attachments  = 6;
+    repeated Forward           forwards     = 7;
+    optional Card              card         = 8;
+    repeated Mention           mentions     = 9;
+  }
+
+  message ForwardContext {
+    repeated Forward    forwards    = 1;
+    repeated RapidFile  rapidFiles  = 2;
+  }
+
+  message Contact {
+    message Name {
+      optional string givenName   = 1;
+      optional string familyName  = 2;
+      optional string prefix      = 3;
+      optional string suffix      = 4;
+      optional string middleName  = 5;
+      optional string displayName = 6;
+    }
+
+    message Phone {
+      enum Type {
+        HOME   = 1;
+        MOBILE = 2;
+        WORK   = 3;
+        CUSTOM = 4;
+      }
+
+      optional string value = 1;
+      optional Type   type  = 2;
+      optional string label = 3;
+    }
+
+    message Email {
+      enum Type {
+        HOME   = 1;
+        MOBILE = 2;
+        WORK   = 3;
+        CUSTOM = 4;
+      }
+
+      optional string value = 1;
+      optional Type   type  = 2;
+      optional string label = 3;
+    }
+
+    message PostalAddress {
+      enum Type {
+        HOME   = 1;
+        WORK   = 2;
+        CUSTOM = 3;
+      }
+
+      optional Type   type         = 1;
+      optional string label        = 2;
+      optional string street       = 3;
+      optional string pobox        = 4;
+      optional string neighborhood = 5;
+      optional string city         = 6;
+      optional string region       = 7;
+      optional string postcode     = 8;
+      optional string country      = 9;
+    }
+
+    message Avatar {
+      optional AttachmentPointer avatar    = 1;
+      optional bool              isProfile = 2;
+    }
+
+    optional Name              name            = 1;
+    repeated Phone             number          = 3;
+    repeated Email             email           = 4;
+    repeated PostalAddress     address         = 5;
+    optional Avatar            avatar          = 6;
+    optional string            organization    = 7;
+  }
+
+  enum ProtocolVersion {
+    option allow_alias = true;
+
+    INITIAL   = 0;
+    FORWARD   = 1;
+    CONTACT   = 2;
+    RECALL    = 3;
+    TASK      = 4;
+    VOTE      = 5;
+    REACTION  = 6;
+    CARD      = 7;
+    CONFIDE    = 8;
+    SCREENSHOT = 9;
+    CURRENT    = 9;
+  }
+
+  message RealSource {
+    optional string source            = 1;
+    optional uint32 sourceDevice      = 2;
+    optional uint64 timestamp         = 3;
+    optional uint64 serverTimestamp   = 4;
+    optional uint64 sequenceId		    = 5;
+    optional uint64 notifySequenceId  = 6;
+  }
+
+  message Recall {
+    optional RealSource realSource = 1;
+  }
+
+  message Task {
+    enum Priority {
+      P0    = 1;
+      P1    = 2;
+      P2    = 3;
+    }
+    enum Status {
+      INITIAL   = 1;
+      REJECTED  = 11;
+      COMPLETED = 12;
+      CANCELED  = 13;
+    }
+    optional string          taskId            = 1;
+    optional uint32          version           = 2;
+    optional string          creator           = 3;
+    optional uint64          timestamp         = 4;
+    optional string          name              = 5;
+    optional string          notes             = 6;
+    repeated string          assignees         = 7;
+    optional uint64          dueTime           = 8;
+    optional uint32          priority          = 9;
+    repeated string          followers         = 10;
+    optional uint32          status            = 11;
+  }
+
+  message Vote {
+    enum Status {
+      INITIAL   = 1;
+      CLOSED    = 2;
+    }
+
+    message Option {
+      optional uint32        id                = 1;
+      optional string        name              = 2;
+    }
+    optional string          voteId            = 1;
+    optional uint32          version           = 2;
+    optional string          creator           = 3;
+    optional string          name              = 4;
+    repeated Option          options           = 5;
+    optional bool            multiple          = 6;
+    optional uint64          dueTime           = 7;
+    optional uint32          status            = 8;
+    optional uint32          anonymous         = 9;  // 1匿名，2公开
+  }
+
+  message BotContext {
+    enum Type{
+      SUPPORT      = 1;
+      ANNOUNCEMENT = 2;
+    }
+    optional Type       type     = 1;
+    optional RealSource source   = 2;
+    optional bytes      groupId  = 3;
+    optional string     header   = 4;
+  }
+
+  message TopicContext {
+    enum Type { //纬度
+      USER       = 0;
+      MESSAGE    = 1;
+    }
+
+    enum SupportType { //群组类型
+      NORMAL     = 0;
+      SUPPORT    = 1;
+    }
+
+    optional Type         type              = 1; //纬度
+    optional SupportType  supportType       = 2; //群组类型
+    optional RealSource   source            = 3;
+    optional string       sourceBrief       = 4; //Topic简要
+    optional string       sourceDisplayName = 5; //Topic发起人的displayName(截断的 部分展示的名字)
+    optional bool         replyToUser       = 6; //是否回复给用户
+    optional bytes        groupId           = 7; //群组id
+    optional string       groupName         = 8; //Topic发起方群组名称
+    optional string       botId             = 9; //机器人id
+    optional string       topicId           = 10; //Topic唯一id
+
+  }
+
+  message ThreadContext {
+    optional RealSource source      = 1;
+    optional bool       replyToUser = 2;
+    optional bytes      groupId     = 3;
+    optional string     botId       = 4;
+  }
+
+  message Reaction {
+    optional RealSource source    = 1;
+    optional string     emoji     = 2;
+    optional bool       remove    = 3;
+  }
+
+  message Card {
+    enum Type {
+      INSERT  = 0;
+      UPDATE  = 1;
+    }
+
+    enum ContentType {
+      MARKDOWN      = 0;
+      ADAPTIVECARD  = 1;
+    }
+
+    optional string          appId             = 1;
+    optional string          cardId            = 2;
+    optional uint32          version           = 3;
+    optional string          creator           = 4;
+    optional uint64          timestamp         = 5;
+    optional string          content           = 6;
+    optional ContentType     contentType       = 7;
+    optional Type            type              = 8;
+    optional bool            fixedWidth        = 9;
+    optional uint32          height            = 10;
+  }
+
+  message Mention {
+    enum Type {
+      INTERNAL = 0; // 群成员（默认）
+      EXTERNAL = 1; // 非群成员
+    }
+    optional uint32 start = 1;
+    optional uint32 length = 2;
+    optional string uid = 3;
+    optional Type type = 4;
+  }
+
+  message Screenshot {
+    optional RealSource source = 1;
+  }
+
+  optional string             body                    = 1;
+  repeated AttachmentPointer  attachments             = 2;
+  optional GroupContext       group                   = 3;
+  optional uint32             flags                   = 4;
+  optional uint32             expireTimer             = 5;
+  optional bytes              profileKey              = 6;
+  optional uint64             timestamp               = 7;
+  optional Quote              quote                   = 8;
+  reserved /*Contact          contact*/                 9;
+  optional string             atPersons               = 10;
+  optional ForwardContext     forwardContext          = 11;
+  optional uint32             requiredProtocolVersion = 12;
+  repeated Contact            contacts                = 13;
+  optional Recall             recall                  = 14;
+  optional Task               task                    = 15;
+  optional Vote               vote                    = 16;
+  optional BotContext         botContext              = 17;
+  optional ThreadContext      threadContext           = 18;
+  optional TopicContext       topicContext            = 19;
+  optional Reaction           reaction                = 20;
+  optional Card               card                    = 21;
+  repeated Mention            mentions                = 22;
+  optional Mode               messageMode             = 23;
+  optional Screenshot         screenshot              = 24;
+}
+
+message NullMessage {
+  optional bytes padding = 1;
+}
+
+message ReceiptMessage {
+  enum Type {
+    DELIVERY = 0;
+    READ     = 1;
+  }
+
+  optional Type         type          = 1;
+  repeated uint64       timestamp     = 2;
+  optional ReadPosition readPosition  = 3;
+  optional Mode         messageMode   = 4;
+}
+
+message TypingMessage {
+    enum Action {
+        STARTED = 0;
+        STOPPED = 1;
+    }
+
+    optional uint64 timestamp = 1;
+    optional Action action    = 2;
+    optional bytes  groupId   = 3;
+}
+
+message Verified {
+  enum State {
+    DEFAULT    = 0;
+    VERIFIED   = 1;
+    UNVERIFIED = 2;
+  }
+
+  optional string destination = 1;
+  optional bytes  identityKey = 2;
+  optional State  state       = 3;
+  optional bytes  nullMessage = 4;
+}
+
+message SyncMessage {
+  message Sent {
+    optional string      destination              = 1;
+    optional uint64      timestamp                = 2;
+    optional DataMessage message                  = 3;
+    optional uint64      expirationStartTimestamp = 4;
+    repeated RapidFile   rapidFiles               = 5;
+    optional uint64      serverTimestamp          = 6;
+    optional uint64      sequenceId               = 7;
+    optional uint64      notifySequenceId         = 8;
+  }
+
+  message Contacts {
+    optional AttachmentPointer blob     = 1;
+    optional bool              complete = 2 [default = false];
+  }
+
+  message Groups {
+    optional AttachmentPointer blob = 1;
+  }
+
+  message Blocked {
+    repeated string numbers = 1;
+    repeated bytes groupIds = 2;
+  }
+
+  message Request {
+    enum Type {
+      UNKNOWN       = 0;
+      CONTACTS      = 1;
+      GROUPS        = 2;
+      BLOCKED       = 3;
+      CONFIGURATION = 4;
+    }
+
+    optional Type type = 1;
+  }
+
+  message Read {
+    optional string       sender       = 1;
+    optional uint64       timestamp    = 2;
+    optional ReadPosition readPosition = 3;
+    optional Mode         messageMode  = 4;
+  }
+
+  message Configuration {
+    optional bool readReceipts                   = 1;
+    optional bool typingIndicators               = 3;
+  }
+
+  message Task {
+    enum Type {
+      READ       = 0;
+    }
+    optional string taskId    = 1;
+    optional uint32 version   = 2;
+    optional uint32 type      = 3;
+    optional uint64 timestamp = 4;
+  }
+
+  message MarkAsUnread {
+    // 0: 清除设定的未读状态 1、置未读  2、置全部已读
+    enum Flag {
+      CLEAR  = 0;
+      UNREAD = 1;
+      READ   = 2;
+    }
+
+    optional ConversationId conversationId  = 1;
+    optional Flag           flag            = 2;
+  }
+
+  message ConversationArchive {
+    enum Flag {
+      UNARCHIVE = 0;   //解档
+      ARCHIVE  = 1;       //归档
+    }
+
+    optional ConversationId conversationId = 1;
+    optional Flag           flag           = 2;
+  }
+
+  optional Sent                 sent                = 1;
+  optional Contacts             contacts            = 2;
+  optional Groups               groups              = 3;
+  optional Request              request             = 4;
+  repeated Read                 read                = 5;
+  optional Blocked              blocked             = 6;
+  optional Verified             verified            = 7;
+  optional Configuration        configuration       = 9;
+  optional bytes                padding             = 8;
+  repeated Task                 tasks               = 10;
+  optional MarkAsUnread         markAsUnread        = 11;
+  optional ConversationArchive  conversationArchive = 12;
+}
+
+message AttachmentPointer {
+  enum Flags {
+    VOICE_MESSAGE = 1;
+  }
+
+  optional fixed64 id          = 1;
+  optional string  contentType = 2;
+  optional bytes   key         = 3;
+  optional uint32  size        = 4;
+  optional bytes   thumbnail   = 5;
+  optional bytes   digest      = 6;
+  optional string  fileName    = 7;
+  optional uint32  flags       = 8;
+  optional uint32  width       = 9;
+  optional uint32  height      = 10;
+  optional string  caption     = 11;
+}
+
+message GroupContext {
+  enum Type {
+    UNKNOWN      = 0;
+    UPDATE       = 1;
+    DELIVER      = 2;
+    QUIT         = 3;
+    REQUEST_INFO = 4;
+  }
+  optional bytes             id      = 1;
+  optional Type              type    = 2;
+  optional string            name    = 3;
+  repeated string            members = 4;
+  optional AttachmentPointer avatar  = 5;
+}
+
+// message ContactDetails {
+//   message Avatar {
+//     optional string contentType = 1;
+//     optional uint32 length      = 2;
+//   }
+
+//   optional string   number      = 1;
+//   optional string   name        = 2;
+//   optional Avatar   avatar      = 3;
+//   optional string   color       = 4;
+//   optional Verified verified    = 5;
+//   optional bytes    profileKey  = 6;
+//   optional bool     blocked     = 7;
+//   optional uint32   expireTimer = 8;
+// }
+
+// message GroupDetails {
+//   message Avatar {
+//     optional string contentType = 1;
+//     optional uint32 length      = 2;
+//   }
+
+//   optional bytes  id          = 1;
+//   optional string name        = 2;
+//   repeated string members     = 3;
+//   optional Avatar avatar      = 4;
+//   optional bool   active      = 5 [default = true];
+//   optional uint32 expireTimer = 6;
+//   optional string color       = 7;
+//   optional bool   blocked     = 8;
+// }
+
+message ReadPosition {
+  optional bytes   groupId             = 1;
+  optional uint64  readAt              = 2;
+  optional uint64  maxServerTimestamp  = 3;
+  optional uint64  maxNotifySequenceId = 4;
+  optional uint64  maxSequenceId       = 5; // used for hot message pulling
+}
+
+message ConversationId {
+  optional string  number  = 1; // private conversation, receipt's number
+  optional bytes   groupId = 2; // group conversation, group id_v1
+}
+
+message ConversationPreview {
+  optional ConversationId  conversationId         = 1;
+  optional ReadPosition    readPosition           = 2; // latest read position
+  optional uint32          unreadCorrection       = 3;
+  optional Envelope        latestMessage          = 4; // latest previewable message
+  repeated Envelope        onePageMessages        = 5;
+  optional uint64          latestMsgNtfSeqId      = 6; // notify sequence id of latest message
+  optional uint64          maxOutgoingMsgNtfSeqId = 7; // max notify sequence id in outgoing messages
+  optional uint64          maxOutgoingMsgSeqId    = 8; // max sequence id in outgoing messages
+}
+
+message ConversationMsgInfo {
+  optional ConversationPreview  conversationPreview = 1;
+  optional uint64               oldestMsgSeqId      = 2; // sequence id of oldest pullable message
+  optional uint64               oldestMsgNtfSeqId   = 3; // notify sequence id of oldest pullable message
+  optional uint64               latestMsgSeqId      = 4; // sequence id of latest pullable message
+}

@@ -1,0 +1,40 @@
+.separate-message-viewer {
+  &-title {
+    position: relative;
+    margin: 0;
+    width: 100vw;
+    height: 32px;
+    font-size: 14px;
+    line-height: 32px;
+    background-color: var(--dst-color-image-gallery-toolbar);
+    -webkit-app-region: drag;
+    z-index: 10;
+    text-align: center;
+    color: #fff !important;
+  }
+
+  &-body-wrapper {
+    position: relative;
+    width: 100vw;
+    height: calc(100vh - 32px);
+    background-color: var(--dst-color-background);
+    padding: 12px;
+    overflow-y: auto;
+    &::-webkit-scrollbar {
+      display: none;
+    }
+    &::-webkit-scrollbar-thumb {
+      display: none;
+    }
+  }
+  &-row {
+    line-height: 1;
+    margin-bottom: 2px;
+    color: transparent;
+    background-color: var(--dst-color-text-disable);
+    &.should-show-text {
+      color: var(--dst-color-text-primary);
+      background-color: transparent;
+    }
+  }
+}

@@ -1,0 +1,15 @@
+@import 'colors';
+@import 'radius';
+@import 'elevation';
+
+body {
+  @include dst-colors(light);
+  @include dst-radius();
+  @include dst-elevations(light);
+
+  &.dark-theme {
+    @include dst-colors(dark);
+    @include dst-radius();
+    @include dst-elevations(dark);
+  }
+}

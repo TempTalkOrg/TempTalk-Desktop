@@ -1,0 +1,47 @@
+# test directories
+__tests__
+test
+tests
+powered-test
+
+# asset directories
+docs
+doc
+website
+images
+assets
+
+# examples
+example
+
+# code coverage directories
+coverage
+.nyc_output
+
+# build scripts
+Makefile
+Gulpfile.js
+Gruntfile.js
+
+# configs
+.tern-project
+.gitattributes
+.editorconfig
+.*ignore
+.eslintrc
+.jshintrc
+.flowconfig
+.documentup.json
+.yarn-metadata.json
+.*.yml
+
+# misc
+*.md
+
+# asset directories
+!nyc/node_modules/istanbul-reports/lib/html/assets
+!@cc-kit/react-screenshots/electron/assets
+
+# fix Error: Cannot find module '../doc/directives.js'
+# https://github.com/eemeli/yaml/issues/384
+!**/yaml/dist/**/doc

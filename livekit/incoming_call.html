@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+  <head>
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none';
+            child-src 'self';
+            connect-src 'self' https: wss:;
+            font-src 'self';
+            form-action 'self';
+            frame-src 'none';
+            img-src 'self' blob: data:;
+            media-src 'self' blob:;
+            object-src 'none';
+            script-src 'self';
+            style-src 'self' 'unsafe-inline';"
+    />
+    <link href="../stylesheets/manifest.css" rel="stylesheet" type="text/css" />
+  </head>
+
+  <body
+    style="background: transparent !important; border-radius: 8px; padding: 1px"
+  >
+    <div class="incoming-call-root"></div>
+    <script src="../js/play_sound.js"></script>
+    <script src="incoming_call_start.js"></script>
+  </body>
+</html>

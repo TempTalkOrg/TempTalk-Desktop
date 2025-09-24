@@ -1,0 +1,173 @@
+.ant-dropdown.universal-dropdown-overlay {
+  .ant-dropdown-menu {
+    @include common-menu;
+  }
+  .ant-dropdown-menu-item {
+    padding: 0;
+    margin: 0;
+    &:hover {
+      background-color: transparent;
+    }
+    .ant-dropdown-menu-title-content {
+      @include common-menu-item;
+    }
+  }
+
+  .ant-dropdown-menu-item-group-list {
+    margin: 0 4px;
+  }
+
+  .ant-dropdown-menu-submenu-title {
+    padding: 0;
+
+    .ant-dropdown-menu-title-content {
+      @include common-menu-item;
+    }
+    &:hover {
+      background-color: transparent;
+    }
+  }
+
+  .ant-dropdown-menu-submenu-arrow {
+    top: 50%;
+    transform: translateY(-50%);
+    inset-inline-end: 12px !important;
+
+    -webkit-mask: url(../images/arrow.svg) no-repeat center;
+    -webkit-mask-size: 100%;
+    background-color: var(--dst-color-icon);
+    height: 16px;
+    width: 16px;
+    .ant-dropdown-menu-submenu-arrow-icon {
+      display: none;
+    }
+  }
+
+  &.meeting-context-menu {
+    .ant-dropdown-menu {
+      width: 160px;
+    }
+    .ant-dropdown-menu-title-content {
+      height: 30px;
+      line-height: 30px;
+      font-size: 12px;
+      padding-left: 16px;
+    }
+  }
+
+  &.translate-context-menu {
+    .ant-dropdown-menu {
+      width: 180px;
+    }
+    .ant-dropdown-menu-title-content {
+      height: 30px;
+      line-height: 30px;
+      font-size: 12px;
+      padding-left: 16px;
+    }
+
+    .ant-dropdown-menu-item-group-title {
+      font-size: 12px;
+      color: var(--dst-color-text-primary);
+      font-weight: 510;
+    }
+
+    .ant-dropdown-menu-item-group-list {
+      .ant-dropdown-menu-title-content {
+        padding-left: 6px;
+      }
+    }
+  }
+}
+
+.ant-dropdown-menu-submenu.universal-context-menu-submenu {
+  .ant-dropdown-menu-sub {
+    @include common-menu;
+  }
+  .ant-dropdown-menu-item {
+    padding: 0;
+    &:hover {
+      background-color: transparent;
+    }
+  }
+
+  .ant-dropdown-menu-title-content {
+    @include common-menu-item;
+  }
+}
+
+.ant-dropdown-menu {
+  .ant-dropdown-menu-item-divider {
+    background-color: rgba(5, 5, 5, 0.06);
+  }
+}
+
+.ant-popover-arrow {
+  &::before {
+    background-color: var(--dst-color-background-popup) !important;
+  }
+}
+
+.ant-tooltip.universal-tooltip {
+  .ant-tooltip-arrow {
+    &::before {
+      background: var(--dst-color-background-tooltip);
+    }
+  }
+  .ant-tooltip-inner {
+    background: var(--dst-color-background-tooltip);
+    padding: 5px 10px;
+  }
+}
+
+.ant-modal-root.call-window-modal {
+  .ant-modal-header {
+    border-bottom: none;
+  }
+
+  .ant-modal-footer {
+    border-top: none;
+    .ant-btn-default {
+      background-color: transparent;
+      border-color: var(--dst-color-line);
+    }
+  }
+
+  .ant-modal-header,
+  .ant-modal-content,
+  .ant-modal-body {
+    background-color: var(--dst-color-background-modal) !important;
+  }
+
+  .ant-modal-title {
+    font-size: 16px;
+    font-weight: 510;
+    line-height: 24px;
+    color: var(--dst-color-text-primary);
+  }
+}
+
+.ant-btn {
+  &.default-button {
+    background: transparent;
+    color: var(--dst-color-text-primary);
+    &:hover {
+      background: transparent !important;
+    }
+  }
+}
+
+.set-message-expiry-modal {
+  .ant-modal-confirm-title {
+    color: var(--dst-color-text-primary);
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 24px;
+  }
+  .ant-modal-confirm-content {
+    color: var(--dst-color-text-secondary);
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 20px;
+  }
+}

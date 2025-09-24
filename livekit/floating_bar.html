@@ -1,0 +1,37 @@
+<!doctype html>
+<html>
+  <head>
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none';
+            child-src 'self';
+            connect-src 'self' https: wss:;
+            font-src 'self';
+            form-action 'self';
+            frame-src 'none';
+            img-src 'self' blob: data:;
+            media-src 'self' blob:;
+            object-src 'none';
+            script-src 'self';
+            style-src 'self' 'unsafe-inline';"
+    />
+    <link href="../stylesheets/manifest.css" rel="stylesheet" type="text/css" />
+    <title>CallFloatingBar</title>
+    <style>
+      html {
+        overflow: hidden;
+      }
+    </style>
+  </head>
+
+  <body class="floating-bar">
+    <div style="width: 1px; height: 1px; position: absolute; left: -9999px">
+      <img src="../images/microphone-disable.svg" />
+      <img src="../images/microphone-enable.svg" />
+    </div>
+  </body>
+  <script src="../js/components.js"></script>
+  <script src="../js/views/react_wrapper_view.js"></script>
+  <script src="../js/watermark.js"></script>
+  <script src="floating_bar_start.js"></script>
+</html>

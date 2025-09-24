@@ -1,0 +1,48 @@
+.forwarded-message-block {
+  width: 280px;
+  user-select: none;
+  border: 1px solid $app-color-line-light;
+  border-radius: 8px;
+  margin-top: 5px;
+  padding-top: 5px;
+  padding-bottom: 10px;
+  padding-left: 10px;
+  padding-right: 10px;
+  background-color: white;
+  cursor: pointer;
+
+  .forwarded-message-title {
+    font-size: 14px;
+    line-height: 16px;
+    margin: 8px 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .forwarded-message-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    margin: 0px;
+    padding: 0px;
+    color: var(--dst-color-text-third);
+    font-size: 12px;
+    line-height: 16px;
+  }
+
+  .forwarded-message-bottom-splitter {
+    margin-top: 10px;
+    margin-bottom: 8px;
+    border: none;
+    border-bottom: 1px solid var(--dst-color-line);
+  }
+
+  .forwarded-message-bottom-tip {
+    color: var(--dst-color-text-third);
+    font-size: 10px;
+    line-height: 14px;
+  }
+}

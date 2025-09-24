@@ -1,0 +1,16 @@
+export { default as IconArrowDown } from './ArrowDown';
+export { default as IconBackToMain } from './BackToMain';
+export { default as IconCall } from './Call';
+export { default as IconClearCircle } from './ClearCircle';
+export { default as IconClose } from './Close';
+export { default as IconCombineAndForward } from './CombineAndForward';
+export { default as IconForward } from './Forward';
+export { default as IconIncomingCallAccept } from './IncomingCallAccept';
+export { default as IconIncomingCallReject } from './IncomingCallReject';
+export { default as IconMediaDeviceCheck } from './MediaDeviceCheck';
+export { default as IconMicDisabled } from './MicDisabled';
+export { default as IconPause } from './Pause';
+export { default as IconPlay } from './Play';
+export { default as IconSaveToNote } from './SaveToNote';
+export { default as IconSearchResult } from './SearchResult';
+export { default as IconSearch } from './Search';

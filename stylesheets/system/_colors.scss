@@ -1,0 +1,106 @@
+@mixin unruled($theme: light) {
+  @if $theme ==light {
+    --dst-color-image-gallery-toolbar: #e8e8e8;
+    --dst-color-image-gallery-toolbar-popover: #e8e8e8;
+    --dst-color-image-gallery-toolbar-icon: #5c5c5c;
+    --dst-color-image-gallery-toolbar-icon-active-background: #c5c5c5;
+    --dst-color-image-gallery-background: #969696;
+
+    --dst-color-modal-scrollbar-thumb-border: #b0b1b2;
+    --dst-color-modal-scrollbar-thumb: #88898c;
+    --dst-color-modal-scrollbar-thumb-bg: #a4a6a9;
+    --dst-color-modal-scrollbar-track-bg: #eaecef;
+    --dst-color-modal-scrollbar-conor-bg: #fff;
+
+    --dst-color-modal-btn-primary-hover-bg: #1978f5;
+    --dst-color-modal-btn-default-hover-bg: #fbfbfb;
+  }
+
+  @if $theme ==dark {
+    --dst-color-image-gallery-toolbar: #373637;
+    --dst-color-image-gallery-toolbar-popover: #4f4f4e;
+    --dst-color-image-gallery-toolbar-icon: #b7b6b7;
+    --dst-color-image-gallery-toolbar-icon-active-background: #444243;
+    --dst-color-image-gallery-background: #969696;
+
+    --dst-color-modal-scrollbar-thumb-border: #88898c;
+    --dst-color-modal-scrollbar-thumb: #88898c;
+    --dst-color-modal-scrollbar-thumb-bg: #88898c;
+    --dst-color-modal-scrollbar-track-bg: #1e2329;
+    --dst-color-modal-scrollbar-conor-bg: #000;
+
+    --dst-color-modal-btn-primary-hover-bg: #1978f5;
+    --dst-color-modal-btn-default-hover-bg: #343c46;
+  }
+}
+
+@mixin dst-colors($theme: light) {
+  --dst-color-brand-primary: #056ffa;
+  --dst-color-primary: #056ffa;
+  --dst-color-function-success: #01bc6a;
+  --dst-color-function-error: #f84135;
+
+  @if $theme ==light {
+    --dst-color-background: #ffffff;
+    --dst-color-background-secondary: #fafafa;
+    --dst-color-background-third: #f5f5f5;
+    --dst-color-background-four: #eaecef;
+    --dst-color-background-space: #001c4e;
+    --dst-color-text-disable: #b7bdc6;
+    --dst-color-background-popup: #fff;
+    --dst-color-background-elevate: #f5f5f5;
+    --dst-color-background-modal: #ffffff;
+    --dst-color-background-disable: #eaecef;
+    --dst-color-background-tooltip: #5e6673;
+
+    --dst-color-text-primary: #1e2329;
+    --dst-color-text-secondary: #474d57;
+    --dst-color-text-third: #848e9c;
+    --dst-color-text-white: #ffffff;
+    --dst-color-text-black: #181a20;
+    --dst-color-text-success: #00764b;
+    --dst-color-text-error: #d9271e;
+    --dst-color-text-info: #056ffa;
+
+    --dst-color-line: #eaecef;
+    --dst-color-icon: #474d57;
+    --dst-color-divider: #eaecef;
+    --dst-color-sky: #ebf7ff;
+
+    --dst-color-hover-mixin: #000;
+
+    @include unruled(light);
+  }
+
+  @if $theme ==dark {
+    --dst-color-background: #181a20;
+    --dst-color-background-secondary: #1e2329;
+    --dst-color-background-third: #2b3139;
+    --dst-color-background-four: #474d57;
+    --dst-color-background-space: #333941;
+    --dst-color-text-disable: #5e6673;
+    --dst-color-background-popup: #1e2329;
+    --dst-color-background-elevate: #0b0e11;
+    --dst-color-background-modal: #2b3139;
+    --dst-color-background-disable: #474d57;
+    --dst-color-background-tooltip: #5e6673;
+
+    --dst-color-text-primary: #eaecef;
+    --dst-color-text-secondary: #b7bdc6;
+    --dst-color-text-third: #848e9c;
+    --dst-color-text-white: #ffffff;
+    --dst-color-text-black: #181a20;
+    --dst-color-text-success: #01bc6a;
+    --dst-color-text-error: #f84135;
+    --dst-color-text-info: #82c1fc;
+
+    --dst-color-line: #474d57;
+    --dst-color-icon: #b7bdc6;
+    --dst-color-divider: #2b3139;
+    --dst-color-sky: #036;
+
+    --dst-color-hover-mixin: #fff;
+
+    @include unruled(dark);
+  }
+}

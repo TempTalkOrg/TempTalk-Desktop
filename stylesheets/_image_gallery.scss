@@ -1,0 +1,77 @@
+.toolbar-operation-button {
+  height: 28px;
+  width: 28px;
+  background: transparent;
+  border: 0;
+  outline: 0;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--dst-color-image-gallery-toolbar-icon);
+  border-radius: 4px;
+
+  &.active,
+  &:hover {
+    background-color: var(
+      --dst-color-image-gallery-toolbar-icon-active-background
+    );
+    // border-color: var(--dst-color-image-gallery-toolbar-icon);
+  }
+
+  &.disabled {
+    color: #bbb;
+    cursor: not-allowed;
+    &:hover {
+      background-color: transparent;
+    }
+  }
+
+  &:active {
+    opacity: 0.5;
+  }
+}
+
+.toolbar-operation-popover-overlay {
+  .ant-popover-arrow {
+    &::before,
+    &::after {
+      background-color: var(--dst-color-image-gallery-toolbar-popover);
+    }
+  }
+  .ant-popover-inner {
+    padding: 4px;
+    border-radius: 4px;
+    background-color: var(--dst-color-image-gallery-toolbar-popover);
+  }
+  .screenshots-color-item {
+    border: 1px solid transparent;
+    &.screenshots-color-active {
+      border: 1px solid #056ffa;
+    }
+  }
+
+  .screenshots-mosaic-type-item {
+    height: 22px;
+    width: 22px;
+    border-radius: 4px;
+    padding: 2px;
+    color: var(--dst-color-image-gallery-toolbar-icon);
+    &.is-checked,
+    &:hover {
+      color: var(--dst-color-image-gallery-toolbar-icon);
+      background-color: var(
+        --dst-color-image-gallery-toolbar-icon-active-background
+      );
+      outline: 1px solid transparent;
+    }
+    svg {
+      height: 20px;
+      width: 20px;
+      font-size: 20px;
+      line-height: 20px;
+    }
+  }
+}
+@import '../node_modules/@cc-kit/react-screenshots/lib/style.css';

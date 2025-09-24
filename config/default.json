@@ -1,0 +1,258 @@
+{
+  "updatesUrl": "https://d.chative.com/d",
+  "updatesPublicKey": "e398bc36f5074382a8b04f9b5b81d91db6fc7762bb99d2e3d18f044a98746509",
+  "updatesEnabled": false,
+  "openDevTools": false,
+  "buildExpiration": 0,
+  "certificateAuthority": "-----BEGIN CERTIFICATE-----\nMIIFfzCCA2egAwIBAgICEAAwDQYJKoZIhvcNAQELBQAwUzELMAkGA1UEBhMCR0Ix\nEDAOBgNVBAgMB0VuZ2xhbmQxEjAQBgNVBAoMCURpZmZ0IEx0ZDEeMBwGA1UEAwwV\nRGlmZnQgQ3liZXJUcnVzdCBSb290MB4XDTIxMTExNjExNDE0OVoXDTMxMTExNDEx\nNDE0OVowSjELMAkGA1UEBhMCR0IxEDAOBgNVBAgMB0VuZ2xhbmQxEjAQBgNVBAoM\nCURpZmZ0IEx0ZDEVMBMGA1UEAwwMRGlmZnQgU1NMIENBMIICIjANBgkqhkiG9w0B\nAQEFAAOCAg8AMIICCgKCAgEArtzHa4n2PiMa1GajuOzcJjr/ipaQ6K3dMYfiP7Xq\n+tV9zh7kD/DAece1KSX+4SavpLgCb/B3r8zL0YpDuth6Gn9Ql2XWOD5JGUeP6+gG\njjfZGkjAOdaOT+A/gcRkZ7DizGI0/ZS7Ga4EKSnWuC0P23iJSgToZSPMbmTDl70u\nIk2xNpUokM7tiavEuIv2+HA/cOM34IntVd1f7bYp1EOq+i0qbZN+ruCPgGeatbqb\nO1KU5OQ3ygDeCWivTPF7w9EnKSaUl/9Qvohdp2mM8+ANojivhWE4mffSmHJnHqv5\nZLEliEvbQAI58Pum/wG4khRKMrEXtXdrf+9ye+/wAkdo17ZRkioOHWA9hJbzaDax\nfeQkv4KTf0ajF35WPhOtDOzZ5r5Eutc5GWORo8spGJaH5R660J4ihBF+ElTsp19v\nFZOnEEra1m3NhJwVl0g+4GznTtor9nDyYWT4es+p960+e2i9cO6WiJBmKOj003qu\nlLuodmJIZzvYRn2eCOhLkbSqT5dhRSjSyYYLPgIK3cnyrLAckzuDz+iuHqcuCX2Q\nofFwmuPXKhqVKlqD3iVdIs5s2pKhcWOXpWx/KeVRdPUmbfMJ0dbcn1f6lL2qzT8K\nmoYqBB1hadPkidxAFdYZfb74yxA7ZjxEsOEfT3zVilR8Uh67B+vqf5LyvOF2+9o6\n4rECAwEAAaNmMGQwHQYDVR0OBBYEFHbN8ZCS4Y5ozQEfKM/xGPL86kKwMB8GA1Ud\nIwQYMBaAFLlSihYU9MSuErmS76++NAtE/qJJMBIGA1UdEwEB/wQIMAYBAf8CAQAw\nDgYDVR0PAQH/BAQDAgGGMA0GCSqGSIb3DQEBCwUAA4ICAQAizrIlGejeXsfI7Lx0\nbqlfZG485zqoqLOTT0HB4LCniBKJTn8VUHTM5jqDKEIEqTUal2m/rOuV84kJorbc\nfoFEB/U72I1BolvCvNvxtYlwlWfrVVmebyrDJgdB1cxenYu5a5YloT0mopgZ+b8J\nEuR08ey4E3WGvHEoY24cuh6VjFIaOs4JFQYqfQ9T65MM0CBIm1niGXLhIEMXJrqW\npl8hMDEzmzz9h7EJqrvn0dkuVlj9ERpF5SKrx15CmXgxnmTflBosPTCHDYtBmLew\nNE27IobTksNN5uge7lRYCFX+troJXMoX/1zJbMxicaQLXj6eqvNk/Pt3e7hc2wje\ntjNFui8IygwkRVuGOXwQq62nuAQrtPsNrI+0bJevo8Py+5gA3YSLTGIcFxxQxkzs\n7xWEa+FVc9f2HnKb6Xz/tY5qiTUxyQmuKoQseunNvYco+ezlUsbE8HuXScPJfYfs\nEKWn17hmVEqGnID69oMAkX+XtU8y2mCWP278HCRvk1FHfZCVy/lY7FWGGUuyKsxI\njRZhTJBdpY2aMfpT4z3aOn0MLd8jnAHe2BQ4a/x9UN7+KvRUCwfN+F+z4Hgl+0fi\n3SxETa0xDaH6vgxrDgi06j37IxAMliMhDwmPIpAEVjStfx4NZ4duANLBCqXJjpyb\ne6IO4vHMTohQzz7eBZAoXeEF3w==\n-----END CERTIFICATE-----\n-----BEGIN CERTIFICATE-----\nMIIFmTCCA4GgAwIBAgIUUoDQhnD2xrGerkCY7EAs8JYgzUswDQYJKoZIhvcNAQEL\nBQAwUzELMAkGA1UEBhMCR0IxEDAOBgNVBAgMB0VuZ2xhbmQxEjAQBgNVBAoMCURp\nZmZ0IEx0ZDEeMBwGA1UEAwwVRGlmZnQgQ3liZXJUcnVzdCBSb290MCAXDTIxMTEx\nNjExNDEwMFoYDzIwNzExMTA0MTE0MTAwWjBTMQswCQYDVQQGEwJHQjEQMA4GA1UE\nCAwHRW5nbGFuZDESMBAGA1UECgwJRGlmZnQgTHRkMR4wHAYDVQQDDBVEaWZmdCBD\neWJlclRydXN0IFJvb3QwggIiMA0GCSqGSIb3DQEBAQUAA4ICDwAwggIKAoICAQDg\nJwQPXj3Y92ta8Dc4nhJZBcbi0TyuKEYGTgyGKv2E5k7TCg9ggg+KS9Fsx1SkfX1k\n9u/okJkaNxLot8TbkYrXpgXoroDI1akQRBiCs7TAb47OuhVJ0BVh8CxNJqIJz1vk\nHRhI5POlaCjK7bb1p3QpMjsKlqKOdJUuC/GtIhCZ1qj/Nr8rC9HqJl2Qv/R+rGon\nsRLY8vz/9Tdi3vIONNyo1ZB+RuGe4CccLjz+cQ2QMx/Z1KUapgIMvVgHm5M26yal\n815BwXgYGXPbZTSwpp3N09n4rxl1J1bl64K0CiE2Xv43Va5Bbh65mKDMsBoGN9GZ\nVJSQsUrcVaRm2lcgSbL+0qufmifH7WsYYzw9om0cxeC36yLm7JWcSdpdzXTrZzjA\nrrGtFKwuljmtRu07UPHqQnQNWnEANdCDAWrv5e/l7rzsLpoE/vAdFd4oUg5fsa9z\nqHaXRKZY99Fn8cBo+7sfaNckYtwTuUFS3uvrTjs1cVabE19xyM36AdhtEOw0Ryfg\nPK/E9peLYPKZ2bvV5xcQIQFZ1+82tBcRQ0EAaKEeROos9t2dllTZsj6v7azCsbHP\n/1L49hfDOCYpwXmScFDd5MpkU7TqqdCAXpacG9nbkpyN99t2541NRJtFch36shoC\n69/aB589C1F62y05QzB1Wbx+/b8r/1tfCPqGf6qTswIDAQABo2MwYTAdBgNVHQ4E\nFgQUuVKKFhT0xK4SuZLvr740C0T+okkwHwYDVR0jBBgwFoAUuVKKFhT0xK4SuZLv\nr740C0T+okkwDwYDVR0TAQH/BAUwAwEB/zAOBgNVHQ8BAf8EBAMCAYYwDQYJKoZI\nhvcNAQELBQADggIBAF3CSPGyakBJCoiSnoCc+kYIQQUqPsfDzfaa9xc348pKkBjh\nzgtuO1dD4ObwcbFzcdLbs72z8uOJ3UfltSOCPSlkbOZYVUYUW80vgGTvYhj1aDtA\n5xxjC+b4DX5C5qIN8r8QfSgzA6L/B8U9TedscXxbH8v6Y8rJXRnqIcBZiDfpAYFD\nwK7zwniCu7mudglamDV1vDEAQWJnQ35hvmi/d8IEKvSUblRM1CxsqZfg1bYEgtVL\nWYgKtVOaWcHDyWr83awzMVrrFsMmLrBUhdrAFW9MWchtfXAIZqfljmYZDelNEuOe\n9+273m2AdYtqv5c+2FvS2/sdgfEnFhK7WNDQIb1EzYY0/tGajMtXWlZPa+kuFaYy\nGmWfVmctTRIgbXRgksU5qLABZMV5FHPxbvKykEE3oefG/XQclM8mYmo38j6nb8kh\neUV1rCXBSw/2Mb/EpAw/akMXwBekxh5/b00r3qraH+Cazxz0AzZhO55ilaIWrjSm\nH5CELckQJViA2SXOJImG5jHdryHNy2K8g5dIamyRa0ZhksAXDX34CMzOWv+Z2cYh\n2BFE/RbJPCudpLbt3SAcQ0H6vsS5c9B9cGDzxVdy10kSwoegEGY23FV/At7pHI4y\nLhJxRfwD7EyxSrWqBOqjEpJgTOYXAA0U1E3VMfJFpneprvJsHaVFWuxJ179D\n-----END CERTIFICATE-----\n",
+  "import": false,
+  "flavorId": "CC224CCA",
+  "globalConfigURLs": [
+    "https://aly-c-config-1307206075.oss-accelerate.aliyuncs.com/Chative-MultiGlobalConfigureationFile.json",
+    "https://chative-config-files.s3.me-central-1.amazonaws.com/Chative-MultiGlobalConfigureationFile.json",
+    "https://d3repcs3hxhwgl.cloudfront.net/Chative-MultiGlobalConfigureationFile.json"
+  ],
+  "globalConfig": {
+    "hosts": [
+      {
+        "name": "srv.chative.im",
+        "certType": "authority",
+        "servTo": "fuse"
+      },
+      {
+        "name": "srv.chative.online",
+        "certType": "authority",
+        "servTo": "fuse"
+      },
+      {
+        "name": "srv.chative.ninja",
+        "certType": "authority",
+        "servTo": "fuse"
+      },
+      {
+        "name": "chat.chative.im",
+        "certType": "self",
+        "servTo": "chat"
+      },
+      {
+        "name": "chat.chative.online",
+        "certType": "self",
+        "servTo": "chat"
+      },
+      {
+        "name": "chat.chative.ninja",
+        "certType": "self",
+        "servTo": "chat"
+      }
+    ],
+    "srvs": {
+      "chat": "/chat",
+      "call": "/call",
+      "fileSharing": "/fileshare",
+      "translate": "/translate"
+    },
+    "avatarFile": "https://d272r1ud4wbyy4.cloudfront.net",
+    "disappearanceTimeInterval": {
+      "default": 604800,
+      "message": {
+        "default": 604800,
+        "me": 0
+      },
+      "messageArchivingTimeOptionValues": [
+        3600,
+        86400,
+        604800,
+        2592000,
+        7776000
+      ],
+      "conversation": {
+        "default": 2592000,
+        "me": 0,
+        "other": 2592000,
+        "group": 2592000
+      }
+    },
+    "recall": {
+      "timeoutInterval": 86400,
+      "editableInterval": 300
+    },
+    "maxStickCount": 15,
+    "call": {
+      "muteOtherEnabled": false,
+      "countdownTimerEnabled": false,
+      "autoLeave": {
+        "promptReminder": {
+          "silenceTimeout": 300000,
+          "soloMemberTimeout": 300000
+        },
+        "runAfterReminderTimeout": 180000
+      },
+      "countdownTimer": {
+        "warningThreshold": 10000,
+        "shakingThreshold": 5000
+      },
+      "chatPresets": [
+        "Good 👍",
+        "Agree ✅",
+        "Disagree ❌",
+        "Bad 😝",
+        "Can't hear you. Bad Signal",
+        "Can't hear you. Your voice is too low",
+        "Please make screen bigger",
+        "Please go faster",
+        "Gotta go, bye"
+      ],
+      "chat": {
+        "autoHideTimeout": 9000
+      },
+      "denoise": {
+        "bluetooth": {
+          "excludedNameRegex": "AirPods"
+        }
+      }
+    },
+    "group": {
+      "chatWithoutReceiptThreshold": 50,
+      "membersMaxSize": 200,
+      "messageArchivingTimeOptionValues": [
+        3600,
+        172800,
+        604800,
+        2592000,
+        7776000
+      ],
+      "groupRemind": {
+        "remindCycle": [
+          "weekly",
+          "monthly"
+        ],
+        "remindMonthDay": -1,
+        "remindWeekDay": 7,
+        "remindTime": 9,
+        "remindDescription": "Don't forget to update!"
+      }
+    },
+    "message": {},
+    "conversation": {},
+    "emojiReaction": [
+      "👍",
+      "😄",
+      "😢",
+      "👌",
+      "🎉",
+      "😂",
+      "❤️",
+      "🤝",
+      "👏",
+      "✅",
+      "🔥",
+      "🙏"
+    ],
+    "domains": [
+      {
+        "domain": "chat.chative.im",
+        "certType": "self",
+        "label": "chat1"
+      },
+      {
+        "domain": "chat.chative.online",
+        "certType": "self",
+        "label": "chat2"
+      },
+      {
+        "domain": "chat.chative.ninja",
+        "certType": "self",
+        "label": "chat3"
+      },
+      {
+        "domain": "chat.temptalk.net",
+        "certType": "self",
+        "label": "chat4"
+      },
+      {
+        "domain": "d272r1ud4wbyy4.cloudfront.net",
+        "certType": "authority",
+        "label": "avatar"
+      },
+      {
+        "domain": "rfwfo330hvy0qpup1ni.temptalk.app",
+        "certType": "authority",
+        "label": "livekit-uae1"
+      },
+      {
+        "domain": "rfwfo330hvy0qpup1ni.ttcall.net",
+        "certType": "authority",
+        "label": "livekit-uae2"
+      },
+      {
+        "domain": "lJgAX4gRwo4GBW1Svh2z.temptalk.app",
+        "certType": "authority",
+        "label": "livekit-sg1"
+      },
+      {
+        "domain": "lJgAX4gRwo4GBW1Svh2z.ttcall.net",
+        "certType": "authority",
+        "label": "livekit-sg2"
+      }
+    ],
+    "services": [
+      {
+        "name": "chat",
+        "path": "/chat",
+        "domains": [
+          "chat1",
+          "chat2",
+          "chat3",
+          "chat4"
+        ]
+      },
+      {
+        "name": "call",
+        "path": "/call",
+        "domains": [
+          "chat1",
+          "chat2",
+          "chat3",
+          "chat4"
+        ]
+      },
+      {
+        "name": "fileSharing",
+        "path": "/fileshare",
+        "domains": [
+          "chat1",
+          "chat2",
+          "chat3",
+          "chat4"
+        ]
+      },
+      {
+        "name": "speech2text",
+        "path": "/speech2text",
+        "domains": [
+          "chat1",
+          "chat2",
+          "chat3",
+          "chat4"
+        ]
+      },
+      {
+        "name": "avatar",
+        "path": "",
+        "domains": [
+          "avatar"
+        ]
+      },
+      {
+        "name": "livekit",
+        "path": "",
+        "domains": [
+          "livekit-uae1",
+          "livekit-uae2",
+          "livekit-sg1",
+          "livekit-sg2"
+        ]
+      }
+    ]
+  }
+}

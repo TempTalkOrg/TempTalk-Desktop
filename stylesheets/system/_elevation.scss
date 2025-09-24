@@ -1,0 +1,21 @@
+@mixin dst-elevations($theme: light) {
+  @if $theme ==light {
+    --dst-elevation-2: 0px 3px 6px 0px rgba(24, 26, 32, 0.08),
+      0px 7px 14px 0px rgba(71, 77, 87, 0.08),
+      0px 0px 1px 0px rgba(24, 26, 32, 0.1);
+
+    --dst-elevation-3: 0px 8px 16px 0px rgba(24, 26, 32, 0.16),
+      0px 16px 32px 0px rgba(71, 77, 87, 0.16),
+      0px 0px 1px 0px rgba(24, 26, 32, 0.1);
+  }
+
+  @if $theme ==dark {
+    --dst-elevation-2: 0px 3px 6px 0px rgba(0, 0, 0, 0.08),
+      0px 7px 14px 0px rgba(0, 0, 0, 0.08),
+      0px 0px 1px 0px rgba(94, 102, 115, 0.9) inset;
+
+    --dst-elevation-3: 0px 8px 16px 0px rgba(0, 0, 0, 0.16),
+      0px 16px 32px 0px rgba(0, 0, 0, 0.16),
+      0px 0px 1px 0px rgba(94, 102, 115, 0.9) inset;
+  }
+}

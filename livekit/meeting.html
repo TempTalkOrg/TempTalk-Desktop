@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      http-equiv="content-security-policy"
+      content="script-src 'self' 'unsafe-inline' https: 'unsafe-eval' file: blob:;"
+    />
+    <title>Temptalk Call</title>
+    <link href="../stylesheets/manifest.css" rel="stylesheet" type="text/css" />
+  </head>
+
+  <body class="dark-theme" style="background-color: #1e2329">
+    <script>
+      window.PROTO_ROOT = '../protos';
+      window.UTIL_WORKER_ROOT = '../';
+    </script>
+    <script src="../js/components.js"></script>
+
+    <script src="../js/signal_protocol_store.js"></script>
+    <script src="../js/libtextsecure.js"></script>
+    <script src="../js/components.js"></script>
+
+    <script src="../js/views/react_wrapper_view.js"></script>
+    <script src="../js/play_sound.js"></script>
+    <!-- <script src="utils.js"></script> -->
+    <script src="livekit_view.js"></script>
+  </body>
+</html>

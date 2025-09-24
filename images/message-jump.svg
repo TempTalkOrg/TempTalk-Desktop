@@ -1,0 +1,11 @@
+<svg id="组_265" data-name="组 265" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+  <rect id="矩形_124" data-name="矩形 124" width="24" height="24" fill="none"/>
+  <g id="跳转回会话" transform="translate(-1.026 -0.94)">
+    <g id="面形" transform="translate(4.652 5.434)">
+      <path id="路径_1112" data-name="路径 1112" d="M13.251,5.434c-4.748,0-8.6,3.332-8.6,7.442a6.976,6.976,0,0,0,2.579,5.316v3L10.406,19.9a9.773,9.773,0,0,0,2.844.418c4.748,0,8.6-3.332,8.6-7.443S18,5.434,13.251,5.434Z" transform="translate(-4.652 -5.434)" fill="none"/>
+      <path id="路径_1113" data-name="路径 1113" d="M13.251,5.434c4.749,0,8.6,3.332,8.6,7.442s-3.85,7.443-8.6,7.443a9.794,9.794,0,0,1-2.844-.417L7.232,21.194v-3a6.973,6.973,0,0,1-2.58-5.316C4.652,8.766,8.5,5.434,13.251,5.434Z" transform="translate(-4.652 -5.434)" fill="none" stroke="#676767" stroke-miterlimit="10" stroke-width="2"/>
+    </g>
+    <line id="直线_56" data-name="直线 56" x1="6.49" transform="translate(10.005 13.075)" fill="none" stroke="#707070" stroke-linecap="round" stroke-width="2"/>
+    <path id="路径_1076" data-name="路径 1076" d="M12.21,15.865l3.723-3.419L12.371,9.272" transform="translate(1.023 0.52)" fill="none" stroke="#707070" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+  </g>
+</svg>
