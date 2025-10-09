@@ -45,8 +45,10 @@ export const useIncomingCall = ({ i18n }: { i18n: LocalizerType }) => {
     }
     if (globalInComingRef.current.type != 'group') {
       setName(info.name || '');
-      globalInComingRef.current.roomName = info.name;
       setAvatarPath(info.avatar || '');
+      if (globalInComingRef.current.type === '1on1') {
+        globalInComingRef.current.roomName = info.name;
+      }
     } else {
       if (info.id === globalInComingRef.current.groupId) {
         setName(info.name || '');

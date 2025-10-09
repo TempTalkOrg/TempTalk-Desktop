@@ -5,6 +5,7 @@ import { RoomEvent, Track } from '@cc-livekit/livekit-client';
 import { TrackMutedIndicator } from './participant/TrackMutedIndicator';
 import { useParticipantContextMenu } from '../hooks/useParticipantContextMenu';
 import { ContextMenu } from '../../../../shared/ContextMenu';
+import { IconRaiseHand } from '../../../../shared/icons';
 
 interface IProps {
   open: boolean;
@@ -35,7 +36,7 @@ const RaiseHandList = () => {
     <div className="lk-raise-hand-list">
       <div className="lk-raise-hand-list-header">
         <div className="lk-raise-hand-list-header-icon">
-          <div className="call-icon raise-hand-icon"></div>
+          <IconRaiseHand className="call-icon raise-hand-icon" />
         </div>
         <span className="lk-raise-hand-list-header-text">
           Raise hand ({raiseHandList.length})

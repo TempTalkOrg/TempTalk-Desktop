@@ -10,6 +10,13 @@ import { useMemoizedFn } from 'ahooks';
 import { Avatar } from '../Avatar';
 import { CountdownTimer, ICountdownTimerRef } from './CountdownTimer';
 import classNames from 'classnames';
+import {
+  IconBackCall,
+  IconLeaveCall,
+  IconMicrophoneDisable,
+  IconMicrophoneEnable,
+  IconScreenShare,
+} from '../shared/icons';
 
 type SpeakerUserInfoType = {
   name: string;
@@ -54,7 +61,7 @@ const ActiveIndicator = ({
         );
       }
     } else if (info?.type === 'screen-share') {
-      return <div className="screen-share-icon" />;
+      return <IconScreenShare className="screen-share-icon" />;
     } else {
       return <></>;
     }
@@ -259,24 +266,28 @@ export const FloatingBar = (props: PropsType) => {
       </div>
       <div className="button-list" ref={buttonListRef}>
         <div className="button-item-wrapper">
-          <div
+          <IconBackCall
             className="back-call"
             onClick={backToCall}
             onDoubleClick={preventDefault}
-          ></div>
-        </div>
-        <div className="button-item-wrapper">
-          <div
-            className={`mic-${micMute ? 'muted' : 'normal'}`}
-            onClick={() => {
-              setMuted(!micMute);
-            }}
-            onDoubleClick={preventDefault}
           />
         </div>
+        <div
+          className="button-item-wrapper"
+          onClick={() => {
+            setMuted(!micMute);
+          }}
+          onDoubleClick={preventDefault}
+        >
+          {micMute ? (
+            <IconMicrophoneEnable className="mic-muted" />
+          ) : (
+            <IconMicrophoneDisable className="mic-normal" />
+          )}
+        </div>
         <div className="button-item-wrapper is-danger">
-          <div
-            className={'window-close'}
+          <IconLeaveCall
+            className="window-close"
             onClick={() => {
               hangup();
             }}

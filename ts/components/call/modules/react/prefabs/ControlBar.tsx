@@ -20,7 +20,14 @@ import { RaiseHandButton } from '../components/controls/RaiseHandButton';
 import { ContextMenu } from '../../../../shared/ContextMenu';
 import { useConnectionState } from '../hooks/useConnectionStatus';
 import { useMemo } from 'react';
-import { IconBackToMain } from '../../../../shared/icons';
+import {
+  IconAddMember,
+  IconBackToMain,
+  IconEndCall,
+  IconLeaveCall,
+  IconMemberList,
+  IconRaiseHand,
+} from '../../../../shared/icons';
 
 /** @public */
 export type ControlBarControls = {
@@ -167,7 +174,7 @@ export function ControlBar({
       <div className="lk-control-area">
         {visibleControls.raiseHand && connected && (
           <RaiseHandButton>
-            <div className="call-icon control-bar-icon raise-hand-icon"></div>
+            <IconRaiseHand className="call-icon control-bar-icon raise-hand-icon" />
           </RaiseHandButton>
         )}
         {visibleControls.microphone && (
@@ -239,7 +246,7 @@ export function ControlBar({
         {visibleControls.addMember && (
           <AddMemberButton onClick={onAddMember}>
             {showIcon && (
-              <div className="call-icon control-bar-icon add-member-outer-icon"></div>
+              <IconAddMember className="call-icon control-bar-icon add-member-outer-icon" />
             )}
             {showText && 'Add member'}
           </AddMemberButton>
@@ -248,7 +255,7 @@ export function ControlBar({
           <div className="lk-button-group lk-member-list-button-group">
             <MemberListButton onClick={onMemberList}>
               {showIcon && (
-                <div className="call-icon control-bar-icon member-list-icon"></div>
+                <IconMemberList className="call-icon control-bar-icon member-list-icon" />
               )}
               {showText && 'Member list'}
               <span style={{ fontSize: 14, fontWeight: 510 }}>
@@ -273,7 +280,7 @@ export function ControlBar({
                             onAddMember?.();
                           }}
                         >
-                          <div className="call-icon control-bar-icon add-member-icon"></div>
+                          <IconAddMember className="call-icon control-bar-icon add-member-icon" />
                           Invite
                         </div>
                       ),
@@ -292,7 +299,7 @@ export function ControlBar({
         {visibleControls.leave && featureFlags?.type === '1on1' && (
           <DisconnectButton title="End call">
             {showIcon && (
-              <div className="call-icon control-bar-icon end-call-icon"></div>
+              <IconEndCall className="call-icon control-bar-icon end-call-icon" />
             )}
             {showText && 'Leave'}
           </DisconnectButton>
@@ -301,7 +308,7 @@ export function ControlBar({
           <div className="lk-leave-button-group">
             <DisconnectButton>
               {showIcon && (
-                <div className="call-icon control-bar-icon leave-call-icon"></div>
+                <IconLeaveCall className="call-icon control-bar-icon leave-call-icon" />
               )}
             </DisconnectButton>
             <button

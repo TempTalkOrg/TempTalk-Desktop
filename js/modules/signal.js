@@ -144,7 +144,6 @@ const { DateSeparator } = require('../../ts/components/DateSeparator');
 const {
   StickyDateSeparator,
 } = require('../../ts/components/StickyDateSeparator');
-const { FloatingBar } = require('../../ts/components/call/FloatingBar');
 
 const {
   AtPersonButton,
@@ -178,6 +177,9 @@ const { Prompt } = require('../../ts/components/shared/Prompt');
 const {
   ScrollDownButton,
 } = require('../../ts/components/conversation/ScrollDownButton');
+const {
+  MentionsJumpButton,
+} = require('../../ts/components/conversation/MentionsJumpButton');
 
 // State
 const { createContactPane } = require('../../ts/state/roots/createContactPane');
@@ -377,12 +379,12 @@ exports.setup = (options = {}) => {
     Login,
     DateSeparator,
     StickyDateSeparator,
-    FloatingBar,
     LottieAnimation,
     ForwardedMessageList,
     LastSeenIndicator,
     Prompt,
     ScrollDownButton,
+    MentionsJumpButton,
   };
 
   const Roots = {

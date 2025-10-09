@@ -132,6 +132,12 @@
     .message-wrapper-outer {
       padding-bottom: 4px;
     }
+
+    li:last-child {
+      .message-wrapper-outer {
+        padding-bottom: 16px;
+      }
+    }
   }
 
   .module-message__hidden__right_menu_div {
@@ -728,6 +734,13 @@
   position: absolute;
   right: 20px;
   bottom: 64px;
+}
+
+.module-mentions-jump__count {
+  right: 0 !important;
+  top: 0 !important;
+  font-size: 10px !important;
+  line-height: 15.7px !important;
 }
 
 .module-mentions-jump__text {

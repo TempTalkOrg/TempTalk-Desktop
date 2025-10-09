@@ -1,8 +1,10 @@
 import { useMemoizedFn } from 'ahooks';
-import { Input, Modal, ModalProps } from 'antd';
-import React, { useState } from 'react';
+import { Input, Modal, ModalProps, GetRef } from 'antd';
+import React, { useEffect, useRef, useState } from 'react';
 import { trigger } from '../shims/events';
 import { LocalizerType } from '../types/Util';
+
+type InputRef = GetRef<typeof Input.OTP>;
 
 export const AddFriendModal = (
   props: ModalProps & { onComplete?: () => void; i18n: LocalizerType }
@@ -33,6 +35,16 @@ export const AddFriendModal = (
     }
   });
 
+  const inputRef = useRef<InputRef>(null);
+
+  useEffect(() => {
+    if (open) {
+      setTimeout(() => {
+        inputRef.current?.focus();
+      });
+    }
+  }, [open]);
+
   return (
     <Modal
       open={open}
@@ -51,6 +63,7 @@ export const AddFriendModal = (
           {i18n('addFriend.modal.subtitle')}
         </div>
         <Input.OTP
+          ref={inputRef}
           className="friend-code-input-otp"
           size="large"
           length={4}

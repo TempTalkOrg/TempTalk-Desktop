@@ -1058,10 +1058,10 @@ ipcRenderer.on('is-caller-directory-user', (_event, callerId) => {
   );
 });
 
-window.dispatchCallMessage = (type, payload) => {
+window.dispatchCallMessage = async (type, payload) => {
   ipcRenderer.send('dispatch-call-message', type, {
     ...payload,
-    serviceUrls: window.Signal.Network.getCallServiceUrls(),
+    serviceUrls: await window.Signal.Network.getCallServiceUrls(),
   });
 };
 
@@ -1089,7 +1089,7 @@ window.addCallMembers = members => {
   ipc.send('add-call-members', members);
 };
 
-window.joinCall = ({ type, roomId, conversation, ...extra }) => {
+window.joinCall = async ({ type, roomId, conversation, ...extra }) => {
   const username = window.textsecure.storage.get('number_id');
   const password = window.textsecure.storage.get('password');
   const deviceId = window.textsecure.storage.user.getDeviceId();
@@ -1105,7 +1105,7 @@ window.joinCall = ({ type, roomId, conversation, ...extra }) => {
     username,
     password,
     deviceId,
-    serviceUrls: window.Signal.Network.getCallServiceUrls(),
+    serviceUrls: await window.Signal.Network.getCallServiceUrls(),
   });
 };
 
@@ -1324,7 +1324,3 @@ window.getCurrentTheme = () =>
   document.body.classList.contains('dark-theme') ? 'dark' : 'light';
 
 window.getGlobalConfig = () => window.globalConfig;
-
-window.base58_encode = data => {
-  return window.Signal.Util.base58Encode(data);
-};

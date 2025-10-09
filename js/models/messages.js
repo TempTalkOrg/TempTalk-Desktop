@@ -424,7 +424,7 @@
     getNameForNumber(number) {
       const conversation = ConversationController.get(number);
       if (!conversation) {
-        return number;
+        return window.Signal.Util.getFakeName(number);
       }
       return conversation.getDisplayName();
     },
@@ -989,11 +989,14 @@
       }
 
       let formated = {};
+
+      const fakeName = window.Signal.Util.getFakeName(phoneNumber);
+
       if (contactModel) {
         formated = {
           color: contactModel.getColor(),
           avatarPath: contactModel.getAvatarPath(),
-          name: contactModel.getName() || phoneNumber,
+          name: contactModel.getName() || fakeName,
           profileName: contactModel.getProfileName(),
           accountName: contactModel.getAccountName(),
           title: contactModel.getTitle(),
@@ -1003,10 +1006,10 @@
         formated = {
           color: 'gray',
           avatarPath: null,
-          name: phoneNumber,
-          profileName: phoneNumber,
-          accountName: phoneNumber,
-          title: phoneNumber,
+          name: fakeName,
+          profileName: fakeName,
+          accountName: fakeName,
+          title: fakeName,
           isMe: false,
         };
       }

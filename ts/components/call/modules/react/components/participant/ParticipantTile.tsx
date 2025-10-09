@@ -28,6 +28,7 @@ import { useMemoizedFn } from 'ahooks';
 import { useParticipantContextMenu } from '../../hooks/useParticipantContextMenu';
 import classNames from 'classnames';
 import { ContextMenu } from '../../../../../shared/ContextMenu';
+import { IconScreenShare } from '../../../../../shared/icons';
 
 export function ParticipantContextIfNeeded(
   props: React.PropsWithChildren<{
@@ -227,10 +228,10 @@ export const ParticipantTile = /* @__PURE__ */ React.forwardRef<
             </>
           ) : (
             <>
-              <div
+              <IconScreenShare
                 style={{ marginRight: '0.25rem' }}
                 className="call-icon main-screen-share-icon"
-              ></div>
+              />
               <ParticipantName>
                 {hideSourcePrefix ? '' : "'s screen"}
               </ParticipantName>

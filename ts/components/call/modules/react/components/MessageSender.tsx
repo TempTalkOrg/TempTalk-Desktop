@@ -1,5 +1,6 @@
 import { Popover } from 'antd';
 import React, { useMemo, useState } from 'react';
+import { IconCallChat } from '../../../../shared/icons';
 // import { SendMessage } from '../assets/icons';
 
 interface IProps {
@@ -70,7 +71,7 @@ export const MessageSender = (props: IProps) => {
   return (
     <div className="lk-message-sender-container">
       <div className="lk-message-sender-icon">
-        <div className="call-icon send-message-icon"></div>
+        <IconCallChat className="call-icon send-message-icon" />
       </div>
       <Popover
         content={renderPresetArea()}

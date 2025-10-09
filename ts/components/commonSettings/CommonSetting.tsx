@@ -15,6 +15,7 @@ import { getAccountManager } from '../../shims/apiService';
 import { UserStorage } from '../../shims/storage';
 import { FriendCode } from './FriendCode';
 import { getConversationModel } from '../../shims/Whisper';
+import { getBase58Id } from '../../util';
 
 export interface Props {
   closeSetting: () => void;
@@ -549,7 +550,7 @@ export class CommonSetting extends React.Component<Props, State> {
       showAccountSetting,
     } = this.state;
 
-    const uid = userInfo?.uid || (window as any).base58_encode(id.toString());
+    const uid = userInfo?.uid || getBase58Id(id);
 
     const getDeviceName = () => {
       const deviceName = UserStorage.getDeviceName()?.replace(/\0/g, '');

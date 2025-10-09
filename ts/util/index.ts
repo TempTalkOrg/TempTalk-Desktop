@@ -5,9 +5,11 @@ import { isFileDangerous } from './isFileDangerous';
 import { missingCaseError } from './missingCaseError';
 import { migrateColor } from './migrateColor';
 import { makeLookup, makeMemberGroupLookup } from './makeLookup';
-import { urlMatch } from './urlMatch';
 import { humanizeSeconds } from './humanizeSeconds';
 import { base58Encode } from './base58';
+import { getFakeName } from './fakeName';
+import { getBase58Id } from './base58Id';
+import { isSneakyLink } from './isSneakyLink';
 
 export {
   arrayBufferToObjectURL,
@@ -18,7 +20,9 @@ export {
   makeMemberGroupLookup,
   migrateColor,
   missingCaseError,
-  urlMatch,
   humanizeSeconds,
   base58Encode,
+  getFakeName,
+  getBase58Id,
+  isSneakyLink,
 };

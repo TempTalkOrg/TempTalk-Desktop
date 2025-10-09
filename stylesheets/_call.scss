@@ -713,44 +713,39 @@ table {
   width: 20px;
 }
 
-.control-bar-icon {
-  height: 20px;
-  width: 20px;
-}
-
 .lk-spinner {
   height: 14px;
   width: 14px;
 }
 
 .raise-hand-icon {
-  @include color-svg('../images/call/raise-hand-icon.svg');
+  height: 20px;
+  width: 20px;
 }
 
 .add-member-outer-icon {
-  @include color-svg('../images/call/add-member-outer-icon.svg');
+  height: 20px;
+  width: 20px;
 }
 
 .leave-call-icon {
-  @include color-svg('../images/call/leave-call-icon.svg');
+  height: 44px;
+  width: 44px;
 }
 
 .end-call-icon {
-  @include color-svg('../images/call/end-call-icon.svg');
   width: 26px;
 }
 
 .member-list-icon {
-  @include color-svg('../images/call/member-list-icon.svg');
+  height: 20px;
+  width: 20px;
 }
 
 .add-member-icon {
-  height: 15px;
-  width: 15px;
-  @include color-svg(
-    '../images/call/add-member-icon.svg',
-    var(--dst-color-icon)
-  );
+  height: 18px;
+  width: 18px;
+  color: var(--dst-color-icon);
 }
 
 .spinner-icon {
@@ -758,7 +753,6 @@ table {
 }
 
 .send-message-icon {
-  @include color-svg('../images/call/send-message-icon.svg');
   transform: scale(0.834);
 }
 
@@ -843,14 +837,8 @@ table {
   width: 16px;
 }
 
-.main-screen-share-icon {
-  @include color-svg('../images/call/screen-share-icon.svg');
-  height: 20px;
-  width: 20px;
-}
-
+.main-screen-share-icon,
 .main-screen-share-stop-icon {
-  @include color-svg('../images/call/screen-share-stop-icon.svg');
   height: 20px;
   width: 20px;
 }

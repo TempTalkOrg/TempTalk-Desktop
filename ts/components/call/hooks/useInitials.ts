@@ -2,7 +2,7 @@ import { useMemoizedFn, useUpdate } from 'ahooks';
 import { Participant, Room, RoomEvent } from '@cc-livekit/livekit-client';
 import { useEffect, useMemo, useState } from 'react';
 import { UserSessionCipher } from '../types';
-import { base58Encode } from '../../../util';
+import { getFakeName } from '../../../util';
 
 const mainWindow = window as any;
 
@@ -10,7 +10,7 @@ export class Contact {
   id: string;
   name?: string;
   avatarPath?: string;
-  base58Id: string;
+  fakeName: string;
   cipher?: UserSessionCipher;
 
   constructor(contact: {
@@ -22,16 +22,14 @@ export class Contact {
     this.id = contact.id;
     this.name = contact.name ?? '';
     this.avatarPath = contact.avatarPath ?? '';
-    this.base58Id = base58Encode(
-      Number(contact.id.split('.')[0].replace('+', ''))
-    );
+    this.fakeName = getFakeName(contact.id);
     if (contact.cipher) {
       this.setCipher(contact.cipher);
     }
   }
 
   public getDisplayName() {
-    return this.name || this.base58Id;
+    return this.name || this.fakeName;
   }
 
   public setCipher(cipher: UserSessionCipher) {
@@ -103,7 +101,7 @@ export const useInitials = (room: Room) => {
   );
 
   useEffect(() => {
-    room.once(RoomEvent.Connected, () => {
+    room.once(RoomEvent.SignalConnected, () => {
       for (let participant of room.remoteParticipants.values()) {
         supplementContactMap(participant);
       }

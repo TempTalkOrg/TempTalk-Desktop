@@ -149,6 +149,13 @@
   .borderRight-lightgray {
     border-right: 1px solid lightgray;
   }
+
+  .module-forward-dialog-list-item {
+    &:hover {
+      background-color: var(--dst-color-background-secondary) !important;
+      border-radius: 8px !important;
+    }
+  }
 }
 
 .settings-members-change-dialog {
@@ -728,9 +735,10 @@
   }
 }
 
-.settings-members-change-dialog-create-group {
+.settings-members-change-dialog-create-group,
+.forward-dialog {
   padding: 5px 20px;
-  background-color: white;
+  background-color: var(--dst-color-background-modal);
   border-radius: 8px;
   border: 1px solid $color-dark-60;
   -webkit-app-region: no-drag !important;
@@ -999,7 +1007,8 @@
     }
   }
 
-  .btn-white {
+  .btn-white,
+  .cancel-btn {
     margin: 15px 5px;
     background-color: white;
     outline: none;

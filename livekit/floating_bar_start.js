@@ -1,30 +1,18 @@
 /*
-  global
   window,
-  document,
-  Whisper,
-  $,
 */
 
-(() => {
-  window.Whisper = window.Whisper || {};
-  Whisper.FloatingBarView = new Whisper.ReactWrapperView({
-    Component: window.Signal.Components.FloatingBar,
-    props: {
-      backToCall: window.backToCall,
-      setMuted: window.setMuted,
-      hangup: window.hangup,
-      registerFloatingBarUpdateHandler: window.registerFloatingBarUpdateHandler,
-    },
-  });
+window.setImmediate = window.nodeSetImmediate;
 
-  const $body = $(document.body);
-  window.setImmediate = window.nodeSetImmediate;
-  Whisper.FloatingBarView.$el.appendTo($body);
-})();
+const FloatingBarView = window.getFloatingBarView();
 
-// 始终黑色主题
-$(document.body)
-  .removeClass('dark-theme')
-  .removeClass('light-theme')
-  .addClass('dark-theme');
+window.ReactDOM.render(
+  window.React.createElement(FloatingBarView, {
+    backToCall: window.backToCall,
+    setMuted: window.setMuted,
+    hangup: window.hangup,
+    registerFloatingBarUpdateHandler: window.registerFloatingBarUpdateHandler,
+    i18n: window.i18n,
+  }),
+  document.querySelector('.floating-bar-view-container')
+);

@@ -1,15 +1,18 @@
 import React from 'react';
 import emojiRegex from 'emoji-regex';
-import LinkifyIt from 'linkify-it';
+import linkify from 'linkifyjs';
 
 import { LocalizerType, RenderTextCallbackType } from '../../types/Util';
 import { MentionUser } from './MentionUser';
+import { isSneakyLink } from '../../util';
+import nodeUrl from 'node:url';
+import { isBracket, isNonAscii, maybeParseUrl } from '../../util/isSneakyLink';
+import { findIndex } from 'lodash';
 
 const REGEXP = emojiRegex();
-const linkify = LinkifyIt();
 
-linkify.add('chative:', 'http:');
-linkify.add('temptalk:', 'http:');
+linkify.registerCustomProtocol('chative');
+linkify.registerCustomProtocol('temptalk');
 
 // https://stackoverflow.com/questions/43242440/javascript-regular-expression-for-unicode-emoji
 // https://regex101.com/r/ZP389q/3
@@ -81,17 +84,17 @@ export class Linkify extends React.Component<Props> {
     return isOnlyEmoji && emojiCount === 1;
   }
 
-  public analyzeURL(text: string, start: number) {
-    const matchData = linkify.match(text) || []; //匹配的链接文本
+  public analyzeURL(text: string) {
     const results: Array<any> = [];
     let last = 0;
-    let count = start * 10000;
+    const countStr = Math.random().toString(36).slice(-8);
+    let count = 0;
 
     if (this.shouldShowBiggerEmoji(text)) {
       return (
         <span
           style={{ fontSize: '26px', lineHeight: '32px' }}
-          key={count++}
+          key={countStr + count++}
           className="bigger-emoji"
         >
           {text}
@@ -99,58 +102,115 @@ export class Linkify extends React.Component<Props> {
       );
     }
 
-    if (matchData.length === 0) {
-      return <span key={count++}>{text}</span>;
+    const matchDataOld: {
+      type: string;
+      value: string;
+      isLink: boolean;
+      href: string;
+      start: number;
+      end: number;
+    }[] = linkify.find(text, {
+      defaultProtocol: '', // 设定为空字符串, 讓沒有schema的鏈接視為一般文本
+    });
+
+    if (matchDataOld.length === 0) {
+      return <span key={countStr + count++}>{text}</span>;
     }
 
-    matchData.forEach(
-      (match: {
-        index: number;
-        url: string;
-        lastIndex: number;
-        text: string;
-      }) => {
-        if (last < match.index) {
-          const textWithNoLink = text.slice(last, match.index);
-          results.push(<span key={count++}>{textWithNoLink}</span>);
+    const matchData: Array<{
+      index: number;
+      url: string;
+      lastIndex: number;
+      text: string;
+    }> = matchDataOld
+      .map(d => {
+        if (!d?.isLink || isSneakyLink(d.href)) {
+          return undefined;
         }
 
-        const { url, text: originalText } = match;
-
-        const isTextStartWithLetterOrNumber =
-          START_WITH_LETTER_OR_NUMBER.test(originalText);
-        if (
-          isTextStartWithLetterOrNumber &&
-          SUPPORTED_PROTOCOLS.test(url) &&
-          !HAS_AT.test(url)
-        ) {
-          // 默认使用https
-          if (url === 'http://' + originalText) {
-            results.push(
-              <a
-                key={count++}
-                href={'https://' + originalText}
-                onClick={this.hrefClickBind}
-              >
-                {originalText}
-              </a>
-            );
-          } else {
-            results.push(
-              <a key={count++} href={url} onClick={this.hrefClickBind}>
-                {originalText}
-              </a>
-            );
+        const checkHostname = (hostname: string) => {
+          if (!hostname) {
+            return false;
           }
-        } else {
-          results.push(<span key={count++}>{originalText}</span>);
+          const unicodeHostname = nodeUrl.domainToUnicode(hostname);
+          return [...unicodeHostname].some(
+            char => isNonAscii(char) || isBracket(char)
+          );
+        };
+
+        const url = maybeParseUrl(d.href);
+        const hasNonAsciiOrBracketInHostname = url
+          ? checkHostname(url.hostname)
+          : false;
+
+        // 如果是hostname 有非ascii字符/全角/半角括号，则需要截断, 其他则不需要截断全角/半角括号
+        const firstDeniedIndex = hasNonAsciiOrBracketInHostname
+          ? findIndex(d.href, char => isNonAscii(char) || isBracket(char))
+          : findIndex(d.href, isNonAscii);
+
+        if (firstDeniedIndex === -1) {
+          return {
+            index: d.start,
+            lastIndex: d.end,
+            text: d.value,
+            url: d.href,
+          };
         }
-        last = match.lastIndex;
+
+        const cleanUrl = d.href.slice(0, firstDeniedIndex);
+
+        const displayText = d.value.slice(0, firstDeniedIndex);
+        const lastIndex = d.start + displayText.length;
+        return {
+          index: d.start,
+          lastIndex,
+          text: displayText,
+          url: cleanUrl,
+        };
+      })
+      .filter(item => item !== undefined);
+
+    matchData.forEach(match => {
+      if (last < match.index) {
+        const textWithNoLink = text.slice(last, match.index);
+        results.push(<span key={countStr + count++}>{textWithNoLink}</span>);
       }
-    );
+
+      const { url, text: originalText } = match;
+
+      const isTextStartWithLetterOrNumber =
+        START_WITH_LETTER_OR_NUMBER.test(originalText);
+      if (
+        isTextStartWithLetterOrNumber &&
+        SUPPORTED_PROTOCOLS.test(url) &&
+        !HAS_AT.test(url)
+      ) {
+        // 默认使用https
+        if (url === 'http://' + originalText) {
+          results.push(
+            <a
+              key={countStr + count++}
+              href={'https://' + originalText}
+              onClick={this.hrefClickBind}
+            >
+              {originalText}
+            </a>
+          );
+        } else {
+          results.push(
+            <a key={countStr + count++} href={url} onClick={this.hrefClickBind}>
+              {originalText}
+            </a>
+          );
+        }
+      } else {
+        results.push(<span key={countStr + count++}>{originalText}</span>);
+      }
+      last = match.lastIndex;
+    });
 
     if (last < text.length) {
-      results.push(<span key={count++}>{text.slice(last)}</span>);
+      results.push(<span key={countStr + count++}>{text.slice(last)}</span>);
     }
 
     return <>{results}</>;
@@ -158,7 +218,7 @@ export class Linkify extends React.Component<Props> {
 
   public analyzeText(text: string, mentions: Array<any> | undefined) {
     if (!mentions || mentions.length === 0) {
-      return this.analyzeURL(text, 0);
+      return this.analyzeURL(text);
     }
 
     // 必须排序，否则无法遍历数组
@@ -186,7 +246,7 @@ export class Linkify extends React.Component<Props> {
       // prefix
       const prefixString = text.substring(curPosition, start);
       if (prefixString) {
-        mergedSpans = mergedSpans.concat(this.analyzeURL(prefixString, index));
+        mergedSpans = mergedSpans.concat(this.analyzeURL(prefixString));
       }
 
       // mention
@@ -208,7 +268,7 @@ export class Linkify extends React.Component<Props> {
 
     const lastString = text.substring(curPosition);
     if (lastString) {
-      const result = this.analyzeURL(lastString, index);
+      const result = this.analyzeURL(lastString);
       if (result) {
         for (let i = 0; i < result.props.children.length; i++) {
           mergedSpans = mergedSpans.concat(result.props.children[i]);

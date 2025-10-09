@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { useFeatureContext } from '../context/feature-context';
+import { IconRaiseHand } from '../../../../shared/icons';
 
 export const RaiseHandIndicator = ({ onClick }: { onClick: () => void }) => {
   const features = useFeatureContext();
@@ -21,7 +22,7 @@ export const RaiseHandIndicator = ({ onClick }: { onClick: () => void }) => {
   return (
     <div className="lk-raise-hand-indicator" onClick={onClick}>
       <div className="lk-raise-hand-indicator-icon">
-        <div className="call-icon raise-hand-icon"></div>
+        <IconRaiseHand className="call-icon raise-hand-icon" />
       </div>
       <div className="lk-raise-hand-indicator-text">{text}</div>
     </div>

@@ -106,7 +106,3 @@ function makeGetter(name) {
 }
 
 window.ipcGetGlobalConfig = makeGetter('global-config');
-
-window.base58_encode = data => {
-  return window.Signal.Util.base58Encode(data);
-};

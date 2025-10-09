@@ -430,10 +430,10 @@
   resolved "https://registry.yarnpkg.com/@cc-livekit/components-styles/-/components-styles-3.0.45.tgz#14798992178f55b6632485ba32b6b3932c5dd5a1"
   integrity sha512-T+k3HWVeGaAgkKlu5Ehk9nLoCWImnDQdYNbSDmc+tXBqhcG/t+dRYqA8YCdFAs0B6hsr13NI0ETgSM+OIz6Emg==
 
-"@cc-livekit/denoise-plugin@1.0.5":
-  version "1.0.5"
-  resolved "https://registry.yarnpkg.com/@cc-livekit/denoise-plugin/-/denoise-plugin-1.0.5.tgz#c6d584cfa08601355659491c6c9a0f28b32286a6"
-  integrity sha512-VYKzS7j0/tUI8YeYijdR91uMoMFxS7uw5VzJ8nc/6pLC2Fwry+nw+hgZUdwCnnj4UyUidN3GoanInVsPyb5pug==
+"@cc-livekit/denoise-plugin@1.0.6":
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/@cc-livekit/denoise-plugin/-/denoise-plugin-1.0.6.tgz#87c778ea6f7bf5434266f1175e7886dcf99e4d04"
+  integrity sha512-/tPY43mjEQ6EhwlW6o0QBlc7wkaMTZFMu3OBuhdYFHogxFWZh1tV8K+m3/4QvB52P8HUViLH9/8ZD1ESMR3lFg==
   dependencies:
     compute-lcm "^1.1.2"
 
@@ -2634,11 +2634,6 @@
   dependencies:
     "@types/node" "*"
 
-"@types/linkify-it@2.1.0":
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/@types/linkify-it/-/linkify-it-2.1.0.tgz#ea3dd64c4805597311790b61e872cbd1ed2cd806"
-  integrity sha512-Q7DYAOi9O/+cLLhdaSvKdaumWyHbm7HAk/bFwwyTuU0arR5yyCeW5GOoqt4tJTpDRxhpx9Q8kQL6vMpuw9hDSw==
-
 "@types/lodash@4.17.16":
   version "4.17.16"
   resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.17.16.tgz#94ae78fab4a38d73086e962d0b65c30d816bfb0a"
@@ -4196,10 +4191,10 @@ electron-to-chromium@^1.5.73:
   resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.5.115.tgz#193dd534948b3ea77e3d95dd38ca12cdc01c76a9"
   integrity sha512-MN1nahVHAQMOz6dz6bNZ7apgqc9InZy7Ja4DBEVCTdeiUcegbyOYE9bi/f2Z/z6ZxLi0RxLpyJ3EGe+4h3w73A==
 
-electron@36.9.1:
-  version "36.9.1"
-  resolved "https://registry.yarnpkg.com/electron/-/electron-36.9.1.tgz#8302ea303df6764563cc590b80b4264edac74ba8"
-  integrity sha512-Dx39Df33PA68xYp/wBIVa/OgUhUhaNc1H+gufjOfPONfOO2fcFnS6Z0Tr+5js1riYnfreAf2LRNROTtfv2HFyA==
+electron@36.9.2:
+  version "36.9.2"
+  resolved "https://registry.yarnpkg.com/electron/-/electron-36.9.2.tgz#03b16b5c21a234f487c6cab279f48d1749be56af"
+  integrity sha512-sIGEb0zJqzzXoNZFL5sf834b498NRvYXV+sSsankjnRPkCvAOdKzxmOaW5pLGndJw4+WpIFF9eRk2onOg+jUYA==
   dependencies:
     "@electron/get" "^2.0.0"
     "@types/node" "^22.7.7"
@@ -5967,12 +5962,10 @@ lines-and-columns@^1.1.6:
   resolved "https://registry.yarnpkg.com/lines-and-columns/-/lines-and-columns-1.2.4.tgz#eca284f75d2965079309dc0ad9255abb2ebc1632"
   integrity sha512-7ylylesZQ/PV29jhEDl3Ufjo6ZX7gCqJr5F7PKrqc93v7fzSymt1BpwEU8nAUXs8qzzvqhbjhK5QZg6Mt/HkBg==
 
-linkify-it@2.2.0:
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/linkify-it/-/linkify-it-2.2.0.tgz#e3b54697e78bf915c70a38acd78fd09e0058b1cf"
-  integrity sha512-GnAl/knGn+i1U/wjBz3akz2stz+HrHLsxMwHQGofCDfPvlf+gDKN58UtfmUquTY4/MXeE2x7k19KQmeoZi94Iw==
-  dependencies:
-    uc.micro "^1.0.1"
+linkifyjs@4.3.2:
+  version "4.3.2"
+  resolved "https://registry.yarnpkg.com/linkifyjs/-/linkifyjs-4.3.2.tgz#d97eb45419aabf97ceb4b05a7adeb7b8c8ade2b1"
+  integrity sha512-NT1CJtq3hHIreOianA8aSXn6Cw0JzYOuDQbOrSPe7gqFnCpKP++MQe3ODgO3oh2GJFORkAAdqredOa60z63GbA==
 
 livereload-js@^2.3.0:
   version "2.4.0"
@@ -8702,11 +8695,6 @@ typescript@5.6.3, typescript@^5.4.3:
   version "5.6.3"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-5.6.3.tgz#5f3449e31c9d94febb17de03cc081dd56d81db5b"
   integrity sha512-hjcS1mhfuyi4WW8IWtjP7brDrG2cuDZukyrYrSauoXGNgx0S7zceP07adYkJycEr56BOUTNPzbInooiN3fn1qw==
-
-uc.micro@^1.0.1:
-  version "1.0.6"
-  resolved "https://registry.yarnpkg.com/uc.micro/-/uc.micro-1.0.6.tgz#9c411a802a409a91fc6cf74081baba34b24499ac"
-  integrity sha512-8Y75pvTYkLJW2hWQHXxoqRgV7qb9B+9vFEtidML+7koHUFapnVJAZ6cKs+Qjz5Aw3aZWHMC6u0wJE3At+nSGwA==
 
 unc-path-regex@^0.1.2:
   version "0.1.2"

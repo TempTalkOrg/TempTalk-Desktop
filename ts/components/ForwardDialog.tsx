@@ -301,6 +301,7 @@ export class ForwardDialog extends React.Component<Props, State> {
         ourNumber={'0'}
         i18n={i18n}
         onClick={this.leftItemClick}
+        className="module-forward-dialog-list-item"
       />
     );
   };
@@ -319,6 +320,7 @@ export class ForwardDialog extends React.Component<Props, State> {
         i18n={i18n}
         isMe={false}
         onClick={this.rightItemClick}
+        className="module-forward-dialog-list-item"
       />
     );
   };
@@ -363,7 +365,11 @@ export class ForwardDialog extends React.Component<Props, State> {
     //   on startup and scroll.
     const list = (
       <div
-        className={classNames('module-left-pane__list', 'scroll-background')}
+        className={classNames(
+          'module-left-pane__list',
+          'scroll-background',
+          'list-container'
+        )}
         key={1}
         style={{ height: '440px' }}
       >
@@ -392,17 +398,15 @@ export class ForwardDialog extends React.Component<Props, State> {
     const { currentConversations } = this.state;
 
     return (
-      <div
-        className={classNames('border-lightgray')}
-        style={{ width: '603px', height: '442px', borderRadius: '4px' }}
-      >
+      <div className="select-container">
         <div
-          className={classNames('borderRight-lightgray')}
           style={{
-            width: '300px',
+            width: '288px',
             height: '440px',
             float: 'left',
+            marginRight: '16px',
           }}
+          className="list-container"
         >
           <div
             className="module-main-header__search"
@@ -417,7 +421,7 @@ export class ForwardDialog extends React.Component<Props, State> {
               type="text"
               ref={this.inputRef}
               className="module-main-header__search__input"
-              style={{ width: '280px' }}
+              style={{ width: '256px' }}
               placeholder={i18n('search')}
               dir="auto"
               onChange={this.inputTextChanged}
@@ -440,7 +444,7 @@ export class ForwardDialog extends React.Component<Props, State> {
           )}
         </div>
         <div
-          style={{ width: '300px', height: '440px', display: 'inline-block' }}
+          style={{ width: '288px', height: '440px', display: 'inline-block' }}
         >
           {this.renderRightList()}
         </div>
@@ -467,16 +471,12 @@ export class ForwardDialog extends React.Component<Props, State> {
             </button>
             <button
               disabled={!selectedConversations.length}
-              style={{
-                cursor: selectedConversations.length
-                  ? 'pointer'
-                  : 'not-allowed',
-                color: 'white',
-                border: 'none',
-                backgroundColor: selectedConversations.length
-                  ? 'rgb(32, 144, 234)'
-                  : 'rgb(97 167 224)',
-              }}
+              className={classNames(
+                'btn-blue',
+                selectedConversations.length
+                  ? 'btn-blue-able'
+                  : 'btn-blue-disable'
+              )}
               onClick={this.onForwardMessage}
             >
               {i18n('send', [selectedConversations.length])}

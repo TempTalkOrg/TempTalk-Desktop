@@ -18,12 +18,7 @@ window.moment = require('moment');
 
 window.i18n = i18n.setup(locale, localeMessages);
 
-const Signal = require('../js/modules/signal');
 require('../js/logging');
-
-window.Signal = Signal.setup({
-  logger: window.log,
-});
 
 window.hangup = () => {
   ipcRenderer.send('floating-bar-hangup');
@@ -79,4 +74,9 @@ window.registerHideWindowHandler = handler => {
   return () => {
     ipcRenderer.removeListener('hide-window', handler);
   };
+};
+
+window.getFloatingBarView = () => {
+  const { FloatingBar } = require('../ts/components/call/FloatingBar');
+  return FloatingBar;
 };

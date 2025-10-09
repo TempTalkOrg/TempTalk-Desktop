@@ -2661,8 +2661,8 @@ body.dark-theme {
     }
   }
 
-  .settings-members-change-dialog-create-group {
-    background-color: #2b3139;
+  .settings-members-change-dialog-create-group,
+  .forward-dialog {
     box-shadow:
       0px 7px 14px rgba(0, 0, 0, 0.08),
       0px 3px 6px rgba(0, 0, 0, 0.08),
@@ -2792,7 +2792,8 @@ body.dark-theme {
       }
     }
 
-    .btn-white {
+    .btn-white,
+    .cancel-btn {
       background-color: #2b3139;
       border: 2px solid #474d57;
       color: #eaecef;

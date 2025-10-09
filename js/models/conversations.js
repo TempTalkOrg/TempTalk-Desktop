@@ -753,16 +753,13 @@
     },
     getUidBase58() {
       if (this.isPrivate()) {
-        let id = this.id.replace('+', '');
-        let idBase58 = window.base58_encode(Number(id));
-        return idBase58;
+        return window.Signal.Util.getBase58Id(this.id);
       } else {
         return '';
       }
     },
     getFakeName() {
-      const idNumber = Number(this.getNumber().replace('+', ''));
-      return `TT-${window.base58_encode(idNumber)}`;
+      return window.Signal.Util.getFakeName(this.getNumber());
     },
 
     getProps() {

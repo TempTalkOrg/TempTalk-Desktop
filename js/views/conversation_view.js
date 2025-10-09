@@ -2187,13 +2187,27 @@
 
       if (this.mentionsJumpButton) {
         if (reset) {
-          this.mentionsJumpButton.reset(count);
+          if (count === 0) {
+            this.removeMentionsJumpButton();
+          } else {
+            this.mentionsJumpButton.update({ count });
+            this.mentionsJumpButton.count = count;
+          }
         } else {
-          this.mentionsJumpButton.increment(count);
+          const result = this.mentionsJumpButton.count + count;
+          this.mentionsJumpButton.update({ count: result });
+          this.mentionsJumpButton.count = result;
         }
       } else {
-        this.mentionsJumpButton = new Whisper.MentionsJumpButtonView({ count });
-        this.mentionsJumpButton.render();
+        this.mentionsJumpButton = new Whisper.ReactWrapperView({
+          className: 'module-mentions-jump',
+          Component: window.Signal.Components.MentionsJumpButton,
+          props: {
+            count,
+          },
+        });
+
+        this.mentionsJumpButton.count = count;
 
         const container = this.$('.discussion-container');
         container.append(this.mentionsJumpButton.el);

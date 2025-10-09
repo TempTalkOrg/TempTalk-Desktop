@@ -34,12 +34,6 @@ window.CALL_VERSION = 10;
 const { platform, arch } = process;
 window.libCryptoClient = require(`../lib-crypto-client/${platform}/${arch}`);
 
-window.base58_encode = str => {
-  let bytes = Buffer.from(str);
-  let address = bs58.encode(bytes);
-  return address;
-};
-
 window.badSelfSignedCert = () => ipcRenderer.sendSync('bad-self-signed-cert');
 
 const { initialize: initializeWebAPI } = require('../js/modules/web_api');

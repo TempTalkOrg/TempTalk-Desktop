@@ -1,6 +1,10 @@
 import * as React from 'react';
 import { Track } from '@cc-livekit/livekit-client';
-import { IconMicDisabled } from '../../../../shared/icons';
+import {
+  IconMicDisabled,
+  IconScreenShare,
+  IconScreenShareStop,
+} from '../../../../shared/icons';
 
 /**
  * @internal
@@ -31,9 +35,9 @@ export function getSourceIcon(
       );
     case Track.Source.ScreenShare:
       return enabled ? (
-        <div className="call-icon main-screen-share-stop-icon"></div>
+        <IconScreenShareStop className="call-icon main-screen-share-stop-icon" />
       ) : (
-        <div className="call-icon main-screen-share-icon"></div>
+        <IconScreenShare className="call-icon main-screen-share-icon" />
       );
     default:
       return undefined;

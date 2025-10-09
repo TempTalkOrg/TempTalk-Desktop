@@ -60,6 +60,7 @@ export type PropsData = {
   expireTimer?: number;
   showExpireTimer?: boolean;
   call?: CallType | undefined;
+  className?: string;
 };
 
 export type ClickEvent = {
@@ -660,6 +661,7 @@ export class ConversationListItem extends React.Component<Props> {
       isSelected,
       style,
       isMyGroup,
+      className,
     } = this.props;
 
     return (
@@ -682,7 +684,8 @@ export class ConversationListItem extends React.Component<Props> {
         className={classNames(
           'module-conversation-list-item',
           // unreadCount > 0 ? 'module-conversation-list-item--has-unread' : null,
-          isSelected ? 'module-conversation-list-item--is-selected' : null
+          isSelected ? 'module-conversation-list-item--is-selected' : null,
+          className
         )}
       >
         {this.renderAvatar()}
