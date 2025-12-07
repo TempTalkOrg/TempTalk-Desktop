@@ -19,8 +19,8 @@ import {
   Undo,
   ZoomIn,
   ZoomOut,
-  ZoomReset,
 } from '../icons';
+import { IconFitWindow, IconOriginalSize } from '../../shared/icons';
 
 interface IIcon {
   color?: string;
@@ -34,8 +34,9 @@ const ICON_MAP: Record<string, (props: React.SVGProps<SVGSVGElement>) => any> =
   {
     'zoom-out': ZoomOut,
     'zoom-in': ZoomIn,
-    'zoom-reset': ZoomReset,
     rotate: Rotate,
+    'fit-window': IconFitWindow,
+    'original-size': IconOriginalSize,
 
     arrow: Arrow,
     brush: Brush,

@@ -3176,6 +3176,9 @@
     "message": "发送紧急提醒成功"
   },
   "sendCriticalAlert.fail": {
-    "message": "发送紧急提醒失败，请稍后再试"
+    "message": "发送重要提醒失败，请重试"
+  },
+  "sendCriticalAlert.rateLimitExceeded": {
+    "message": "发送过于频繁，请稍后重试"
   }
 }

@@ -116,63 +116,31 @@
     </script>
 
     <script type="text/x-tmpl-mustache" id="conversation">
-          <div class='conversation-header' tabindex='-1'></div>
-          <div class='main panel'>
-            <div class='discussion-container' tabindex='-1'>
-                <div class='bar-container hide'>
-                  <div class='bar active progress-bar-striped progress-bar'></div>
-                </div>
+      <div class='conversation-header' tabindex='-1'></div>
+      <div class='main panel'>
+        <div class='discussion-container' tabindex='-1'>
+            <div class='bar-container hide'>
+              <div class='bar active progress-bar-striped progress-bar'></div>
             </div>
+        </div>
 
-            <div class='bottom-bar' id='footer'>
-                <div class='select-action-bar-container'></div>
-                <div class='attachment-list'></div>
+        <div class='bottom-bar' id='footer'>
+            <div class='select-action-bar-container'></div>
+            <div class='attachment-list'></div>
 
-                <div class='compose'>
-                  <div class="friend-request-option"></div>
-                  <div class='compose-toolbar-anchor'></div>
-                  <div class='send-message-top-bar file-input'>
-                    <div class='change-confidential-message'>
-                    </div>
-                    <div class='choose-emoji'>
-      <!--               <button class='emoji'></button>-->
-                    </div>
-                    <div class='choose-file'>
-      <!--                <button class='paperclip thumbnail'></button>-->
-                      <input type='file' class='file-input' multiple='multiple'>
-                    </div>
-                    <div class='choose-atpersons'>
-      <!--                <button class='atpersons'></button>-->
-                    </div>
-                    <div class='change-translation'></div>
-                    <div class='create-share-contact'>
-                    </div>
-                    <div class='create-search-message'>
-      <!--                <button class='new-search-message'></button>-->
-                    </div>
-                    <div class='switch-reply-mode'>
-      <!--                <button class='switch-mode'></button>-->
-                    </div>
-                    <div class='create-quick-group'>
-                    </div>
-                    <!-- <div class='create-topic-list'>
-                    </div> -->
-                    <div style="margin-left: auto">
-                    <div class='create-call'>
-                    </div>
-                    <div class='capture-audio'>
-      <!--                <button class='microphone'></button>-->
-                    </div>
-                  </div>
-                  </div>
-                  <form class='send clearfix'>
-                    <div class='flex'>
-                      <textarea class='send-message' placeholder='{{ send-message }}' rows='1' dir='auto'></textarea>
-                    </div>
-                  </form>
+            <div class='compose'>
+              <div class="friend-request-option"></div>
+              <div class='compose-toolbar-anchor'>
+                <input type='file' class='file-input' multiple='multiple'>
+              </div>
+              <form class='send clearfix'>
+                <div class='flex'>
+                  <textarea class='send-message' placeholder='{{ send-message }}' rows='1' dir='auto'></textarea>
                 </div>
+              </form>
             </div>
-          </div>
+        </div>
+      </div>
     </script>
 
     <script type="text/x-tmpl-mustache" id="message-list">

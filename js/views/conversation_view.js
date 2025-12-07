@@ -771,7 +771,7 @@
           visible: true,
         },
         messageMode: {
-          visible: true,
+          visible: undefined,
           mode: this.getMessageMode(),
           onChangeMessageMode: mode => {
             this.model.setConfidentialMode(mode === 'confidential' ? 1 : 0);
@@ -824,7 +824,22 @@
 
       this.$('.compose-toolbar-anchor').append(this.composeToolbarView.el);
     },
+    toolbarItemVisibleChanged(newProps, itemKey) {
+      if (newProps[itemKey]?.visible !== undefined) {
+        return (
+          this.composeToolbarProps[itemKey].visible !==
+          newProps[itemKey].visible
+        );
+      } else {
+        return false;
+      }
+    },
     updateComposeToolbar(newProps) {
+      const messageModeVisibleChanged = this.toolbarItemVisibleChanged(
+        newProps,
+        'messageMode'
+      );
+
       Object.entries(newProps).forEach(([key, value]) => {
         _lodash.update(this.composeToolbarProps, key, old => {
           if (old) {
@@ -838,6 +853,18 @@
       if (this.composeToolbarView) {
         this.composeToolbarView.update(this.composeToolbarProps);
       }
+
+      if (messageModeVisibleChanged) {
+        if (this.composeToolbarProps.messageMode.visible) {
+          this.listenTo(this.model, 'change:confidentialMode', () => {
+            this.updateComposeToolbar({
+              messageMode: { mode: this.getMessageMode() },
+            });
+          });
+        } else {
+          this.stopListening(this.model, 'change:confidentialMode');
+        }
+      }
     },
     updateMessageToolBar() {
       if (!this.view) {
@@ -850,13 +877,6 @@
         //this.$('.create-topic-list').hide();
 
         if (!this.model.isDirectoryUser()) {
-          this.$('.choose-file').hide();
-          this.$('.change-confidential-message').hide();
-          this.$('.create-search-message').hide();
-          this.$('.create-share-contact').hide();
-
-          this.$('.capture-audio').hide();
-
           this.updateComposeToolbar({
             messageMode: { visible: false },
             attachmentSelector: { visible: false },
@@ -865,14 +885,6 @@
             captureAudio: { visible: false },
           });
         } else {
-          this.$('.choose-file').show();
-          this.$('.change-confidential-message').show();
-          this.$('.create-search-message').show();
-          this.$('.create-share-contact').show();
-
-          this.$('.capture-audio').show();
-          this.$('.create-call').show();
-
           this.updateComposeToolbar({
             messageMode: { visible: true },
             attachmentSelector: { visible: true },
@@ -882,23 +894,20 @@
             captureAudio: { visible: true },
           });
         }
-        this.$('.choose-atpersons').hide();
         this.updateComposeToolbar({ atPerson: { visible: false } });
+      } else {
+        this.updateComposeToolbar({ messageMode: { visible: true } });
       }
 
       // non-directory user or leaved group
       if (!this.model.isAliveConversation()) {
-        this.$('.create-call').hide();
         this.updateComposeToolbar({ call: { visible: false } });
       }
 
       // 机器人要隐藏语音通话按钮
       if (window.Signal.ID.isBotId(this.model.id)) {
-        this.$('.create-call').hide();
         this.updateComposeToolbar({ call: { visible: false } });
       }
-
-      this.$('.switch-reply-mode').hide();
 
       // create a conversation to select @all conveniently
       if (!this.mentionsAll) {
@@ -937,127 +946,7 @@
         this.$('.change-translation').hide();
       }
 
-      if (this.model.isAliveConversation() && !this.confidentialModeButton) {
-        const getPropsForConfidentialMode = () => {
-          return {
-            i18n,
-            onChangeMessageMode: mode => {
-              this.model.setConfidentialMode(mode === 'confidential' ? 1 : 0);
-            },
-            confidentialMode: this.model.get('confidentialMode'),
-          };
-        };
-
-        this.confidentialModeButton = new Whisper.ReactWrapperView({
-          className: 'change-confidential-message',
-          Component: window.Signal.Components.MessageModeButton,
-          elCallback: el =>
-            this.$('.change-confidential-message').replaceWith(el),
-          props: getPropsForConfidentialMode(),
-        });
-
-        this.listenTo(this.model, 'change:confidentialMode', () => {
-          this.confidentialModeButton.update(getPropsForConfidentialMode());
-
-          this.updateComposeToolbar({
-            messageMode: { mode: this.getMessageMode() },
-          });
-        });
-      }
-
-      if (!this.chooseAtPersionButtonView) {
-        this.chooseAtPersionButtonView = new Whisper.ReactWrapperView({
-          Component: window.Signal.Components.AtPersonButton,
-          props: {
-            i18n,
-          },
-        });
-        this.$('.choose-atpersons').append(this.chooseAtPersionButtonView.el);
-      }
-
-      if (!this.selectEmojiButtonView) {
-        this.selectEmojiButtonView = new Whisper.ReactWrapperView({
-          Component: window.Signal.Components.EmojiPanelButton,
-          props: {
-            i18n,
-          },
-        });
-        this.$('.choose-emoji').append(this.selectEmojiButtonView.el);
-      }
-
-      if (!this.uploadAttachmentButtonView) {
-        this.uploadAttachmentButtonView = new Whisper.ReactWrapperView({
-          Component: window.Signal.Components.AttachmentSelectorButton,
-          props: {
-            i18n,
-          },
-        });
-        this.$('.choose-file').append(this.uploadAttachmentButtonView.el);
-      }
-
-      // if (!this.createTopicListButtonView) {
-      //   this.createTopicListButtonView = new Whisper.ReactWrapperView({
-      //     Component: window.Signal.Components.CreateTopicListButton,
-      //     props: {
-      //       i18n,
-      //     },
-      //   });
-      //   this.$('.create-topic-list').append(this.createTopicListButtonView.el);
-      // }
-
-      if (!this.localSearchButtonView) {
-        this.localSearchButtonView = new Whisper.ReactWrapperView({
-          Component: window.Signal.Components.LocalSearchButton,
-          props: {
-            i18n,
-          },
-        });
-        this.$('.create-search-message').append(this.localSearchButtonView.el);
-      }
-
-      if (!this.shareContactButtonView) {
-        this.shareContactButtonView = new Whisper.ReactWrapperView({
-          Component: window.Signal.Components.ShareContactButton,
-          props: {
-            i18n,
-          },
-        });
-
-        this.$('.create-share-contact').append(this.shareContactButtonView.el);
-      }
-
-      // if (!this.model.isPrivate() && !this.quickGroupView) {
-      //   this.quickGroupView = new Whisper.ReactWrapperView({
-      //     Component: window.Signal.Components.QuickGroupButton,
-      //     props: {
-      //       i18n,
-      //     },
-      //   });
-
-      //   this.$('.create-quick-group').append(this.quickGroupView.el);
-      // }
-
-      if (!this.captureAudioButtonView) {
-        this.captureAudioButtonView = new Whisper.ReactWrapperView({
-          Component: window.Signal.Components.CaptureAudioButton,
-          props: {
-            i18n,
-          },
-        });
-        this.$('.capture-audio').append(this.captureAudioButtonView.el);
-      }
-
-      if (!this.model.isMe()) {
-        if (!this.callButtonView) {
-          this.callButtonView = new Whisper.ReactWrapperView({
-            Component: window.Signal.Components.CallButton,
-            props: {
-              i18n,
-            },
-          });
-          this.$('.create-call').append(this.callButtonView.el);
-        }
-      } else {
+      if (this.model.isMe()) {
         this.updateComposeToolbar({ call: { visible: false } });
       }
 
@@ -1087,7 +976,6 @@
           });
         }
 
-        this.$('.send-message-top-bar').hide();
         this.$('.send-message').hide();
         this.$('.friend-request-option').show();
         this.updateComposeToolbar({ toolbar: { visible: false } });
@@ -1095,7 +983,6 @@
         this.friendRequestBar?.remove();
         this.friendRequestBar = null;
 
-        this.$('.send-message-top-bar').show();
         this.$('.send-message').show();
         this.$('.friend-request-option').hide();
 
@@ -1779,17 +1666,8 @@
 
       const viewList = [
         // views on tool bar
-        'chooseAtPersionButtonView',
-        'selectEmojiButtonView',
-        'uploadAttachmentButtonView',
-        'localSearchButtonView',
-        'captureAudioButtonView',
         'replyButtonView',
-        'quickGroupView',
         'translateButton',
-        'createTopicListButtonView',
-        // 'captureAudioView',
-        'confidentialModeButton',
 
         // views of dialog
         'settingsDialog',
@@ -1833,18 +1711,15 @@
         this.$('.send-message').val().length > 0 ||
         this.fileInput.hasFiles()
       ) {
-        this.$('.capture-audio').hide();
         this.updateComposeToolbar({
           captureAudio: { visible: false },
         });
       } else {
         if (this.model.isAliveConversation()) {
-          this.$('.capture-audio').show();
           this.updateComposeToolbar({
             captureAudio: { visible: true },
           });
         } else {
-          this.$('.capture-audio').hide();
           this.updateComposeToolbar({
             captureAudio: { visible: false },
           });
@@ -1868,24 +1743,7 @@
         return;
       }
 
-      // Note - clicking anywhere will close the audio capture panel, due to
-      //   the onClick handler in InboxView, which calls its closeRecording method.
-
-      // if (this.captureAudioView) {
-      //   this.captureAudioView.remove();
-      //   this.captureAudioView = null;
-      // }
-
-      // this.captureAudioView = new Whisper.RecorderView();
-
-      // const view = this.captureAudioView;
-      // view.render();
-      // view.on('send', this.handleAudioCapture.bind(this));
-      // view.on('closed', this.endCaptureAudio.bind(this));
-      // view.$el.appendTo(this.$('.capture-audio'));
-
       this.$('.send-message').prop('disabled', true);
-      this.$('.microphone').hide();
     },
     checkCallOrMeetingAlreadyExist() {
       const store = inboxStore.getState();
@@ -1976,7 +1834,6 @@
       this.$('.bottom-bar form').trigger('submit');
     },
     resetCaptureAudioStatus() {
-      this.$('.microphone').show();
       this.updateComposeToolbar({
         captureAudio: {
           resetKey: this.composeToolbarProps.captureAudio.resetKey + 1,
@@ -2003,10 +1860,6 @@
     },
 
     unfocusBottomBar() {
-      this.$('.send-message-top-bar').removeClass(
-        'send-message-top-bar-active'
-      );
-
       if (this.composeToolbarView) {
         this.updateComposeToolbar({ toolbar: { active: false } });
       }
@@ -2019,7 +1872,6 @@
       );
     },
     focusBottomBar() {
-      this.$('.send-message-top-bar').addClass('send-message-top-bar-active');
       this.updateComposeToolbar({ toolbar: { active: true } });
 
       this.clearSaveDraftTimer();

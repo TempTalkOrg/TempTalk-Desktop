@@ -3,6 +3,7 @@ import { Tooltip } from 'antd';
 import classNames from 'classnames';
 
 import { LocalizerType } from '../../types/Util';
+import { IconComposeMessageMode } from '../shared/icons';
 
 export enum MessageMode {
   NORMAL = 'normal',
@@ -33,12 +34,13 @@ export class MessageModeButton extends React.Component<PropsType> {
                   : MessageMode.CONFIDENTIAL
               );
             }}
-            className={classNames(
-              mode === MessageMode.CONFIDENTIAL
-                ? 'open-confidential-message_click'
-                : 'open-confidential-message'
-            )}
-          ></button>
+            className={classNames([
+              'compose-button',
+              { 'is-active': mode === MessageMode.CONFIDENTIAL },
+            ])}
+          >
+            <IconComposeMessageMode />
+          </button>
         </Tooltip>
       </>
     );

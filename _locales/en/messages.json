@@ -3140,5 +3140,8 @@
   },
   "sendCriticalAlert.fail": {
     "message": "failed to send a critical alert. Please try again."
+  },
+  "sendCriticalAlert.rateLimitExceeded": {
+    "message": "Send too frequently, please try again later"
   }
 }

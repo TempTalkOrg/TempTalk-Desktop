@@ -28,6 +28,7 @@ interface IEditorOption {
   color?: string;
   style?: Record<string, any>;
   handleControls?: (operation: string) => void;
+  divider?: boolean;
 }
 
 export const ImageTitle: React.FC<any> = props => {
@@ -58,6 +59,7 @@ export const ImageTitle: React.FC<any> = props => {
     zoomIn,
     zoomOut,
     zoomReset,
+    fitWindow,
   } = useImageGallery();
 
   // On-click icon functions
@@ -83,6 +85,11 @@ export const ImageTitle: React.FC<any> = props => {
 
   const onReset = () => {
     handleControls?.('zoom-reset');
+    setRotation(0);
+  };
+
+  const onFitWindow = () => {
+    handleControls?.('fit-window');
     setRotation(0);
   };
 
@@ -127,7 +134,9 @@ export const ImageTitle: React.FC<any> = props => {
         disabled: index >= totalNumImage - 1,
         icon: 'next-page',
       },
-      { imgSrc: isImage ? 'divider.png' : '', height: 24, width: 1 },
+      {
+        divider: isImage,
+      },
       {
         imgSrc: isImage ? 'zoom-out.svg' : '',
         onClick: onZoomOut,
@@ -139,11 +148,16 @@ export const ImageTitle: React.FC<any> = props => {
         icon: 'zoom-in',
       },
       {
+        imgSrc: isImage ? 'fit-window.svg' : '',
+        icon: 'fit-window',
+        onClick: onFitWindow,
+      },
+      {
         imgSrc: isImage ? 'zoom-reset.svg' : '',
         onClick: onReset,
-        icon: 'zoom-reset',
+        icon: 'original-size',
       },
-      { imgSrc: 'divider.png', height: 24, width: 1 },
+      { divider: true },
       {
         imgSrc: isImage ? 'rotate.svg' : '',
         onClick: onRotate,
@@ -187,7 +201,7 @@ export const ImageTitle: React.FC<any> = props => {
           <Arrow key="Arrow" onClick={() => switchOperation('Arrow')} />
         ),
       },
-      { imgSrc: 'divider.png', height: 24, width: 1 },
+      { divider: true },
       {
         component: <Text key="Text" onClick={() => switchOperation('Text')} />,
       },
@@ -201,7 +215,7 @@ export const ImageTitle: React.FC<any> = props => {
           <Mosaic key="Mosaic" onClick={() => switchOperation('Mosaic')} />
         ),
       },
-      { imgSrc: 'divider.png', height: 24, width: 1 },
+      { divider: true },
       {
         component: (
           <Undo
@@ -220,7 +234,7 @@ export const ImageTitle: React.FC<any> = props => {
           />
         ),
       },
-      { imgSrc: 'divider.png', height: 24, width: 1 },
+      { divider: true },
       {
         imgSrc: isImage ? 'zoom-out' : '',
         icon: 'zoom-out',
@@ -232,12 +246,17 @@ export const ImageTitle: React.FC<any> = props => {
         onClick: () => zoomIn(),
       },
       {
+        imgSrc: isImage ? 'fit-window' : '',
+        icon: 'fit-window',
+        onClick: () => fitWindow(),
+      },
+      {
         imgSrc: isImage ? 'zoom-reset' : '',
-        icon: 'zoom-reset',
+        icon: 'original-size',
         onClick: () => zoomReset(),
       },
 
-      { imgSrc: 'divider.png', height: 24, width: 1 },
+      { divider: true },
       { imgSrc: 'save.svg', icon: 'save', onClick: () => invoke('onSave') },
       // { component: <Cancel key="Cancel" onClick={() => invoke('onCancel')} /> },
       {
@@ -304,11 +323,17 @@ export const ImageTitle: React.FC<any> = props => {
         }}
       >
         {EDITOR_OPTIONS.map((option, index) => {
-          if (option.imgSrc) {
+          if (option.divider) {
+            return (
+              <div key={index} className="toolbar-operation-divider">
+                <div className="toolbar-operation-divider-line"></div>
+              </div>
+            );
+          } else if (option.imgSrc) {
             return (
               <button
                 key={index}
-                className={'editor-icon'}
+                className="editor-icon"
                 onClick={option.onClick}
                 disabled={option.disabled}
                 style={{ ...(option.style ?? {}) }}

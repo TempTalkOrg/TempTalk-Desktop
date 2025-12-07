@@ -10,6 +10,7 @@ import React, {
   useState,
 } from 'react';
 import { ISize } from './image-gallery/IndividualImage';
+import { getFitContainerScale } from './image-gallery/util';
 
 export interface IPinchableImageProps {
   url: string;
@@ -25,6 +26,7 @@ export interface PinchableImageInstance {
   zoomOut: () => void;
   zoomReset: () => void;
   initSize: (size: ISize) => void;
+  fitWindow: () => void;
 }
 
 const useGesture = createUseGesture([pinchAction]);
@@ -145,6 +147,20 @@ export const PinchableImage = forwardRef<
     },
     initSize(size: ISize) {
       setInitSize(size);
+    },
+    fitWindow() {
+      const container = getContainer();
+      if (!container) {
+        return;
+      }
+      const newScale = getFitContainerScale({
+        containerSize: {
+          width: container.clientWidth,
+          height: container.clientHeight,
+        },
+        imageSize: initSize,
+      });
+      setScale(newScale);
     },
   }));
 

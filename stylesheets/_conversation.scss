@@ -241,10 +241,6 @@
   padding-bottom: 40px;
 }
 
-.send-message-top-bar-active {
-  border-top: 1px solid $color-signal-blue !important;
-}
-
 .friend-request-option_content {
   width: 100%;
   min-height: 44px;
@@ -261,12 +257,6 @@
     padding-top: 5px;
     min-height: 22px;
   }
-}
-
-.send-message-top-bar {
-  font-size: 0;
-  border-top: 1px solid #d5d6d6;
-  display: flex;
 }
 
 .bottom-bar .module-quote {
@@ -359,20 +349,11 @@
     .send-message {
       padding: 5px 15px 10px 15px;
       flex-grow: 1;
+      line-height: normal;
     }
   }
 
   .choose-file {
-    display: inline-block;
-    height: 36px;
-  }
-
-  .choose-atpersons {
-    display: inline-block;
-    height: 36px;
-  }
-
-  .choose-emoji {
     display: inline-block;
     height: 36px;
   }
@@ -384,21 +365,6 @@
   }
 
   .create-topic-list {
-    display: inline-block;
-    height: 36px;
-  }
-
-  .create-search-message {
-    display: inline-block;
-    height: 36px;
-  }
-
-  .create-share-contact {
-    display: inline-block;
-    height: 36px;
-  }
-
-  .change-confidential-message {
     display: inline-block;
     height: 36px;
   }
@@ -437,11 +403,6 @@
     &::placeholder {
       color: $app-color-text-disable-light;
     }
-  }
-
-  .capture-audio {
-    float: right;
-    height: 36px;
   }
 
   .android-length-warning {
@@ -1208,9 +1169,19 @@
 }
 
 .compose-toolbar-anchor {
-  position: absolute;
-  height: 37px;
   z-index: 2;
+
+  .file-input {
+    display: none;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    top: 0;
+    left: 0;
+    cursor: pointer;
+    z-index: 1;
+  }
 }
 
 .compose-toolbar {
@@ -1221,181 +1192,15 @@
   font-size: 0;
   flex-flow: row nowrap;
   justify-content: space-between;
+  position: relative;
+  border-top: 1px solid var(--dst-color-line);
 
-  // &.active {
-  //   border-top: 1px solid $color-signal-blue !important;
-  // }
+  &.active {
+    border-top: 1px solid $color-signal-blue !important;
+  }
 
   &.hidden {
     display: none;
-  }
-
-  .open-confidential-message {
-    margin: 4px;
-    width: 28px;
-    height: 28px;
-    padding: 0;
-    border: none;
-    background: transparent;
-    // margin-top: 2px;
-
-    &:before {
-      content: '';
-      display: inline-block;
-      width: $button-height;
-      height: $button-height;
-      @include color-svg(
-        '../images/confidential-mode.svg',
-        $app-color-text-third-light
-      );
-      -webkit-mask-size: 72%;
-    }
-
-    &:focus,
-    &:hover {
-      background-color: var(--dst-color-background-third);
-      border-radius: 8px;
-    }
-  }
-
-  .open-confidential-message_click {
-    margin: 4px;
-    width: 28px;
-    height: 28px;
-    padding: 0;
-    border: none;
-    background: transparent;
-    // margin-top: 2px;
-
-    &:before {
-      content: '';
-      display: inline-block;
-      width: $button-height;
-      height: $button-height;
-      @include color-svg('../images/confidential-mode.svg', #056ffa);
-      -webkit-mask-size: 72%;
-    }
-
-    &:focus,
-    &:hover {
-      background-color: var(--dst-color-background-third);
-      border-radius: 8px;
-    }
-  }
-
-  .paperclip {
-    margin: 4px;
-    width: 28px;
-    height: 28px;
-    padding: 0;
-    border: none;
-    background: transparent;
-    // margin-top: 2px;
-
-    &:before {
-      content: '';
-      display: inline-block;
-      width: $button-height;
-      height: $button-height;
-      @include color-svg(
-        '../images/paperclip.svg',
-        $app-color-text-third-light
-      );
-      //transform: rotateZ(-45deg);
-    }
-
-    &:focus,
-    &:hover {
-      background-color: var(--dst-color-background-third);
-      border-radius: 8px;
-    }
-  }
-
-  .atpersons {
-    margin: 4px;
-    width: 28px;
-    height: 28px;
-    padding: 0;
-    border: none;
-    background: transparent;
-    // margin-top: 2px;
-
-    &:before {
-      content: '';
-      display: inline-block;
-      width: $button-height;
-      height: $button-height;
-      @include color-svg(
-        '../images/atpersons.svg',
-        $app-color-text-third-light
-      );
-    }
-
-    &:focus,
-    &:hover {
-      background-color: var(--dst-color-background-third);
-      border-radius: 8px;
-    }
-  }
-
-  .share-contact {
-    margin: 4px;
-    width: 28px;
-    height: 28px;
-    padding: 0;
-    border: none;
-    background: transparent;
-    // margin-top: 2px;
-
-    &:before {
-      content: '';
-      display: inline-block;
-      //width: $button-height;
-      //height: $button-height;
-      width: 24px;
-      height: 24px;
-      @include color-svg(
-        '../images/compose-share-contact.svg',
-        var(--dst-color-text-third)
-      );
-      // -webkit-mask-size: 90%;
-    }
-
-    &:focus,
-    &:hover {
-      background-color: var(--dst-color-background-third);
-      border-radius: 8px;
-    }
-  }
-
-  .new-search-message {
-    margin: 4px;
-    width: 28px;
-    height: 28px;
-    padding: 0;
-    border: none;
-    background: transparent;
-    // margin-top: 2px;
-
-    &:before {
-      content: '';
-      display: inline-block;
-      //width: $button-height;
-      //height: $button-height;
-      width: 24px;
-      height: 24px;
-      @include color-svg(
-        '../images/compose-search.svg',
-        var(--dst-color-text-third)
-      );
-      // -webkit-mask-size: 90%;
-    }
-
-    &:focus,
-    &:hover {
-      background-color: var(--dst-color-background-third);
-      border-radius: 8px;
-    }
   }
 
   .call-btn {
@@ -1418,32 +1223,24 @@
     position: fixed;
     right: 0;
     display: flex;
+  }
 
-    .microphone {
-      margin: 4px;
-      height: 28px;
-      width: 28px;
-      text-align: center;
-      background: transparent;
-      padding: 0;
-      border: none;
+  .compose-button {
+    border: none;
+    background: transparent;
+    color: var(--dst-color-text-third);
+    margin: 4px;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    &:hover,
+    &:focus {
+      background-color: var(--dst-color-background-third);
+      border-radius: 8px;
+    }
 
-      &:focus,
-      &:hover {
-        background-color: var(--dst-color-background-third);
-        border-radius: 8px;
-      }
-
-      &:before {
-        content: '';
-        display: inline-block;
-        height: 24px;
-        width: 24px;
-        @include color-svg(
-          '../images/microphone.svg',
-          $app-color-text-third-light
-        );
-      }
+    &.is-active {
+      color: var(--dst-color-brand-primary);
     }
   }
 }

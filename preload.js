@@ -1328,3 +1328,8 @@ window.getGlobalConfig = () => window.globalConfig;
 ipcRenderer.on('open-call-feedback', (_, data) => {
   Whisper.events.trigger('open-call-feedback', data);
 });
+
+ipcRenderer.on('close-add-call-members', () => {
+  const ev = new CustomEvent('close-add-call-members');
+  window.dispatchEvent(ev);
+});

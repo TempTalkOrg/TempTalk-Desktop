@@ -85,10 +85,6 @@ const {
 } = require('../../ts/components/conversation/TranslateMenu');
 
 const {
-  MessageModeButton,
-} = require('../../ts/components/conversation/MessageModeButton');
-
-const {
   FriendRequestOption,
 } = require('../../ts/components/conversation/FriendRequestOption');
 
@@ -147,17 +143,8 @@ const {
 const { CallFeedback } = require('../../ts/components/call/CallFeedback');
 
 const {
-  AtPersonButton,
-  EmojiPanelButton,
-  AttachmentSelectorButton,
-  CreateTopicListButton,
-  LocalSearchButton,
-  CallButton,
-  CaptureAudioButton,
   VisibleReplyButton,
   InVisibleReplyButton,
-  QuickGroupButton,
-  ShareContactButton,
 } = require('../../ts/components/ComposeButtons');
 
 const {
@@ -354,7 +341,6 @@ exports.setup = (options = {}) => {
     ReminderNotification,
     TipsForArchiveIndicator,
     TranslateMenu,
-    MessageModeButton,
     FriendRequestOption,
     TopicListDialog,
     TranslateChangeNotification,
@@ -365,17 +351,8 @@ exports.setup = (options = {}) => {
     JoinGroup,
     SettingDialog,
     LocalSearch,
-    AtPersonButton,
-    EmojiPanelButton,
-    AttachmentSelectorButton,
-    CreateTopicListButton,
-    LocalSearchButton,
-    CallButton,
-    CaptureAudioButton,
     VisibleReplyButton,
     InVisibleReplyButton,
-    QuickGroupButton,
-    ShareContactButton,
     Register,
     ConversationLodingView,
     ScreenshotNotification,

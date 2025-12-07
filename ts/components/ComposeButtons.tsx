@@ -1,7 +1,15 @@
 import React from 'react';
 import { Tooltip } from 'antd';
 import { LocalizerType } from '../types/Util';
-import { IconCall } from './shared/icons';
+import {
+  IconCall,
+  IconComposeAtPerson,
+  IconComposeEmoji,
+  IconComposeMicrophone,
+  IconComposePaperclip,
+  IconComposeSearch,
+  IconComposeShareContact,
+} from './shared/icons';
 
 export type PropsType = {
   i18n: LocalizerType;
@@ -18,7 +26,9 @@ export const AtPersonButton = (props: PropsType) => {
         placement="top"
         title={i18n('chooseMembersTooltip')}
       >
-        <button className="atpersons" onClick={onClick}></button>
+        <button className="compose-button" onClick={onClick}>
+          <IconComposeAtPerson />
+        </button>
       </Tooltip>
     </>
   );
@@ -52,7 +62,9 @@ export const CaptureAudioButton = (props: PropsType) => {
         placement="top"
         title={i18n('recordVoiceTooltip')}
       >
-        <button className="microphone" onClick={onClick}></button>
+        <button className="compose-button" onClick={onClick}>
+          <IconComposeMicrophone />
+        </button>
       </Tooltip>
     </>
   );
@@ -100,7 +112,9 @@ export const LocalSearchButton = (props: PropsType) => {
         placement="top"
         title={i18n('chatHistoryTooltip')}
       >
-        <button className="new-search-message" onClick={onClick}></button>
+        <button className="compose-button" onClick={onClick}>
+          <IconComposeSearch />
+        </button>
       </Tooltip>
     </>
   );
@@ -116,7 +130,9 @@ export const EmojiPanelButton = (props: PropsType) => {
         placement="top"
         title={i18n('stickersTooltip')}
       >
-        <button className="emoji" onClick={onClick}></button>
+        <button className="compose-button" onClick={onClick}>
+          <IconComposeEmoji />
+        </button>
       </Tooltip>
     </>
   );
@@ -132,7 +148,9 @@ export const AttachmentSelectorButton = (props: PropsType) => {
         placement="top"
         title={i18n('attachmentTooltip')}
       >
-        <button className="paperclip thumbnail" onClick={onClick}></button>
+        <button className="compose-button" onClick={onClick}>
+          <IconComposePaperclip />
+        </button>
       </Tooltip>
     </>
   );
@@ -178,7 +196,9 @@ export const ShareContactButton = (props: PropsType) => {
       placement="top"
       title={i18n('shareContactTooltip')}
     >
-      <button className="share-contact" onClick={onClick}></button>
+      <button className="compose-button" onClick={onClick}>
+        <IconComposeShareContact />
+      </button>
     </Tooltip>
   );
 };

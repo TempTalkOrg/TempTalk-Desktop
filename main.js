@@ -2284,6 +2284,7 @@ ipc.on('close-call-window', async event => {
   if (floatingBarWindow) {
     floatingBarWindow.hide();
   }
+  mainWindow?.webContents.send('close-add-call-members');
 });
 
 ipc.on('open-call-feedback', async (event, data) => {

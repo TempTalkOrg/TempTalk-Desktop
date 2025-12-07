@@ -7,10 +7,12 @@ import React, {
   Ref,
   useRef,
   useCallback,
+  MutableRefObject,
 } from 'react';
-import { IHistoryStatus } from './IndividualImage';
+import { IHistoryStatus, ISize } from './IndividualImage';
 
 import type { MosaicType } from '@cc-kit/react-screenshots';
+import { getFitContainerScale } from './util';
 
 // 定义 OperationContext 的类yar型
 interface ImageGalleryContextType {
@@ -19,6 +21,7 @@ interface ImageGalleryContextType {
   operation: string;
   history: IHistoryStatus;
   screenshotsRef: RefObject<any>;
+  imageSizeRef: MutableRefObject<ISize>;
   mosaicType: MosaicType;
   switchOperation: (operation: string) => void;
   undo: () => void;
@@ -31,17 +34,23 @@ interface ImageGalleryContextType {
   zoomIn: () => void;
   zoomOut: () => void;
   zoomReset: () => void;
+  fitWindow: () => void;
   handleScaleChange: (scale: number) => void;
 }
 
-interface IImageGalleryContext {}
+interface IImageGalleryContext {
+  containerRef: React.RefObject<HTMLDivElement>;
+}
 
 // 创建一个默认值为 null 的上下文（确保在没有 Provider 包裹的组件中使用时不会抛出错误）
 const ImageGalleryContext = createContext<ImageGalleryContextType | undefined>(
   undefined
 );
 
-const ImageGalleryProvider: React.FC<IImageGalleryContext> = ({ children }) => {
+const ImageGalleryProvider: React.FC<IImageGalleryContext> = ({
+  children,
+  containerRef,
+}) => {
   // 使用 useState 定义状态
   const [color, setColor] = useState<string>('#F84135');
   const [mosaicType, setMosaicType] = useState<MosaicType>('rectangle');
@@ -52,6 +61,7 @@ const ImageGalleryProvider: React.FC<IImageGalleryContext> = ({ children }) => {
   const [operation, setOperation] = useState<string>('Rectangle');
   const [scale, setScale] = useState(1);
   const screenshotsRef: Ref<any> = useRef(null);
+  const imageSizeRef = useRef<ISize>({ width: 0, height: 0 });
 
   const onColorChange = useMemoizedFn(color => {
     setColor(color);
@@ -108,6 +118,22 @@ const ImageGalleryProvider: React.FC<IImageGalleryContext> = ({ children }) => {
     screenshotsRef.current.updateScale(1);
   });
 
+  const fitWindow = useMemoizedFn(() => {
+    const container = containerRef.current;
+    if (!container) {
+      return;
+    }
+    const newScale = getFitContainerScale({
+      containerSize: {
+        width: container.clientWidth,
+        height: container.clientHeight,
+      },
+      imageSize: imageSizeRef.current,
+    });
+    setScale(newScale);
+    screenshotsRef.current.updateScale(newScale);
+  });
+
   // 创建一个对象包含状态和设置状态的方法
   const contextValue = {
     scale,
@@ -116,6 +142,7 @@ const ImageGalleryProvider: React.FC<IImageGalleryContext> = ({ children }) => {
     operation,
     history,
     screenshotsRef,
+    imageSizeRef,
     undo,
     redo,
     invoke,
@@ -128,6 +155,7 @@ const ImageGalleryProvider: React.FC<IImageGalleryContext> = ({ children }) => {
     zoomIn,
     zoomOut,
     zoomReset,
+    fitWindow,
   };
 
   // 提供上下文值

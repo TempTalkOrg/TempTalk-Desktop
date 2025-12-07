@@ -1,6 +1,5 @@
 export * from './ZoomOut';
 export * from './ZoomIn';
-export * from './ZoomReset';
 
 export * from './Redo';
 export * from './Undo';

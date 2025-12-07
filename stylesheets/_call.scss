@@ -1001,7 +1001,7 @@ table {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    margin-top: 4px;
+    margin-top: 8px;
     flex-shrink: 0;
     user-select: none;
   }
@@ -1014,17 +1014,11 @@ table {
     user-select: none;
     align-items: center;
     display: flex;
+    flex-flow: row wrap;
     justify-content: center;
     align-items: center;
-    gap: 2px;
-  }
-
-  .call-invite-name {
-    display: inline-block;
-    max-width: 72px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    gap: 0 2px;
+    margin-top: 8px;
   }
 
   .call-operations {
@@ -1252,4 +1246,16 @@ table {
       width: 20px;
     }
   }
+}
+
+.lk-message-sender-icon {
+  cursor: pointer;
+}
+
+.lk-focus-layout-wrapper {
+  font-size: 0;
+}
+
+.lk-participant-media-video[data-lk-source='screen_share'] {
+  background-color: var(--dst-color-background-space);
 }

@@ -231,11 +231,8 @@ const makeMessageCollapseId = ({ timestamp, source, sourceDevice }) => {
     'import.svg',
     'lead-pencil.svg',
     'menu.svg',
-    'microphone.svg',
     'movie.svg',
     'open_link.svg',
-    'paperclip.svg',
-    'atpersons.svg',
     'play.svg',
     'plus.svg',
     'plus-36.svg',
@@ -245,7 +242,6 @@ const makeMessageCollapseId = ({ timestamp, source, sourceDevice }) => {
     'search.svg',
     'sending.svg',
     'shield.svg',
-    'smile.svg',
     'sync.svg',
     'timer-00.svg',
     'timer-05.svg',
@@ -3630,6 +3626,7 @@ const makeMessageCollapseId = ({ timestamp, source, sourceDevice }) => {
 
       await conversation.destroyMessages(true);
       conversation.trigger('unload', 'handle disband/leave group notification');
+      update.active_at = null;
     }
 
     // update conversation and save to database

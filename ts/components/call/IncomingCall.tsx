@@ -36,7 +36,7 @@ export const IncomingCall = ({ i18n }: { i18n: LocalizerType }) => {
       </div>
       <div className="caller-name">{name}</div>
       <div className="call-invite-text">
-        {inviteName && <span className="call-invite-name">{inviteName}</span>}
+        {inviteName && <span>{inviteName}</span>}
         <span>{i18n('incomingCallInvite')}</span>
       </div>
       <div className="call-operations">

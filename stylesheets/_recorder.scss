@@ -1,57 +1,5 @@
 @use 'sass:color';
 
-.capture-audio {
-  text-align: center;
-
-  .microphone {
-    margin: 4px;
-    height: 28px;
-    width: 28px;
-    text-align: center;
-    background: transparent;
-    padding: 0;
-    border: none;
-
-    &:focus,
-    &:hover {
-      background-color: var(--dst-color-background-third);
-      border-radius: 8px;
-    }
-
-    &:before {
-      content: '';
-      display: inline-block;
-      height: 24px;
-      width: 24px;
-      @include color-svg(
-        '../images/microphone.svg',
-        $app-color-text-third-light
-      );
-    }
-  }
-}
-
-.create-call {
-  text-align: center;
-  float: right;
-
-  .call-btn {
-    margin: 4px;
-    height: 28px;
-    width: 28px;
-    text-align: center;
-    background: transparent;
-    padding: 0;
-    border: none;
-
-    &:focus,
-    &:hover {
-      background-color: var(--dst-color-background-third);
-      border-radius: 8px;
-    }
-  }
-}
-
 .recorder {
   position: relative;
   background: $color-white;

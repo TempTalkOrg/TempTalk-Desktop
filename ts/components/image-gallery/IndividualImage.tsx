@@ -84,7 +84,9 @@ export interface IHistoryStatus {
   undoDisabled: boolean;
 }
 
-export const IndividuralImageImpl: React.FC<IProps> = props => {
+export const IndividuralImageImpl: React.FC<
+  IProps & { containerRef: React.RefObject<HTMLDivElement> }
+> = props => {
   const {
     apis: ImageGalleryApis,
     image: {
@@ -97,18 +99,19 @@ export const IndividuralImageImpl: React.FC<IProps> = props => {
     handleNextImage,
     index,
     totalNumImage,
+    containerRef,
   } = props;
 
   // const transformComponentRef = useRef<ReactZoomPanPinchRef | null>(null);
   const [rotation, setRotation] = useState(0);
   const [readonly, setReadonly] = useState(true);
   const [size, setSize] = useState<ISize>({ height: 0, width: 0 });
-  const containRef = useRef<HTMLDivElement>(null);
   const childRef = useRef<HTMLDivElement>(null);
 
   const {
     scale,
     screenshotsRef,
+    imageSizeRef,
     onOperationChange,
     onHistoryChange,
     handleScaleChange,
@@ -130,6 +133,9 @@ export const IndividuralImageImpl: React.FC<IProps> = props => {
       case 'zoom-reset':
         pinchableImageRef.current?.zoomReset();
         break;
+      case 'fit-window':
+        pinchableImageRef.current?.fitWindow();
+        break;
     }
   });
 
@@ -147,6 +153,7 @@ export const IndividuralImageImpl: React.FC<IProps> = props => {
         const size = await getImageSizeByUrl(url);
         setSize(size);
         pinchableImageRef.current?.initSize(size);
+        imageSizeRef.current = size;
       }
     };
     initImageEditor();
@@ -174,36 +181,36 @@ export const IndividuralImageImpl: React.FC<IProps> = props => {
   }, [readonly]);
 
   useLayoutEffect(() => {
-    if (!containRef.current || !childRef.current) return;
+    if (!containerRef.current || !childRef.current) return;
 
-    const parentBounds = containRef.current.getBoundingClientRect();
+    const parentBounds = containerRef.current.getBoundingClientRect();
     const imgBounds = childRef.current.getBoundingClientRect();
     childRef.current.style.marginTop = `${Math.max(
       0,
       (parentBounds.height - imgBounds.height) / 2
     )}px`;
-  }, [scale, childRef.current, containRef.current]);
+  }, [scale, childRef.current, containerRef.current]);
 
   useLayoutEffect(() => {
     if (readonly) return;
     if (prevScale === undefined) return;
-    if (!containRef.current || !editorRootRef.current) return;
+    if (!containerRef.current || !editorRootRef.current) return;
 
     const delta = scale - prevScale;
 
     const imageBounds = editorRootRef.current.getBoundingClientRect();
 
     const xRate = wheelEventRef.current
-      ? (wheelEventRef.current?.clientX + containRef.current.scrollLeft) /
+      ? (wheelEventRef.current?.clientX + containerRef.current.scrollLeft) /
         imageBounds.width
       : 0.5;
     const yRate = wheelEventRef.current
-      ? (wheelEventRef.current?.clientY - 52 + containRef.current.scrollTop) /
+      ? (wheelEventRef.current?.clientY - 52 + containerRef.current.scrollTop) /
         imageBounds.height
       : 0.5;
 
-    containRef.current.scrollLeft += size.width * delta * xRate;
-    containRef.current.scrollTop += size.width * delta * yRate;
+    containerRef.current.scrollLeft += size.width * delta * xRate;
+    containerRef.current.scrollTop += size.width * delta * yRate;
   }, [size, scale, prevScale, readonly]);
 
   const handleKeyBoardEvent = useMemoizedFn((event: KeyboardEvent) => {
@@ -248,7 +255,7 @@ export const IndividuralImageImpl: React.FC<IProps> = props => {
             // width: size.width,
             pointerEvents: 'auto',
           }}
-          getContainer={() => containRef.current}
+          getContainer={() => containerRef.current}
         ></PinchableImage>
       ) : (
         <div ref={childRef}>
@@ -317,7 +324,7 @@ export const IndividuralImageImpl: React.FC<IProps> = props => {
         readonly={readonly}
         handleControls={handleControls}
       />
-      <div className="image-container" ref={containRef}>
+      <div className="image-container" ref={containerRef}>
         {renderContent()}
       </div>
     </>
@@ -325,9 +332,11 @@ export const IndividuralImageImpl: React.FC<IProps> = props => {
 };
 
 export const IndividualImage: React.FC<IProps> = props => {
+  const containerRef = useRef<HTMLDivElement>(null);
+
   return (
-    <ImageGalleryProvider>
-      <IndividuralImageImpl {...props} />
+    <ImageGalleryProvider containerRef={containerRef}>
+      <IndividuralImageImpl {...props} containerRef={containerRef} />
     </ImageGalleryProvider>
   );
 };

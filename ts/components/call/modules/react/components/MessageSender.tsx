@@ -71,7 +71,12 @@ export const MessageSender = (props: IProps) => {
   return (
     <div className="lk-message-sender-container">
       <div className="lk-message-sender-icon">
-        <IconCallChat className="call-icon send-message-icon" />
+        <IconCallChat
+          className="call-icon send-message-icon"
+          onClick={() => {
+            setPresetArea(prev => !prev);
+          }}
+        />
       </div>
       <Popover
         content={renderPresetArea()}

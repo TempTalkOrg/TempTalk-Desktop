@@ -5,6 +5,7 @@ import { useAtomValue } from 'jotai';
 import { roomAtom } from '../atoms/roomAtom';
 import { Room } from '@cc-livekit/livekit-client';
 import { LocalizerType } from '../../../types/Util';
+import { message } from 'antd';
 
 export const useCriticalAlert = ({
   room,
@@ -26,9 +27,13 @@ export const useCriticalAlert = ({
     try {
       await callingAPI.sendCriticalAlert({ destination: currentCall.number });
       addMessage({ identity, text: i18n('sendCriticalAlert.success') });
-    } catch (e) {
+    } catch (e: any) {
       console.log('sendCriticalAlertMessage error', e);
-      addMessage({ identity, text: i18n('sendCriticalAlert.fail') });
+      message.error(
+        e?.code === 413
+          ? i18n('sendCriticalAlert.rateLimitExceeded')
+          : i18n('sendCriticalAlert.fail')
+      );
     }
   });
 

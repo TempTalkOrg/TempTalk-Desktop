@@ -6,6 +6,7 @@ import CreateGroup from './CreateGroup';
 
 import { ICreateGroupProps } from './CreateGroup';
 import { IMembersChangeProps } from './MembersChange';
+import { useMemoizedFn } from 'ahooks';
 
 type PropsType = {
   i18n: LocalizerType;
@@ -41,6 +42,11 @@ export default function Load(props: PropsType) {
 
     (window as any).addEventListener('close-all-load-dialog', closeAllDialog);
 
+    (window as any).addEventListener(
+      'close-add-call-members',
+      closeAddCallMembers
+    );
+
     return () => {
       (window as any).removeEventListener(
         'global-components-members-change',
@@ -50,6 +56,11 @@ export default function Load(props: PropsType) {
         'close-all-load-dialog',
         closeAllDialog
       );
+
+      (window as any).removeEventListener(
+        'close-add-call-members',
+        closeAddCallMembers
+      );
     };
   }, []);
 
@@ -57,6 +68,12 @@ export default function Load(props: PropsType) {
     setShowCreateGroupDialog(false);
     setShowMembersChangeDialog(false);
   };
+
+  const closeAddCallMembers = useMemoizedFn(() => {
+    if (membersChangeType === 'call-add') {
+      setShowMembersChangeDialog(false);
+    }
+  });
 
   const onConfirm = (members: Array<string>, options: any) => {
     if (

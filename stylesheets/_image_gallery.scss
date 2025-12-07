@@ -33,6 +33,24 @@
   }
 }
 
+.toolbar-operation-divider {
+  cursor: default;
+  border: none;
+  outline: none;
+  background-color: rgba(0, 0, 0, 0);
+  height: 28px;
+  width: 28px;
+  padding: 4px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  &-line {
+    width: 1px;
+    height: 24px;
+    background-color: #bcbfc3;
+  }
+}
+
 .toolbar-operation-popover-overlay {
   .ant-popover-arrow {
     &::before,

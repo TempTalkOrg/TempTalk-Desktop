@@ -53,16 +53,6 @@ body.dark-theme {
   }
 
   .bottom-bar {
-    // form.active {
-    //   textarea {
-    //     border: solid 1px $blue;
-    //   }
-    // }
-
-    .send-message-top-bar {
-      border-top: 1px solid #3d3e44;
-    }
-
     form.send {
       background-color: $color-gray-95;
 
@@ -154,12 +144,6 @@ body.dark-theme {
     background-color: $color-dark-85;
   }
 
-  button.emoji {
-    &:before {
-      @include color-svg('../images/smile.svg', $app-color-text-third-dark);
-    }
-  }
-
   // _global
 
   ::-webkit-scrollbar-track {
@@ -203,40 +187,6 @@ body.dark-theme {
   }
 
   .file-input {
-    .paperclip {
-      &:before {
-        @include color-svg(
-          '../images/paperclip.svg',
-          $app-color-text-third-dark
-        );
-      }
-    }
-
-    .atpersons {
-      &:before {
-        @include color-svg(
-          '../images/atpersons.svg',
-          $app-color-text-third-dark
-        );
-      }
-    }
-
-    .open-confidential-message {
-      &:before {
-        @include color-svg(
-          '../images/confidential-mode.svg',
-          $app-color-text-third-dark
-        );
-        -webkit-mask-size: 72%;
-      }
-    }
-
-    .open-confidential-message_click {
-      &:hover {
-        background-color: $app-color-background-3-dark;
-      }
-    }
-
     .translation {
       &:before {
         @include color-svg(
@@ -2081,21 +2031,6 @@ body.dark-theme {
   // Not sure we need to change anything there - it's blue
 
   // _recorder
-
-  .capture-audio {
-    .microphone {
-      &:before {
-        @include color-svg(
-          '../images/microphone.svg',
-          $app-color-text-third-dark
-        );
-      }
-
-      &:hover {
-        background-color: $app-color-background-3-dark;
-      }
-    }
-  }
 
   .recorder {
     background: transparent;

@@ -72,23 +72,19 @@ export const ImageGallery = (props: ImageGalleryProps) => {
     });
   };
 
-  const renderImage = () => {
-    const { index, images } = imageData;
-    if (images.length === 0) {
-      return;
-    }
+  const { index, images } = imageData;
+  if (images.length === 0) {
+    return null;
+  }
 
-    return (
-      <IndividualImage
-        handlePrevImage={handlePrevImage}
-        handleNextImage={handleNextImage}
-        image={images[index]}
-        index={index}
-        totalNumImage={images.length}
-        apis={ImageGalleryApis}
-      />
-    );
-  };
-
-  return <>{renderImage()}</>;
+  return (
+    <IndividualImage
+      handlePrevImage={handlePrevImage}
+      handleNextImage={handleNextImage}
+      image={images[index]}
+      index={index}
+      totalNumImage={images.length}
+      apis={ImageGalleryApis}
+    />
+  );
 };
