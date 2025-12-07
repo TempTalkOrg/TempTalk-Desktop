@@ -14,6 +14,8 @@
 
     --dst-color-modal-btn-primary-hover-bg: #1978f5;
     --dst-color-modal-btn-default-hover-bg: #fbfbfb;
+
+    --dst-color-quote-outgoing-bg: #d6eeff;
   }
 
   @if $theme ==dark {
@@ -31,6 +33,8 @@
 
     --dst-color-modal-btn-primary-hover-bg: #1978f5;
     --dst-color-modal-btn-default-hover-bg: #343c46;
+
+    --dst-color-quote-outgoing-bg: #326694;
   }
 }
 

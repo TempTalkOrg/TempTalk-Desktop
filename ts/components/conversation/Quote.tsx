@@ -7,6 +7,7 @@ import * as GoogleChrome from '../../../ts/util/GoogleChrome';
 import { MessageBody } from './MessageBody';
 import { ColorType, LocalizerType } from '../../types/Util';
 import { ContactName } from './ContactName';
+import { IconClose } from '../shared/icons';
 
 interface Props {
   attachment?: QuotedAttachmentType;
@@ -309,9 +310,9 @@ export class Quote extends React.Component<Props, State> {
     // We need the container to give us the flexibility to implement the iOS design.
     return (
       <div className="module-quote__close-container">
-        <div
+        <IconClose
           className="module-quote__close-button"
-          role="button"
+          color="var(--dst-color-background)"
           onClick={onClick}
         />
       </div>
@@ -434,8 +435,8 @@ export class Quote extends React.Component<Props, State> {
             {this.renderText()}
           </div>
           {!messageMode && this.renderIconContainer()}
-          {this.renderClose()}
         </div>
+        {this.renderClose()}
         {this.renderReferenceWarning()}
       </div>
     );

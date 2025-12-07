@@ -54,8 +54,6 @@ body.dark-theme {
 
   .bottom-bar {
     form.send {
-      background-color: $color-gray-95;
-
       &.video-attachment {
         .outer {
           .play.icon {
@@ -969,7 +967,7 @@ body.dark-theme {
   // Module: Quoted Reply
 
   .module-quote--outgoing {
-    background-color: $color-conversation-grey-shade;
+    border-left-color: var(--dst-color-text-info);
   }
 
   .module-quote--outgoing-red {
@@ -1025,11 +1023,6 @@ body.dark-theme {
   .module-quote--outgoing-blue_grey {
     border-left-color: $color-conversation-blue_grey;
     background-color: $color-conversation-blue_grey-shade;
-  }
-
-  .module-quote--incoming {
-    border-left-color: $color-black;
-    background-color: $color-conversation-grey-shade;
   }
 
   .module-quote--incoming-red {
@@ -1134,14 +1127,6 @@ body.dark-theme {
 
   .module-quote__primary__type-label {
     color: $color-dark-05;
-  }
-
-  .module-quote__close-container {
-    background-color: rgba(255, 255, 255, 0.75);
-  }
-
-  .module-quote__close-button {
-    @include color-svg('../images/x.svg', $grey);
   }
 
   .module-quote__icon-container__icon--file {

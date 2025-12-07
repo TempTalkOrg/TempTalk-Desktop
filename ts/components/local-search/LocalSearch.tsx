@@ -6,7 +6,6 @@ import { TextMessageListItem } from './TextMessageListItem';
 import { LocalizerType } from '../../types/Util';
 import { useAsyncEffect } from 'use-async-effect';
 import * as GoogleChrome from '../../util/GoogleChrome';
-import { cleanSearchTerm } from '../../util/cleanSearchTerm';
 import {
   getConversationModel,
   getConversationProps,
@@ -42,12 +41,11 @@ const doSearch = async ({
   lastSearchTerm: { current: string };
   setTextMessages: (arg0: never[]) => void;
 }) => {
-  // 关键字过滤
-  const searchKeywords = cleanSearchTerm(searchTerm || '');
+  const query = searchTerm?.trim() || '';
 
-  lastSearchTerm.current = searchKeywords;
+  lastSearchTerm.current = query;
 
-  if (searchKeywords === '') {
+  if (query === '') {
     setTextMessages([]);
     return;
   }
@@ -55,12 +53,12 @@ const doSearch = async ({
   let result;
   if (conversationId) {
     result = await (window as any).Signal.Data.searchMessagesInConversation(
-      searchKeywords,
+      query,
       conversationId,
       { limit: 1000 }
     );
   } else {
-    result = await (window as any).Signal.Data.searchMessages(searchKeywords, {
+    result = await (window as any).Signal.Data.searchMessages(query, {
       limit: 1000,
     });
   }

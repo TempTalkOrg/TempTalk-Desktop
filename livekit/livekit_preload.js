@@ -215,15 +215,16 @@ const listWindows = () => Window.listAll();
 window.getSources = async () => {
   let sources;
   if (window.Signal.OS.isMacOS()) {
+    const listWindowTime = Date.now();
+    const windowItems = listWindows();
+    console.log('[getSources] listWindowTime:', Date.now() - listWindowTime);
+
     const listScreenTime = Date.now();
     const screenItems = await getDesktopCaptureSources({
       types: ['screen'],
       thumbnailSize: { width: 250, height: 150 },
     });
     console.log('[getSources] listScreenTime:', Date.now() - listScreenTime);
-    const listWindowTime = Date.now();
-    const windowItems = listWindows();
-    console.log('[getSources] listWindowTime:', Date.now() - listWindowTime);
 
     const windowItemPromises = windowItems.map(async windowItem => {
       try {

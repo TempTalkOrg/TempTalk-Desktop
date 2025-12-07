@@ -1703,6 +1703,9 @@ function changeTheme(name, value) {
   incomingCallWindows.forEach(win => {
     win.webContents.send(`set-${name}`, value);
   });
+  criticalAlertWindows.forEach(win => {
+    win.webContents.send(`set-${name}`, value);
+  });
 }
 
 function installSettingsSetter(name) {
@@ -2170,6 +2173,94 @@ function startCall(callInfo) {
   showLivekitCallWindow(callInfo);
 }
 
+const criticalAlertWindowWidth = 344;
+const criticalAlertWindowHeight = 68;
+const criticalAlertWindowPadding = 8;
+const criticalAlertWindows = new Map();
+
+function handleCriticalAlert(info) {
+  const { screen } = electron;
+  const theme = globalTheme;
+
+  const heightOffset =
+    criticalAlertWindows.size *
+    (criticalAlertWindowHeight + criticalAlertWindowPadding);
+  const options = {
+    width: criticalAlertWindowWidth,
+    height: criticalAlertWindowHeight,
+    x:
+      screen.getPrimaryDisplay().size.width -
+      criticalAlertWindowWidth -
+      criticalAlertWindowPadding,
+    y: 44 + heightOffset,
+    transparent: true,
+    show: false,
+    hasShadow: false,
+    webPreferences: {
+      nodeIntegration: false,
+      nodeIntegrationInWorker: false,
+      contextIsolation: false,
+      preload: path.join(__dirname, 'critical-alert/preload.js'),
+      enableRemoteModule: true,
+      sandbox: false,
+    },
+    acceptFirstMouse: true,
+    frame: false,
+    resizable: development,
+    movable: development,
+    minimizable: false,
+    maximizable: false,
+    alwaysOnTop: true,
+    fullscreenable: false,
+  };
+
+  let w = new BrowserWindow(options);
+  criticalAlertWindows.set(info.conversationId, w);
+  w.loadURL(
+    prepareURL([__dirname, 'critical-alert/index.html'], { ...info, theme })
+  );
+
+  w.setAlwaysOnTop(true, 'screen-saver');
+  w.setVisibleOnAllWorkspaces(true);
+  w.setMenuBarVisibility(false);
+
+  w.on('closed', () => {
+    // remove from map
+    if (criticalAlertWindows.has(info.conversationId)) {
+      criticalAlertWindows.delete(info.conversationId);
+    }
+
+    // reset position
+    let index = 0;
+    // eslint-disable-next-line no-restricted-syntax
+    for (const item of criticalAlertWindows.values()) {
+      const offset =
+        index * (criticalAlertWindowHeight + criticalAlertWindowPadding);
+      const [x] = item.getPosition();
+      item.setPosition(
+        x,
+        screen.getPrimaryDisplay().workAreaSize.height -
+          criticalAlertWindowHeight -
+          offset,
+        true
+      );
+      index += 1;
+    }
+    w = null;
+  });
+
+  w.once('ready-to-show', () => {
+    if (!w) {
+      return;
+    }
+    w.showInactive();
+  });
+
+  // if (development) {
+  //   w.webContents.openDevTools();
+  // }
+}
+
 // 被叫展示窗口
 const incomingCallWindowWidth = 280;
 const incomingCallWindowHeight = 216;
@@ -2333,7 +2424,7 @@ ipc.handle('destroy-call', async (_, roomId, reason) => {
   }
 });
 
-ipc.on('want-close-incoming-call', event => {
+ipc.on('want-close-self', event => {
   const win = BrowserWindow.fromWebContents(event.sender);
   if (win) {
     win.close();
@@ -2671,4 +2762,11 @@ ipc.on('sned-frame-to-floating-bar', (event, frameInfo) => {
   if (floatingBarWindow) {
     floatingBarWindow.webContents.send('sned-frame-to-floating-bar', frameInfo);
   }
+});
+
+ipc.on('show-critical-alert', (event, info) => {
+  if (criticalAlertWindows.has(info.conversationId)) {
+    return;
+  }
+  handleCriticalAlert(info);
 });

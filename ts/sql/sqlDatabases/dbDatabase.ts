@@ -575,6 +575,15 @@ export class SqliteDatabase
     const db = this.getConnection();
     let rows: Array<{ json: string; snippet: string }> = [];
 
+    const normalizedQuery = db
+      .signalTokenize(query)
+      .map(token => `"${token.replace(/"/g, '""')}"*`)
+      .join(' ');
+
+    if (!normalizedQuery) {
+      return [];
+    }
+
     db.transaction(() => {
       db.exec(`
         CREATE TEMP TABLE tmp_matched(rowid INTEGER PRIMARY KEY ASC);
@@ -593,7 +602,7 @@ export class SqliteDatabase
         WHERE
           messages_fts.body MATCH $query;
         `
-      ).run({ query });
+      ).run({ query: normalizedQuery });
 
       let conditions;
       const queryParams: Query = { limit: limit };
@@ -644,7 +653,7 @@ export class SqliteDatabase
           messages_fts.body MATCH $query
         ORDER BY messages.serverTimestamp DESC;
         `
-      ).all({ query });
+      ).all({ query: normalizedQuery });
 
       db.exec(
         `

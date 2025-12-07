@@ -229,59 +229,59 @@
   resolved "https://registry.yarnpkg.com/@bufbuild/protobuf/-/protobuf-1.10.0.tgz#1a67ac889c2d464a3492b3e54c38f80517963b16"
   integrity sha512-QDdVFLoN93Zjg36NoQPZfsVH9tZew7wKDKyV5qRdj8ntT4wQCOradQjRaTdwMhWUYsgKsvCINKKm87FdEk96Ag==
 
-"@cc-kit/node-screenshots-darwin-arm64@0.2.9":
-  version "0.2.9"
-  resolved "https://registry.yarnpkg.com/@cc-kit/node-screenshots-darwin-arm64/-/node-screenshots-darwin-arm64-0.2.9.tgz#df98cea80810df78e2cdf6408c9720bf78b67b6d"
-  integrity sha512-WQtdI0d5SWejIBApauvn2XnBf3WwP4LQAYKOrqstPad3md5xbrXH5IVpR38Fk4tgn8lbDQ8uknKz2RRmoJK4mQ==
+"@cc-kit/node-screenshots-darwin-arm64@2.0.1":
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/@cc-kit/node-screenshots-darwin-arm64/-/node-screenshots-darwin-arm64-2.0.1.tgz#c90502320b0dcf41070ee88f239cb1e06898ebc9"
+  integrity sha512-hJzern9okn7VtNxwHgQ1pf3c7UBWBcz0aK8hN0oA02UnhmBHMPdmPer4Gz7s4V03ekYIV8g2V2/JlTliTyw1hQ==
 
-"@cc-kit/node-screenshots-darwin-universal@0.2.9":
-  version "0.2.9"
-  resolved "https://registry.yarnpkg.com/@cc-kit/node-screenshots-darwin-universal/-/node-screenshots-darwin-universal-0.2.9.tgz#7227100c14bc6c5fa69ffd6d5e6e41b92e898425"
-  integrity sha512-pj7hQgLkBEQB/xWhaLthnHgli5RdV5RxKqMlTHnk+sLEfLZgYc4O8RcZEtwiN/8HT6Ys91RBewkfk3nhc35cmw==
+"@cc-kit/node-screenshots-darwin-universal@2.0.1":
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/@cc-kit/node-screenshots-darwin-universal/-/node-screenshots-darwin-universal-2.0.1.tgz#ca8b716a1affd4fd0b230c013d2d2109e8c30f76"
+  integrity sha512-5sLQLXv4a4o4BgzjfBSMalF2Nn2KW/J9dHydTuYkisTFT8Ivl8ZKUWx3ZeuGnBzKqYweT8rQWwuDbbaGtNGiGg==
 
-"@cc-kit/node-screenshots-darwin-x64@0.2.9":
-  version "0.2.9"
-  resolved "https://registry.yarnpkg.com/@cc-kit/node-screenshots-darwin-x64/-/node-screenshots-darwin-x64-0.2.9.tgz#69f8459e307434019fda1e1dcc0658bdb6b587f9"
-  integrity sha512-XmnQq37qQ7+dTiwrzV3MWBk3ANu8JvS/CGfGPy1Uh+TOh+syFN2cUt2EGtttLfMcBUGozneL4U2fk2fTtqoL1g==
+"@cc-kit/node-screenshots-darwin-x64@2.0.1":
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/@cc-kit/node-screenshots-darwin-x64/-/node-screenshots-darwin-x64-2.0.1.tgz#7ef3b894fab9508478f71d10054b068ea90de8d0"
+  integrity sha512-uO6/lHtgVgECDucDZJ0ccQQoFQj9NMP9UKD8/pzciyevqWQ2rCjs5rOTVAmEeg7dg45JXFyneE1ZqHUVV46ilg==
 
-"@cc-kit/node-screenshots-linux-x64-gnu@0.2.9":
-  version "0.2.9"
-  resolved "https://registry.yarnpkg.com/@cc-kit/node-screenshots-linux-x64-gnu/-/node-screenshots-linux-x64-gnu-0.2.9.tgz#de7b5a5fd13809e6ecb50faaafb3edd424196706"
-  integrity sha512-Xj58UIyN54hD/sqwEzR6Up/Os73WXNRZ9jhRrJ06vQWqU2J18CLQdDlnicvlptez5/mMobTx8yiKwClmqQ9Xjg==
+"@cc-kit/node-screenshots-linux-x64-gnu@2.0.1":
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/@cc-kit/node-screenshots-linux-x64-gnu/-/node-screenshots-linux-x64-gnu-2.0.1.tgz#53db62d8cb26080f9fcdcfb89af9f9cbd238abe8"
+  integrity sha512-r96DsiKpAH93p//Sm7rhi1m5o+drcgzzGMhZgZsYGuf3mBx63/MpdwGHJxuMJPqcREDOmhohaa7noDVSlGzBpA==
 
-"@cc-kit/node-screenshots-linux-x64-musl@0.2.9":
-  version "0.2.9"
-  resolved "https://registry.yarnpkg.com/@cc-kit/node-screenshots-linux-x64-musl/-/node-screenshots-linux-x64-musl-0.2.9.tgz#62c8e933712d6e24748e9d4a3e2caee0a56a05ac"
-  integrity sha512-a7bWy/lvLxTxWsVgxah3N0HzyJi3FiPXhIial54IXYIbYK/4MfyS0pEOMsU8oAuaSIzlUJG5RyN/BL0JsMhTBA==
+"@cc-kit/node-screenshots-linux-x64-musl@2.0.1":
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/@cc-kit/node-screenshots-linux-x64-musl/-/node-screenshots-linux-x64-musl-2.0.1.tgz#ab6245a8f620dd23789d2bc1364d0d602f970661"
+  integrity sha512-UsW0dMLcHCUlkwOCA8oN3niZTZZwb592jmLi80S2nZd1xcNYc1ziPQxmHqUcBmjwWNRuxgaL3ePAGXHSgPF6dw==
 
-"@cc-kit/node-screenshots-win32-arm64-msvc@0.2.9":
-  version "0.2.9"
-  resolved "https://registry.yarnpkg.com/@cc-kit/node-screenshots-win32-arm64-msvc/-/node-screenshots-win32-arm64-msvc-0.2.9.tgz#f2179d438418fa420911a445b80bc932dbaf9cb5"
-  integrity sha512-dYDzH/kyvBAB+fIk08K0UbDaTGx4MpzPSwsBPObEqw9pFMYoktAve82INws73LmBaF20D7NMVxZ5ASZeNhOz0g==
+"@cc-kit/node-screenshots-win32-arm64-msvc@2.0.1":
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/@cc-kit/node-screenshots-win32-arm64-msvc/-/node-screenshots-win32-arm64-msvc-2.0.1.tgz#7d96b075e40925188033f8d0f0e5c7c29745804a"
+  integrity sha512-WDn5c5YR3LiXH2kHR7zVma/R+CfrY/S3q0viA2puAYNVbm5LdJHg6yF/qOotzeyPCX9DHQ161Sn5QN1BHGYarg==
 
-"@cc-kit/node-screenshots-win32-ia32-msvc@0.2.9":
-  version "0.2.9"
-  resolved "https://registry.yarnpkg.com/@cc-kit/node-screenshots-win32-ia32-msvc/-/node-screenshots-win32-ia32-msvc-0.2.9.tgz#0903b1dc527ab00ff30a17fb5f1a3a21d1603de0"
-  integrity sha512-xGOX9wGWFAh7Bq9D043wlu3aLlXpafU7Yno060BN5Qnb4c/i9H+JJOAK86ZTF7IZSRVVl341Hju7uhcyXRgvkw==
+"@cc-kit/node-screenshots-win32-ia32-msvc@2.0.1":
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/@cc-kit/node-screenshots-win32-ia32-msvc/-/node-screenshots-win32-ia32-msvc-2.0.1.tgz#ba1e427680829e6867f617b47374b6badde4fd21"
+  integrity sha512-zgezSFcPMGJWE+VfbT/T8guASuLwSgZ7yd1/IbN95EvEohjvrwz6JnJEAA4w7weSYqsjOZo68wVXr8EkbDoiFg==
 
-"@cc-kit/node-screenshots-win32-x64-msvc@0.2.9":
-  version "0.2.9"
-  resolved "https://registry.yarnpkg.com/@cc-kit/node-screenshots-win32-x64-msvc/-/node-screenshots-win32-x64-msvc-0.2.9.tgz#b4ab5fc95519d92a98af3b5c6b1bcc385ba1ab27"
-  integrity sha512-VJpaOC/Q+/0hpoagVMtE/zCJ2nZ8gexDdyfDyHOtrIBp+JP0bViqq+6vXgx3tyPRWfCQV35NiyP2qXfhJgtIgw==
+"@cc-kit/node-screenshots-win32-x64-msvc@2.0.1":
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/@cc-kit/node-screenshots-win32-x64-msvc/-/node-screenshots-win32-x64-msvc-2.0.1.tgz#f5c4c5cc43c3ece840c7ec0e479a27ada639726a"
+  integrity sha512-KGZu8ji0JDMexmr8YSiIbHLjlx4i76TYLNDnc3RWddcKxcZohfQAflbNmppsVd0VlmzC5FlwokJgAr0h1R5D7w==
 
-"@cc-kit/node-screenshots@0.2.9":
-  version "0.2.9"
-  resolved "https://registry.yarnpkg.com/@cc-kit/node-screenshots/-/node-screenshots-0.2.9.tgz#1a81f0eed76ee5a19e06b9792806593f44a4019e"
-  integrity sha512-yLCaH9Yj7bWQ3XIHIQASZvdXmZeIwt0eddKYcOHhKoyG+wJ8QcugkpswFQslIIZ346eh7d9bAm0gRJ3vH5lUtQ==
+"@cc-kit/node-screenshots@2.0.1":
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/@cc-kit/node-screenshots/-/node-screenshots-2.0.1.tgz#6d6ab0791822f9b0e582b771dca367181821af33"
+  integrity sha512-ajz1hqXTTKN+pu88hnPVe+aLE7MAgJbtjHwxg/cK9LvOacppcwz6Hwr/eBjx5DqIY6DBAhbVI4dAp7vYYfHJgw==
   optionalDependencies:
-    "@cc-kit/node-screenshots-darwin-arm64" "0.2.9"
-    "@cc-kit/node-screenshots-darwin-universal" "0.2.9"
-    "@cc-kit/node-screenshots-darwin-x64" "0.2.9"
-    "@cc-kit/node-screenshots-linux-x64-gnu" "0.2.9"
-    "@cc-kit/node-screenshots-linux-x64-musl" "0.2.9"
-    "@cc-kit/node-screenshots-win32-arm64-msvc" "0.2.9"
-    "@cc-kit/node-screenshots-win32-ia32-msvc" "0.2.9"
-    "@cc-kit/node-screenshots-win32-x64-msvc" "0.2.9"
+    "@cc-kit/node-screenshots-darwin-arm64" "2.0.1"
+    "@cc-kit/node-screenshots-darwin-universal" "2.0.1"
+    "@cc-kit/node-screenshots-darwin-x64" "2.0.1"
+    "@cc-kit/node-screenshots-linux-x64-gnu" "2.0.1"
+    "@cc-kit/node-screenshots-linux-x64-musl" "2.0.1"
+    "@cc-kit/node-screenshots-win32-arm64-msvc" "2.0.1"
+    "@cc-kit/node-screenshots-win32-ia32-msvc" "2.0.1"
+    "@cc-kit/node-screenshots-win32-x64-msvc" "2.0.1"
 
 "@cc-kit/react-screenshots@1.0.5":
   version "1.0.5"
@@ -4038,10 +4038,10 @@ electron-to-chromium@^1.5.73:
   resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.5.115.tgz#193dd534948b3ea77e3d95dd38ca12cdc01c76a9"
   integrity sha512-MN1nahVHAQMOz6dz6bNZ7apgqc9InZy7Ja4DBEVCTdeiUcegbyOYE9bi/f2Z/z6ZxLi0RxLpyJ3EGe+4h3w73A==
 
-electron@37.8.0:
-  version "37.8.0"
-  resolved "https://registry.yarnpkg.com/electron/-/electron-37.8.0.tgz#acdede31e9e7488420415c3fe435f138aba560d8"
-  integrity sha512-R7fCCfp/foGvJjxReBpb01Fk0bEKAvUdbwXK4c2c2ttuHpPEV/k65GRkz5yYYVhE8EGIa/j5uh0uToOpsocsZw==
+electron@37.10.0:
+  version "37.10.0"
+  resolved "https://registry.yarnpkg.com/electron/-/electron-37.10.0.tgz#5a6ed278b92f3b4b2bec2d7cac8e4cdceb680b3f"
+  integrity sha512-cVa3/q6kdIMrCTW1eMfkcItTcdBTj2HSlwbEYcDY8ol66mARdPOEsnX4bi/DO0oo4WM5jfA0YjxllE8Jnby2mg==
   dependencies:
     "@electron/get" "^2.0.0"
     "@types/node" "^22.7.7"

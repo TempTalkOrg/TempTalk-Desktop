@@ -88,6 +88,9 @@ interface Props {
   onClearTempShow?: () => void;
   onDeleteMessages?: () => void;
   onBlockUser?: () => void;
+
+  criticalAlert: boolean;
+  setCriticalAlert: (criticalAlert: boolean) => void;
 }
 
 export const SettingDialog = (props: Props) => {
@@ -966,6 +969,27 @@ export const SettingDialog = (props: Props) => {
     );
   };
 
+  const renderCriticalAlert = () => {
+    const { criticalAlert, setCriticalAlert } = props;
+
+    return (
+      <div
+        className={'stick-container'}
+        onClick={() => {
+          setCriticalAlert(!criticalAlert);
+        }}
+      >
+        <div style={{ display: 'flex' }}>{i18n('settings.criticalAlert')}</div>
+        <input
+          className="checkbox-item"
+          type="checkbox"
+          checked={criticalAlert}
+          readOnly
+        />
+      </div>
+    );
+  };
+
   // const renderAnyoneRemove = () => {
   //   const { anyoneRemove, setAnyoneRemove } = props;
   //   return (
@@ -1444,6 +1468,7 @@ export const SettingDialog = (props: Props) => {
           {/* {renderAnyoneRemove()} */}
           {/* {renderRejoin()} */}
           {renderPublishOnlyGroup()}
+          {renderCriticalAlert()}
           {/* {renderAnyoneChangeName()} */}
           {/* {renderLinkInviteSwitch()} */}
         </div>

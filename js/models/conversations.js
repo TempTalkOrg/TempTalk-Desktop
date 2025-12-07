@@ -2148,6 +2148,7 @@
         publishRule,
         anyoneChangeName,
         linkInviteSwitch,
+        criticalAlert,
       } = data;
 
       if (invitationRule) {
@@ -2173,6 +2174,10 @@
 
       if (linkInviteSwitch != undefined) {
         update.linkInviteSwitch = linkInviteSwitch;
+      }
+
+      if (criticalAlert != undefined) {
+        update.criticalAlert = criticalAlert;
       }
 
       try {
@@ -4154,6 +4159,7 @@
         publishRule,
         anyoneChangeName,
         messageClearAnchor,
+        criticalAlert,
       } = group || {};
 
       if (name && name != this.get('name')) {
@@ -4246,6 +4252,14 @@
           'for:',
           this.idForLogging()
         );
+      }
+
+      if (
+        criticalAlert !== undefined &&
+        criticalAlert !== this.attributes.criticalAlert
+      ) {
+        update.criticalAlert = criticalAlert;
+        log.info('Update group criticalAlert ', 'for:', this.idForLogging());
       }
 
       if (Object.keys(update).length) {
@@ -5941,7 +5955,12 @@
       return this.get('noNeedReceiptsEndAt') || 0;
     },
     isCriticalAlertEnabled() {
-      return this.get('publicConfigs')?.criticalAlert ?? false;
+      if (this.isPrivate()) {
+        return true;
+      } else {
+        return this.get('criticalAlert') ?? false;
+      }
+      // return this.get('publicConfigs')?.criticalAlert ?? false;
     },
   });
 

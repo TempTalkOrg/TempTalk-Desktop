@@ -52,6 +52,7 @@ export const getSortedContacts = createSelector(
     const search = searchTerm.toLowerCase();
 
     const SEARCHED_FIELDS = [
+      'accountName',
       'name',
       'email',
       'signature',

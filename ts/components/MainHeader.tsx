@@ -2,7 +2,6 @@ import React from 'react';
 import { debounce } from 'lodash';
 // import { Avatar } from './Avatar';
 
-// import {cleanSearchTerm} from '../util/cleanSearchTerm';
 import { LocalizerType } from '../types/Util';
 import { IconWrapper } from './shared/IconWrapper';
 import { ConfigProvider } from 'antd';
@@ -105,11 +104,6 @@ export class MainHeader extends React.Component<Props, State> {
     if (searchTerm.length < 1) {
       return;
     }
-
-    // const cleanedTerm = cleanSearchTerm(searchTerm);
-    // if (!cleanedTerm) {
-    //   return;
-    // }
 
     this.debouncedSearch(searchTerm);
   }

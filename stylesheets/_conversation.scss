@@ -259,12 +259,6 @@
   }
 }
 
-.bottom-bar .module-quote {
-  margin: 0;
-
-  border-left-style: none;
-}
-
 // We need to use the wrapper because the conversation view calculates the height of all
 //   things in the composition area. A margin on an inner div won't be included in that
 //   height calculation.
@@ -287,7 +281,7 @@
 
   form.send {
     margin-bottom: 0px;
-    background: $color-white;
+    background: var(--dst-color-background);
 
     &.video-attachment {
       .image-container {
@@ -1242,5 +1236,23 @@
     &.is-active {
       color: var(--dst-color-brand-primary);
     }
+  }
+}
+
+.send .quote-wrapper {
+  margin: 0;
+  .module-quote-container {
+    margin: 0;
+    padding-left: 8px;
+    padding-right: 110px;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    gap: 16px;
+  }
+  .module-quote {
+    flex: 1;
+    background-color: var(--dst-color-background-third) !important;
+    border-left-color: var(--dst-color-text-disable) !important;
   }
 }

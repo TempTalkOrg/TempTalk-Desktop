@@ -56,7 +56,7 @@ window.acceptOrReject = (action, data) => {
 };
 
 window.wantCloseSelf = () => {
-  return ipcRenderer.send('want-close-incoming-call');
+  return ipcRenderer.send('want-close-self');
 };
 
 window.joinCallFromIncoming = (caller, roomName, isPrivate, extraParams) => {

@@ -134,7 +134,9 @@ export const useCommonCall = ({ i18n, room }: IProps) => {
       currentCall.roomId = res.roomId;
       currentCall.emk = res.emk;
       currentCall.publicKey = res.publicKey;
-      currentCall.caller = res.caller.uid;
+      if (currentCall.type !== 'instant') {
+        currentCall.caller = res.caller.uid;
+      }
       currentCall.mk = res.key;
       currentCall.isPassive = currentCall.ourNumber !== res.caller.uid;
 

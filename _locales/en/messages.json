@@ -717,7 +717,7 @@
     "description": "Shown in triple-dot menu next to message to allow user to forward message to Note(myself)"
   },
   "selectMessages": {
-    "message": "Select...",
+    "message": "Select",
     "description": "Shown in triple-dot menu next to message to allow user to select multiple messages"
   },
   "oneByOneForward": {
@@ -926,7 +926,7 @@
     "message": "You haven't exchanged any messages with this contact yet. Your safety number with them will be available after the first message."
   },
   "moreInfo": {
-    "message": "More Info...",
+    "message": "More Info",
     "description": "Shown on the drop-down menu for an individual message, takes you to message detail screen"
   },
   "retrySend": {
@@ -3191,5 +3191,14 @@
   },
   "controlBar.moreAction": {
     "message": "More"
+  },
+  "settings.criticalAlert": {
+    "message": "Critical Alert"
+  },
+  "urgentCall": {
+    "message": "Urgent Call"
+  },
+  "connectNow": {
+    "message": "Connect Now"
   }
 }

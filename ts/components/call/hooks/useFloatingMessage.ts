@@ -9,6 +9,7 @@ import {
 import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { LocalizerType } from '../../../types/Util';
 import { get } from 'lodash';
+import { currentCall } from '../initCall';
 
 export interface FloatingMessage {
   id: string;
@@ -78,8 +79,16 @@ export function useFloatingMessage({ room, contactMap, i18n }: IProps) {
     };
   }, []);
 
+  const fromOwnOtherDevice = useMemoizedFn((participant: Participant) => {
+    const [number] = participant.identity.split('.');
+    return number === currentCall.ourNumber && !participant.isLocal;
+  });
+
   const handleTrackUnmuted = useCallback(
     (track: TrackPublication, participant: Participant) => {
+      if (fromOwnOtherDevice(participant)) {
+        return;
+      }
       if (track.kind === 'audio') {
         addMessage({
           identity: participant.identity,
@@ -92,6 +101,9 @@ export function useFloatingMessage({ room, contactMap, i18n }: IProps) {
 
   const handleTrackMuted = useCallback(
     (track: TrackPublication, participant: Participant) => {
+      if (fromOwnOtherDevice(participant)) {
+        return;
+      }
       if (track.kind === 'audio') {
         addMessage({
           identity: participant.identity,

@@ -59,6 +59,7 @@ export const getSearchResults = createSelector(
     const contactsMap: { [x: string]: ConversationType } = {};
 
     const SEARCHED_FIELDS = [
+      'accountName',
       'name',
       'email',
       'signature',

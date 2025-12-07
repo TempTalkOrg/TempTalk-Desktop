@@ -1407,6 +1407,7 @@ function initialize({
         publishRule,
         anyoneChangeName,
         linkInviteSwitch,
+        criticalAlert,
       } = data;
       const jsonData = {};
 
@@ -1432,6 +1433,10 @@ function initialize({
 
       if (linkInviteSwitch) {
         jsonData.linkInviteSwitch = linkInviteSwitch;
+      }
+
+      if (criticalAlert !== undefined) {
+        jsonData.criticalAlert = criticalAlert;
       }
 
       return _ajax({
@@ -2466,14 +2471,15 @@ function initialize({
     }
 
     async function sendCriticalAlert(data) {
-      const { destination } = data;
+      const { destination, gid } = data;
 
-      if (!destination) {
-        throw new Error('destination is required');
+      if (!destination && !gid) {
+        throw new Error('destination or gid is required');
       }
 
       const jsonData = {
         destination,
+        gid,
       };
 
       return _ajax({

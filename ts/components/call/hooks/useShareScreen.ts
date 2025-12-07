@@ -236,8 +236,6 @@ export const useShareScreen = ({
     try {
       openModal();
 
-      await new Promise(resolve => setTimeout(resolve, 100));
-
       const startTime = Date.now();
 
       const sources = await (window as any).getSources();

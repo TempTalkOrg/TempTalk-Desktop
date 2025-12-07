@@ -137,12 +137,12 @@
 
   .module-quote--outgoing {
     border-left-color: var(--dst-color-primary);
-    background-color: #056ffa33;
+    background-color: var(--dst-color-quote-outgoing-bg);
   }
 
   .module-quote--incoming {
-    border-left-color: $app-color-text-info-light;
-    background-color: #056ffa33;
+    border-left-color: var(--dst-color-text-disable);
+    background-color: var(--dst-color-line);
   }
 
   .module-quote__reference-warning--incoming {
@@ -345,15 +345,6 @@
 
     .module-expire-timer--incoming {
       background-color: $color-gray-25;
-    }
-
-    .module-quote--outgoing {
-      background-color: #82c1fc33;
-    }
-
-    .module-quote--incoming {
-      border-left-color: $app-color-text-info-dark;
-      background-color: #82c1fc33;
     }
 
     .module-quote__primary__author {

@@ -11,6 +11,7 @@ import React, {
 } from 'react';
 import { ISize } from './image-gallery/IndividualImage';
 import { getFitContainerScale } from './image-gallery/util';
+import { debounce } from 'lodash';
 
 export interface IPinchableImageProps {
   url: string;
@@ -171,7 +172,7 @@ export const PinchableImage = forwardRef<
     }
   }, [url]);
 
-  useLayoutEffect(() => {
+  const alignImage = useMemoizedFn(() => {
     const container = getContainer();
     if (!container || !imgRef.current || initSize.height === 0) return;
 
@@ -182,7 +183,20 @@ export const PinchableImage = forwardRef<
       0,
       (parentBounds.height - imgBounds.height) / 2
     )}px`;
+  });
+
+  const debouncedAlignImage = useMemoizedFn(debounce(alignImage, 50));
+
+  useLayoutEffect(() => {
+    alignImage();
   }, [initSize, scale, imgRef.current]);
+
+  useEffect(() => {
+    window.addEventListener('resize', debouncedAlignImage);
+    return () => {
+      window.removeEventListener('resize', debouncedAlignImage);
+    };
+  }, []);
 
   return (
     <animated.div

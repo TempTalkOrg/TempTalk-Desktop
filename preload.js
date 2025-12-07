@@ -1333,3 +1333,11 @@ ipcRenderer.on('close-add-call-members', () => {
   const ev = new CustomEvent('close-add-call-members');
   window.dispatchEvent(ev);
 });
+
+window.showCriticalAlert = info => {
+  ipc.send('show-critical-alert', info);
+};
+
+ipc.on('connect-source', (event, source) => {
+  Whisper.events.trigger('showConversation', source);
+});

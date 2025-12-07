@@ -30,6 +30,12 @@ const callPassivePrivate = new Sound({
   src: '../audio/callPassivePrivate.mp3',
 });
 
+const criticalAlertAudio = new Sound({
+  loop: false,
+  src: '../audio/CriticalAlert.mp3',
+  volume: 0.3,
+});
+
 const playAudio = (type: any) => {
   callInitiativeAudio.stop();
   callOffAudio.stop();
@@ -53,6 +59,9 @@ const playAudio = (type: any) => {
       break;
     case 'call-passive':
       callPassive.play();
+      break;
+    case 'critical-alert':
+      criticalAlertAudio.play();
       break;
     default:
       break;

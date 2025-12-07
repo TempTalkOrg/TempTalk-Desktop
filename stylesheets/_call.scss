@@ -1239,15 +1239,16 @@ table {
 
 .lk-control-area {
   .more-action-button {
-    width: 44px;
+    width: 36px;
     height: 44px;
-    border-radius: 50%;
+    border-radius: 100px;
     background-color: var(--dst-color-background-secondary);
     position: relative;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     border: 0;
+
     &:hover {
       background-color: var(--dst-color-background-third);
     }
@@ -1255,6 +1256,7 @@ table {
     .more-action-icon {
       height: 20px;
       width: 20px;
+      transform: rotate(90deg);
     }
   }
 }
@@ -1341,4 +1343,69 @@ table {
   flex-flow: row nowrap;
   align-items: center;
   gap: 8px;
+}
+
+.critical-alert-root {
+  height: 100%;
+  width: 100%;
+  border: 0.5px solid var(--dst-color-divider);
+  border-radius: 8px;
+  overflow: hidden;
+
+  .critical-alert-container {
+    height: 100%;
+    width: 100%;
+    background-color: var(--dst-color-background);
+    padding: 16px;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+
+    .critical-alert-icon-wrapper {
+      height: 36px;
+      width: 36px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: var(--dst-color-function-error);
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .critical-alert-icon {
+      height: 18px;
+      width: 18px;
+    }
+
+    .critical-alert-info {
+      flex: 1;
+      max-width: 160px;
+
+      &-title {
+        color: var(--dst-color-text-primary);
+
+        font-size: 14px;
+        font-weight: 510;
+        line-height: 20px;
+      }
+      &-content {
+        color: var(--dst-color-text-secondary);
+
+        font-size: 12px;
+        font-weight: 400;
+        line-height: 16px;
+        max-width: 160px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+    }
+
+    .critical-alert-connect-button {
+      width: 93px;
+      height: 24px;
+      font-size: 12px;
+    }
+  }
 }

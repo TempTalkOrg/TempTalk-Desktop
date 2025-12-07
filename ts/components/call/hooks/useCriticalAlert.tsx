@@ -21,14 +21,19 @@ export const useCriticalAlert = ({
   const [visible, setVisible] = useState<boolean>(currentCall.criticalAlert);
   const roomInfo = useAtomValue(roomAtom);
   const [messageApi, criticalAlertToast] = message.useMessage();
+  const firstShowToastRef = useRef(true);
 
   const sendCriticalAlertMessage = useMemoizedFn(async () => {
-    if (roomInfo.type !== '1on1') {
+    if (roomInfo.type === 'instant') {
       return;
     }
     const identity = room.localParticipant.identity;
     try {
-      await callingAPI.sendCriticalAlert({ destination: currentCall.number });
+      const destination =
+        currentCall.type === '1on1' ? currentCall.number : undefined;
+      const gid =
+        currentCall.type === 'group' ? currentCall.groupId : undefined;
+      await callingAPI.sendCriticalAlert({ destination, gid });
       addMessage({ identity, text: i18n('sendCriticalAlert.success') });
     } catch (e: any) {
       console.log('sendCriticalAlertMessage error', e);
@@ -56,7 +61,6 @@ export const useCriticalAlert = ({
   }, [sendCriticalAlertMessage]);
 
   const criticalAlertToastTimeout = useRef<NodeJS.Timeout | null>(null);
-
   const onClickToast = useMemoizedFn(async () => {
     try {
       await sendCriticalAlertMessage();
@@ -67,6 +71,10 @@ export const useCriticalAlert = ({
   });
 
   const showCriticalAlertToast = useMemoizedFn(() => {
+    if (!firstShowToastRef.current) {
+      return;
+    }
+    firstShowToastRef.current = false;
     messageApi.open({
       icon: null,
       duration: 0,
@@ -90,18 +98,23 @@ export const useCriticalAlert = ({
 
   useEffect(() => {
     if (currentCall.criticalAlert) {
-      if (room.remoteParticipants.size === 0) {
-        setVisible(true);
-        criticalAlertToastTimeout.current = setTimeout(
-          showCriticalAlertToast,
-          15 * 1000
-        );
-      } else {
-        setVisible(false);
-        if (criticalAlertToastTimeout.current) {
-          clearTimeout(criticalAlertToastTimeout.current);
-          criticalAlertToastTimeout.current = null;
+      if (currentCall.type === '1on1') {
+        if (room.remoteParticipants.size === 0) {
+          setVisible(true);
+          criticalAlertToastTimeout.current = setTimeout(
+            showCriticalAlertToast,
+            15 * 1000
+          );
+        } else {
+          setVisible(false);
+          if (criticalAlertToastTimeout.current) {
+            clearTimeout(criticalAlertToastTimeout.current);
+            criticalAlertToastTimeout.current = null;
+          }
+          messageApi.destroy();
         }
+      } else if (currentCall.type === 'group') {
+        setVisible(true);
       }
     }
   }, [room.remoteParticipants.size]);

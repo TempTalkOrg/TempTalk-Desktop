@@ -169,23 +169,12 @@ export const FloatingBar = (props: PropsType) => {
   }, []);
 
   const activeInfo: ActiveInfoType | undefined = useMemo(() => {
-    if (speaker && speaker.isSpeaking) {
-      return {
-        ...speaker,
-        type: 'audio',
-      };
-    } else if (screenShare) {
-      return {
-        ...screenShare,
-        type: 'screen-share',
-      };
-    } else if (speaker) {
-      return {
-        ...speaker,
-        type: 'audio',
-      };
+    if (!speaker) return undefined;
+    if (!screenShare || !speaker.isLocal) {
+      return { ...speaker, type: 'audio' };
+    } else {
+      return { ...screenShare, type: 'screen-share' };
     }
-    return undefined;
   }, [speaker, screenShare]);
 
   const preventDefault = useCallback(ev => {

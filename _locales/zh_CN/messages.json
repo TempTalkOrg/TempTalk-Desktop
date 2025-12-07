@@ -727,7 +727,7 @@
       "Shown in triple-dot menu next to message to allow user to forward message to Note(myself)"
   },
   "selectMessages": {
-      "message": "选择...",
+      "message": "选择",
       "description":
           "Shown in triple-dot menu next to message to allow user to select multiple messages"
   },
@@ -949,7 +949,7 @@
     "description": ""
   },
   "moreInfo": {
-    "message": "更多信息...",
+    "message": "更多信息",
     "description": "Shown on the drop-down menu for an individual message, takes you to message detail screen"
   },
   "retrySend": {
@@ -3227,5 +3227,14 @@
   },
   "controlBar.moreAction": {
     "message": "更多"
+  },
+  "settings.criticalAlert": {
+    "message": "重要提醒"
+  },
+  "urgentCall": {
+    "message": "紧急通话"
+  },
+  "connectNow": {
+    "message": "立即联系"
   }
 }

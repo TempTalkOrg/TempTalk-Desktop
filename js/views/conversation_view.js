@@ -1452,6 +1452,13 @@
           await this.model.sendPublishRuleMessage(ruleIndex);
         },
 
+        criticalAlert: this.model.get('criticalAlert'),
+        setCriticalAlert: async criticalAlert => {
+          await this.model.apiEditGroupV2OnlyOwner('criticalAlert', {
+            criticalAlert,
+          });
+        },
+
         defaultMessageExpiry,
         currentMessageExpiry: messageExpiry,
         messageExpiryOptions: optionValues,
@@ -1820,6 +1827,7 @@
             username,
             type: 'group',
             deviceId,
+            criticalAlert: this.model.isCriticalAlertEnabled(),
           });
         }
       } catch (e) {

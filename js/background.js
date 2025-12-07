@@ -2345,11 +2345,17 @@ const makeMessageCollapseId = ({ timestamp, source, sourceDevice }) => {
         return confirm?.();
       }
 
+      const fromMe = source === ourNumber;
+
       let isPrivate;
       let type;
       if (conversationId) {
         isPrivate = !!conversationId.number;
         type = isPrivate ? '1on1' : 'group';
+
+        if (isPrivate && !fromMe && conversationId.number !== source) {
+          conversationId.number = source;
+        }
       } else {
         isPrivate = true;
         type = 'instant';
@@ -2397,8 +2403,6 @@ const makeMessageCollapseId = ({ timestamp, source, sourceDevice }) => {
         console.log('check call info error, already destroyed');
         return confirm?.();
       }
-
-      const fromMe = source === ourNumber;
 
       const getTargetConversation = () => {
         switch (type) {
@@ -2997,6 +3001,8 @@ const makeMessageCollapseId = ({ timestamp, source, sourceDevice }) => {
         return queueCallDestroyHandler(notifyTime, data);
       case 19:
         return queueIdentityKeyResetHandler(notifyTime, data);
+      case 20:
+        return queueCriticalAlertHandler(notifyTime, data);
       default:
         log.warn('unknown notify type,', notifyType);
         return;
@@ -3052,6 +3058,26 @@ const makeMessageCollapseId = ({ timestamp, source, sourceDevice }) => {
         sent_at: identityKeyResetAt,
       });
     }
+  }
+
+  function queueCriticalAlertHandler(notifyTime, data) {
+    const { conversation: conversationId } = data;
+    const foundConversation = ConversationController.get(conversationId);
+    if (!foundConversation) {
+      console.log(
+        'handle critical alert notification error: conversation',
+        conversationId,
+        'not found'
+      );
+      return;
+    }
+
+    const from = foundConversation.getDisplayName();
+
+    window.showCriticalAlert({
+      conversationId,
+      from,
+    });
   }
 
   function queueGroupChangeHandler(notifyTime, data, display) {

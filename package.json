@@ -3,7 +3,7 @@
   "productName": "Yelling",
   "description": "Yelling Desktop",
   "repository": "https://github.com/TempTalkOrg/TempTalk-Desktop.git",
-  "version": "2.7.25110701",
+  "version": "2.7.25111701",
   "license": "GPL-3.0",
   "author": {
     "name": "Yelling Developer Team",
@@ -50,7 +50,7 @@
     "svgr:generate": "svgr --config-file scripts/svg/svgr.config.js --svgo-config scripts/svg/svgo.config.js ./ts/components/shared/icons/raw"
   },
   "dependencies": {
-    "@cc-kit/node-screenshots": "0.2.9",
+    "@cc-kit/node-screenshots": "2.0.1",
     "@cc-kit/react-screenshots": "1.0.5",
     "@cc-livekit/components-styles": "3.0.45",
     "@cc-livekit/denoise-plugin": "1.0.6",
@@ -166,7 +166,7 @@
     "bower": "1.8.14",
     "chai": "4.5.0",
     "cross-env": "7.0.3",
-    "electron": "37.8.0",
+    "electron": "37.10.0",
     "electron-builder": "26.0.12",
     "eslint": "8.27.0",
     "eslint-config-prettier": "8.3.0",
@@ -195,7 +195,7 @@
     "**/getobject": "1.1.1"
   },
   "engines": {
-    "node": "22.20.0"
+    "node": "22.21.0"
   },
   "build": {
     "appId": "org.difft.chative-desktop",
@@ -345,7 +345,8 @@
       "node_modules/human-signals/build/src/*.js",
       "lib-crypto-client/${platform}/${arch}/index.node",
       "separate-message-viewer/**/*",
-      "node_modules/react-draggable/build/**/*.js"
+      "node_modules/react-draggable/build/**/*.js",
+      "critical-alert/**/*"
     ]
   }
 }

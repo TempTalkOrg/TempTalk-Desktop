@@ -1,7 +1,6 @@
 import React from 'react';
 import { debounce } from 'lodash';
 
-// import { cleanSearchTerm } from '../util/cleanSearchTerm';
 import { LocalizerType } from '../types/Util';
 
 export interface Props {
@@ -57,11 +56,6 @@ export class SearchInput extends React.Component<Props, StateType> {
     if (searchTerm.length < 1) {
       return;
     }
-
-    // const cleanedTerm = cleanSearchTerm(searchTerm);
-    // if (!cleanedTerm) {
-    //   return;
-    // }
 
     this.debouncedSearch(searchTerm);
   }
