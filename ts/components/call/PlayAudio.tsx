@@ -3,10 +3,12 @@ declare const Sound: any;
 const callInitiativeAudio = new Sound({
   loop: true,
   src: '../audio/CallInitiative.mp3',
+  volume: 0.3,
 });
 const callOffAudio = new Sound({
   loop: false,
   src: '../audio/CallOff.mp3',
+  volume: 0.3,
 });
 const joinMeetingAudio = new Sound({
   loop: false,

@@ -4,6 +4,7 @@ import { MediaDeviceMenu } from './MediaDeviceMenu';
 import { DisconnectButton } from '../components/controls/DisconnectButton';
 import { TrackToggle } from '../components/controls/TrackToggle';
 import {
+  useLocalParticipant,
   useLocalParticipantPermissions,
   useParticipants,
   usePersistentUserChoices,
@@ -29,6 +30,8 @@ import {
   IconMoreAction,
   IconRaiseHand,
 } from '../../../../shared/icons';
+import { useControlBarTooltip } from '../hooks/useControlBarTooltip';
+import { ScreenShareModeMenu } from './ScreenShareModeMenu';
 
 /** @public */
 export type ControlBarControls = {
@@ -95,6 +98,7 @@ export function ControlBar({
   const participants = useParticipants();
 
   const connectionState = useConnectionState();
+  const { localParticipant } = useLocalParticipant();
 
   const connected = useMemo(
     () => connectionState === ConnectionState.Connected,
@@ -167,6 +171,10 @@ export function ControlBar({
 
   const criticalAlert = featureFlags?.criticalAlert;
 
+  const { tooltipText, tooltipProps } = useControlBarTooltip();
+
+  const isSupportSystemMode = featureFlags?.isSupportSystemMode;
+
   return (
     <div {...htmlProps}>
       {visibleControls.backToMain && (
@@ -176,17 +184,15 @@ export function ControlBar({
       )}
       <div className="lk-control-area">
         {visibleControls.raiseHand && connected && (
-          <RaiseHandButton>
-            <IconRaiseHand className="call-icon control-bar-icon raise-hand-icon" />
-          </RaiseHandButton>
+          <Tooltip {...tooltipProps} title={tooltipText.raiseHand}>
+            <RaiseHandButton>
+              <IconRaiseHand className="call-icon control-bar-icon raise-hand-icon" />
+            </RaiseHandButton>
+          </Tooltip>
         )}
         {visibleControls.microphone && (
           <div className="lk-button-group">
-            <Tooltip
-              mouseEnterDelay={0.5}
-              placement="top"
-              title="Press spacebar to mute/unmute"
-            >
+            <Tooltip {...tooltipProps} title={tooltipText.microphone}>
               <TrackToggle
                 source={Track.Source.Microphone}
                 showIcon={showIcon}
@@ -211,16 +217,19 @@ export function ControlBar({
         )}
         {visibleControls.camera && (
           <div className="lk-button-group">
-            <TrackToggle
-              source={Track.Source.Camera}
-              showIcon={showIcon}
-              onChange={cameraOnChange}
-              onDeviceError={error =>
-                onDeviceError?.({ source: Track.Source.Camera, error })
-              }
-            >
-              {showText && 'Camera'}
-            </TrackToggle>
+            <Tooltip {...tooltipProps} title={tooltipText.video}>
+              <TrackToggle
+                source={Track.Source.Camera}
+                showIcon={showIcon}
+                onChange={cameraOnChange}
+                onDeviceError={error =>
+                  onDeviceError?.({ source: Track.Source.Camera, error })
+                }
+              >
+                {showText && 'Camera'}
+              </TrackToggle>
+            </Tooltip>
+
             <div className="lk-button-group-menu">
               <MediaDeviceMenu
                 kind="videoinput"
@@ -232,39 +241,103 @@ export function ControlBar({
           </div>
         )}
         {visibleControls.screenShare && browserSupportsScreenSharing && (
-          <TrackToggle
-            source={Track.Source.ScreenShare}
-            captureOptions={{ audio: true, selfBrowserSurface: 'include' }}
-            showIcon={showIcon}
-            onChange={onScreenShareChange}
-            onClick={onScreenShareClick}
-            onDeviceError={error =>
-              onDeviceError?.({ source: Track.Source.ScreenShare, error })
-            }
-          >
-            {showText &&
-              (isScreenShareEnabled ? 'Stop screen share' : 'Share screen')}
-          </TrackToggle>
+          <Tooltip {...tooltipProps} title={tooltipText.screenShare}>
+            {isSupportSystemMode ? (
+              localParticipant.isScreenShareEnabled ? (
+                <TrackToggle
+                  source={Track.Source.ScreenShare}
+                  captureOptions={{
+                    audio: true,
+                    selfBrowserSurface: 'include',
+                  }}
+                  showIcon={showIcon}
+                  onChange={onScreenShareChange}
+                  onClick={onScreenShareClick}
+                  onDeviceError={error =>
+                    onDeviceError?.({ source: Track.Source.ScreenShare, error })
+                  }
+                  className={
+                    isScreenShareEnabled
+                      ? 'system-mode-stop-sharing-button'
+                      : ''
+                  }
+                >
+                  {showText &&
+                    (isScreenShareEnabled
+                      ? 'Stop screen share'
+                      : 'Share screen')}
+                </TrackToggle>
+              ) : (
+                <div className="lk-button-group">
+                  <TrackToggle
+                    source={Track.Source.ScreenShare}
+                    captureOptions={{
+                      audio: true,
+                      selfBrowserSurface: 'include',
+                    }}
+                    showIcon={showIcon}
+                    onChange={onScreenShareChange}
+                    onClick={onScreenShareClick}
+                    onDeviceError={error =>
+                      onDeviceError?.({
+                        source: Track.Source.ScreenShare,
+                        error,
+                      })
+                    }
+                  >
+                    {showText &&
+                      (isScreenShareEnabled
+                        ? 'Stop screen share'
+                        : 'Share screen')}
+                  </TrackToggle>
+                  <div className="lk-button-group-menu">
+                    <ScreenShareModeMenu />
+                  </div>
+                </div>
+              )
+            ) : (
+              <TrackToggle
+                source={Track.Source.ScreenShare}
+                captureOptions={{
+                  audio: true,
+                  selfBrowserSurface: 'include',
+                }}
+                showIcon={showIcon}
+                onChange={onScreenShareChange}
+                onClick={onScreenShareClick}
+                onDeviceError={error =>
+                  onDeviceError?.({ source: Track.Source.ScreenShare, error })
+                }
+              >
+                {showText &&
+                  (isScreenShareEnabled ? 'Stop screen share' : 'Share screen')}
+              </TrackToggle>
+            )}
+          </Tooltip>
         )}
         {visibleControls.addMember && (
-          <AddMemberButton onClick={onAddMember}>
-            {showIcon && (
-              <IconAddMember className="call-icon control-bar-icon add-member-outer-icon" />
-            )}
-            {showText && 'Add member'}
-          </AddMemberButton>
+          <Tooltip {...tooltipProps} title={tooltipText.addMember}>
+            <AddMemberButton onClick={onAddMember}>
+              {showIcon && (
+                <IconAddMember className="call-icon control-bar-icon add-member-outer-icon" />
+              )}
+              {showText && 'Add member'}
+            </AddMemberButton>
+          </Tooltip>
         )}
         {visibleControls.memberList && (
           <div className="lk-button-group lk-member-list-button-group">
-            <MemberListButton onClick={onMemberList}>
-              {showIcon && (
-                <IconMemberList className="call-icon control-bar-icon member-list-icon" />
-              )}
-              {showText && 'Member list'}
-              <span style={{ fontSize: 14, fontWeight: 510 }}>
-                {participants.length}
-              </span>
-            </MemberListButton>
+            <Tooltip {...tooltipProps} title={tooltipText.memberList}>
+              <MemberListButton onClick={onMemberList}>
+                {showIcon && (
+                  <IconMemberList className="call-icon control-bar-icon member-list-icon" />
+                )}
+                {showText && 'Member list'}
+                <span style={{ fontSize: 14, fontWeight: 510 }}>
+                  {participants.length}
+                </span>
+              </MemberListButton>
+            </Tooltip>
             <div className="lk-button-group-menu">
               <ContextMenu
                 trigger={['click']}
@@ -300,18 +373,20 @@ export function ControlBar({
           </div>
         )}
         {criticalAlert?.visible && (
-          <ContextMenu
-            menu={{ items: criticalAlert.menuItems }}
-            placement="top"
-            trigger={['click']}
-          >
-            <button className="more-action-button">
-              <IconMoreAction className="call-icon control-bar-icon more-action-icon" />
-            </button>
-          </ContextMenu>
+          <Tooltip {...tooltipProps} title={tooltipText.moreAction}>
+            <ContextMenu
+              menu={{ items: criticalAlert.menuItems }}
+              placement="top"
+              trigger={['click']}
+            >
+              <button className="more-action-button">
+                <IconMoreAction className="call-icon control-bar-icon more-action-icon" />
+              </button>
+            </ContextMenu>
+          </Tooltip>
         )}
         {visibleControls.leave && featureFlags?.type === '1on1' && (
-          <DisconnectButton title="End call">
+          <DisconnectButton title={tooltipText.endCall}>
             {showIcon && (
               <IconEndCall className="call-icon control-bar-icon end-call-icon" />
             )}
@@ -320,7 +395,7 @@ export function ControlBar({
         )}
         {visibleControls.leave && featureFlags?.type !== '1on1' && (
           <div className="lk-leave-button-group">
-            <DisconnectButton>
+            <DisconnectButton title={tooltipText.leaveCall}>
               {showIcon && (
                 <IconLeaveCall className="call-icon control-bar-icon leave-call-icon" />
               )}

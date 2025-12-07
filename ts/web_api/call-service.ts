@@ -9,6 +9,10 @@ async function refreshCallServiceUrls() {
   try {
     let serverUrls;
 
+    if (!(window as any).callAPI) {
+      console.log('callAPI not ready');
+      return;
+    }
     try {
       const response = await (window as any).callAPI.getServiceUrls();
       serverUrls = response.serviceUrls.map((url: string) => ({
@@ -16,7 +20,7 @@ async function refreshCallServiceUrls() {
         certType: 'self',
       }));
     } catch (e) {
-      console.log('get call service urls from server failed', e);
+      console.log('refresh call service urls from server failed', e);
     }
 
     const domains = (serverUrls || []).map((item: ServerConfigType) => ({

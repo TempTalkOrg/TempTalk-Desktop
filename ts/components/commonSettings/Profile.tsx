@@ -385,6 +385,7 @@ export class Profile extends React.Component<Props, State> {
       password,
       type: '1on1',
       deviceId,
+      criticalAlert: theUser.isCriticalAlertEnabled(),
     });
 
     this.props?.onClose();

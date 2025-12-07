@@ -39,6 +39,7 @@ window.getIncomingCallInfo = () => {
     deviceId: config.deviceId,
     ourName: config.ourName,
     serviceUrls: config.serviceUrls,
+    criticalAlert: config.criticalAlert === 'true',
   };
 };
 

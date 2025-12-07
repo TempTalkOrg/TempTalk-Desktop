@@ -201,8 +201,7 @@ const Initialization = require('./views/initialization');
 const { IdleDetector } = require('./idle_detector');
 const MessageDataMigrator = require('./messages_data_migrator');
 
-const { createDomainSelector } = require('../../ts/web_api/endpoint-selector');
-const { generateServiceConfig } = require('../../ts/web_api/service-generator');
+const { setupServiceConfig } = require('../../ts/web_api/service-generator');
 const { getCallServiceUrls } = require('../../ts/web_api/call-service');
 
 function initializeMigrations({
@@ -410,8 +409,7 @@ exports.setup = (options = {}) => {
   };
 
   const Network = {
-    createDomainSelector,
-    generateServiceConfig,
+    setupServiceConfig,
     getCallServiceUrls,
   };
 

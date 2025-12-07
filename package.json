@@ -3,7 +3,7 @@
   "productName": "Yelling",
   "description": "Yelling Desktop",
   "repository": "https://github.com/TempTalkOrg/TempTalk-Desktop.git",
-  "version": "2.7.25103101",
+  "version": "2.7.25110701",
   "license": "GPL-3.0",
   "author": {
     "name": "Yelling Developer Team",
@@ -58,6 +58,7 @@
     "@electron/remote": "2.1.2",
     "@emoji-mart/data": "1.2.1",
     "@emoji-mart/react": "1.1.1",
+    "@indutny/mac-screen-share": "1.2.0",
     "@lottiefiles/dotlottie-web": "0.47.0",
     "@react-spring/web": "9.7.4",
     "@signalapp/better-sqlite3": "9.0.13",

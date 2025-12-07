@@ -1,9 +1,10 @@
 import { Modal } from 'antd';
-import React, { useMemo } from 'react';
+import React from 'react';
 import { LocalizerType } from '../types/Util';
+import { Track } from '@cc-livekit/livekit-client';
 
 type Props = {
-  mediaType: 'microphone' | 'camera' | 'screen';
+  mediaType: Track.Source;
   dismiss: () => void;
   i18n: LocalizerType;
   open: boolean;
@@ -14,14 +15,7 @@ const mainWindow: any = window;
 export const MediaPermissionModal = (props: Props) => {
   const { mediaType, dismiss, i18n, open } = props;
 
-  const { showMicrophone, showCamera, showScreen } = useMemo(() => {
-    const showMicrophone = mediaType === 'microphone';
-    const showCamera = mediaType === 'camera';
-    const showScreen = mediaType === 'screen';
-    return { showMicrophone, showCamera, showScreen };
-  }, [mediaType]);
-
-  if (showMicrophone) {
+  if (mediaType === Track.Source.Microphone) {
     return (
       <Modal
         className={'permission-check-dialog-container'}
@@ -31,7 +25,6 @@ export const MediaPermissionModal = (props: Props) => {
         open={open}
         cancelText={i18n('cancel')}
         okText={i18n('go_microphone_settings')}
-        zIndex={'var(--dsw-zindex-dialog)' as any}
         onOk={() => {
           mainWindow.sendBrowserOpenUrl(
             'x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone'
@@ -43,8 +36,7 @@ export const MediaPermissionModal = (props: Props) => {
         <p>{i18n('microphone_permission_check_content')}</p>
       </Modal>
     );
-  }
-  if (showCamera) {
+  } else if (mediaType === Track.Source.Camera) {
     return (
       <Modal
         className={'permission-check-dialog-container'}
@@ -65,8 +57,7 @@ export const MediaPermissionModal = (props: Props) => {
         <p>{i18n('camera_permission_check_content')}</p>
       </Modal>
     );
-  }
-  if (showScreen) {
+  } else if (mediaType === Track.Source.ScreenShare) {
     return (
       <Modal
         className={'permission-check-dialog-container'}
@@ -87,6 +78,7 @@ export const MediaPermissionModal = (props: Props) => {
         <p>{i18n('screen_permission_check_content')}</p>
       </Modal>
     );
+  } else {
+    return null;
   }
-  return null;
 };

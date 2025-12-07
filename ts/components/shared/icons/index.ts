@@ -2,6 +2,7 @@ export { default as IconAddMember } from './AddMember';
 export { default as IconArrowDown } from './ArrowDown';
 export { default as IconBackCall } from './BackCall';
 export { default as IconBackToMain } from './BackToMain';
+export { default as IconBulb } from './Bulb';
 export { default as IconCallChat } from './CallChat';
 export { default as IconCall } from './Call';
 export { default as IconClearCircle } from './ClearCircle';

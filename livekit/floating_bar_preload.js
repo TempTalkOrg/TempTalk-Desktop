@@ -25,6 +25,7 @@ window.hangup = () => {
 };
 
 window.setMuted = muted => {
+  console.log('[floating bar] send set muted event:', muted);
   ipcRenderer.send('floating-bar-set-muted', muted);
 };
 

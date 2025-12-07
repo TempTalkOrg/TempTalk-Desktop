@@ -32,13 +32,16 @@ const SUPPORTED_PROTOCOLS = /^(http|https|chative|temptalk):/i;
 const HAS_AT = /@/;
 const START_WITH_LETTER_OR_NUMBER = /^[A-Z0-9]/i;
 
-export class Linkify extends React.Component<Props> {
+export class Linkify extends React.Component<Props, { countStr: string }> {
   hrefClickBind: (
     event: React.MouseEvent<HTMLAnchorElement, MouseEvent>
   ) => void;
 
   constructor(props: Readonly<Props>) {
     super(props);
+    this.state = {
+      countStr: Math.random().toString(36).slice(-8),
+    };
     this.hrefClickBind = this.hrefClick.bind(this);
   }
 
@@ -87,7 +90,7 @@ export class Linkify extends React.Component<Props> {
   public analyzeURL(text: string) {
     const results: Array<any> = [];
     let last = 0;
-    const countStr = Math.random().toString(36).slice(-8);
+    const countStr = this.state.countStr;
     let count = 0;
 
     if (this.shouldShowBiggerEmoji(text)) {

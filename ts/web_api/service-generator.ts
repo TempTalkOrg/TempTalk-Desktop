@@ -1,10 +1,11 @@
-import { startTestCallServiceUrls } from './call-service';
+import { isEmpty } from 'lodash';
 import {
   CertType,
   createDomainSelector,
   DomainConfigType,
   SpeedTestResult,
 } from './endpoint-selector';
+import { startTestCallServiceUrls } from './call-service';
 
 type ServerConfigType = {
   url: string;
@@ -119,26 +120,24 @@ function combineServiceConfig(
   return config;
 }
 
-export const generateServiceConfig = () => {
+export const setupServiceConfig = () => {
   useGlobalConfigCache();
   useServiceConfigCache();
 
-  const selectBestDomain = createDomainSelector();
+  const selectTestedDomain = createDomainSelector();
 
   const regenerateServiceConfig = async (
     config: GlobalConfigType,
     testSpeed: boolean = true
   ) => {
     const domainList = testSpeed
-      ? await selectBestDomain(config.domains ?? [])
+      ? await selectTestedDomain(config.domains ?? [])
       : (config.domains ?? []);
     const serviceConfig = combineServiceConfig(domainList, config.services);
 
     setLocalStorageItem(SERVICE_CONFIG_STORAGE_KEY, serviceConfig);
     mainWindow.log.info('put serviceConfig', serviceConfig);
     freshWebApiUrlCache(serviceConfig);
-    // start call service url test interval
-    startTestCallServiceUrls(serviceConfig.livekit);
   };
 
   const generateLatestServiceConfig = async () => {
@@ -167,5 +166,16 @@ export const generateServiceConfig = () => {
     6 * 60 * 60 * 1000
   );
 
-  return regenerateServiceConfig;
+  const selectBestDomain = () => {
+    regenerateServiceConfig(mainWindow.globalConfig, true);
+  };
+
+  // localStorage 不存在 serviceConfig 时，先生成一份未测速的提供使用
+  if (isEmpty(mainWindow.getGlobalWebApiUrls())) {
+    regenerateServiceConfig(mainWindow.globalConfig, false);
+  }
+
+  startTestCallServiceUrls(mainWindow.getGlobalWebApiUrls().livekit);
+
+  return selectBestDomain;
 };

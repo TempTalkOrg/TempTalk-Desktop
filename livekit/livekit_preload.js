@@ -215,13 +215,15 @@ const listWindows = () => Window.listAll();
 window.getSources = async () => {
   let sources;
   if (window.Signal.OS.isMacOS()) {
-    const [screenItems, windowItems] = await Promise.all([
-      getDesktopCaptureSources({
-        types: ['screen'],
-        thumbnailSize: { width: 250, height: 150 },
-      }),
-      listWindows(),
-    ]);
+    const listScreenTime = Date.now();
+    const screenItems = await getDesktopCaptureSources({
+      types: ['screen'],
+      thumbnailSize: { width: 250, height: 150 },
+    });
+    console.log('[getSources] listScreenTime:', Date.now() - listScreenTime);
+    const listWindowTime = Date.now();
+    const windowItems = listWindows();
+    console.log('[getSources] listWindowTime:', Date.now() - listWindowTime);
 
     const windowItemPromises = windowItems.map(async windowItem => {
       try {
@@ -238,9 +240,11 @@ window.getSources = async () => {
       }
     });
 
+    const formatItemTime = Date.now();
     const windowItemResults = (await Promise.all(windowItemPromises)).filter(
       Boolean
     );
+    console.log('[getSources] formatItemTime:', Date.now() - formatItemTime);
 
     sources = screenItems.concat(windowItemResults);
   } else {
@@ -269,4 +273,15 @@ window.listOnScreenWindows = () => Window.all();
 
 window.snedFrameToFloatingBar = frameInfo => {
   ipcRenderer.send('sned-frame-to-floating-bar', frameInfo);
+};
+
+window.isSupportMacShareScreenKit = () => {
+  // require on demand
+  const macScreenShare = require('@indutny/mac-screen-share');
+  return macScreenShare.isSupported;
+};
+
+window.getMacScreenShare = options => {
+  const macScreenShare = require('@indutny/mac-screen-share');
+  return macScreenShare;
 };

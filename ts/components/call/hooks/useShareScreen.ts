@@ -9,6 +9,7 @@ import {
 } from '@cc-livekit/livekit-client';
 import { useEffect, useState } from 'react';
 import * as OS from '../../../OS';
+import type { Stream } from '@indutny/mac-screen-share';
 
 type ShareScreenSource = {
   id: string;
@@ -17,18 +18,134 @@ type ShareScreenSource = {
   thumbnailDataURI: string | null;
 };
 
+// Chrome-only API for now, thus a declaration:
+declare class MediaStreamTrackGenerator extends MediaStreamTrack {
+  constructor(options: { kind: 'video' });
+
+  public writable: WritableStream;
+}
+
+const SECOND = 1000;
+
+export function isOlderThan(timestamp: number, delta: number): boolean {
+  return timestamp <= Date.now() - delta;
+}
+
+const startMacNativeShareScreen = ({
+  onPublishTrack,
+}: {
+  onPublishTrack: (track: MediaStreamTrack) => void;
+}) => {
+  try {
+    const track = new MediaStreamTrackGenerator({ kind: 'video' });
+    const writer = track.writable.getWriter();
+
+    const mediaStream = new MediaStream();
+    mediaStream.addTrack(track);
+
+    let isRunning = false;
+    let lastFrame: VideoFrame | undefined;
+    let lastFrameSentAt = 0;
+
+    let frameRepeater: NodeJS.Timeout | undefined;
+
+    const cleanup = () => {
+      lastFrame?.close();
+      if (frameRepeater !== null) {
+        clearInterval(frameRepeater);
+      }
+      frameRepeater = undefined;
+      lastFrame = undefined;
+    };
+
+    const macScreenShare = (window as any).getMacScreenShare();
+
+    const stream: Stream = new macScreenShare.Stream({
+      width: 1920,
+      height: 1080,
+      frameRate: 5,
+      onStart: async () => {
+        isRunning = true;
+
+        // Repeat last frame every second to match "min" constraint above.
+        frameRepeater = setInterval(() => {
+          if (isRunning && track.readyState !== 'ended' && lastFrame != null) {
+            if (isOlderThan(lastFrameSentAt, SECOND)) {
+              writer.write(lastFrame.clone());
+            }
+          } else {
+            cleanup();
+          }
+        }, SECOND);
+
+        onPublishTrack(track);
+      },
+      onStop: () => {
+        if (!isRunning) {
+          return;
+        }
+        isRunning = false;
+
+        if (track.readyState === 'ended') {
+          stream.stop();
+          return;
+        }
+        writer.close();
+      },
+      onFrame: (frame: Buffer, width: number, height: number) => {
+        if (!isRunning) {
+          return;
+        }
+        if (track.readyState === 'ended') {
+          stream.stop();
+          return;
+        }
+
+        lastFrame?.close();
+        lastFrameSentAt = Date.now();
+        lastFrame = new VideoFrame(frame, {
+          format: 'NV12',
+          codedWidth: width,
+          codedHeight: height,
+          timestamp: 0,
+        });
+        writer.write(lastFrame.clone());
+      },
+    });
+  } catch (e) {
+    console.error('Failed to start mac native share screen:', e);
+  }
+};
+
+const isSupportSystemMode = (window as any).isSupportMacShareScreenKit();
+
+type ScreenShareMode = 'default' | 'system';
+
 export const useShareScreen = ({
   room,
   onStartShare,
   onLimit,
+  onPermissionError,
 }: {
   room: Room;
   onStartShare?: () => void;
   onLimit?: () => void;
+  onPermissionError?: () => void;
 }) => {
   const [open, setOpen] = useState(false);
   const [sources, setSources] = useState<ShareScreenSource[]>([]);
   const [permissionModalOpen, setPermissionModalOpen] = useState(false);
+  const [screenShareMode, setScreenShareMode] = useState<ScreenShareMode>(
+    isSupportSystemMode
+      ? ((localStorage.getItem('screenShareMode') as ScreenShareMode) ??
+          'default')
+      : 'default'
+  );
+
+  const onScreenShareModeChange = useMemoizedFn((mode: ScreenShareMode) => {
+    setScreenShareMode(mode);
+    localStorage.setItem('screenShareMode', mode);
+  });
 
   const doPublishSource = useMemoizedFn(async (sourceId: string) => {
     try {
@@ -102,6 +219,20 @@ export const useShareScreen = ({
       }
     }
 
+    if (isSupportSystemMode && screenShareMode === 'system') {
+      onStartShare?.();
+      startMacNativeShareScreen({
+        onPublishTrack: async track => {
+          await room.localParticipant.publishTrack(track, {
+            source: Track.Source.ScreenShare,
+            simulcast: false,
+            videoCodec: 'h264',
+          });
+        },
+      });
+      return;
+    }
+
     try {
       openModal();
 
@@ -126,7 +257,8 @@ export const useShareScreen = ({
       );
 
       if (!hasPermission) {
-        return setPermissionModalOpen(true);
+        onPermissionError?.();
+        return;
       }
 
       handleToggleScreenShare();
@@ -177,5 +309,8 @@ export const useShareScreen = ({
     sources,
     permissionModalOpen,
     setPermissionModalOpen,
+    isSupportSystemMode,
+    screenShareMode,
+    onScreenShareModeChange,
   };
 };

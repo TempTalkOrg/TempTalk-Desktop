@@ -37,6 +37,9 @@ export interface FeatureFlags {
     visible: boolean;
     menuItems: MenuProps['items'];
   };
+  isSupportSystemMode: boolean;
+  screenShareMode: 'default' | 'system';
+  onScreenShareModeChange: (mode: 'default' | 'system') => void;
 }
 
 type FeatureContext<T extends boolean = false> = T extends true

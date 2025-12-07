@@ -5940,6 +5940,9 @@
     getNoNeedReceiptsEndAt() {
       return this.get('noNeedReceiptsEndAt') || 0;
     },
+    isCriticalAlertEnabled() {
+      return this.get('publicConfigs')?.criticalAlert ?? false;
+    },
   });
 
   Whisper.ConversationCollection = Backbone.Collection.extend({

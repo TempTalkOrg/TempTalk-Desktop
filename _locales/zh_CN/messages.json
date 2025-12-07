@@ -513,8 +513,13 @@
     "description": "An error popup when the user has attempted to add an attachment"
   },
   "fileSizeWarning": {
-    "message": "对不起，所选文件超过最大限制。",
-    "description": ""
+    "message": "抱歉，您选择的文件超过了$limit$，无法发送。",
+    "placeholders": {
+      "limit": {
+        "content": "$1",
+        "example": "200"
+      }
+    }
   },
   "unableToLoadAttachment": {
     "message": "无法加载选中的附件。",
@@ -3170,15 +3175,57 @@
     "message": "通话突然结束"
   },
   "sendCriticalAlert": {
-    "message": "发送紧急提醒"
+    "message": "重要提醒"
   },
   "sendCriticalAlert.success": {
-    "message": "发送紧急提醒成功"
+    "message": "发送重要提醒成功"
   },
   "sendCriticalAlert.fail": {
     "message": "发送重要提醒失败，请重试"
   },
   "sendCriticalAlert.rateLimitExceeded": {
     "message": "发送过于频繁，请稍后重试"
+  },
+  "sendCriticalAlert.toastPrefix": {
+    "message": "没有回应？"
+  },
+  "sendCriticalAlert.toastSuffix": {
+    "message": "发送重要提醒。"
+  },
+  "controlBar.microphone": {
+    "message": "按空格开启/关闭麦克风"
+  },
+  "controlBar.videoOff": {
+    "message": "关闭摄像头"
+  },
+  "controlBar.videoOn": {
+    "message": "开启摄像头"
+  },
+  "controlBar.screenShareOff": {
+    "message": "停止屏幕分享"
+  },
+  "controlBar.screenShareOn": {
+    "message": "开始屏幕分享"
+  },
+  "controlBar.raiseHandOff": {
+    "message": "放下"
+  },
+  "controlBar.raiseHandOn": {
+    "message": "举手"
+  },
+  "controlBar.memberList": {
+    "message": "参会人员"
+  },
+  "controlBar.addMember": {
+    "message": "邀请"
+  },
+  "controlBar.endCall": {
+    "message": "结束通话"
+  },
+  "controlBar.leaveCall": {
+    "message": "离开通话"
+  },
+  "controlBar.moreAction": {
+    "message": "更多"
   }
 }

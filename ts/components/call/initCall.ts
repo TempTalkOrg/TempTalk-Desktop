@@ -19,6 +19,7 @@ export interface ICurrentCall {
   endingCall: boolean;
   callWindowId: number | null;
   serviceUrls: string[];
+  criticalAlert: boolean;
 }
 
 export type CallInfoType = Omit<ICurrentCall, 'caller'> & {
@@ -58,6 +59,7 @@ export const generateCurrentCall = (info: CallInfoType): ICurrentCall => {
     endingCall: false,
     callWindowId: getSourceId(info.callWindowId),
     serviceUrls: info.serviceUrls,
+    criticalAlert: info.criticalAlert,
   };
 };
 

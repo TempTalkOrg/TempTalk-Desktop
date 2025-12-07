@@ -129,6 +129,18 @@ export const FloatingBar = (props: PropsType) => {
       }
     ) => {
       const { muted, speaker, screenShare, countdown } = props ?? {};
+      console.log(
+        '[floating bar] receive update event:',
+        'muted',
+        muted,
+        'speaker',
+        speaker,
+        'screenShare',
+        screenShare,
+        'countdown',
+        countdown
+      );
+
       if (muted !== undefined) {
         setMicMute(muted);
       }

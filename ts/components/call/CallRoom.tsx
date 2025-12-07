@@ -49,6 +49,8 @@ import { useDeferredSpeakingParticipant } from './hooks/useDeferredSpeakingParti
 import { useSyncVideoFrame } from './hooks/useSyncVideoFrame';
 import { useOverrideCallRequest } from './hooks/useOverrideCallRequest';
 import { useCriticalAlert } from './hooks/useCriticalAlert';
+import { Track } from '@cc-livekit/livekit-client';
+import { useMediaPermissionModal } from './hooks/useMediaPermissionModal';
 
 export interface ICallError {
   response: {
@@ -88,6 +90,13 @@ export const CallRoom = ({ i18n }: IProps) => {
   const { nameFormatter } = useNameFormatter(contactMap);
 
   const renderParticipantPlaceholder = useParticipantRenderer(contactMap, i18n);
+
+  const {
+    showMediaPermissionError,
+    hideMediaPermissionModal,
+    mediaPermissionModalOpen,
+    mediaType,
+  } = useMediaPermissionModal();
 
   // @ts-ignore
   const participants = useParticipants({ room });
@@ -184,21 +193,29 @@ export const CallRoom = ({ i18n }: IProps) => {
     onScreenShareClick,
     open,
     closeModal,
-    permissionModalOpen,
-    setPermissionModalOpen,
+    isSupportSystemMode,
+    screenShareMode,
+    onScreenShareModeChange,
   } = useShareScreen({
     room,
     onStartShare: resizeCallWindow,
     onLimit: () => message.warning(i18n('callError.screenShareExist')),
+    onPermissionError: () => showMediaPermissionError(Track.Source.ScreenShare),
   });
 
-  const onDeviceError = useMemoizedFn(({ error }) => {
-    if (error.message === 'RATE_LIMIT') {
-      message.warning(i18n('callError.rateLimitReached'));
-    } else {
-      console.log('unknown device error', error);
+  const onDeviceError = useMemoizedFn(
+    ({ error, source }: { error: Error; source: Track.Source }) => {
+      if (error.message === 'RATE_LIMIT') {
+        message.warning(i18n('callError.rateLimitReached'));
+      } else if (source) {
+        if (error.message === 'Permission denied') {
+          showMediaPermissionError(source);
+        }
+      } else {
+        console.log('unknown device error', error);
+      }
     }
-  });
+  );
 
   const { messages, addMessage, chatPresets } = useFloatingMessage({
     room,
@@ -319,7 +336,11 @@ export const CallRoom = ({ i18n }: IProps) => {
     return i18n.getLocale();
   }, [i18n]);
 
-  const { visible: criticalAlertVisible, menuItems } = useCriticalAlert({
+  const {
+    visible: criticalAlertVisible,
+    menuItems,
+    criticalAlertToast,
+  } = useCriticalAlert({
     room,
     i18n,
     addMessage,
@@ -388,6 +409,9 @@ export const CallRoom = ({ i18n }: IProps) => {
                 visible: criticalAlertVisible,
                 menuItems,
               },
+              isSupportSystemMode,
+              screenShareMode,
+              onScreenShareModeChange,
             }}
             style={{ height: 'calc(100vh - 32px)' }}
             connect={e2eeSetupComplete}
@@ -416,14 +440,15 @@ export const CallRoom = ({ i18n }: IProps) => {
               handleSelectSource={handleSelectSource}
             />
             <MediaPermissionModal
-              open={permissionModalOpen}
-              mediaType="screen"
+              open={mediaPermissionModalOpen}
+              mediaType={mediaType}
               i18n={i18n}
-              dismiss={() => setPermissionModalOpen(false)}
+              dismiss={() => hideMediaPermissionModal()}
             />
             <FloatingMessageList messages={messages} />
           </LiveKitRoom>
         ) : null}
+        {criticalAlertToast}
       </div>
     </>
   );

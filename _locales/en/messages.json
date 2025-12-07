@@ -510,7 +510,13 @@
     "description": "An error popup when the user has attempted to add an attachment"
   },
   "fileSizeWarning": {
-    "message": "Sorry, the selected file exceeds message size restrictions."
+    "message": "Sorry, the selected file exceeds the $limit$ limit and cannot be sent.",
+    "placeholders": {
+      "limit": {
+        "content": "$1",
+        "example": "200MB"
+      }
+    }
   },
   "unableToLoadAttachment": {
     "message": "Unable to load selected attachment."
@@ -3133,7 +3139,7 @@
     "message": "Call suddenly ended"
   },
   "sendCriticalAlert": {
-    "message": "Send a critical alert"
+    "message": "Critical alert"
   },
   "sendCriticalAlert.success": {
     "message": "sent a critical alert"
@@ -3143,5 +3149,47 @@
   },
   "sendCriticalAlert.rateLimitExceeded": {
     "message": "Send too frequently, please try again later"
+  },
+  "sendCriticalAlert.toastPrefix": {
+    "message": "No answer?"
+  },
+  "sendCriticalAlert.toastSuffix": {
+    "message": "Send a critical alert."
+  },
+  "controlBar.microphone": {
+    "message": "Press spacebar to mute/unmute"
+  },
+  "controlBar.videoOff": {
+    "message": "Turn off video"
+  },
+  "controlBar.videoOn": {
+    "message": "Turn on video"
+  },
+  "controlBar.screenShareOff": {
+    "message": "Stop sharing"
+  },
+  "controlBar.screenShareOn": {
+    "message": "Start sharing"
+  },
+  "controlBar.raiseHandOff": {
+    "message": "Lower hand"
+  },
+  "controlBar.raiseHandOn": {
+    "message": "Raise hand"
+  },
+  "controlBar.memberList": {
+    "message": "Attendees"
+  },
+  "controlBar.addMember": {
+    "message": "Invite"
+  },
+  "controlBar.endCall": {
+    "message": "End call"
+  },
+  "controlBar.leaveCall": {
+    "message": "Leave call"
+  },
+  "controlBar.moreAction": {
+    "message": "More"
   }
 }

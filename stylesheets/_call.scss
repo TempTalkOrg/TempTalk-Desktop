@@ -1057,12 +1057,22 @@ table {
   width: 224px;
 }
 
-.media-device-select {
+.media-device-select,
+.screen-share-mode-select {
   @include common-menu;
   padding: 8px !important;
 }
 
-.media-device-menu-title {
+.screen-share-mode-select-list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.media-device-menu-title,
+.screen-share-mode-select-title {
   text-align: left;
   color: var(--dst-color-text-third);
   font-size: 12px;
@@ -1074,7 +1084,8 @@ table {
   margin-bottom: 0 !important;
 }
 
-.media-device-select-item {
+.media-device-select-item,
+.screen-share-mode-select-item {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -1258,4 +1269,76 @@ table {
 
 .lk-participant-media-video[data-lk-source='screen_share'] {
   background-color: var(--dst-color-background-space);
+}
+
+.permission-check-dialog-container {
+  .ant-modal-header {
+    border-bottom: 0 !important;
+  }
+  .ant-modal-footer {
+    border-top: 0 !important;
+  }
+}
+
+.video-track-placeholder {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+  align-items: center;
+  gap: 7px;
+  background-color: var(--dst-color-background-elevate);
+  &-icon {
+    color: var(--dst-color-text-disable);
+  }
+  &-text {
+    color: var(--dst-color-text-disable);
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 400;
+  }
+}
+
+.system-mode-stop-sharing-button {
+  width: 64px !important;
+  border-radius: 100px !important;
+}
+
+.critical-alert-toast {
+  .ant-message-notice-content {
+    padding: 12px !important;
+    background-color: var(--dst-color-background) !important;
+    cursor: pointer;
+  }
+  .critical-alert-toast-content {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: center;
+    align-items: center;
+  }
+  .toast-text-prefix,
+  .toast-text-suffix {
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 20px;
+  }
+  .toast-text-prefix {
+    margin-left: 8px;
+    margin-right: 4px;
+    color: var(--dst-color-text-white);
+  }
+  .toast-text-suffix {
+    color: var(--dst-color-text-info);
+  }
+}
+
+.critical-alert-menu-item {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  gap: 8px;
 }

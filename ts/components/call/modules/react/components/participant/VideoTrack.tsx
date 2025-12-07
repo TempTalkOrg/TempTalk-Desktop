@@ -1,9 +1,12 @@
-import { RemoteTrackPublication } from '@cc-livekit/livekit-client';
+import { RemoteTrackPublication, Track } from '@cc-livekit/livekit-client';
 import * as React from 'react';
 import { useMediaTrackBySourceOrName } from '../../hooks/useMediaTrackBySourceOrName';
 import type { ParticipantClickEvent, TrackReference } from '../../../core';
 import { useEnsureTrackRef } from '../../context';
 import * as useHooks from 'usehooks-ts';
+import { useEffect, useRef, useState } from 'react';
+import { useMemoizedFn } from 'ahooks';
+import { IconScreenShare } from '../../../../../shared/icons';
 
 /** @public */
 export interface VideoTrackProps
@@ -15,20 +18,16 @@ export interface VideoTrackProps
   manageSubscription?: boolean;
 }
 
-/**
- * The `VideoTrack` component is responsible for rendering participant video tracks like `camera` and `screen_share`.
- * This component must have access to the participant's context, or alternatively pass it a `Participant` as a property.
- *
- * @example
- * ```tsx
- * <VideoTrack trackRef={trackRef} />
- * ```
- * @see {@link @livekit/components-react#ParticipantTile | ParticipantTile}
- * @public
- */
-export const VideoTrack: (
-  props: VideoTrackProps & React.RefAttributes<HTMLVideoElement>
-) => any = /* @__PURE__ */ React.forwardRef<HTMLVideoElement, VideoTrackProps>(
+function checkVideoData(mediaEl?: HTMLVideoElement | null) {
+  return (
+    mediaEl?.videoHeight &&
+    mediaEl?.videoWidth &&
+    mediaEl?.videoHeight > 0 &&
+    mediaEl?.videoWidth > 0
+  );
+}
+
+export const VideoTrack = React.forwardRef<HTMLVideoElement, VideoTrackProps>(
   function VideoTrack(
     {
       onTrackClick,
@@ -95,14 +94,56 @@ export const VideoTrack: (
       onTrackClick?.({ participant: trackReference?.participant, track: pub });
     };
 
+    const [showVideoPlaceholder, setShowVideoPlaceholder] = useState(
+      trackRef?.source === Track.Source.ScreenShare
+    );
+    const checkVideoDataIntervalRef = useRef<NodeJS.Timeout>();
+
+    const startCheckVideoData = useMemoizedFn(() => {
+      if (!checkVideoDataIntervalRef.current) {
+        checkVideoDataIntervalRef.current = setInterval(() => {
+          const hasData = checkVideoData(mediaEl.current);
+          setShowVideoPlaceholder(!hasData);
+        }, 2000);
+      }
+    });
+
+    useEffect(() => {
+      if (trackRef?.source === Track.Source.ScreenShare) {
+        startCheckVideoData();
+        mediaEl.current?.addEventListener('loadedmetadata', () => {
+          if (checkVideoData(mediaEl.current)) {
+            setShowVideoPlaceholder(false);
+          }
+        });
+      }
+
+      return () => {
+        if (checkVideoDataIntervalRef.current) {
+          clearInterval(checkVideoDataIntervalRef.current);
+          checkVideoDataIntervalRef.current = undefined;
+        }
+      };
+    }, [trackRef?.source]);
+
     return (
-      <video
-        ref={mediaEl}
-        {...elementProps}
-        muted={true}
-        onClick={clickHandler}
-        data-sid={trackReference?.publication?.trackSid}
-      ></video>
+      <>
+        <video
+          ref={mediaEl}
+          {...elementProps}
+          muted={true}
+          onClick={clickHandler}
+          data-sid={trackReference?.publication?.trackSid}
+        ></video>
+        {showVideoPlaceholder && (
+          <div className="video-track-placeholder">
+            <IconScreenShare className="video-track-placeholder-icon" />
+            <span className="video-track-placeholder-text">
+              Waiting for screen…
+            </span>
+          </div>
+        )}
+      </>
     );
   }
 );

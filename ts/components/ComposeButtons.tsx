@@ -194,7 +194,7 @@ export const ShareContactButton = (props: PropsType) => {
       mouseEnterDelay={1.5}
       overlayClassName={'antd-tooltip-cover'}
       placement="top"
-      title={i18n('shareContactTooltip')}
+      title={i18n('shareContact')}
     >
       <button className="compose-button" onClick={onClick}>
         <IconComposeShareContact />

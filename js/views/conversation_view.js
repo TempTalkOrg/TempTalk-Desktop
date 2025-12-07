@@ -1802,6 +1802,7 @@
             username,
             type: '1on1',
             deviceId,
+            criticalAlert: this.model.isCriticalAlertEnabled(),
           });
         } else {
           // check 当前 conversation 是否存在 call 或 meeting

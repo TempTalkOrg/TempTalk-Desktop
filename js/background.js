@@ -282,7 +282,7 @@ const makeMessageCollapseId = ({ timestamp, source, sourceDevice }) => {
   const { Errors, Message, APIStatus } = window.Signal.Types;
   const { upgradeMessageSchema } = window.Signal.Migrations;
   const { Views } = window.Signal;
-  const { generateServiceConfig } = window.Signal.Network;
+  const { setupServiceConfig } = window.Signal.Network;
 
   window.log.info('background page reloaded');
   window.log.info('environment:', window.getEnvironment());
@@ -344,15 +344,7 @@ const makeMessageCollapseId = ({ timestamp, source, sourceDevice }) => {
 
   const cancelInitializationMessage = Views.Initialization.setMessage();
 
-  const regenerateServiceConfig = generateServiceConfig();
-  window.selectBestDomain = (testSpeed = true) => {
-    regenerateServiceConfig(window.globalConfig, testSpeed);
-  };
-
-  // localStorage 不存在 serviceConfig 时，先生成一份未测速的提供使用
-  if (_.isEmpty(window.getGlobalWebApiUrls())) {
-    window.selectBestDomain(false);
-  }
+  window.selectBestDomain = setupServiceConfig();
 
   const initilize = async () => {
     Views.Initialization.setMessage(window.i18n('connecting') + ' ...');
@@ -2454,6 +2446,14 @@ const makeMessageCollapseId = ({ timestamp, source, sourceDevice }) => {
 
       const ourName = ConversationController.get(ourNumber).getName();
 
+      let criticalAlert;
+      if (type === '1on1') {
+        criticalAlert =
+          ConversationController.get(
+            getTargetConversation()
+          )?.isCriticalAlertEnabled() ?? false;
+      }
+
       window.dispatchCallMessage('incomingCall', {
         ...conversationId,
         ...calling,
@@ -2464,6 +2464,7 @@ const makeMessageCollapseId = ({ timestamp, source, sourceDevice }) => {
         username,
         deviceId,
         ourName,
+        criticalAlert,
       });
     } else if (reject) {
       const { roomId } = reject;

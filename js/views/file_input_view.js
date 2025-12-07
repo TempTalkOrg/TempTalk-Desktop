@@ -18,9 +18,7 @@
     templateName: 'file-size-modal',
     render_attributes() {
       return {
-        'file-size-warning': i18n('fileSizeWarning'),
-        limit: this.model.limit,
-        units: this.model.units,
+        'file-size-warning': i18n('fileSizeWarning', [this.model.limit]),
       };
     },
   });
@@ -300,9 +298,9 @@
       toast.render();
     },
 
-    showFileSizeError({ limit, units, u }) {
+    showFileSizeError(limit) {
       const toast = new Whisper.FileSizeToast({
-        model: { limit, units: units[u] },
+        model: { limit },
       });
       toast.$el.insertAfter(this.$el);
       toast.render();
@@ -466,15 +464,9 @@
             limitKb = 200 * 1024;
             break;
         }
-        if ((blob.file.size / 1024).toFixed(4) > limitKb) {
-          const units = ['kB', 'MB', 'GB'];
-          let u = -1;
-          let limit = limitKb * 1024;
-          do {
-            limit /= 1024;
-            u += 1;
-          } while (limit >= 1024 && u < units.length - 1);
-          this.showFileSizeError({ limit, units, u });
+        const limitSize = limitKb * 1024;
+        if (blob.file.size > limitSize) {
+          this.showFileSizeError(filesize(limitSize, { spacer: '' }));
           return;
         }
       } catch (error) {
