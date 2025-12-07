@@ -718,6 +718,7 @@ function initialize({
       getCallToken,
       submitCallFeedback,
       speechToText,
+      sendCriticalAlert,
     };
 
     function _ajax(param) {
@@ -1633,6 +1634,7 @@ function initialize({
     //   "hashAlg":"sha256",
     //   "keyAlg":"sha256",
     //   "encAlg":"sha256",
+    //    "attachmentType": 0: normal 1: voice message 2: large file,
     // }
     function informUpload(attachment, numbers) {
       const path = 'v1/file/uploadInfo';
@@ -1698,6 +1700,7 @@ function initialize({
       ossUrl,
       attachmentId,
       rapidHash,
+      attachmentType,
       numbers
     ) {
       try {
@@ -1714,6 +1717,7 @@ function initialize({
           encAlg: 'AES-CBC-256',
           cipherHash: binMD5,
           cipherHashType: 'MD5',
+          attachmentType,
         };
         return await informUpload(attachment, numbers);
       } catch (error) {
@@ -2459,6 +2463,26 @@ function initialize({
 
       const path = URL_CALLS.call + '/feedback';
       return _request(path, data, options, false);
+    }
+
+    async function sendCriticalAlert(data) {
+      const { destination } = data;
+
+      if (!destination) {
+        throw new Error('destination is required');
+      }
+
+      const jsonData = {
+        destination,
+      };
+
+      return _ajax({
+        call: 'messagesV3',
+        httpType: 'POST',
+        urlParameters: `/criticalAlert`,
+        jsonData,
+        responseType: 'json',
+      });
     }
 
     function speechToText(jsonData) {

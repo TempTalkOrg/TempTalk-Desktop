@@ -3131,5 +3131,14 @@
   },
   "callFeedback.reason.other.suddenly-ended": {
     "message": "Call suddenly ended"
+  },
+  "sendCriticalAlert": {
+    "message": "Send a critical alert"
+  },
+  "sendCriticalAlert.success": {
+    "message": "sent a critical alert"
+  },
+  "sendCriticalAlert.fail": {
+    "message": "failed to send a critical alert. Please try again."
   }
 }

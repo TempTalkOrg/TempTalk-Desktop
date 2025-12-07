@@ -122,3 +122,35 @@ export function updateToSchemaVersion37(
 
   logger.info('updateToSchemaVersion37: success!');
 }
+
+export function updateToSchemaVersion38(
+  currentVersion: number,
+  db: Database,
+  logger: LoggerType
+) {
+  if (currentVersion >= 38) {
+    return;
+  }
+
+  logger.info('updateToSchemaVersion38: starting...');
+
+  db.transaction(() => {
+    db.exec(
+      `
+        -- recreate virtual table messages_fts
+        DROP TABLE IF EXISTS messages_fts;
+
+        CREATE VIRTUAL TABLE messages_fts USING fts5(
+          body,
+          tokenize = 'signal_tokenizer'
+        );
+
+        INSERT INTO messages_fts(rowid, body) SELECT rowid, body FROM messages;
+        `
+    );
+
+    db.pragma('user_version = 38');
+  })();
+
+  logger.info('updateToSchemaVersion38: success!');
+}

@@ -124,6 +124,7 @@ export type CallSender = {
     roomCipher: CallRoomCipher
   ): Promise<void>;
   getCallToken(forceRefresh?: boolean): Promise<string>;
+  sendCriticalAlert(options: { destination: string }): Promise<void>;
 };
 
 export declare class UserSessionCipher {

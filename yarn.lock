@@ -2122,10 +2122,10 @@
     "@react-types/overlays" "^3.8.15"
     "@react-types/shared" "^3.29.1"
 
-"@signalapp/better-sqlite3@8.8.1":
-  version "8.8.1"
-  resolved "https://registry.yarnpkg.com/@signalapp/better-sqlite3/-/better-sqlite3-8.8.1.tgz#5a7d28286e175ecb2b7b62106353e743e36fba69"
-  integrity sha512-zxNKWbeFpNRmrXeXRxRt8LUl8crne+Cw8CmSajXGzgeC/7sEvh1lkcQFh2UWb+i0k5PGP6t7Tx6SiFFVWCLnGg==
+"@signalapp/better-sqlite3@9.0.13":
+  version "9.0.13"
+  resolved "https://registry.yarnpkg.com/@signalapp/better-sqlite3/-/better-sqlite3-9.0.13.tgz#9617b4f45a6662fef6c9975e3e08dbef555bedc1"
+  integrity sha512-sl5JJvHz/mGy3JXXcWFq7PxeO/d9SaCjPq/FPc4RCujaTC9JofHLdxQjn2xSSZQBLm28o2as3p6hD9eDk+BVNw==
   dependencies:
     bindings "^1.5.0"
     tar "^6.1.0"
@@ -2506,9 +2506,9 @@
   integrity sha512-iiUgKzV9AuaEkZqkOLDIvlQiL6ltuZd9tGcW3gwpnX8JbuiuhFlEGmmFXEXkN50Cvq7Os88IY2v0dkDqXYWVgA==
 
 "@types/node@*", "@types/node@22.x", "@types/node@>=13.7.0", "@types/node@^22.7.7":
-  version "22.18.4"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-22.18.4.tgz#cecc2120443ec4224e930caf84c66a47fb9e1e47"
-  integrity sha512-UJdblFqXymSBhmZf96BnbisoFIr8ooiiBRMolQgg77Ea+VM37jXw76C2LQr9n8wm9+i/OvlUlW6xSvqwzwqznw==
+  version "22.18.12"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-22.18.12.tgz#e165d87bc25d7bf6d3657035c914db7485de84fb"
+  integrity sha512-BICHQ67iqxQGFSzfCFTT7MRQ5XcBjG5aeKh5Ok38UBbPe5fxTyE+aHFxwVrGyr8GNlqFMLKD1D3P2K/1ks8tog==
   dependencies:
     undici-types "~6.21.0"
 
@@ -4030,10 +4030,10 @@ electron-to-chromium@^1.5.73:
   resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.5.115.tgz#193dd534948b3ea77e3d95dd38ca12cdc01c76a9"
   integrity sha512-MN1nahVHAQMOz6dz6bNZ7apgqc9InZy7Ja4DBEVCTdeiUcegbyOYE9bi/f2Z/z6ZxLi0RxLpyJ3EGe+4h3w73A==
 
-electron@36.9.5:
-  version "36.9.5"
-  resolved "https://registry.yarnpkg.com/electron/-/electron-36.9.5.tgz#78e117e8cf97d53687f8d5a412e8bf9336229320"
-  integrity sha512-1UCss2IqxqujSzg/2jkRjuiT3G+EEXgd6UKB5kUekwQW1LJ6d4QCr8YItfC3Rr9VIGRDJ29eOERmnRNO1Eh+NA==
+electron@37.7.1:
+  version "37.7.1"
+  resolved "https://registry.yarnpkg.com/electron/-/electron-37.7.1.tgz#7d771b3d3365b5458f8bc758385defee14387034"
+  integrity sha512-2EmIqWv4T8BtgFQosB3/0Fezs09X3l0wXhIzes/cNt/GI+UDljbQr3NiF2J9WnqP0aFSbUEfztGUQMiX+qDvsw==
   dependencies:
     "@electron/get" "^2.0.0"
     "@types/node" "^22.7.7"

@@ -17,6 +17,7 @@ export { default as IconMemberList } from './MemberList';
 export { default as IconMicDisabled } from './MicDisabled';
 export { default as IconMicrophoneDisable } from './MicrophoneDisable';
 export { default as IconMicrophoneEnable } from './MicrophoneEnable';
+export { default as IconMoreAction } from './MoreAction';
 export { default as IconPause } from './Pause';
 export { default as IconPlay } from './Play';
 export { default as IconRaiseHand } from './RaiseHand';

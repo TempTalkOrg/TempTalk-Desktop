@@ -1,4 +1,5 @@
 import { Participant } from '@cc-livekit/livekit-client';
+import { MenuProps } from 'antd';
 import * as React from 'react';
 
 /** @internal */
@@ -32,6 +33,10 @@ export interface FeatureFlags {
   denoiseEnable?: boolean;
   onDenoiseEnableChange?: (enable: boolean) => void;
   locale?: string;
+  criticalAlert?: {
+    visible: boolean;
+    menuItems: MenuProps['items'];
+  };
 }
 
 type FeatureContext<T extends boolean = false> = T extends true

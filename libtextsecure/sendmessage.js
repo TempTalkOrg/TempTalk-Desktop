@@ -734,6 +734,7 @@ MessageSender.prototype = {
           ossUrl,
           attachmentId,
           rapidHash,
+          attachment.isVoiceNote ? 1 : 0,
           numbers
         );
 

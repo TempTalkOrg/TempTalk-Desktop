@@ -24,6 +24,7 @@ type SpeakerUserInfoType = {
   id: string;
   isSpeaking?: boolean;
   isLocal?: boolean;
+  isMuted?: boolean;
 };
 
 type ScreenShareUserInfoType = {
@@ -50,7 +51,9 @@ const ActiveIndicator = ({
       if ((info as SpeakerUserInfoType).isLocal && localStatus.micMute) {
         return <div className="mic-muted-icon" />;
       } else {
-        return (info as SpeakerUserInfoType).isSpeaking ? (
+        return (info as SpeakerUserInfoType).isMuted ? (
+          <div className="mic-muted-icon" />
+        ) : (info as SpeakerUserInfoType).isSpeaking ? (
           <div className="speaking-bars">
             <div className="bar-item"></div>
             <div className="bar-item"></div>

@@ -3168,5 +3168,14 @@
   },
   "callFeedback.reason.other.suddenly-ended": {
     "message": "通话突然结束"
+  },
+  "sendCriticalAlert": {
+    "message": "发送紧急提醒"
+  },
+  "sendCriticalAlert.success": {
+    "message": "发送紧急提醒成功"
+  },
+  "sendCriticalAlert.fail": {
+    "message": "发送紧急提醒失败，请稍后再试"
   }
 }

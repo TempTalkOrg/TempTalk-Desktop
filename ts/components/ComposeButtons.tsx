@@ -3,12 +3,13 @@ import { Tooltip } from 'antd';
 import { LocalizerType } from '../types/Util';
 import { IconCall } from './shared/icons';
 
-type PropsType = {
+export type PropsType = {
   i18n: LocalizerType;
+  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
 };
 
 export const AtPersonButton = (props: PropsType) => {
-  const { i18n } = props;
+  const { i18n, onClick } = props;
   return (
     <>
       <Tooltip
@@ -17,14 +18,14 @@ export const AtPersonButton = (props: PropsType) => {
         placement="top"
         title={i18n('chooseMembersTooltip')}
       >
-        <button className="atpersons"></button>
+        <button className="atpersons" onClick={onClick}></button>
       </Tooltip>
     </>
   );
 };
 
 export const CallButton = (props: PropsType) => {
-  const { i18n } = props;
+  const { i18n, onClick } = props;
   return (
     <>
       <Tooltip
@@ -33,7 +34,7 @@ export const CallButton = (props: PropsType) => {
         placement="topLeft"
         title={i18n('callTooltip')}
       >
-        <button className="call-btn">
+        <button className="call-btn" onClick={onClick}>
           <IconCall color="var(--dst-color-text-third)" />
         </button>
       </Tooltip>
@@ -42,7 +43,7 @@ export const CallButton = (props: PropsType) => {
 };
 
 export const CaptureAudioButton = (props: PropsType) => {
-  const { i18n } = props;
+  const { i18n, onClick } = props;
   return (
     <>
       <Tooltip
@@ -51,7 +52,7 @@ export const CaptureAudioButton = (props: PropsType) => {
         placement="top"
         title={i18n('recordVoiceTooltip')}
       >
-        <button className="microphone"></button>
+        <button className="microphone" onClick={onClick}></button>
       </Tooltip>
     </>
   );
@@ -89,8 +90,8 @@ export const InVisibleReplyButton = (props: PropsType) => {
   );
 };
 
-export const SearchChatHistoryButton = (props: PropsType) => {
-  const { i18n } = props;
+export const LocalSearchButton = (props: PropsType) => {
+  const { i18n, onClick } = props;
   return (
     <>
       <Tooltip
@@ -99,14 +100,14 @@ export const SearchChatHistoryButton = (props: PropsType) => {
         placement="top"
         title={i18n('chatHistoryTooltip')}
       >
-        <button className="new-search-message"></button>
+        <button className="new-search-message" onClick={onClick}></button>
       </Tooltip>
     </>
   );
 };
 
-export const SelectEmojiButton = (props: PropsType) => {
-  const { i18n } = props;
+export const EmojiPanelButton = (props: PropsType) => {
+  const { i18n, onClick } = props;
   return (
     <>
       <Tooltip
@@ -115,14 +116,14 @@ export const SelectEmojiButton = (props: PropsType) => {
         placement="top"
         title={i18n('stickersTooltip')}
       >
-        <button className="emoji"></button>
+        <button className="emoji" onClick={onClick}></button>
       </Tooltip>
     </>
   );
 };
 
-export const UploadAttachmentButton = (props: PropsType) => {
-  const { i18n } = props;
+export const AttachmentSelectorButton = (props: PropsType) => {
+  const { i18n, onClick } = props;
   return (
     <>
       <Tooltip
@@ -131,7 +132,7 @@ export const UploadAttachmentButton = (props: PropsType) => {
         placement="top"
         title={i18n('attachmentTooltip')}
       >
-        <button className="paperclip thumbnail"></button>
+        <button className="paperclip thumbnail" onClick={onClick}></button>
       </Tooltip>
     </>
   );
@@ -168,7 +169,7 @@ export const QuickGroupButton = (props: PropsType) => {
 };
 
 export const ShareContactButton = (props: PropsType) => {
-  const { i18n } = props;
+  const { i18n, onClick } = props;
 
   return (
     <Tooltip
@@ -177,7 +178,7 @@ export const ShareContactButton = (props: PropsType) => {
       placement="top"
       title={i18n('shareContactTooltip')}
     >
-      <button className="share-contact"></button>
+      <button className="share-contact" onClick={onClick}></button>
     </Tooltip>
   );
 };

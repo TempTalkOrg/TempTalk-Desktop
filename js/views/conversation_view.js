@@ -777,6 +777,42 @@
             this.model.setConfidentialMode(mode === 'confidential' ? 1 : 0);
           },
         },
+        emojiPanel: {
+          onClick: () => {
+            this.newEmojiChoose();
+          },
+        },
+        attachmentSelector: {
+          visible: true,
+          onClick: e => this.onChooseAttachment(e),
+        },
+        atPerson: {
+          visible: true,
+          onClick: e => this.onChooseAtPersons(e),
+        },
+        shareContact: {
+          visible: true,
+          onClick: () => this.onShareContact(),
+        },
+        localSearch: {
+          visible: true,
+          onClick: () => this.onSearchMessage(),
+        },
+        call: {
+          visible: !this.model.isMe(),
+          onClick: () => this.startCall(),
+        },
+        captureAudio: {
+          visible: true,
+          resetKey: 0,
+          onRecordStart: e => this.startCaptureAudio(e),
+          onRecordComplete: blob => {
+            this.handleAudioCapture(blob);
+          },
+          onClose: () => {
+            this.endCaptureAudio();
+          },
+        },
       };
       return toolbarProps;
     },
@@ -811,22 +847,25 @@
       // added: private conversations hide @ funcion.
       if (this.model.isPrivate()) {
         this.updateFriendRequestBar();
-        // this.$('.choose-atpersons').hide();
         //this.$('.create-topic-list').hide();
 
         if (!this.model.isDirectoryUser()) {
           this.$('.choose-file').hide();
-          // this.$('.choose-atpersons').hide();
           this.$('.change-confidential-message').hide();
           this.$('.create-search-message').hide();
           this.$('.create-share-contact').hide();
 
           this.$('.capture-audio').hide();
 
-          this.updateComposeToolbar({ messageMode: { visible: false } });
+          this.updateComposeToolbar({
+            messageMode: { visible: false },
+            attachmentSelector: { visible: false },
+            shareContact: { visible: false },
+            localSearch: { visible: false },
+            captureAudio: { visible: false },
+          });
         } else {
           this.$('.choose-file').show();
-          // this.$('.choose-atpersons').show();
           this.$('.change-confidential-message').show();
           this.$('.create-search-message').show();
           this.$('.create-share-contact').show();
@@ -834,20 +873,29 @@
           this.$('.capture-audio').show();
           this.$('.create-call').show();
 
-          this.updateComposeToolbar({ messageMode: { visible: true } });
+          this.updateComposeToolbar({
+            messageMode: { visible: true },
+            attachmentSelector: { visible: true },
+            shareContact: { visible: true },
+            localSearch: { visible: true },
+            call: { visible: true },
+            captureAudio: { visible: true },
+          });
         }
         this.$('.choose-atpersons').hide();
+        this.updateComposeToolbar({ atPerson: { visible: false } });
       }
 
       // non-directory user or leaved group
       if (!this.model.isAliveConversation()) {
         this.$('.create-call').hide();
+        this.updateComposeToolbar({ call: { visible: false } });
       }
 
       // 机器人要隐藏语音通话按钮
       if (window.Signal.ID.isBotId(this.model.id)) {
         this.$('.create-call').hide();
-        //this.$('.create-topic-list').hide();
+        this.updateComposeToolbar({ call: { visible: false } });
       }
 
       this.$('.switch-reply-mode').hide();
@@ -929,7 +977,7 @@
 
       if (!this.selectEmojiButtonView) {
         this.selectEmojiButtonView = new Whisper.ReactWrapperView({
-          Component: window.Signal.Components.SelectEmojiButton,
+          Component: window.Signal.Components.EmojiPanelButton,
           props: {
             i18n,
           },
@@ -939,7 +987,7 @@
 
       if (!this.uploadAttachmentButtonView) {
         this.uploadAttachmentButtonView = new Whisper.ReactWrapperView({
-          Component: window.Signal.Components.UploadAttachmentButton,
+          Component: window.Signal.Components.AttachmentSelectorButton,
           props: {
             i18n,
           },
@@ -957,16 +1005,14 @@
       //   this.$('.create-topic-list').append(this.createTopicListButtonView.el);
       // }
 
-      if (!this.searchChatHistoryButtonView) {
-        this.searchChatHistoryButtonView = new Whisper.ReactWrapperView({
-          Component: window.Signal.Components.SearchChatHistoryButton,
+      if (!this.localSearchButtonView) {
+        this.localSearchButtonView = new Whisper.ReactWrapperView({
+          Component: window.Signal.Components.LocalSearchButton,
           props: {
             i18n,
           },
         });
-        this.$('.create-search-message').append(
-          this.searchChatHistoryButtonView.el
-        );
+        this.$('.create-search-message').append(this.localSearchButtonView.el);
       }
 
       if (!this.shareContactButtonView) {
@@ -1011,6 +1057,8 @@
           });
           this.$('.create-call').append(this.callButtonView.el);
         }
+      } else {
+        this.updateComposeToolbar({ call: { visible: false } });
       }
 
       this.restoreDraft();
@@ -1064,11 +1112,7 @@
       'keydown .discussion-container .conversation-header': 'quitTopicByEsc',
       click: 'onClick',
       'click .bottom-bar': 'focusMessageField',
-      'click .capture-audio .microphone': 'captureAudio',
-      'click .create-call .call-btn': 'startCall',
       'click .module-mentions-jump': 'scrollToNextMentionsYou',
-      'click button.emoji': 'newEmojiChoose',
-      // 'click button.emoji': 'toggleEmojiPanel',
       'focus .send-message': 'focusBottomBar',
       'change .file-input': 'toggleMicrophone',
       'blur .send-message': 'unfocusBottomBar',
@@ -1079,16 +1123,11 @@
       'lazyScroll .message-list': 'onLazyScroll',
       'force-resize': 'forceUpdateMessageFieldSize',
 
-      'click button.paperclip': 'onChooseAttachment',
       'change input.file-input': 'onChoseAttachment',
 
-      'click .choose-atpersons': 'onChooseAtPersons',
       //'click .create-topic-list': 'onCreateTopicList',
-
-      'click .create-search-message': 'onSearchMessage',
       'click .switch-reply-mode': 'onSwitchReplyMode',
       // 'click .create-quick-group': 'onQuickGroup',
-      'click .share-contact': 'onShareContact',
 
       'resetLastSeenIndicator .message-list': 'resetLastSeenIndicatorWrapper',
 
@@ -1097,6 +1136,7 @@
       drop: 'onDrop',
       paste: 'onPaste',
       copy: 'onCopy',
+      closeRecording: 'endCaptureAudio',
     },
 
     initMainView() {
@@ -1742,13 +1782,13 @@
         'chooseAtPersionButtonView',
         'selectEmojiButtonView',
         'uploadAttachmentButtonView',
-        'searchChatHistoryButtonView',
+        'localSearchButtonView',
         'captureAudioButtonView',
         'replyButtonView',
         'quickGroupView',
         'translateButton',
         'createTopicListButtonView',
-        'captureAudioView',
+        // 'captureAudioView',
         'confidentialModeButton',
 
         // views of dialog
@@ -1794,16 +1834,26 @@
         this.fileInput.hasFiles()
       ) {
         this.$('.capture-audio').hide();
+        this.updateComposeToolbar({
+          captureAudio: { visible: false },
+        });
       } else {
         if (this.model.isAliveConversation()) {
           this.$('.capture-audio').show();
+          this.updateComposeToolbar({
+            captureAudio: { visible: true },
+          });
         } else {
           this.$('.capture-audio').hide();
+          this.updateComposeToolbar({
+            captureAudio: { visible: false },
+          });
         }
       }
     },
-    captureAudio(e) {
+    startCaptureAudio(e) {
       e.preventDefault();
+      e.stopPropagation();
 
       if (!this.model.isMeCanSpeak()) {
         this.showUnspeakToast();
@@ -1821,18 +1871,18 @@
       // Note - clicking anywhere will close the audio capture panel, due to
       //   the onClick handler in InboxView, which calls its closeRecording method.
 
-      if (this.captureAudioView) {
-        this.captureAudioView.remove();
-        this.captureAudioView = null;
-      }
+      // if (this.captureAudioView) {
+      //   this.captureAudioView.remove();
+      //   this.captureAudioView = null;
+      // }
 
-      this.captureAudioView = new Whisper.RecorderView();
+      // this.captureAudioView = new Whisper.RecorderView();
 
-      const view = this.captureAudioView;
-      view.render();
-      view.on('send', this.handleAudioCapture.bind(this));
-      view.on('closed', this.endCaptureAudio.bind(this));
-      view.$el.appendTo(this.$('.capture-audio'));
+      // const view = this.captureAudioView;
+      // view.render();
+      // view.on('send', this.handleAudioCapture.bind(this));
+      // view.on('closed', this.endCaptureAudio.bind(this));
+      // view.$el.appendTo(this.$('.capture-audio'));
 
       this.$('.send-message').prop('disabled', true);
       this.$('.microphone').hide();
@@ -1925,10 +1975,24 @@
       });
       this.$('.bottom-bar form').trigger('submit');
     },
+    resetCaptureAudioStatus() {
+      this.$('.microphone').show();
+      this.updateComposeToolbar({
+        captureAudio: {
+          resetKey: this.composeToolbarProps.captureAudio.resetKey + 1,
+        },
+      });
+    },
     endCaptureAudio() {
       this.$('.send-message').prop('disabled', false);
-      this.$('.microphone').show();
-      this.captureAudioView = null;
+
+      if (this.model.isPrivate()) {
+        if (this.model.isDirectoryUser()) {
+          this.resetCaptureAudioStatus();
+        }
+      } else {
+        this.resetCaptureAudioStatus();
+      }
     },
 
     clearSaveDraftTimer() {

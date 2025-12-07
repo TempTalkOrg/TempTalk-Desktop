@@ -48,6 +48,7 @@ import { LottieAnimation } from '../LottieAnimation';
 import { useDeferredSpeakingParticipant } from './hooks/useDeferredSpeakingParticipant';
 import { useSyncVideoFrame } from './hooks/useSyncVideoFrame';
 import { useOverrideCallRequest } from './hooks/useOverrideCallRequest';
+import { useCriticalAlert } from './hooks/useCriticalAlert';
 
 export interface ICallError {
   response: {
@@ -318,6 +319,12 @@ export const CallRoom = ({ i18n }: IProps) => {
     return i18n.getLocale();
   }, [i18n]);
 
+  const { visible: criticalAlertVisible, menuItems } = useCriticalAlert({
+    room,
+    i18n,
+    addMessage,
+  });
+
   if (!room) {
     return null;
   }
@@ -377,6 +384,10 @@ export const CallRoom = ({ i18n }: IProps) => {
               denoiseEnable,
               onDenoiseEnableChange,
               locale,
+              criticalAlert: {
+                visible: criticalAlertVisible,
+                menuItems,
+              },
             }}
             style={{ height: 'calc(100vh - 32px)' }}
             connect={e2eeSetupComplete}

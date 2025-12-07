@@ -8,13 +8,13 @@ export enum MessageMode {
   NORMAL = 'normal',
   CONFIDENTIAL = 'confidential',
 }
-interface Props {
+export interface PropsType {
   i18n: LocalizerType;
   onChangeMessageMode: (mode: MessageMode) => void;
   mode: MessageMode;
 }
 
-export class MessageModeButton extends React.Component<Props> {
+export class MessageModeButton extends React.Component<PropsType> {
   public render() {
     const { i18n, mode, onChangeMessageMode } = this.props;
     return (

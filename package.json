@@ -3,7 +3,7 @@
   "productName": "Yelling",
   "description": "Yelling Desktop",
   "repository": "https://github.com/TempTalkOrg/TempTalk-Desktop.git",
-  "version": "2.7.25101701",
+  "version": "2.7.25102401",
   "license": "GPL-3.0",
   "author": {
     "name": "Yelling Developer Team",
@@ -60,7 +60,7 @@
     "@emoji-mart/react": "1.1.1",
     "@lottiefiles/dotlottie-web": "0.47.0",
     "@react-spring/web": "9.7.4",
-    "@signalapp/better-sqlite3": "8.8.1",
+    "@signalapp/better-sqlite3": "9.0.13",
     "@use-gesture/react": "10.3.1",
     "ahooks": "3.8.4",
     "antd": "5.22.7",
@@ -165,7 +165,7 @@
     "bower": "1.8.14",
     "chai": "4.5.0",
     "cross-env": "7.0.3",
-    "electron": "36.9.5",
+    "electron": "37.7.1",
     "electron-builder": "26.0.12",
     "eslint": "8.27.0",
     "eslint-config-prettier": "8.3.0",
@@ -194,7 +194,7 @@
     "**/getobject": "1.1.1"
   },
   "engines": {
-    "node": "22.19.0"
+    "node": "22.20.0"
   },
   "build": {
     "appId": "org.difft.chative-desktop",

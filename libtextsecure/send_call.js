@@ -498,6 +498,10 @@ class CallSender {
   async submitCallFeedback(data) {
     return await this.#server.submitCallFeedback(data);
   }
+
+  async sendCriticalAlert(data) {
+    return await this.#server.sendCriticalAlert(data);
+  }
 }
 
 // use a wrapper function to filter out
@@ -521,6 +525,7 @@ class CallSenderWrapper {
     this.getServiceUrls = bindSender('getServiceUrls');
     this.getCallToken = bindSender('getCallToken');
     this.submitCallFeedback = bindSender('submitCallFeedback');
+    this.sendCriticalAlert = bindSender('sendCriticalAlert');
   }
 }
 

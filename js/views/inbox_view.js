@@ -593,7 +593,7 @@
       if (e && this.$(e.target).closest('.capture-audio').length > 0) {
         return;
       }
-      this.$('.conversation:first .recorder').trigger('close');
+      this.$('.conversation:first').trigger('closeRecording');
     },
     onClick(e) {
       this.closeRecording(e);

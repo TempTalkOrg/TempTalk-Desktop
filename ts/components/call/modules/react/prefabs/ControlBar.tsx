@@ -26,6 +26,7 @@ import {
   IconEndCall,
   IconLeaveCall,
   IconMemberList,
+  IconMoreAction,
   IconRaiseHand,
 } from '../../../../shared/icons';
 
@@ -164,6 +165,8 @@ export function ControlBar({
     featureFlags?.onBackToMain?.();
   };
 
+  const criticalAlert = featureFlags?.criticalAlert;
+
   return (
     <div {...htmlProps}>
       {visibleControls.backToMain && (
@@ -295,6 +298,17 @@ export function ControlBar({
               </ContextMenu>
             </div>
           </div>
+        )}
+        {criticalAlert?.visible && (
+          <ContextMenu
+            menu={{ items: criticalAlert.menuItems }}
+            placement="top"
+            trigger={['click']}
+          >
+            <button className="more-action-button">
+              <IconMoreAction className="call-icon control-bar-icon more-action-icon" />
+            </button>
+          </ContextMenu>
         )}
         {visibleControls.leave && featureFlags?.type === '1on1' && (
           <DisconnectButton title="End call">

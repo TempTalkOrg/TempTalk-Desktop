@@ -1,10 +1,11 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import {
   Participant,
   ParticipantEvent,
   Room,
   RoomEvent,
   Track,
+  TrackPublication,
 } from '@cc-livekit/livekit-client';
 import { useMemoizedFn } from 'ahooks';
 import { Contact } from './useInitials';
@@ -63,11 +64,30 @@ export const useFloatingBar = ({
     }
   }, [screenShareTracks.length]);
 
+  const isLocalSpeakerRef = useRef(true);
+  const isLocalMutedRef = useRef(currentCall.type !== '1on1');
+
+  const updateSpeaker = useMemoizedFn(speaker => {
+    (window as any).updateFloatingBar({
+      speaker,
+    });
+    isLocalSpeakerRef.current = speaker.isLocal;
+    isLocalMutedRef.current = speaker.isMuted;
+  });
+
   const onSetMuted = useMemoizedFn((_, muted: boolean) => {
     if (muted) {
       room.localParticipant.setMicrophoneEnabled(false);
     } else {
       room.localParticipant.setMicrophoneEnabled(true);
+    }
+    if (isLocalSpeakerRef.current && isLocalMutedRef.current !== muted) {
+      // sync mute status to local speaker field
+      updateSpeaker({
+        ...getParticipantInfo(room.localParticipant),
+        isLocal: true,
+        isMuted: muted,
+      });
     }
   });
 
@@ -121,24 +141,62 @@ export const useFloatingBar = ({
     };
   }, []);
 
-  const handleActiveSpeakersChanged = useMemoizedFn(() => {
-    const participant =
-      deferredSpeakingParticipant ||
-      ({
-        identity: currentCall.ourNumber,
-      } as Participant);
-    (window as any).updateFloatingBar({
-      speaker: {
-        ...getParticipantInfo(participant),
-        isSpeaking: !!deferredSpeakingParticipant,
-        isLocal: participant.identity === currentCall.ourNumber,
-      },
+  const handleDeferredSpeakingParticipantChanged = useMemoizedFn(() => {
+    const participant = deferredSpeakingParticipant || room.localParticipant;
+
+    updateSpeaker({
+      ...getParticipantInfo(participant),
+      isSpeaking: !!deferredSpeakingParticipant,
+      isLocal: participant.isLocal,
+      isMuted: !participant.isMicrophoneEnabled,
     });
   });
 
   useEffect(() => {
-    handleActiveSpeakersChanged();
+    handleDeferredSpeakingParticipantChanged();
   }, [deferredSpeakingParticipant]);
+
+  const handleTrackMutedStatusChange = useMemoizedFn(
+    (track: TrackPublication, participant: Participant) => {
+      if (
+        track.kind === 'audio' &&
+        participant.identity === deferredSpeakingParticipant?.identity
+      ) {
+        updateSpeaker({
+          ...getParticipantInfo(participant),
+          isLocal: participant.isLocal,
+          isMuted: track.isMuted,
+        });
+      }
+    }
+  );
+
+  const handleActiveSpeakersChanged = useMemoizedFn(
+    (participants: Participant[]) => {
+      if (participants.length) {
+        if (
+          deferredSpeakingParticipant &&
+          participants[0]?.identity === deferredSpeakingParticipant?.identity
+        ) {
+          updateSpeaker({
+            ...getParticipantInfo(deferredSpeakingParticipant),
+            isLocal: deferredSpeakingParticipant.isLocal,
+            isSpeaking: true,
+            isMuted: !deferredSpeakingParticipant.isMicrophoneEnabled,
+          });
+        }
+      } else {
+        if (deferredSpeakingParticipant) {
+          updateSpeaker({
+            ...getParticipantInfo(deferredSpeakingParticipant),
+            isLocal: deferredSpeakingParticipant.isLocal,
+            isSpeaking: false,
+            isMuted: !deferredSpeakingParticipant.isMicrophoneEnabled,
+          });
+        }
+      }
+    }
+  );
 
   useEffect(() => {
     room.once(RoomEvent.SignalConnected, () => {
@@ -149,10 +207,21 @@ export const useFloatingBar = ({
             identity: currentCall.ourNumber,
           } as Participant),
           isSpeaking: false,
+          isMuted: currentCall.type !== '1on1',
           isLocal: true,
         },
       });
     });
+
+    room.on(RoomEvent.TrackMuted, handleTrackMutedStatusChange);
+    room.on(RoomEvent.TrackUnmuted, handleTrackMutedStatusChange);
+    room.on(RoomEvent.ActiveSpeakersChanged, handleActiveSpeakersChanged);
+
+    return () => {
+      room.off(RoomEvent.TrackMuted, handleTrackMutedStatusChange);
+      room.off(RoomEvent.TrackUnmuted, handleTrackMutedStatusChange);
+      room.off(RoomEvent.ActiveSpeakersChanged, handleActiveSpeakersChanged);
+    };
   }, []);
 
   useToggleFloatingBar();

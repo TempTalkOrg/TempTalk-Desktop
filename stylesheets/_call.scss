@@ -1231,3 +1231,25 @@ table {
     }
   }
 }
+
+.lk-control-area {
+  .more-action-button {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background-color: var(--dst-color-background-secondary);
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    &:hover {
+      background-color: var(--dst-color-background-third);
+    }
+
+    .more-action-icon {
+      height: 20px;
+      width: 20px;
+    }
+  }
+}

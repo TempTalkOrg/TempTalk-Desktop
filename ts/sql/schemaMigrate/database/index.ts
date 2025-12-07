@@ -57,6 +57,7 @@ import {
 import {
   updateToSchemaVersion36,
   updateToSchemaVersion37,
+  updateToSchemaVersion38,
 } from './schemaUpdater_36-40';
 
 const SCHEMA_VERSIONS: Array<
@@ -99,6 +100,7 @@ const SCHEMA_VERSIONS: Array<
   updateToSchemaVersion35,
   updateToSchemaVersion36,
   updateToSchemaVersion37,
+  updateToSchemaVersion38,
 ];
 
 export const maxUserSchemaVersion = SCHEMA_VERSIONS.length;
