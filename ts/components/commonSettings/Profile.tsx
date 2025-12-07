@@ -3,8 +3,11 @@ import { trigger } from '../../shims/events';
 import { LocalizerType } from '../../types/Util';
 import { Avatar } from '.././Avatar';
 import ProfileItem from './ProfileItem';
-import ProfileEditSignature from './ProfileEditSignature';
-import { MenuProps, Modal, Tooltip } from 'antd';
+
+import type { MenuProps } from 'antd/lib/menu';
+import Modal from 'antd/lib/modal';
+import Tooltip from 'antd/lib/tooltip';
+
 import { isEqual } from 'lodash';
 import { processImageFile } from '../../util/processImageFile';
 import {
@@ -18,6 +21,7 @@ import { IconWrapper } from '../shared/IconWrapper';
 import { UserStorage } from '../../shims/storage';
 import { IconCall } from '../shared/icons';
 import { API_STATUS } from '../../types/APIStatus';
+import { AutoSizeInput } from '../shared/AutoSizeInput';
 
 export interface Props {
   i18n: LocalizerType;
@@ -530,10 +534,11 @@ export class Profile extends React.Component<Props, State> {
 
     if (this.state.editSignMode) {
       return (
-        <ProfileEditSignature
+        <AutoSizeInput
           content={newSignature}
-          editName={false}
           onComplete={this.signatureEditComplete}
+          className="signature-input"
+          maxLength={80}
         />
       );
     }
@@ -752,9 +757,9 @@ export class Profile extends React.Component<Props, State> {
     const isMe = userInfo?.isMe;
     if (editRemarkNameMode) {
       return (
-        <ProfileEditSignature
+        <AutoSizeInput
           content={newName}
-          editName={true}
+          maxLength={30}
           onComplete={this.remarkNameEditComplete}
           className="signature-input name-input edit-remark-input"
         />

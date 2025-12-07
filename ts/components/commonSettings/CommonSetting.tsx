@@ -1,7 +1,6 @@
 import React from 'react';
 import { Avatar } from './../Avatar';
 import { LocalizerType } from '../../types/Util';
-import ProfileEditSignature from './ProfileEditSignature';
 import { CommonSettingItem } from './CommonSettingComponents';
 import { Profile } from './Profile';
 import { Drawer } from 'antd';
@@ -16,6 +15,7 @@ import { UserStorage } from '../../shims/storage';
 import { FriendCode } from './FriendCode';
 import { getConversationModel } from '../../shims/Whisper';
 import { getBase58Id } from '../../util';
+import { AutoSizeInput } from '../shared/AutoSizeInput';
 
 export interface Props {
   closeSetting: () => void;
@@ -321,9 +321,9 @@ export class CommonSetting extends React.Component<Props, State> {
 
     if (editNameMode) {
       return (
-        <ProfileEditSignature
+        <AutoSizeInput
           content={newName}
-          editName={true}
+          maxLength={30}
           className={'setting-signature-edit setting-name-edit'}
           onComplete={this.nameEditComplete}
         />

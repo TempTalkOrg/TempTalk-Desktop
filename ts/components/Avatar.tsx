@@ -6,7 +6,10 @@ import { LocalizerType } from '../types/Util';
 import { trigger } from '../shims/events';
 import { Profile } from './commonSettings/Profile';
 
-import { MenuProps, Modal, Popover } from 'antd';
+import Modal from 'antd/lib/modal';
+import Popover from 'antd/lib/popover';
+import type { MenuProps } from 'antd/lib/menu';
+
 import { ContextMenu } from './shared/ContextMenu';
 import { IconSaveToNote } from './shared/icons';
 // import AntDraggableModal from './AntDraggableModal';

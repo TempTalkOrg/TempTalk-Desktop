@@ -1124,3 +1124,7 @@ table {
   border-top: 1px solid var(--dst-color-divider);
   color: var(--dst-color-text-primary);
 }
+
+.lk-leave-button-group .lk-disconnect-button svg {
+  transform: scale(1);
+}

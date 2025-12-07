@@ -1,6 +1,6 @@
 import React from 'react';
 import { useState } from 'react';
-import { Tooltip } from 'antd';
+import Tooltip from 'antd/lib/tooltip';
 
 type Props = {
   title: string;

@@ -383,21 +383,21 @@
         return;
       }
 
-      const haveNonImage = _.any(
-        this.attachments,
-        attachment => !MIME.isImage(attachment.contentType)
-      );
+      // const haveNonImage = _.any(
+      //   this.attachments,
+      //   attachment => !MIME.isImage(attachment.contentType)
+      // );
       // You can't add another attachment if you already have a non-image staged
-      if (haveNonImage) {
-        this.showMultipleNonImageError();
-        return;
-      }
+      // if (haveNonImage) {
+      //   this.showMultipleNonImageError();
+      //   return;
+      // }
 
       // You can't add a non-image attachment if you already have attachments staged
-      if (!MIME.isImage(contentType) && this.attachments.length > 0) {
-        this.showCannotMixError();
-        return;
-      }
+      // if (!MIME.isImage(contentType) && this.attachments.length > 0) {
+      //   this.showCannotMixError();
+      //   return;
+      // }
 
       const renderVideoPreview = async () => {
         const objectUrl = URL.createObjectURL(file);

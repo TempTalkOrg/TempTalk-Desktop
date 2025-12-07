@@ -1,5 +1,7 @@
 import React, { useMemo } from 'react';
-import { Dropdown, DropDownProps } from 'antd';
+import Dropdown from 'antd/lib/dropdown';
+import type { DropDownProps } from 'antd/lib/dropdown';
+
 import classNames from 'classnames';
 import { useMemoizedFn } from 'ahooks';
 
