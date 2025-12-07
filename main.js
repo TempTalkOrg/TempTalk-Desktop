@@ -1855,7 +1855,7 @@ ipc.on('bad-self-signed-cert', async (event, host) => {
     // internet connection is ok, but has certificate error.
     const options = {
       type: 'info',
-      buttons: ['Ignore', 'Quit TempTalk', 'Restart TempTalk'],
+      buttons: ['Ignore', 'Quit Yelling', 'Restart Yelling'],
       message: 'Network Risk Warning',
       detail: 'Application may be running under Man-in-the-middle Attack!',
       defaultId: 0,
@@ -1867,11 +1867,11 @@ ipc.on('bad-self-signed-cert', async (event, host) => {
       event.returnValue = 'user clicked ignore';
       certErrorList.splice(0);
     } else if (clickIndex === 1) {
-      console.log('[detect] click quit TempTalk under risk.');
+      console.log('[detect] click quit under risk.');
       event.returnValue = 'quiting';
       app.quit();
     } else {
-      console.log('[detect] click restart TempTalk under risk.');
+      console.log('[detect] click restart under risk.');
       event.returnValue = 'relaunching';
       app.relaunch();
       app.quit();
@@ -1880,7 +1880,7 @@ ipc.on('bad-self-signed-cert', async (event, host) => {
     // internet connection is really bad.
     const options = {
       type: 'info',
-      buttons: ['Open Browser', 'Quit TempTalk', 'Restart TempTalk'],
+      buttons: ['Open Browser', 'Quit Yelling', 'Restart Yelling'],
       message: 'Network Warning',
       detail:
         'The network you are using may require you to visit its login page,' +
@@ -1897,11 +1897,11 @@ ipc.on('bad-self-signed-cert', async (event, host) => {
       handlingBadCert = false;
       certErrorList.splice(0);
     } else if (response === 1) {
-      console.log('[detect] click quit TempTalk.');
+      console.log('[detect] click quit.');
       event.returnValue = 'quiting';
       app.quit();
     } else {
-      console.log('[detect] click restart TempTalk.');
+      console.log('[detect] click restart.');
       event.returnValue = 'relaunching';
       app.relaunch();
       app.quit();
@@ -2276,7 +2276,7 @@ ipc.on('dispatch-call-message', async (event, type, payload) => {
   // dispatch call messages to the meeting window
 });
 
-ipc.on('close-call-window', async () => {
+ipc.on('close-call-window', async event => {
   if (callWindow) {
     callWindow.isClosing = true;
     callWindow.close();
@@ -2284,6 +2284,10 @@ ipc.on('close-call-window', async () => {
   if (floatingBarWindow) {
     floatingBarWindow.hide();
   }
+});
+
+ipc.on('open-call-feedback', async (event, data) => {
+  mainWindow.webContents.send('open-call-feedback', data);
 });
 
 ipc.on('rtc-call-method', (_, info) => {

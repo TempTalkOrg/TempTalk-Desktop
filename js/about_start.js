@@ -30,7 +30,7 @@ window.changeTheme(setTheme);
 const { theme, systemTheme } = window;
 setTheme(theme === 'system' ? systemTheme : theme);
 
-const appName = window.getAppName() || 'TempTalk';
+const appName = window.getAppName() || 'Yelling';
 $('.app-name').text(appName);
 
 const version = window.getVersion();

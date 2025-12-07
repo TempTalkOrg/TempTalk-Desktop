@@ -1324,3 +1324,7 @@ window.getCurrentTheme = () =>
   document.body.classList.contains('dark-theme') ? 'dark' : 'light';
 
 window.getGlobalConfig = () => window.globalConfig;
+
+ipcRenderer.on('open-call-feedback', (_, data) => {
+  Whisper.events.trigger('open-call-feedback', data);
+});

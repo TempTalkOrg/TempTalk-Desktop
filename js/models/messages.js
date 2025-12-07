@@ -2815,6 +2815,7 @@
                 read_by: _.union(sentTo, result.successfulNumbers),
                 noNeedReceipts: true,
               });
+              conversation.updateNoNeedReceiptsEndAt(result.serverTimestamp);
             }
 
             // make message shown in main message list
@@ -3910,6 +3911,9 @@
                 noNeedReceipts: true,
                 read_by: conversationRecipients,
               });
+              conversation.updateNoNeedReceiptsEndAt(
+                message.getServerTimestamp()
+              );
             } else {
               Whisper.ReadReceipts.forMessage(message);
             }
@@ -4410,7 +4414,7 @@
         return 0;
       }
 
-      if (conversation.isChatWithoutReceipt()) {
+      if (this.getServerTimestamp() <= conversation.getNoNeedReceiptsEndAt()) {
         return Number.MAX_VALUE;
       }
 

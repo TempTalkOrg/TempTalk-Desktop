@@ -45,6 +45,7 @@ import { ContextMenu } from '../shared/ContextMenu';
 import { DateSeparator } from '../DateSeparator';
 import ReactDOM from 'react-dom';
 import { getConversationModel } from '../../shims/Whisper';
+import { API_STATUS } from '../../types/APIStatus';
 
 interface Trigger {
   handleContextClick: (event: React.MouseEvent<HTMLDivElement>) => void;
@@ -991,6 +992,11 @@ export class Message extends React.PureComponent<Props, State> {
               </div>
             </div>
           </div>
+          {error === API_STATUS.NoPermission && (
+            <div className="module-message__generic-attachment__error-desc">
+              {i18n('attachementError.expired')}
+            </div>
+          )}
         </div>
       );
     }

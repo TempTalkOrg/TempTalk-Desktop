@@ -1,13 +1,13 @@
 {
-  "name": "temptalk-desktop",
-  "productName": "TempTalk",
-  "description": "TempTalk Desktop",
+  "name": "yelling-desktop",
+  "productName": "Yelling",
+  "description": "Yelling Desktop",
   "repository": "https://github.com/TempTalkOrg/TempTalk-Desktop.git",
-  "version": "2.7.25101301",
+  "version": "2.7.25101701",
   "license": "GPL-3.0",
   "author": {
-    "name": "TempTalk Developer Team",
-    "email": "support@temptalk.app"
+    "name": "Yelling Developer Team",
+    "email": "support@yelling.pro"
   },
   "main": "main.js",
   "scripts": {
@@ -165,7 +165,7 @@
     "bower": "1.8.14",
     "chai": "4.5.0",
     "cross-env": "7.0.3",
-    "electron": "36.9.4",
+    "electron": "36.9.5",
     "electron-builder": "26.0.12",
     "eslint": "8.27.0",
     "eslint-config-prettier": "8.3.0",
@@ -182,7 +182,7 @@
     "mocha": "10.8.2",
     "node-gyp": "11.2.0",
     "nyc": "15.1.0",
-    "patch-package": "8.0.0",
+    "patch-package": "8.0.1",
     "prettier": "3.3.3",
     "prop-types": "15.8.1",
     "sass": "1.79.6",
@@ -260,7 +260,7 @@
     "linux": {
       "category": "Network;InstantMessaging;Chat",
       "artifactName": "${name}-${os}-${arch}-latest.${ext}",
-      "executableName": "TempTalk",
+      "executableName": "Yelling",
       "target": [
         {
           "target": "rpm",
@@ -278,7 +278,7 @@
       "icon": "build/icons/png"
     },
     "deb": {
-      "packageName": "temptalk",
+      "packageName": "yelling",
       "depends": [
         "libnotify4",
         "libxtst6",
@@ -288,7 +288,7 @@
       ]
     },
     "rpm": {
-      "packageName": "temptalk",
+      "packageName": "yelling",
       "fpm": [
         "--rpm-rpmbuild-define=_build_id_links none"
       ]

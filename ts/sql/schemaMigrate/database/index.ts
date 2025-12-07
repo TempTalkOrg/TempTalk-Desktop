@@ -134,7 +134,7 @@ export function updateSchema(db: Database, logger: LoggerType) {
   if (userVersion > maxUserVersion) {
     throw new Error(
       `SQL: User version is ${userVersion} but the expected maximum version ` +
-        `is ${maxUserVersion}. Did you try to start an old version of TempTalk?`
+        `is ${maxUserVersion}. Did you try to start an old version of the app?`
     );
   }
 

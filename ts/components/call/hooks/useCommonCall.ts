@@ -42,9 +42,21 @@ const getFinalUrls = (urlsFromMain: string[], availableUrls: string[]) => {
 export const useCommonCall = ({ i18n, room }: IProps) => {
   const [roomInfo, setRoomInfo] = useAtom(roomAtom);
   const { createCallMsg } = useGlobalConfig();
+  const closingWindowRef = useRef(false);
 
   const doClose = () => {
     (window as any).closeCallWindow();
+    if (!closingWindowRef.current) {
+      (window as any).openCallFeedback({
+        userIdentity:
+          room.localParticipant.identity ||
+          `${currentCall.ourNumber}.${currentCall.deviceId}`,
+        userSid: room.localParticipant.sid,
+        roomId: currentCall.roomId,
+      });
+    }
+    closingWindowRef.current = true;
+
     if (currentCall.type !== '1on1') {
       if (currentCall.endingCall) {
         (window as any).removeJoinCallButton(currentCall.roomId);
@@ -69,8 +81,6 @@ export const useCommonCall = ({ i18n, room }: IProps) => {
     room?.disconnect?.();
     doClose();
   };
-
-  const closingWindowRef = useRef(false);
 
   const delayCloseWindow = (errorMsg?: string) => {
     if (closingWindowRef.current) {

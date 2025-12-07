@@ -462,7 +462,7 @@ export class CommonSetting extends React.Component<Props, State> {
           title={i18n('helfAndFeedback')}
           clickAction={() => {
             const a = document.createElement('a');
-            a.href = 'https://temptalk.app/contactus.html';
+            a.href = 'https://yelling.pro/contactus.html';
             a.click();
             a.remove();
           }}

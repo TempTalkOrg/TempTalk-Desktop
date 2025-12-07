@@ -86,7 +86,7 @@
     "description": "Application menu command to show all application windows"
   },
   "appMenuQuit": {
-    "message": "Quit TempTalk",
+    "message": "Quit Yelling",
     "description": "Application menu command to close the application"
   },
   "editMenuUndo": {
@@ -316,11 +316,11 @@
     "description": "When there are multiple previously-verified group members with safety number changes, a banner will be shown. The list of contacts with safety number changes is shown, and this text introduces that list."
   },
   "changedSinceVerifiedMultiple": {
-    "message": "Your safety numbers with multiple group members have changed since you last verified. This could mean that someone is trying to intercept your communication or that they have simply reinstalled TempTalk.",
+    "message": "Your safety numbers with multiple group members have changed since you last verified. This could mean that someone is trying to intercept your communication or that they have simply reinstalled Yelling.",
     "description": "Shown on confirmation dialog when user attempts to send a message"
   },
   "changedSinceVerified": {
-    "message": "Your safety number with $name$ has changed since you last verified. This could mean that someone is trying to intercept your communication or that $name$ has simply reinstalled TempTalk.",
+    "message": "Your safety number with $name$ has changed since you last verified. This could mean that someone is trying to intercept your communication or that $name$ has simply reinstalled Yelling.",
     "description": "Shown on confirmation dialog when user attempts to send a message",
     "placeholders": {
       "name": {
@@ -330,7 +330,7 @@
     }
   },
   "changedRightAfterVerify": {
-    "message": "The safety number you are trying to verify has changed. Please review your new safety number with $name$. Remember, this change could mean that someone is trying to intercept your communication or that $name$ has simply reinstalled TempTalk.",
+    "message": "The safety number you are trying to verify has changed. Please review your new safety number with $name$. Remember, this change could mean that someone is trying to intercept your communication or that $name$ has simply reinstalled Yelling.",
     "description": "Shown on the safety number screen when the user has selected to verify/unverify a contact's safety number, and we immediately discover a safety number change",
     "placeholders": {
       "name": {
@@ -340,11 +340,11 @@
     }
   },
   "changedRecentlyMultiple": {
-    "message": "Your safety numbers with multiple group members have changed recently. This could mean that someone is trying to intercept your communication or that they have simply reinstalled TempTalk.",
+    "message": "Your safety numbers with multiple group members have changed recently. This could mean that someone is trying to intercept your communication or that they have simply reinstalled Yelling.",
     "description": "Shown on confirmation dialog when user attempts to send a message"
   },
   "changedRecently": {
-    "message": "Your safety number with $name$ has changed recently. This could mean that someone is trying to intercept your communication or that $name$ has simply reinstalled TempTalk.",
+    "message": "Your safety number with $name$ has changed recently. This could mean that someone is trying to intercept your communication or that $name$ has simply reinstalled Yelling.",
     "description": "Shown on confirmation dialog when user attempts to send a message",
     "placeholders": {
       "name": {
@@ -354,7 +354,7 @@
     }
   },
   "identityKeyErrorOnSend": {
-    "message": "Your safety number with $name$ has changed. This could either mean that someone is trying to intercept your communication or that $name$ has simply reinstalled TempTalk. You may wish to verify your saftey number with this contact.",
+    "message": "Your safety number with $name$ has changed. This could either mean that someone is trying to intercept your communication or that $name$ has simply reinstalled Yelling. You may wish to verify your saftey number with this contact.",
     "description": "Shown when user clicks on a failed recipient in the message detail view after an identity key change",
     "placeholders": {
       "name": {
@@ -430,7 +430,7 @@
     "description": "Header for a key change dialog"
   },
   "identityChanged": {
-    "message": "Your safety number with this contact has changed. This could either mean that someone is trying to intercept your communication, or this contact simply reinstalled TempTalk. You may wish to verify the new safety number below."
+    "message": "Your safety number with this contact has changed. This could either mean that someone is trying to intercept your communication, or this contact simply reinstalled Yelling. You may wish to verify the new safety number below."
   },
   "incomingError": {
     "message": "Error handling incoming message"
@@ -561,8 +561,8 @@
     "description": "Item under the Help menu, takes you to GitHub new issue form (title case)"
   },
   "desktopPreferences": {
-    "message": "TempTalk Desktop Preferences",
-    "description": "Title of the window that pops up with TempTalk Desktop preferences in it"
+    "message": "Yelling Desktop Preferences",
+    "description": "Title of the window that pops up with Yelling Desktop preferences in it"
   },
   "aboutDesktop": {
     "message": "About",
@@ -588,7 +588,7 @@
     "description": "Command in the tray icon menu, to quit the application"
   },
   "desktopTitle": {
-    "message": "TempTalk Desktop",
+    "message": "Yelling Desktop",
     "description": "Tooltip for the tray icon"
   },
   "search": {
@@ -626,7 +626,7 @@
     "description": "Shown to separate the types of search results"
   },
   "welcomeToDesktop": {
-    "message": "Welcome to TempTalk"
+    "message": "Welcome to Yelling"
   },
   "selectAContact": {
     "message": "Select a contact or group to start chatting."
@@ -653,7 +653,7 @@
   },
   "sendMessageToContact": {
     "message": "Send Message",
-    "description": "Shown when you are sent a contact and that contact has a TempTalk account"
+    "description": "Shown when you are sent a contact and that contact has a Yelling account"
   },
   "home": {
     "message": "home",
@@ -789,7 +789,7 @@
     }
   },
   "audioPermissionNeeded": {
-    "message": "To send audio messages, allow TempTalk Desktop to access your microphone.",
+    "message": "To send audio messages, allow Yelling Desktop to access your microphone.",
     "description": "Shown if the user attempts to send an audio message without audio permssions turned on"
   },
   "allowAccess": {
@@ -820,14 +820,14 @@
     "description": "Shown as the title of our update error dialogs on windows"
   },
   "cannotUpdateDetail": {
-    "message": "TempTalk Desktop failed to update, but there is a new version available. Please try again next restart, or go to https://temptalk.app/ and install the new version manually, then either contact support or file a bug about this problem.",
+    "message": "Yelling Desktop failed to update, but there is a new version available. Please try again next restart, or go to https://yelling.pro/ and install the new version manually, then either contact support or file a bug about this problem.",
     "description": "Shown if a general error happened while trying to install update package"
   },
   "cannotUpdateDueToUnsupportedOS": {
     "message": "New version available! But your current OS version is no longer supported. Please upgrade your OS and try again."
   },
   "readOnlyVolume": {
-    "message": "TempTalk Desktop is likely in a macOS quarantine, and will not be able to auto-update. Please try moving TempTalk.app to /Applications with Finder.",
+    "message": "Yelling Desktop is likely in a macOS quarantine, and will not be able to auto-update. Please try moving Yelling.app to /Applications with Finder.",
     "description": "Shown on MacOS if running on a read-only volume and we cannot update"
   },
   "ok": {
@@ -1044,35 +1044,35 @@
     }
   },
   "installWelcome": {
-    "message": "Welcome to TempTalk Desktop",
+    "message": "Welcome to Yelling Desktop",
     "description": "Welcome title on the install page"
   },
   "installTagline": {
-    "message": "Privacy is possible. TempTalk makes it easy.",
+    "message": "Privacy is possible. Yelling makes it easy.",
     "description": "Tagline displayed under 'installWelcome' string on the install page"
   },
   "linkYourPhone": {
-    "message": "Link your phone to TempTalk Desktop",
+    "message": "Link your phone to Yelling Desktop",
     "description": "Shown on the front page when the application first starst, above the QR code"
   },
   "desktopSettings": {
-    "message": "TempTalk Settings",
-    "description": "Used in the guidance to help people find the 'link new device' area of their TempTalk mobile app"
+    "message": "Yelling Settings",
+    "description": "Used in the guidance to help people find the 'link new device' area of their Yelling mobile app"
   },
   "linkedDevices": {
     "message": "Linked Devices",
-    "description": "Used in the guidance to help people find the 'link new device' area of their TempTalk mobile app"
+    "description": "Used in the guidance to help people find the 'link new device' area of their Yelling mobile app"
   },
   "plusButton": {
     "message": "'+' Button",
-    "description": "The button used in TempTalk Android to add a new linked device"
+    "description": "The button used in Yelling Android to add a new linked device"
   },
   "linkNewDevice": {
     "message": "Link New Device",
-    "description": "The menu option shown in TempTalk iOS to add a new linked device"
+    "description": "The menu option shown in Yelling iOS to add a new linked device"
   },
   "linkDeviceStep1": {
-    "message": "Open TempTalk on you phone"
+    "message": "Open Yelling on you phone"
   },
   "linkDeviceStep2": {
     "message": "Tap the \"+\" button on top right"
@@ -1231,7 +1231,7 @@
     "message": "Only moderators can speak"
   },
   "expiredWarning": {
-    "message": "This version of TempTalk Desktop has expired. Please upgrade to the latest version to continue messaging.",
+    "message": "This version of Yelling Desktop has expired. Please upgrade to the latest version to continue messaging.",
     "description": "Warning notification that this version of the app has expired"
   },
   "upgrade": {
@@ -1537,7 +1537,7 @@
     "description": "When a person inputs a number that is invalid"
   },
   "unlinkedWarning": {
-    "message": "Relink TempTalk Desktop to your mobile device to continue messaging."
+    "message": "Relink Yelling Desktop to your mobile device to continue messaging."
   },
   "unlinked": {
     "message": "Unlinked"
@@ -1546,19 +1546,19 @@
     "message": "Relink"
   },
   "autoUpdateNewVersionTitle": {
-    "message": "TempTalk update available"
+    "message": "Yelling update available"
   },
   "autoUpdateNewVersionMessageInstall": {
-    "message": "There is a new version of TempTalk available, install now?"
+    "message": "There is a new version of Yelling available, install now?"
   },
   "autoUpdateNewVersionMessage": {
-    "message": "There is a new version of TempTalk available."
+    "message": "There is a new version of Yelling available."
   },
   "autoUpdateNewVersionInstructions": {
-    "message": "Press Restart TempTalk to apply the updates."
+    "message": "Press Restart Yelling to apply the updates."
   },
   "autoUpdateRestartButtonLabel": {
-    "message": "Restart TempTalk"
+    "message": "Restart Yelling"
   },
   "autoUpdateLaterButtonLabel": {
     "message": "Later"
@@ -1800,13 +1800,13 @@
     "message": "Please wait ..."
   },
   "registerHeader": {
-    "message": "Register Your TempTalk Account"
+    "message": "Register Your Yelling Account"
   },
   "registerButton": {
     "message": "Register"
   },
   "registerWarning": {
-    "message": "Notice: As a standalone device would lead to your existing TempTalk account on mobile device is not available anymore."
+    "message": "Notice: As a standalone device would lead to your existing Yelling account on mobile device is not available anymore."
   },
   "youAreMentioned": {
     "message": "[@You]"
@@ -1968,7 +1968,7 @@
     "message": "You're up-to-date!"
   },
   "update_up_to_date_detail": {
-    "message": "TempTalk $a$ is currently the newest version available."
+    "message": "Yelling $a$ is currently the newest version available."
   },
   "update_new_version_found_title": {
     "message": "Found a new version $a$"
@@ -2070,13 +2070,13 @@
     "message": "Camera access disabled"
   },
   "microphone_permission_check_content": {
-    "message": "Go to \"System Preferences\" and allow TempTalk to access your microphone"
+    "message": "Go to \"System Preferences\" and allow Yelling to access your microphone"
   },
   "screen_permission_check_content": {
-    "message": "Go to \"System Preferences\" and allow TempTalk to access your screen recording"
+    "message": "Go to \"System Preferences\" and allow Yelling to access your screen recording"
   },
   "camera_permission_check_content": {
-    "message": "Go to \"System Preferences\" and allow TempTalk to access your camera"
+    "message": "Go to \"System Preferences\" and allow Yelling to access your camera"
   },
   "go_microphone_settings": {
     "message": "Go to Settings"
@@ -2350,7 +2350,7 @@
     "message": "Reply SendTo $botName$ "
   },
   "productionName": {
-    "message": "TempTalk"
+    "message": "Yelling"
   },
   "messageDetailTitle": {
     "message": "Message Detail",
@@ -2389,7 +2389,7 @@
     "message": "There is no conversation."
   },
   "all-no-conversation-tip": {
-    "message": "Start your first TempTalk conversation！"
+    "message": "Start your first Yelling conversation！"
   },
   "send-chat-history": {
     "message": "Are you sure you want to send \ngroup recent history messages in the group? (up to 20)\n"
@@ -2482,7 +2482,7 @@
     "description": "Tooltip for chat history"
   },
   "forceUpdateLatestVersion": {
-    "message": "For your better experience, please download the latest version of TempTalk"
+    "message": "For your better experience, please download the latest version of Yelling"
   },
   "quickGroupTooltip": {
     "message": "Quick Group",
@@ -2790,10 +2790,10 @@
     "message": "Name"
   },
   "scanQrcode": {
-    "message": "Link TempTalk Desktop by QR Code"
+    "message": "Link Yelling Desktop by QR Code"
   },
   "linkStep.step1": {
-    "message": "1. Open TempTalk on your phone"
+    "message": "1. Open Yelling on your phone"
   },
   "linkStep.step2": {
     "message": "2. Tap the + button on the top corner and select Scan"
@@ -3022,7 +3022,7 @@
     "message": "Unable to convert to text"
   },
   "transcribeTextBy": {
-    "message": "Voice-to-Text converted by TempTalk server"
+    "message": "Voice-to-Text converted by Yelling server"
   },
   "addFriendError.accountLoggedOut": {
     "message": "This account has logged out and messages can not be reached."
@@ -3031,7 +3031,7 @@
     "message": "Block user"
   },
   "blockUserConfirmation": {
-    "message": "Block this user from messaging and calling you on Temptalk?"
+    "message": "Block this user from messaging and calling you on Yelling?"
   },
   "identityKeyResetNotification": {
     "message": "$name$ reset the identity key and the history messages were cleared.",
@@ -3053,5 +3053,83 @@
   },
   "messageExpiry.shorten.content": {
     "message": "More messages may be deleted and won’t be recoverable. This change applies to all your devices."
+  },
+  "attachementError.expired": {
+    "message": "File has expired"
+  },
+  "callFeedback.rate.worst": {
+    "message": "Very bad"
+  },
+  "callFeedback.rate.bad": {
+    "message": "Bad"
+  },
+  "callFeedback.rate.okay": {
+    "message": "Okay"
+  },
+  "callFeedback.rate.good": {
+    "message": "Good"
+  },
+  "callFeedback.rate.excellent": {
+    "message": "Excellent"
+  },
+  "callFeedback.title.step0": {
+    "message": "Rate the quality of your call"
+  },
+  "callFeedback.title.step1": {
+    "message": "Tell us what happened"
+  },
+  "callFeedback.description": {
+    "message": "Your answer is anonymous. We use it to help improve your call experience."
+  },
+  "notNow": {
+    "message": "Not now"
+  },
+  "other": {
+    "message": "Other"
+  },
+  "callFeedback.reason.audio.echo": {
+    "message": "Echo"
+  },
+  "callFeedback.reason.audio.can-not-hear-me": {
+    "message": "Others could not hear me"
+  },
+  "callFeedback.reason.audio.distorted": {
+    "message": "Robotic or distorted"
+  },
+  "callFeedback.reason.audio.slow": {
+    "message": "Audio too slow"
+  },
+  "callFeedback.reason.audio.choppy": {
+    "message": "Audio broke up and got choppy"
+  },
+  "callFeedback.reason.audio.noise": {
+    "message": "Background or cracking noise"
+  },
+  "callFeedback.reason.audio.can-not-hear-others": {
+    "message": "I could not hear others"
+  },
+  "callFeedback.reason.video.distorted": {
+    "message": "Video distorted with strange images"
+  },
+  "callFeedback.reason.video.can-not-see-me": {
+    "message": "Other could not see me"
+  },
+  "callFeedback.reason.video.blurry": {
+    "message": "Blurry"
+  },
+  "callFeedback.reason.video.can-not-see-others": {
+    "message": "I cloud not see others"
+  },
+  "callFeedback.reason.video.not-match-audio": {
+    "message": "Video did not match audio"
+  },
+  "callFeedback.reason.video.frozen": {
+    "message": "Video froze"
+  },
+  "callFeedback.reason.other.kept-disconnecting": {
+    "message": "Call kept disconnecting"
+  },
+  "callFeedback.reason.other.suddenly-ended": {
+    "message": "Call suddenly ended"
   }
 }

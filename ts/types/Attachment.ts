@@ -11,6 +11,7 @@ import {
 } from '../util/GoogleChrome';
 import { LocalizerType } from './Util';
 import sanitize from 'sanitize-filename';
+import { API_STATUS } from './APIStatus';
 
 const MAX_WIDTH = 300;
 const MAX_HEIGHT = MAX_WIDTH * 1.5;
@@ -45,7 +46,7 @@ export interface AttachmentType {
     contentType: MIME.MIMEType;
   };
   fetchError?: boolean;
-  error?: boolean;
+  error?: boolean | API_STATUS;
   sha256?: string;
   encryptionKey?: string;
 }

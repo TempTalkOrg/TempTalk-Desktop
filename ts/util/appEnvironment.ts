@@ -6,16 +6,16 @@ import { IConfig } from 'config';
 import * as packageJson from '../../package.json';
 
 export const getAppUserModelId = (() => {
-  const appId = `org.difft.${packageJson.name.replace('temptalk', 'chative')}`;
+  const appId = `org.difft.${packageJson.name.replace('yelling', 'chative')}`;
   return () => appId;
 })();
 
-// keep use Chative folder for TempTalk temporarily
+// keep use Chative folder for Yelling temporarily
 function getUserDataPath(config: IConfig) {
   // do NOT call app.getPath('userData') here
   // cause it will try to create default userData folder
   const appDataPath = app.getPath('appData');
-  const userDataName = app.getName().replace('TempTalk', 'Chative');
+  const userDataName = app.getName().replace('Yelling', 'Chative');
 
   let userDataPath = path.join(appDataPath, userDataName);
 

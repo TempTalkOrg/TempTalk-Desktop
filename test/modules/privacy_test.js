@@ -110,9 +110,9 @@ describe('Privacy', () => {
 
     it('should redact stack traces with both forward and backslashes', () => {
       const testPath =
-        'C:/Users/Meow/AppData/Local/Programs/temptalk-desktop-beta';
+        'C:/Users/Meow/AppData/Local/Programs/yelling-desktop-beta';
       const modifiedTestPath =
-        'C:\\Users\\Meow\\AppData\\Local\\Programs\\temptalk-desktop-beta';
+        'C:\\Users\\Meow\\AppData\\Local\\Programs\\yelling-desktop-beta';
       const text =
         'This is a log line with sensitive information:\n' +
         `path1 ${testPath}\\main.js\n` +
@@ -132,9 +132,9 @@ describe('Privacy', () => {
 
     it('should redact stack traces with escaped backslashes', () => {
       const testPath =
-        'C:\\Users\\Meow\\AppData\\Local\\Programs\\temptalk-desktop-beta';
+        'C:\\Users\\Meow\\AppData\\Local\\Programs\\yelling-desktop-beta';
       const modifiedTestPath =
-        'C:\\\\Users\\\\Meow\\\\AppData\\\\Local\\\\Programs\\\\temptalk-desktop-beta';
+        'C:\\\\Users\\\\Meow\\\\AppData\\\\Local\\\\Programs\\\\yelling-desktop-beta';
       const text =
         'This is a log line with sensitive information:\n' +
         `path1 ${testPath}\\main.js\n` +

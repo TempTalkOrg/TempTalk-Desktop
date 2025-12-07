@@ -257,11 +257,7 @@ async function _runJob(job) {
       try {
         await _addAttachmentToMessage(
           message,
-          {
-            ...attachment,
-            pending: 0,
-            fetchError: true,
-          },
+          _markAttachmentAsError(attachment, error),
           { type, index },
           forwardUuid
         );
@@ -328,11 +324,13 @@ function getActiveJobCount() {
   return Object.keys(_activeAttachmentDownloadJobs).length;
 }
 
-function _markAttachmentAsError(attachment) {
+function _markAttachmentAsError(attachment, error) {
+  const errorStatus = error.response?.status;
+
   return {
-    ...omit(attachment, ['key', 'id']),
-    error: true,
-    fetchError: undefined,
+    ...attachment,
+    error: errorStatus,
+    fetchError: !errorStatus,
     pending: 0,
   };
 }

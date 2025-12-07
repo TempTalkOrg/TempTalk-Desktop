@@ -82,7 +82,7 @@
     "description": "Application menu command to show all application windows"
   },
   "appMenuQuit": {
-    "message": "退出 TempTalk",
+    "message": "退出 Yelling",
     "description": "Application menu command to close the application"
   },
   "editMenuUndo": {
@@ -313,11 +313,11 @@
     "description": "When there are multiple previously-verified group members with safety number changes, a banner will be shown. The list of contacts with safety number changes is shown, and this text introduces that list."
   },
   "changedSinceVerifiedMultiple": {
-    "message": "自上次验证以来，您与多位群组成员的安全码已发生改变。这可能意味着有人试图截取您的对话，或者只是联系人重新安装了 TempTalk。",
+    "message": "自上次验证以来，您与多位群组成员的安全码已发生改变。这可能意味着有人试图截取您的对话，或者只是联系人重新安装了 Yelling。",
     "description": "Shown on confirmation dialog when user attempts to send a message"
   },
   "changedSinceVerified": {
-    "message": "您与$name$的安全码自上次确认后已改变。这可能意味着有人正在尝试拦截您的通讯，或者$name$只是重装了 TempTalk。",
+    "message": "您与$name$的安全码自上次确认后已改变。这可能意味着有人正在尝试拦截您的通讯，或者$name$只是重装了 Yelling。",
     "description": "Shown on confirmation dialog when user attempts to send a message",
     "placeholders": {
       "name": {
@@ -327,7 +327,7 @@
     }
   },
   "changedRightAfterVerify": {
-    "message": "您想验证的安全码已改变。请检查您与$name$的新安全码。切记，验证码改变意味着可能有人试图截取您的通讯，也可能只是$name$重新安装了 TempTalk。",
+    "message": "您想验证的安全码已改变。请检查您与$name$的新安全码。切记，验证码改变意味着可能有人试图截取您的通讯，也可能只是$name$重新安装了 Yelling。",
     "description": "Shown on the safety number screen when the user has selected to verify/unverify a contact's safety number, and we immediately discover a safety number change",
     "placeholders": {
       "name": {
@@ -337,11 +337,11 @@
     }
   },
   "changedRecentlyMultiple": {
-    "message": "您与多位群组成员的安全码已发生改变。这可能表示有人试图偷听您的对话，或者只是联系人他们重新安装了 TempTalk。",
+    "message": "您与多位群组成员的安全码已发生改变。这可能表示有人试图偷听您的对话，或者只是联系人他们重新安装了 Yelling。",
     "description": "Shown on confirmation dialog when user attempts to send a message"
   },
   "changedRecently": {
-    "message": "您与$name$的安全码最近发生了变化。这可能意味着有人正在尝试拦截您的通讯，或者$name$只是重装了 TempTalk。",
+    "message": "您与$name$的安全码最近发生了变化。这可能意味着有人正在尝试拦截您的通讯，或者$name$只是重装了 Yelling。",
     "description": "Shown on confirmation dialog when user attempts to send a message",
     "placeholders": {
       "name": {
@@ -351,7 +351,7 @@
     }
   },
   "identityKeyErrorOnSend": {
-    "message": "您与$name$的安全码已改变。这表示可能有人试图偷听您的对话，也可能只是$name$重新安装了 TempTalk。您可能要重新验证与联系人的安全码。",
+    "message": "您与$name$的安全码已改变。这表示可能有人试图偷听您的对话，也可能只是$name$重新安装了 Yelling。您可能要重新验证与联系人的安全码。",
     "description": "Shown when user clicks on a failed recipient in the message detail view after an identity key change",
     "placeholders": {
       "name": {
@@ -431,7 +431,7 @@
     "description": "Header for a key change dialog"
   },
   "identityChanged": {
-    "message": "您的此联系人的安全代码已更改。这可能意味着有人试图拦截您的通信，或者这个联系人重新安装了TempTalk。您可能想验证以下新安全代码。",
+    "message": "您的此联系人的安全代码已更改。这可能意味着有人试图拦截您的通信，或者这个联系人重新安装了Yelling。您可能想验证以下新安全代码。",
     "description": ""
   },
   "incomingError": {
@@ -568,8 +568,8 @@
     "description": "Item under the Help menu, takes you to GitHub new issue form (title case)"
   },
   "desktopPreferences": {
-    "message": "TempTalk Desktop偏好",
-    "description": "Title of the window that pops up with TempTalk Desktop preferences in it"
+    "message": "Yelling Desktop偏好",
+    "description": "Title of the window that pops up with Yelling Desktop preferences in it"
   },
   "aboutDesktop": {
     "message": "关于",
@@ -595,7 +595,7 @@
     "description": "Command in the tray icon menu, to quit the application"
   },
   "desktopTitle": {
-    "message": "桌面版TempTalk",
+    "message": "桌面版Yelling",
     "description": "Tooltip for the tray icon"
   },
   "search": {
@@ -633,7 +633,7 @@
     "description": "Shown to separate the types of search results"
   },
   "welcomeToDesktop": {
-    "message": "欢迎来到TempTalk",
+    "message": "欢迎来到Yelling",
     "description": ""
   },
   "selectAContact": {
@@ -662,7 +662,7 @@
   },
   "sendMessageToContact": {
     "message": "发送消息",
-    "description": "Shown when you are sent a contact and that contact has a TempTalk account"
+    "description": "Shown when you are sent a contact and that contact has a Yelling account"
   },
   "home": {
     "message": "家",
@@ -801,7 +801,7 @@
     }
   },
   "audioPermissionNeeded": {
-    "message": "发送音频消息前，请先允许 TempTalk Desktop访问您的麦克风。",
+    "message": "发送音频消息前，请先允许 Yelling Desktop访问您的麦克风。",
     "description": "Shown if the user attempts to send an audio message without audio permssions turned on"
   },
   "allowAccess": {
@@ -832,14 +832,14 @@
     "description": "Shown as the title of our update error dialogs on windows"
   },
   "cannotUpdateDetail": {
-    "message": "TempTalk Desktop 更新失败, 但有新版本可用。请在下次重启后再次尝试，或者访问 https://temptalk.app/ 并手动安装新版本，然后联系支持人员或报告这个问题。",
+    "message": "Yelling Desktop 更新失败, 但有新版本可用。请在下次重启后再次尝试，或者访问 https://yelling.pro/ 并手动安装新版本，然后联系支持人员或报告这个问题。",
     "description": "Shown if a general error happened while trying to install update package"
   },
   "cannotUpdateDueToUnsupportedOS": {
     "message": "发现新版本！但您当前的操作系统版本已不再受支持。请升级系统后重试。"
   },
   "readOnlyVolume": {
-    "message": "TempTalk Desktop 可能在 macOS 隔离区，无法自动升级。请尝试用 Finder 移动 TempTalk.app 至 /Applications 。",
+    "message": "Yelling Desktop 可能在 macOS 隔离区，无法自动升级。请尝试用 Finder 移动 Yelling.app 至 /Applications 。",
     "description": "Shown on MacOS if running on a read-only volume and we cannot update"
   },
   "ok": {
@@ -1069,35 +1069,35 @@
     }
   },
   "installWelcome": {
-    "message": "欢迎来到TempTalk桌面版",
+    "message": "欢迎来到Yelling桌面版",
     "description": "Welcome title on the install page"
   },
   "installTagline": {
-    "message": "TempTalk让隐私保护触手可及。",
+    "message": "Yelling让隐私保护触手可及。",
     "description": "Tagline displayed under 'installWelcome' string on the install page"
   },
   "linkYourPhone": {
-    "message": "关联您的手机到 TempTalk Desktop",
+    "message": "关联您的手机到 Yelling Desktop",
     "description": "Shown on the front page when the application first starst, above the QR code"
   },
   "desktopSettings": {
-    "message": "TempTalk 设置",
-    "description": "Used in the guidance to help people find the 'link new device' area of their TempTalk mobile app"
+    "message": "Yelling 设置",
+    "description": "Used in the guidance to help people find the 'link new device' area of their Yelling mobile app"
   },
   "linkedDevices": {
     "message": "已关联的设备",
-    "description": "Used in the guidance to help people find the 'link new device' area of their TempTalk mobile app"
+    "description": "Used in the guidance to help people find the 'link new device' area of their Yelling mobile app"
   },
   "plusButton": {
     "message": "“+” 按键",
-    "description": "The button used in TempTalk Android to add a new linked device"
+    "description": "The button used in Yelling Android to add a new linked device"
   },
   "linkNewDevice": {
     "message": "关联新设备",
-    "description": "The menu option shown in TempTalk iOS to add a new linked device"
+    "description": "The menu option shown in Yelling iOS to add a new linked device"
   },
   "linkDeviceStep1": {
-    "message": "在手机上打开TempTalk"
+    "message": "在手机上打开Yelling"
   },
   "linkDeviceStep2": {
     "message": "点击右上角的\"+\"按钮"
@@ -1257,7 +1257,7 @@
     "message": "仅协调人可发言"
   },
   "expiredWarning": {
-    "message": "此桌面版TempTalk已过期，请升级到最新版本以继续发送消息。",
+    "message": "此桌面版Yelling已过期，请升级到最新版本以继续发送消息。",
     "description": "Warning notification that this version of the app has expired"
   },
   "upgrade": {
@@ -1563,7 +1563,7 @@
     "description": "When a person inputs a number that is invalid"
   },
   "unlinkedWarning": {
-    "message": "重新链接桌面版TempTalk到您的移动设备来继续。",
+    "message": "重新链接桌面版Yelling到您的移动设备来继续。",
     "description": ""
   },
   "unlinked": {
@@ -1575,22 +1575,22 @@
     "description": ""
   },
   "autoUpdateNewVersionTitle": {
-    "message": "TempTalk 有可用更新",
+    "message": "Yelling 有可用更新",
     "description": ""
   },
   "autoUpdateNewVersionMessageInstall": {
-    "message": "有新版的 TempTalk 可用，现在就安装吗？"
+    "message": "有新版的 Yelling 可用，现在就安装吗？"
   },
   "autoUpdateNewVersionMessage": {
-    "message": "有新版的 TempTalk 可用。",
+    "message": "有新版的 Yelling 可用。",
     "description": ""
   },
   "autoUpdateNewVersionInstructions": {
-    "message": "点击“重启 TempTalk”来安装更新。",
+    "message": "点击“重启 Yelling”来安装更新。",
     "description": ""
   },
   "autoUpdateRestartButtonLabel": {
-    "message": "重启 TempTalk",
+    "message": "重启 Yelling",
     "description": ""
   },
   "autoUpdateLaterButtonLabel": {
@@ -1828,7 +1828,7 @@
     "message": "请稍等 ..."
   },
   "registerHeader": {
-    "message": "注册您的TempTalk账号"
+    "message": "注册您的Yelling账号"
   },
   "registerButton": {
     "message": "注册"
@@ -1840,7 +1840,7 @@
     "message": "使用验证码注册"
   },
   "registerWarning": {
-    "message": "注意：配置为独立设备注册会导致您在移动设备上的TempTalk账号不再可用"
+    "message": "注意：配置为独立设备注册会导致您在移动设备上的Yelling账号不再可用"
   },
   "youAreMentioned": {
     "message": "[@您]"
@@ -2002,7 +2002,7 @@
     "message": "您使用的就是最新版！"
   },
   "update_up_to_date_detail": {
-    "message": "TempTalk $a$ 是最新版本。"
+    "message": "Yelling $a$ 是最新版本。"
   },
   "update_new_version_found_title": {
     "message": "发现新版本 $a$ ！"
@@ -2104,13 +2104,13 @@
     "message": "摄像头权限未开启"
   },
   "microphone_permission_check_content": {
-    "message": "请前往“系统偏好设置”允许TempTalk访问麦克风"
+    "message": "请前往“系统偏好设置”允许Yelling访问麦克风"
   },
   "screen_permission_check_content": {
-    "message": "请前往“系统偏好设置”允许TempTalk访问屏幕录制"
+    "message": "请前往“系统偏好设置”允许Yelling访问屏幕录制"
   },
   "camera_permission_check_content": {
-    "message": "请前往“系统偏好设置”允许TempTalk访问摄像头"
+    "message": "请前往“系统偏好设置”允许Yelling访问摄像头"
   },
   "go_microphone_settings": {
     "message": "前往设置"
@@ -2420,7 +2420,7 @@
     "message": "此分组暂无新消息"
   },
   "all-no-conversation-tip": {
-    "message": "开始您的首个TempTalk对话！"
+    "message": "开始您的首个Yelling对话！"
   },
   "send-chat-history": {
     "message": "您确定要发送群中的最近历史消息吗？(最多20个)"
@@ -2513,7 +2513,7 @@
     "description": "Tooltip for chat history"
   },
   "forceUpdateLatestVersion": {
-    "message": "为了您更好的体验，请下载最新版本TempTalk"
+    "message": "为了您更好的体验，请下载最新版本Yelling"
   },
   "quickGroupTooltip": {
     "message": "快速建群",
@@ -2821,10 +2821,10 @@
     "message": "名字"
   },
   "scanQrcode": {
-    "message": "扫描二维码来登录 TempTalk"
+    "message": "扫描二维码来登录 Yelling"
   },
   "linkStep.step1": {
-    "message": "1. 打开手机上的 TempTalk"
+    "message": "1. 打开手机上的 Yelling"
   },
   "linkStep.step2": {
     "message": "2. 点击首页的 + 按钮，选择“扫码”"
@@ -3059,7 +3059,7 @@
     "message": "转文字失败"
   },
   "transcribeTextBy": {
-    "message": "语音转文字由 TempTalk 服务器提供"
+    "message": "语音转文字由 Yelling 服务器提供"
   },
   "addFriendError.accountLoggedOut": {
     "message": "此帐号已登出，消息无法送达。"
@@ -3068,7 +3068,7 @@
     "message": "屏蔽用户"
   },
   "blockUserConfirmation": {
-    "message": "是否屏蔽该用户，禁止其在 Temptalk 上向你发送消息或发起通话？"
+    "message": "是否屏蔽该用户，禁止其在 Yelling 上向你发送消息或发起通话？"
   },
   "identityKeyResetNotification": {
     "message": "$name$ 重置了密钥，历史消息被清除。",
@@ -3090,5 +3090,83 @@
   },
   "messageExpiry.shorten.content": {
     "message": "你正在缩短会话的消息销毁时长。可能更多历史消息被销毁且无法恢复，该操作将同步至你所有设备。"
+  },
+  "attachementError.expired": {
+    "message": "文件已过期"
+  },
+  "callFeedback.rate.worst": {
+    "message": "非常差"
+  },
+  "callFeedback.rate.bad": {
+    "message": "差"
+  },
+  "callFeedback.rate.okay": {
+    "message": "一般"
+  },
+  "callFeedback.rate.good": {
+    "message": "好"
+  },
+  "callFeedback.rate.excellent": {
+    "message": "非常好"
+  },
+  "callFeedback.title.step0": {
+    "message": "请评价您的通话质量"
+  },
+  "callFeedback.title.step1": {
+    "message": "请描述一下情况"
+  },
+  "callFeedback.description": {
+    "message": "您的回答将保持匿名，我们会用它来帮助提升通话体验"
+  },
+  "notNow": {
+    "message": "暂不"
+  },
+  "other": {
+    "message": "其他"
+  },
+  "callFeedback.reason.audio.echo": {
+    "message": "有回声"
+  },
+  "callFeedback.reason.audio.can-not-hear-me": {
+    "message": "其他人听不到我的声音"
+  },
+  "callFeedback.reason.audio.distorted": {
+    "message": "机器人音或声音失真"
+  },
+  "callFeedback.reason.audio.slow": {
+    "message": "声音播放过慢"
+  },
+  "callFeedback.reason.audio.choppy": {
+    "message": "声音断断续续、卡顿不清晰"
+  },
+  "callFeedback.reason.audio.noise": {
+    "message": "背景噪音"
+  },
+  "callFeedback.reason.audio.can-not-hear-others": {
+    "message": "我听不到别人说话"
+  },
+  "callFeedback.reason.video.distorted": {
+    "message": "视频画面失真、出现异常图像"
+  },
+  "callFeedback.reason.video.can-not-see-me": {
+    "message": "别人看不到我的视频画面"
+  },
+  "callFeedback.reason.video.blurry": {
+    "message": "画面模糊"
+  },
+  "callFeedback.reason.video.can-not-see-others": {
+    "message": "我看不到别人的视频画面"
+  },
+  "callFeedback.reason.video.not-match-audio": {
+    "message": "视频与音频不同步"
+  },
+  "callFeedback.reason.video.frozen": {
+    "message": "视频画面卡住不动"
+  },
+  "callFeedback.reason.other.kept-disconnecting": {
+    "message": "通话频繁中断"
+  },
+  "callFeedback.reason.other.suddenly-ended": {
+    "message": "通话突然结束"
   }
 }

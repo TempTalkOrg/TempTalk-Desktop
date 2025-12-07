@@ -26,7 +26,7 @@ function getInsiderUpdatesBase(): string | null {
 
     const publicKey = hexToBinary(config.get('updatesPublicKey'));
 
-    const appId = `org.difft.${packageJson.name.replace('temptalk', 'chative')}`;
+    const appId = `org.difft.${packageJson.name.replace('yelling', 'chative')}`;
 
     if (!verifyUrlSig(publicKey, appId, url, sig)) {
       throw new Error('updater: insider failed to verify url signature');

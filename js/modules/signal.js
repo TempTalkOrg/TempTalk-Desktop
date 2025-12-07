@@ -85,8 +85,8 @@ const {
 } = require('../../ts/components/conversation/TranslateMenu');
 
 const {
-  ConfidentialModeButton,
-} = require('../../ts/components/conversation/ConfidentialModeButton');
+  MessageModeButton,
+} = require('../../ts/components/conversation/MessageModeButton');
 
 const {
   FriendRequestOption,
@@ -144,6 +144,7 @@ const { DateSeparator } = require('../../ts/components/DateSeparator');
 const {
   StickyDateSeparator,
 } = require('../../ts/components/StickyDateSeparator');
+const { CallFeedback } = require('../../ts/components/call/CallFeedback');
 
 const {
   AtPersonButton,
@@ -180,6 +181,9 @@ const {
 const {
   MentionsJumpButton,
 } = require('../../ts/components/conversation/MentionsJumpButton');
+const {
+  ComposeToolbar,
+} = require('../../ts/components/conversation/ComposeToolbar');
 
 // State
 const { createContactPane } = require('../../ts/state/roots/createContactPane');
@@ -350,7 +354,7 @@ exports.setup = (options = {}) => {
     ReminderNotification,
     TipsForArchiveIndicator,
     TranslateMenu,
-    ConfidentialModeButton,
+    MessageModeButton,
     FriendRequestOption,
     TopicListDialog,
     TranslateChangeNotification,
@@ -385,6 +389,8 @@ exports.setup = (options = {}) => {
     Prompt,
     ScrollDownButton,
     MentionsJumpButton,
+    ComposeToolbar,
+    CallFeedback,
   };
 
   const Roots = {

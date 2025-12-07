@@ -463,7 +463,7 @@ export default function Load(props: PropsType) {
 
     if (ev.detail.type === 'call-add') {
       setShowCreateGroupDialog(false);
-      setMembersChangeGroupName(ev.detail.callName || 'TempTalk Call');
+      setMembersChangeGroupName(ev.detail.callName || 'Yelling Call');
       setMembersChangeType(ev.detail.type);
       await getContactsUsers();
       setMembersChangeDisabledItems(ev.detail.currentMembers ?? []);

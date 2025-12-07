@@ -25,3 +25,5 @@ export { default as IconScreenShareStop } from './ScreenShareStop';
 export { default as IconScreenShare } from './ScreenShare';
 export { default as IconSearchResult } from './SearchResult';
 export { default as IconSearch } from './Search';
+export { default as IconStarFilled } from './StarFilled';
+export { default as IconStar } from './Star';

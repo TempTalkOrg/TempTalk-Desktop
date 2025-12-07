@@ -90,7 +90,7 @@ export const FriendCode = (props: IFriendCodeProps) => {
 
   const handleCopyLink = useMemoizedFn(async () => {
     try {
-      const text = `Chat with me on TempTalk ${url}`;
+      const text = `Chat with me on Yelling ${url}`;
       await (window as any).copyText(text);
       (window as any).noticeSuccess(i18n('copiedInviteLink'));
     } catch (e) {

@@ -716,6 +716,7 @@ function initialize({
       controlCall,
       getCallServiceUrls,
       getCallToken,
+      submitCallFeedback,
       speechToText,
     };
 
@@ -2448,6 +2449,16 @@ function initialize({
 
     async function getCallToken(forceRefresh = false) {
       return await _getOrRefreshToken(forceRefresh);
+    }
+
+    async function submitCallFeedback(data) {
+      const options = {
+        serverType: SERVICE_LIST.CALL,
+        type: 'POST',
+      };
+
+      const path = URL_CALLS.call + '/feedback';
+      return _request(path, data, options, false);
     }
 
     function speechToText(jsonData) {

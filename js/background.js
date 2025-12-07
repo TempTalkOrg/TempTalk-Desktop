@@ -855,6 +855,74 @@ const makeMessageCollapseId = ({ timestamp, source, sourceDevice }) => {
     }
   });
 
+  function openCallFeedback(callInfoData) {
+    if (window.callFeedbackView) {
+      return;
+    }
+    window.callFeedbackView = new window.Whisper.ReactWrapperView({
+      Component: window.Signal.Components.CallFeedback,
+      props: {
+        i18n,
+        open: true,
+        onCancel() {
+          window.callFeedbackView.remove();
+          window.callFeedbackView = null;
+        },
+        async onSubmit(userData) {
+          try {
+            const data = {
+              ...callInfoData,
+              ...userData,
+            };
+            await window.callAPI.submitCallFeedback(data);
+          } catch (error) {
+            window.log.error('submit call feedback error', error);
+          }
+          window.callFeedbackView.remove();
+          window.callFeedbackView = null;
+        },
+      },
+    });
+
+    document.body.appendChild(window.callFeedbackView.el);
+  }
+
+  let openCallFeedbackDate = localStorage.getItem('openCallFeedbackDate');
+  let openCallFeedbackFlag =
+    openCallFeedbackDate === moment().format('YYYYMMDD')
+      ? localStorage.getItem('openCallFeedbackFlag')
+      : false;
+  let openCallFeedbackThreshold = 0.2;
+
+  Whisper.events.on('open-call-feedback', data => {
+    try {
+      const today = moment().format('YYYYMMDD');
+      // init or reset
+      if (!openCallFeedbackDate || openCallFeedbackDate !== today) {
+        openCallFeedbackDate = today;
+        localStorage.setItem('openCallFeedbackDate', today);
+        openCallFeedbackFlag = false;
+        localStorage.setItem('openCallFeedbackFlag', false);
+        openCallFeedbackThreshold = 0.2;
+      }
+
+      if (openCallFeedbackFlag) {
+        console.log('already opened call feedback today');
+        return;
+      }
+
+      if (Math.random() < openCallFeedbackThreshold) {
+        openCallFeedback(data);
+        openCallFeedbackFlag = true;
+        localStorage.setItem('openCallFeedbackFlag', true);
+      } else {
+        openCallFeedbackThreshold += 0.2;
+      }
+    } catch (e) {
+      window.log.error('open call feedback error', e);
+    }
+  });
+
   // define connectCount before connect() was called.
   let connectCount = 0;
   const incomingCallMap = new Map();
@@ -912,6 +980,10 @@ const makeMessageCollapseId = ({ timestamp, source, sourceDevice }) => {
         const relatedSet = new Set();
         const ourNumber = textsecure.storage.user.getNumber();
         do {
+          if (!ourNumber) {
+            break;
+          }
+
           const messages =
             await window.Signal.Data.getNextMessagesToCorrectTimer(ourNumber, {
               limit: 50,
@@ -2444,7 +2516,7 @@ const makeMessageCollapseId = ({ timestamp, source, sourceDevice }) => {
     // the client version too old
     if (error && error.code === 450) {
       await window.forceUpdateAlert();
-      window.sendBrowserOpenUrl('https://temptalk.app');
+      window.sendBrowserOpenUrl('https://yelling.pro');
       window.wantQuit();
       return;
     }

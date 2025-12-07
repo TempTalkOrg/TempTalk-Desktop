@@ -4,15 +4,19 @@ import classNames from 'classnames';
 
 import { LocalizerType } from '../../types/Util';
 
+export enum MessageMode {
+  NORMAL = 'normal',
+  CONFIDENTIAL = 'confidential',
+}
 interface Props {
   i18n: LocalizerType;
-  onChangeConfidentialMode: (confidentialMode?: number) => void;
-  confidentialMode: number;
+  onChangeMessageMode: (mode: MessageMode) => void;
+  mode: MessageMode;
 }
 
-export class ConfidentialModeButton extends React.Component<Props> {
+export class MessageModeButton extends React.Component<Props> {
   public render() {
-    const { i18n, confidentialMode, onChangeConfidentialMode } = this.props;
+    const { i18n, mode, onChangeMessageMode } = this.props;
     return (
       <>
         <Tooltip
@@ -23,10 +27,14 @@ export class ConfidentialModeButton extends React.Component<Props> {
         >
           <button
             onClick={() => {
-              onChangeConfidentialMode(confidentialMode ? 0 : 1);
+              onChangeMessageMode(
+                mode === MessageMode.CONFIDENTIAL
+                  ? MessageMode.NORMAL
+                  : MessageMode.CONFIDENTIAL
+              );
             }}
             className={classNames(
-              confidentialMode
+              mode === MessageMode.CONFIDENTIAL
                 ? 'open-confidential-message_click'
                 : 'open-confidential-message'
             )}

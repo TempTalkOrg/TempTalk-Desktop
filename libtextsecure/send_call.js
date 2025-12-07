@@ -494,6 +494,10 @@ class CallSender {
   async getCallToken(forceRefresh) {
     return await this.#server.getCallToken(forceRefresh);
   }
+
+  async submitCallFeedback(data) {
+    return await this.#server.submitCallFeedback(data);
+  }
 }
 
 // use a wrapper function to filter out
@@ -516,6 +520,7 @@ class CallSenderWrapper {
     this.checkCall = bindSender('checkCall');
     this.getServiceUrls = bindSender('getServiceUrls');
     this.getCallToken = bindSender('getCallToken');
+    this.submitCallFeedback = bindSender('submitCallFeedback');
   }
 }
 

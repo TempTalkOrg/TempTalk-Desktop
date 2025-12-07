@@ -107,6 +107,10 @@ window.closeCallWindow = () => {
   ipcRenderer.send('update-floating-bar', { countdown: null });
 };
 
+window.openCallFeedback = data => {
+  ipcRenderer.send('open-call-feedback', data);
+};
+
 window.openAddCallMembers = (callName, currentMembers) => {
   ipcRenderer.send('open-add-call-members', callName, currentMembers);
 };

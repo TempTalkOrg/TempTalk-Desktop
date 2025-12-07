@@ -1206,3 +1206,78 @@
 .text-error {
   color: var(--dst-color-text-error);
 }
+
+.compose-toolbar-anchor {
+  position: absolute;
+  height: 37px;
+  z-index: 2;
+}
+
+.compose-toolbar {
+  height: 37px;
+  display: flex;
+  // border-top: 1px solid #3d3e44;
+  border-top: 1px solid transparent;
+  font-size: 0;
+
+  // &.active {
+  //   border-top: 1px solid $color-signal-blue !important;
+  // }
+
+  &.hidden {
+    display: none;
+  }
+
+  .open-confidential-message {
+    margin: 4px;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    // margin-top: 2px;
+
+    &:before {
+      content: '';
+      display: inline-block;
+      width: $button-height;
+      height: $button-height;
+      @include color-svg(
+        '../images/confidential-mode.svg',
+        $app-color-text-third-light
+      );
+      -webkit-mask-size: 72%;
+    }
+
+    &:focus,
+    &:hover {
+      background-color: var(--dst-color-background-third);
+      border-radius: 8px;
+    }
+  }
+
+  .open-confidential-message_click {
+    margin: 4px;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    // margin-top: 2px;
+
+    &:before {
+      content: '';
+      display: inline-block;
+      width: $button-height;
+      height: $button-height;
+      @include color-svg('../images/confidential-mode.svg', #056ffa);
+      -webkit-mask-size: 72%;
+    }
+
+    &:focus,
+    &:hover {
+      background-color: var(--dst-color-background-third);
+      border-radius: 8px;
+    }
+  }
+}

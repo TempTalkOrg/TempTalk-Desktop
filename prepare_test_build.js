@@ -24,23 +24,23 @@ console.log('prepare_test_build: updating package.json');
 // -------
 
 const NAME_PATH = 'name';
-const TEST_NAME = 'temptalktest-desktop';
+const TEST_NAME = 'yellingtest-desktop';
 
 const PRODUCT_NAME_PATH = 'productName';
-const TEST_PRODUCT_NAME = 'TempTalkTest';
+const TEST_PRODUCT_NAME = 'YellingTest';
 
 const APP_ID_PATH = 'build.appId';
 const TEST_APP_ID = 'org.difft.chativetest-desktop';
 
 const LINUX_EXECUTABLE_NAME_PATH = 'build.linux.executableName';
-const TEST_LINUX_EXECUTABLE_NAME = 'TempTalkTest';
+const TEST_LINUX_EXECUTABLE_NAME = 'YellingTest';
 
 const RPM_PACKAGE_NAME_PATH = 'build.rpm.packageName';
 const DEB_PACKAGE_NAME_PATH = 'build.deb.packageName';
-const TEST_LINUX_PACKAGE_NAME = 'temptalktest';
+const TEST_LINUX_PACKAGE_NAME = 'yellingtest';
 
 const DESCRIPTION_PATH = 'description';
-const TEST_DESCRIPTION = 'TempTalkTest Desktop';
+const TEST_DESCRIPTION = 'YellingTest Desktop';
 
 // -------
 

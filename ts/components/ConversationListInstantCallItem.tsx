@@ -48,7 +48,7 @@ export class ConversationListInstantCallItem extends React.Component<Props> {
     return (
       <div className="module-conversation-list-item__avatar-container">
         <Avatar
-          name={call.name || 'TempTalk Call'}
+          name={call.name || 'Yelling Call'}
           color="grey"
           conversationType="direct"
           i18n={i18n}
@@ -76,7 +76,7 @@ export class ConversationListInstantCallItem extends React.Component<Props> {
         >
           <ContactName
             phoneNumber={''}
-            name={call.name || 'TempTalk Call'}
+            name={call.name || 'Yelling Call'}
             profileName={undefined}
             i18n={i18n}
           />

@@ -5,8 +5,8 @@ both the logs and a detailed description of what you've encountered. Please do y
 Please note that this tracker is only for bugs and feature requests. Please try these
 locations if you have a question or comment:
 
-  https://temptalk.app/contact
-  support@temptalk.app
+  https://yelling.pro/contact
+  support@yelling.pro
 
 Lastly, be sure to preview your issue before saving. Thanks!
 -->
@@ -49,9 +49,9 @@ You can drag and drop images into this text box.
 
 ### Platform Info
 
-TempTalk Version:
+Yelling Version:
 
-<!-- You can see TempTalk's version number at Help -> About or File -> About TempTalk Desktop -->
+<!-- You can see Yelling's version number at Help -> About or File -> About Yelling Desktop -->
 
 Operating System:
 

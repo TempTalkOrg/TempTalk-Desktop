@@ -359,7 +359,7 @@ a {
 
     &:focus,
     &:hover {
-      background-color: $app-color-background-3-light;
+      background-color: var(--dst-color-background-third);
       border-radius: 8px;
     }
   }

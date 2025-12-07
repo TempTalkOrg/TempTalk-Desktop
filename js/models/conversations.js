@@ -2329,26 +2329,6 @@
       this.set(update);
     },
 
-    async apiGetGroupV2InviteCode() {
-      if (!this.isGroupV2()) {
-        throw new Error(
-          'Called get group invite code on non-groupv2 conversation'
-        );
-      }
-
-      const groupV2Id = this.getGroupV2Id();
-
-      try {
-        const result =
-          await textsecure.messaging.getGroupV2InviteCode(groupV2Id);
-        const { data } = result;
-        const { inviteCode } = data;
-        return inviteCode;
-      } catch (error) {
-        log.error('get group invite code failed,', error);
-      }
-    },
-
     async updateCommonAvatar() {
       const shouldUpdate = await this.updateCommonAvatarFile();
       if (shouldUpdate) {
@@ -4993,28 +4973,7 @@
 
       return false;
     },
-    async getGroupV2InviteMessage() {
-      if (this.isPrivate()) {
-        throw new Error(
-          'Can not get group invite message on private conversation.'
-        );
-      }
 
-      try {
-        const inviteCode = await this.apiGetGroupV2InviteCode();
-        if (!inviteCode) {
-          throw new Error('server response empty invite code');
-        }
-
-        const groupLink = `temptalk://group/join?inviteCode=${inviteCode}`;
-        const me = ConversationController.get(this.ourNumber);
-        return `${me.getName()} invited you to "${this.getName()}", ${groupLink}`;
-      } catch (error) {
-        log.error('get invite code failed, ', error);
-      }
-
-      return '';
-    },
     async syncArchiveConversation(flag) {
       const number = this.isPrivate() ? this.id : null;
       const groupId = this.isPrivate() ? null : this.id;
@@ -5971,6 +5930,15 @@
     },
     getMessageClearAnchor() {
       return this.get('messageClearAnchor') || 0;
+    },
+    async updateNoNeedReceiptsEndAt(noNeedReceiptsEndAt) {
+      if (noNeedReceiptsEndAt > this.getNoNeedReceiptsEndAt()) {
+        this.set({ noNeedReceiptsEndAt });
+        await window.Signal.Data.updateConversation(this.attributes);
+      }
+    },
+    getNoNeedReceiptsEndAt() {
+      return this.get('noNeedReceiptsEndAt') || 0;
     },
   });
 

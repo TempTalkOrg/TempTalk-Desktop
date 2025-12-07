@@ -1128,3 +1128,106 @@ table {
 .lk-leave-button-group .lk-disconnect-button svg {
   transform: scale(1);
 }
+
+.call-feedback-modal {
+  &-title {
+    color: var(--dst-color-text-primary);
+    text-align: center;
+
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 24px;
+  }
+  &-description {
+    color: var(--dst-color-text-secondary);
+    text-align: center;
+    font-size: 13px;
+    font-weight: 400;
+    margin-top: 8px;
+    margin-bottom: 32px;
+  }
+  &-rate-input {
+    width: 256px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .ant-rate-star-full {
+      color: var(--dst-color-text-info);
+    }
+    .ant-rate-star-zero {
+      color: var(--dst-color-text-third);
+      .ant-rate-star-first,
+      .ant-rate-star-second {
+        color: inherit;
+      }
+    }
+  }
+  &-rate-description {
+    color: var(--dst-color-text-third);
+    text-align: center;
+
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 16px;
+    margin-top: 8px;
+    margin-bottom: 24px;
+  }
+  &-footer {
+    display: flex;
+    justify-content: space-between;
+    .footer-button {
+      width: 152px;
+      height: 40px;
+      &.ant-btn-default {
+        border-color: var(--dst-color-line);
+        color: var(--dst-color-text-primary);
+      }
+    }
+  }
+
+  .ant-tabs-top {
+    .ant-tabs-nav {
+      margin-bottom: 0;
+
+      &:before {
+        border-bottom: 1px solid var(--dst-color-text-disable);
+      }
+    }
+    .ant-tabs-tab-active,
+    .ant-tabs-tab {
+      .ant-tabs-tab-btn {
+        &:active,
+        &:focus {
+          color: var(--dst-color-text-primary) !important;
+        }
+      }
+    }
+
+    .ant-tabs-tab-active .ant-tabs-tab-btn {
+      color: var(--dst-color-text-primary) !important;
+    }
+
+    .ant-tabs-ink-bar {
+      background: var(--dst-color-text-primary) !important;
+    }
+  }
+
+  .ant-tabs-tab-btn {
+    color: var(--dst-color-text-third);
+  }
+
+  .reason-checkbox-list {
+    display: flex;
+    flex-flow: column nowrap;
+    height: 321px;
+    padding: 16px 0;
+
+    &-item {
+      display: flex;
+      align-items: center;
+      height: 40px;
+    }
+  }
+}

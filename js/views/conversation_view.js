@@ -740,7 +740,11 @@
       // setup load message progress
       this.loadMoreMessages();
 
-      setTimeout(() => this.updateMessageToolBar(), 0);
+      this.composeToolbarProps = this.initComposeToolbarProps();
+      setTimeout(() => {
+        this.initComposeToolbar();
+        this.updateMessageToolBar();
+      }, 0);
 
       this.atPersons = '';
       this.atMentions = [];
@@ -755,6 +759,49 @@
         // this.updateAtViewProps();
         this.updateHeader();
       });
+    },
+    getMessageMode() {
+      return this.model.get('confidentialMode') ? 'confidential' : 'normal';
+    },
+    initComposeToolbarProps() {
+      const toolbarProps = {
+        i18n,
+        toolbar: {
+          active: false,
+          visible: true,
+        },
+        messageMode: {
+          visible: true,
+          mode: this.getMessageMode(),
+          onChangeMessageMode: mode => {
+            this.model.setConfidentialMode(mode === 'confidential' ? 1 : 0);
+          },
+        },
+      };
+      return toolbarProps;
+    },
+    initComposeToolbar() {
+      this.composeToolbarView = new Whisper.ReactWrapperView({
+        Component: window.Signal.Components.ComposeToolbar,
+        props: this.composeToolbarProps,
+      });
+
+      this.$('.compose-toolbar-anchor').append(this.composeToolbarView.el);
+    },
+    updateComposeToolbar(newProps) {
+      Object.entries(newProps).forEach(([key, value]) => {
+        _lodash.update(this.composeToolbarProps, key, old => {
+          if (old) {
+            return { ...old, ...value };
+          } else {
+            return value;
+          }
+        });
+      });
+
+      if (this.composeToolbarView) {
+        this.composeToolbarView.update(this.composeToolbarProps);
+      }
     },
     updateMessageToolBar() {
       if (!this.view) {
@@ -775,6 +822,8 @@
           this.$('.create-share-contact').hide();
 
           this.$('.capture-audio').hide();
+
+          this.updateComposeToolbar({ messageMode: { visible: false } });
         } else {
           this.$('.choose-file').show();
           // this.$('.choose-atpersons').show();
@@ -784,6 +833,8 @@
 
           this.$('.capture-audio').show();
           this.$('.create-call').show();
+
+          this.updateComposeToolbar({ messageMode: { visible: true } });
         }
         this.$('.choose-atpersons').hide();
       }
@@ -842,15 +893,16 @@
         const getPropsForConfidentialMode = () => {
           return {
             i18n,
-            onChangeConfidentialMode: mode =>
-              this.model.setConfidentialMode(mode),
+            onChangeMessageMode: mode => {
+              this.model.setConfidentialMode(mode === 'confidential' ? 1 : 0);
+            },
             confidentialMode: this.model.get('confidentialMode'),
           };
         };
 
         this.confidentialModeButton = new Whisper.ReactWrapperView({
           className: 'change-confidential-message',
-          Component: window.Signal.Components.ConfidentialModeButton,
+          Component: window.Signal.Components.MessageModeButton,
           elCallback: el =>
             this.$('.change-confidential-message').replaceWith(el),
           props: getPropsForConfidentialMode(),
@@ -858,6 +910,10 @@
 
         this.listenTo(this.model, 'change:confidentialMode', () => {
           this.confidentialModeButton.update(getPropsForConfidentialMode());
+
+          this.updateComposeToolbar({
+            messageMode: { mode: this.getMessageMode() },
+          });
         });
       }
 
@@ -986,6 +1042,7 @@
         this.$('.send-message-top-bar').hide();
         this.$('.send-message').hide();
         this.$('.friend-request-option').show();
+        this.updateComposeToolbar({ toolbar: { visible: false } });
       } else {
         this.friendRequestBar?.remove();
         this.friendRequestBar = null;
@@ -993,6 +1050,8 @@
         this.$('.send-message-top-bar').show();
         this.$('.send-message').show();
         this.$('.friend-request-option').hide();
+
+        this.updateComposeToolbar({ toolbar: { visible: true } });
       }
     },
     events: {
@@ -1884,6 +1943,10 @@
         'send-message-top-bar-active'
       );
 
+      if (this.composeToolbarView) {
+        this.updateComposeToolbar({ toolbar: { active: false } });
+      }
+
       this.clearSaveDraftTimer();
 
       this.saveDraftTimeout = setTimeout(
@@ -1893,6 +1956,7 @@
     },
     focusBottomBar() {
       this.$('.send-message-top-bar').addClass('send-message-top-bar-active');
+      this.updateComposeToolbar({ toolbar: { active: true } });
 
       this.clearSaveDraftTimer();
 
@@ -1961,6 +2025,8 @@
         this.removeLoadingScreen(delay > 0 ? delay : 0);
       }
       this.throttleForceSyncLastReadPosition?.();
+      this.updateComposeToolbar({ toolbar: { active: true } });
+
       this.model.loadSessionV2();
     },
 

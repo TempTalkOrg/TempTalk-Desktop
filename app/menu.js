@@ -240,7 +240,7 @@ function updateForMac(template, messages, options) {
 
   if (includeSetup) {
     // Add a File menu just for these setup options. Because we're using unshift(), we add
-    //   the file menu first, though it ends up to the right of the TempTalk Desktop menu.
+    //   the file menu first, though it ends up to the right of the desktop application menu.
     const fileMenu = {
       label: messages.mainMenuFile.message,
       submenu: [
@@ -268,7 +268,7 @@ function updateForMac(template, messages, options) {
 
   const channelSuffix = insiderUpdateEnabled ? ' (Insider)' : '';
 
-  // Add the OSX-specific TempTalk Desktop menu at the far left
+  // Add the OSX-specific menu for the desktop application at the far left
   template.unshift({
     label: messages.desktopTitle.message,
     submenu: [
