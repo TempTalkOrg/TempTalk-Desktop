@@ -100,30 +100,6 @@ body.dark-theme {
     background-color: $color-gray-95;
   }
 
-  .module-archive-indicator__bar {
-    background-color: $color-dark-70;
-  }
-
-  .module-archive-indicator__text {
-    color: $color-dark-30;
-  }
-
-  .module-archive-indicator__popover {
-    .ant-popover-inner {
-      background-color: #5f6368;
-    }
-
-    .ant-popover-inner-content {
-      color: #ffffff;
-    }
-  }
-
-  .module-archive-indicator__tips {
-    @include color-svg('../images/archive_tips.svg', $color-white);
-
-    background-color: $color-dark-30;
-  }
-
   .rejoin-tip {
     @include color-svg('../images/archive_tips.svg', $color-white);
     background-color: $color-dark-30;

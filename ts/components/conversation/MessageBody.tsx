@@ -1,9 +1,11 @@
-import React from 'react';
-
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Linkify } from './Linkify';
 import { AddNewLines } from './AddNewLines';
 import { LocalizerType, RenderTextCallbackType } from '../../types/Util';
 import { MentionUser } from './MentionUser';
+import { useDebounceFn, useMemoizedFn } from 'ahooks';
+import classNames from 'classnames';
+import ReactDOM, { createPortal } from 'react-dom';
 
 export interface Props {
   suffixType?: 'atYou' | 'atAll' | 'draft' | undefined;
@@ -16,17 +18,29 @@ export interface Props {
   disableLinks?: boolean;
   i18n: LocalizerType;
   notificationSetting?: number;
-
+  allowExpand?: boolean;
   isConfidentialMessage?: boolean;
   isMouseOver?: boolean;
   onClickMask?: (event: React.MouseEvent<HTMLDivElement>) => void;
   showOnMouseOver?: boolean;
+  containerRef?: React.RefObject<HTMLDivElement>;
+  onScrollIntoView?: () => void;
 }
 
 const renderNewLines: RenderTextCallbackType = ({
   text: textWithNewLines,
   key,
 }) => <AddNewLines key={key} text={textWithNewLines} />;
+
+function isTextTruncated(element: HTMLElement | null): boolean {
+  if (!element) {
+    return false;
+  }
+
+  const threshold = 1;
+
+  return element.scrollHeight > element.clientHeight + threshold;
+}
 
 // https://stackoverflow.com/questions/43242440/javascript-regular-expression-for-unicode-emoji
 // https://regex101.com/r/ZP389q/3
@@ -39,10 +53,21 @@ const renderNewLines: RenderTextCallbackType = ({
  * configurable with their `renderXXX` props, this component will assemble all three of
  * them for you.
  */
-export class MessageBody extends React.Component<Props> {
-  public renderPrefix() {
-    const { i18n, suffixType } = this.props;
+export const MessageBody = (props: Props) => {
+  const {
+    i18n,
+    isConfidentialMessage,
+    isMouseOver,
+    suffixType,
+    textPending,
+    allowExpand,
+    containerRef,
+    onScrollIntoView,
+  } = props;
 
+  const shouldRedacted = isConfidentialMessage && !isMouseOver;
+
+  const prefixText = useMemo(() => {
     let i18nKey;
 
     switch (suffixType) {
@@ -60,44 +85,13 @@ export class MessageBody extends React.Component<Props> {
 
     if (!i18nKey) {
       return null;
+    } else {
+      return `${i18n(i18nKey)} `;
     }
+  }, [suffixType]);
 
-    return (
-      <span className="module-message-body__highligh_red">
-        {i18n(i18nKey)}{' '}
-      </span>
-    );
-  }
-
-  public renderSuffix() {
-    const { i18n, textPending } = this.props;
-
-    if (!textPending) {
-      return null;
-    }
-
-    return (
-      <span className="module-message-body__highlight">
-        {' '}
-        {i18n('downloading')}
-      </span>
-    );
-  }
-
-  // public shouldShowBiggerEmoji(s: string) {
-  //   if (s.length > 16) {
-  //     return false;
-  //   }
-  //   if (s.match(EMOJI_REG)) {
-  //     // @ts-ignore
-  //     let segmenter = new Intl.Segmenter({ granularity: 'grapheme' });
-  //     let segments = segmenter.segment(s);
-  //     return Array.from(segments).length === 1;
-  //   }
-  //   return false;
-  // }
-  public renderTextMaskItem(segment: string, index: number) {
-    const { showOnMouseOver } = this.props;
+  const renderTextMaskItem = useMemoizedFn((segment: string, index: number) => {
+    const { showOnMouseOver } = props;
     if (segment.trim() === '' || segment === '&nbsp;') {
       return segment;
     } else {
@@ -116,22 +110,22 @@ export class MessageBody extends React.Component<Props> {
         </span>
       );
     }
-  }
-  public renderTextMask() {
-    const { text } = this.props;
+  });
+
+  const renderTextMask = useMemoizedFn(() => {
+    const { text } = props;
 
     return (
       <span className="message-body-text-mask">
         {text.split(/(\s+|\n)/).map((segment, index) => {
-          return this.renderTextMaskItem(segment, index);
+          return renderTextMaskItem(segment, index);
         })}
       </span>
     );
-  }
+  });
 
-  public renderBodyText() {
-    const { text, textPending, disableLinks, i18n, mentions, showOnMouseOver } =
-      this.props;
+  const renderBodyText = useMemoizedFn(() => {
+    const { text, disableLinks, i18n, mentions, showOnMouseOver } = props;
     const textWithPending = textPending ? `${text}...` : text;
     if (!disableLinks) {
       return (
@@ -144,27 +138,123 @@ export class MessageBody extends React.Component<Props> {
       );
     }
 
-    // const style: any = {};
-    // if (this.shouldShowBiggerEmoji(textWithPending)) {
-    //   style.fontSize = '16px';
-    // }
-
     return <span>{renderNewLines({ text: textWithPending, key: 0 })}</span>;
-  }
+  });
 
-  public render() {
-    const { isConfidentialMessage, isMouseOver } = this.props;
+  const messageBodyWrapperRef = useRef<HTMLSpanElement>(null);
+  const [expandable, setExpandable] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+  const expandIconRef = useRef<HTMLDivElement>(null);
 
-    const shouldRedacted = isConfidentialMessage && !isMouseOver;
+  const { run: onWindowResize } = useDebounceFn(
+    () => {
+      const isTruncated = isTextTruncated(messageBodyWrapperRef.current);
 
-    return (
+      setExpandable(isTruncated);
+
+      // reset expand status
+      if (!isTruncated) {
+        setExpanded(false);
+      }
+    },
+    {
+      wait: 50,
+    }
+  );
+
+  useEffect(() => {
+    if (!allowExpand) {
+      return;
+    }
+    setTimeout(() => {
+      const isTruncated = isTextTruncated(messageBodyWrapperRef.current);
+      if (isTruncated) {
+        setExpandable(true);
+        window.addEventListener('resize', onWindowResize);
+      }
+    }, 20);
+
+    return () => {
+      if (!allowExpand) {
+        return;
+      }
+      window.removeEventListener('resize', onWindowResize);
+    };
+  }, []);
+
+  const onExpandChange = useMemoizedFn(() => {
+    const iconOffsetTop = expandIconRef.current?.offsetTop ?? 0;
+    const messageBodyBoundingClientRect =
+      messageBodyWrapperRef.current?.getBoundingClientRect() ?? { height: 0 };
+
+    const shouldAdjustMessagePosition =
+      expanded &&
+      expandIconRef.current &&
+      messageBodyWrapperRef.current &&
+      // padding top + line height * 20
+      iconOffsetTop >= 12 + 16.5 * 20;
+
+    const shouldRestoreBottomOffset =
+      shouldAdjustMessagePosition &&
+      iconOffsetTop >= messageBodyBoundingClientRect.height + 12;
+
+    ReactDOM.flushSync(() => {
+      setExpanded(prev => !prev);
+    });
+
+    // show less maybe need to adjust message position
+    if (shouldAdjustMessagePosition) {
+      if (shouldRestoreBottomOffset) {
+        messageBodyWrapperRef.current?.dispatchEvent(
+          new Event('message-view-collapsed', { bubbles: true })
+        );
+      } else {
+        onScrollIntoView?.();
+      }
+    }
+  });
+
+  return (
+    <>
       <span>
-        <span>
-          {this.renderPrefix()}
-          {shouldRedacted ? this.renderTextMask() : this.renderBodyText()}
-          {this.renderSuffix()}
+        <span
+          ref={messageBodyWrapperRef}
+          className={classNames([
+            'module-message-body-wrapper',
+            {
+              'should-redacted': shouldRedacted,
+              expanded,
+            },
+          ])}
+        >
+          {prefixText ? (
+            <span className="module-message-body__highligh_red">
+              {prefixText}
+            </span>
+          ) : null}
+          {shouldRedacted ? renderTextMask() : renderBodyText()}
+          {textPending ? (
+            <span className="module-message-body__highlight">
+              {' '}
+              {i18n('downloading')}
+            </span>
+          ) : null}
         </span>
       </span>
-    );
-  }
-}
+      {expandable && containerRef?.current
+        ? createPortal(
+            <div
+              ref={expandIconRef}
+              className={classNames('message-body-expand-button', {
+                expanded,
+              })}
+              onClick={onExpandChange}
+            >
+              {expanded ? 'Read Less' : 'Read More'}
+            </div>,
+            containerRef.current
+          )
+        : null}
+    </>
+  );
+};

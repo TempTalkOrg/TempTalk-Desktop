@@ -93,3 +93,27 @@
   }
 }
 @import '../node_modules/@cc-kit/react-screenshots/lib/style.css';
+
+.image-gallery-title-icon {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 4px 8px;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 510;
+
+  &.cancel-button {
+    background-color: transparent;
+    border: 1px solid var(--dst-color-text-disable);
+    color: var(--dst-color-text-primary);
+    &:hover,
+    &:active {
+      background-color: rgb(
+        from var(--dst-color-hover-mixin) r g b / 0.12
+      ) !important;
+      border: 1px solid var(--dst-color-text-disable) !important;
+      color: var(--dst-color-text-primary) !important;
+    }
+  }
+}

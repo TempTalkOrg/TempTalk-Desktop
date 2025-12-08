@@ -61,9 +61,28 @@
           MessageCollection: Whisper.MessageCollection,
         })) || [];
 
-      window.log.info(`DB found ${expiredInDB.length} messages to expire`);
+      let expiredInDBCount = 0;
+      const shouldUpdateMessages = [];
+      for (const message of expiredInDB) {
+        if (message.isExpired()) {
+          messages.push(message);
+          expiredInDBCount++;
+        } else {
+          shouldUpdateMessages.push(message);
+        }
+      }
 
-      messages.push(...expiredInDB);
+      if (shouldUpdateMessages.length) {
+        await window.Signal.Data.saveMessages(
+          shouldUpdateMessages.map(message => {
+            message.updateExpiresAtMs();
+            message.set({ expires_at: message.expirationTimestamp });
+            return message.attributes;
+          })
+        );
+      }
+
+      window.log.info(`DB found ${expiredInDBCount} messages to expire`);
 
       if (messages.length) {
         const expiredMessages = messages.map(dbMessage => {

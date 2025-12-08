@@ -257,7 +257,7 @@ export class Profile extends React.Component<Props, State> {
 
     const { userInfo } = this.state;
     const number = userInfo?.id;
-    const name = this.state.newName;
+    let name = userInfo?.accountName;
     if (number) {
       const myEvent = new CustomEvent('event-share-user-contact', {
         detail: { number, name },

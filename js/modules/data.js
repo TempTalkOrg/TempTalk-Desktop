@@ -169,31 +169,6 @@ module.exports = {
   getMessagesWithVisualMediaAttachments,
   getMessagesWithFileAttachments,
 
-  // light task
-  createOrUpdateLightTask,
-  setTaskFirstCardMessage,
-  linkTaskConversation,
-  getLightTask,
-  deleteLocalTask,
-  deleteLightTask,
-  getTaskRoles,
-  getAllTasks,
-  linkTaskMessage,
-  getLinkedMessages,
-  delLinkedMessages,
-  updateTaskReadAtVersion,
-  getLightTaskExt,
-  setLightTaskExt,
-
-  // vote
-  createOrUpdateBasicVote,
-  createOrUpdateChangeableVote,
-  getVote,
-  deleteVote,
-  voteLinkMessage,
-  getVoteLinkedMessages,
-  delVoteLinkedMessages,
-
   getThreadMessagesUnreplied,
   findNewerThreadReplied,
 
@@ -228,14 +203,6 @@ module.exports = {
   // get unhandled recall message
   getUnhandledRecalls,
   getNextMessagesToCorrectTimer,
-
-  // file risk
-  saveFileRiskInfo,
-  getFileRiskInfo,
-
-  // url risk
-  saveUrlRiskInfo,
-  getUrlRiskInfo,
 
   accRemoveAll,
   accRemoveAllConfiguration,
@@ -1267,110 +1234,6 @@ async function getMessagesWithFileAttachments(conversationId, { limit }) {
   });
 }
 
-// light task
-async function createOrUpdateLightTask(data) {
-  return channels.createOrUpdateLightTask(data);
-}
-
-async function setTaskFirstCardMessage(taskId, message) {
-  return channels.setTaskFirstCardMessage(taskId, message);
-}
-
-async function linkTaskConversation(taskId, conversationId) {
-  return channels.linkTaskConversation(taskId, conversationId);
-}
-
-function parseTaskMessage(task) {
-  if (task && task.message) {
-    try {
-      return {
-        ...task,
-        message: JSON.parse(task.message),
-      };
-    } catch (error) {
-      log.error('Light task message is not valid json:', row.message);
-    }
-  }
-
-  return task;
-}
-
-async function getLightTask(taskId) {
-  return parseTaskMessage(await channels.getLightTask(taskId));
-}
-
-async function deleteLocalTask(taskId) {
-  return channels.deleteLocalTask(taskId);
-}
-
-async function deleteLightTask(data) {
-  return channels.deleteLightTask(data);
-}
-
-async function getTaskRoles(taskId, role) {
-  return channels.getTaskRoles(taskId, role);
-}
-
-async function getAllTasks() {
-  const rows = await channels.getAllTasks();
-  if (rows instanceof Array) {
-    return rows.map(parseTaskMessage);
-  }
-  return rows;
-}
-
-async function linkTaskMessage(taskId, messageId) {
-  return channels.linkTaskMessage(taskId, messageId);
-}
-
-async function getLinkedMessages(taskId) {
-  return channels.getLinkedMessages(taskId);
-}
-
-async function delLinkedMessages(taskId) {
-  return channels.delLinkedMessages(taskId);
-}
-
-async function updateTaskReadAtVersion(taskId, readAtTime, readAtVersion) {
-  return channels.updateTaskReadAtVersion(taskId, readAtTime, readAtVersion);
-}
-
-async function getLightTaskExt(taskId) {
-  return channels.getLightTaskExt(taskId);
-}
-
-async function setLightTaskExt(taskId, ext) {
-  return channels.setLightTaskExt(taskId, ext);
-}
-
-async function createOrUpdateBasicVote(data) {
-  return channels.createOrUpdateBasicVote(data);
-}
-
-async function createOrUpdateChangeableVote(data) {
-  return channels.createOrUpdateChangeableVote(data);
-}
-
-async function getVote(voteId) {
-  return channels.getVote(voteId);
-}
-
-async function deleteVote(voteId) {
-  return channels.deleteVote(voteId);
-}
-
-async function voteLinkMessage(voteId, messageId) {
-  return channels.voteLinkMessage(voteId, messageId);
-}
-
-async function getVoteLinkedMessages(voteId) {
-  return channels.getVoteLinkedMessages(voteId);
-}
-
-async function delVoteLinkedMessages(voteId) {
-  return channels.delVoteLinkedMessages(voteId);
-}
-
 async function getThreadMessagesUnreplied(
   conversationId,
   threadId,
@@ -1601,22 +1464,4 @@ async function getNextMessagesToCorrectTimer(ourNumber, { Message, limit }) {
     limit
   );
   return messages.filter(m => m).map(m => new Message(m));
-}
-
-// file risk
-async function saveFileRiskInfo({ sha256, fileSize, riskStatus }) {
-  return await channels.saveFileRiskInfo({ sha256, fileSize, riskStatus });
-}
-
-async function getFileRiskInfo(sha256, fileSize) {
-  return await channels.getFileRiskInfo(sha256, fileSize);
-}
-
-// url risk
-async function saveUrlRiskInfo({ url, riskStatus }) {
-  return await channels.saveUrlRiskInfo({ url, riskStatus });
-}
-
-async function getUrlRiskInfo(url) {
-  return await channels.getUrlRiskInfo(url);
 }

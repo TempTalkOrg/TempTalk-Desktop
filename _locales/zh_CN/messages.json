@@ -2015,9 +2015,6 @@
   "update_new_version_found_detail": {
     "message": "正在后台下载更新，请稍等！"
   },
-  "archiveIndicatorMessage": {
-    "message": "$expire_timer$天前的消息将被归档"
-  },
   "forward_to": {
     "message": "转发至"
   },

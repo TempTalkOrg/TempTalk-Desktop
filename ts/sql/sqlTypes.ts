@@ -87,57 +87,6 @@ export type ReadPositionDBType = {
   maxNotifySequenceId?: number | null;
 };
 
-export type LightTaskDBType = {
-  taskId: string;
-  version: number;
-  uid?: string;
-  gid?: string;
-  creator?: string;
-  timestamp?: number;
-  name?: string;
-  notes?: string;
-  dueTime?: number;
-  priority?: number;
-  status?: number;
-  updater?: string;
-  updateTime?: number;
-  roles?: { uid: string; role: number }[];
-};
-
-export type VoteDBType = {
-  voteId: string;
-  gid?: string;
-  creator?: string;
-  version?: number;
-  name?: string;
-  multiple?: number;
-  options?: string;
-  dueTime?: number;
-  anonymous?: number;
-  selected?: string;
-  optionsCount?: string;
-  votersCount?: number;
-  totalVotes?: number;
-  status?: number;
-};
-
-export type FileRiskDBType = {
-  fileId?: number;
-  sha256: string;
-  fileSize: number;
-  riskStatus: number;
-  createdAt?: number;
-  checkedAt?: number;
-};
-
-export type UrlRiskDBType = {
-  urlId?: number;
-  url: string;
-  riskStatus: number;
-  createdAt?: number;
-  checkedAt?: number;
-};
-
 export type SessionV2DBType = {
   uid: string;
   identityKey: string;

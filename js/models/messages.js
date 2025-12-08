@@ -386,6 +386,19 @@
         }
       }
 
+      const forwardContext = this.get('forwardContext') || {};
+      const forwards = forwardContext.forwards || [];
+
+      if (
+        forwards.some(forward =>
+          forward.attachments?.some(
+            window.Signal.Types.Attachment.isVoiceMessage
+          )
+        )
+      ) {
+        return false;
+      }
+
       if (this.isIncoming() || this.isOutgoing()) {
         return true;
       }
@@ -2279,6 +2292,20 @@
         },
         showForwardedMessageList: (title, cid) => {
           this.showForwardedMessageList(forwardForwards, title, cid);
+        },
+        getAttachmentObjectUrl: async attachment => {
+          try {
+            const { data } =
+              await window.Signal.Migrations.loadAttachmentData(attachment);
+
+            const audioBlob = new Blob([data], {
+              type: attachment.contentType,
+            });
+            return URL.createObjectURL(audioBlob);
+          } catch (e) {
+            console.log('getAttachmentObjectUrl error', e);
+            return null;
+          }
         },
       };
     },

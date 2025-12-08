@@ -178,6 +178,10 @@ export const IndividuralImageImpl: React.FC<
 
   useEffect(() => {
     editorRootRef.current = document.querySelector('.root-wrapper');
+
+    if (readonly) {
+      pinchableImageRef.current?.initSize(imageSizeRef.current);
+    }
   }, [readonly]);
 
   useLayoutEffect(() => {

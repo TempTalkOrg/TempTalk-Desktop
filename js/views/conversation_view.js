@@ -1185,7 +1185,7 @@
 
     onShareContact() {
       const number = this.model.get('id');
-      const name = this.model.getName();
+      const name = this.model.getDisplayName();
 
       if (number) {
         const myEvent = new CustomEvent('event-share-user-contact', {

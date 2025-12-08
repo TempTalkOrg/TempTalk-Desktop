@@ -272,12 +272,9 @@ export const ImageTitle: React.FC<any> = props => {
             key="ok"
           >
             <Button
+              className="image-gallery-title-icon"
               style={{
-                display: 'inline-flex',
-                alignItems: 'center',
                 width: 183,
-                height: 24,
-                padding: '4px 8px',
               }}
               key="Ok"
               type="primary"
@@ -286,6 +283,17 @@ export const ImageTitle: React.FC<any> = props => {
               {i18n('imageEditorOkButton')}
             </Button>
           </ConfigProvider>
+        ),
+      },
+      {
+        component: (
+          <Button
+            key="cancel"
+            className="image-gallery-title-icon cancel-button"
+            onClick={() => setReadonly(true)}
+          >
+            {i18n('cancel')}
+          </Button>
         ),
       },
     ];
@@ -314,12 +322,12 @@ export const ImageTitle: React.FC<any> = props => {
         style={{
           display: 'flex',
           flexDirection: 'row',
-          gap: readonly ? 20 : 16,
+          gap: readonly ? 20 : 12,
           width: '100%',
           justifyContent: 'center',
           alignItems: 'center',
           margin: '20 auto 0',
-          maxWidth: 625,
+          maxWidth: readonly ? 625 : 855,
         }}
       >
         {EDITOR_OPTIONS.map((option, index) => {

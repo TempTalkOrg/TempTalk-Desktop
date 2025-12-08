@@ -109,6 +109,11 @@
           root: this.el,
         }
       );
+
+      this.messagesEl.addEventListener('message-view-collapsed', () => {
+        window.log.info('user collapsed the embedded card message view');
+        this.restoreBottomOffset();
+      });
     },
     addToShowingCollection(model) {
       if (
@@ -365,6 +370,11 @@
       // keep bottomOffset unchanged
       const scrollHeight = this.getScrollHeight();
       const scrollTop = scrollHeight - this.outerHeight - this.bottomOffset;
+
+      if (scrollTop < 0) {
+        return;
+      }
+
       this.$el.scrollTop(scrollTop);
     },
     scrollToBottomIfNeeded() {
@@ -514,11 +524,7 @@
         recordFoundView(this.$('li').first(), true);
 
         // add to top
-        if (this.archiveIndicator) {
-          view.$el.insertAfter(this.archiveIndicator.$el);
-        } else {
-          this.$messages.prepend(view.el);
-        }
+        this.$messages.prepend(view.el);
       } else {
         const tryToInsert = (tryIndex, isBefore) => {
           const found = this.collection.at(tryIndex);
@@ -655,44 +661,6 @@
         this.scrollToBottomIfNeeded();
       } else {
         log.info('render message failed', model.id, model.idForLogging());
-      }
-    },
-
-    updateArchiveIndicator(expire_timer) {
-      if (this.archiveIndicator) {
-        if (expire_timer > 0) {
-          this.archiveIndicator.reset(expire_timer);
-        } else {
-          this.archiveIndicator.remove();
-          this.archiveIndicator = null;
-        }
-      } else {
-        this.prependArchiveIndicatorIfNeeded(null, expire_timer);
-      }
-    },
-
-    prependArchiveIndicatorIfNeeded(count, expire_timer) {
-      //  expire_timer should be positive value
-      if (
-        this.atTop() &&
-        (count === 0 || (this.scrollHeight && this.hasNoScroll())) &&
-        typeof expire_timer === 'number' &&
-        expire_timer > 0
-      ) {
-        if (this.archiveIndicator) {
-          this.archiveIndicator.reset(expire_timer);
-        } else {
-          this.archiveIndicator = new Whisper.ArchiveIndicatorView({
-            expire_timer,
-          });
-
-          this.$messages.prepend(this.archiveIndicator.el);
-        }
-      } else {
-        if (this.archiveIndicator) {
-          this.archiveIndicator.remove();
-          this.archiveIndicator = null;
-        }
       }
     },
 

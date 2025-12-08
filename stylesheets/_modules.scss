@@ -1458,6 +1458,7 @@
 
 .card-message-content-wrapper {
   position: relative;
+  background-color: var(--dst-color-background);
   .card-message-metadata-wrapper {
     position: absolute;
   }
@@ -4904,5 +4905,44 @@
     &--dragging {
       background-color: grey;
     }
+  }
+}
+
+.module-message-body-wrapper {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 20;
+  -webkit-box-orient: vertical;
+  &.should-redacted {
+    color: transparent;
+  }
+
+  &.expanded {
+    display: inline;
+  }
+}
+
+.message-body-expand-button {
+  position: absolute;
+
+  color: var(--dst-color-text-info);
+
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  cursor: pointer;
+  left: 12px;
+  bottom: 3px;
+
+  border-radius: 8px;
+  background: var(--dst-color-background-four);
+  box-shadow: var(--dst-elevation-2);
+  padding: 2px 8px;
+  margin-top: 2px;
+
+  &.expanded {
+    position: sticky;
+    width: 84px;
   }
 }

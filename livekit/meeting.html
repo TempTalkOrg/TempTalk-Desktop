@@ -3,8 +3,19 @@
   <head>
     <meta charset="utf-8" />
     <meta
-      http-equiv="content-security-policy"
-      content="script-src 'self' 'unsafe-inline' https: 'unsafe-eval' file: blob:;"
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none';
+            child-src 'self';
+            worker-src 'self' blob:;
+            connect-src 'self' https: wss:;
+            font-src 'self';
+            form-action 'self';
+            frame-src 'none';
+            img-src 'self' blob: data:;
+            media-src 'self' blob:;
+            object-src 'none';
+            script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' blob:;
+            style-src 'self' 'unsafe-inline';"
     />
     <title>Yelling Call</title>
     <link href="../stylesheets/manifest.css" rel="stylesheet" type="text/css" />

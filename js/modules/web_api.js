@@ -422,7 +422,9 @@ function _promiseAjax(providedUrl, options) {
             return reject(
               HTTPError(
                 'promiseAjax: error response',
-                response.status === 502 ? -1 : response.status,
+                response.status >= 100 && response.status <= 499
+                  ? response.status
+                  : -1,
                 result,
                 options.stack
               )

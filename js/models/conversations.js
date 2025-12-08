@@ -3917,7 +3917,7 @@
         if (avatar.url) {
           resolve(avatar.url);
         } else {
-          resolve(new Whisper.IdenticonSVGView(avatar).getDataUrl());
+          resolve(Util.newIdenticonSvgDataUrl(avatar));
         }
       });
     },

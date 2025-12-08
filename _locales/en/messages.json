@@ -1982,9 +1982,6 @@
   "update_new_version_found_detail": {
     "message": "The upgrade is in progress in the background, please wait."
   },
-  "archiveIndicatorMessage": {
-    "message": "Messages received $expire_time$ days ago will be archived"
-  },
   "forward_to": {
     "message": "Forward to"
   },

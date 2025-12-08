@@ -15,7 +15,7 @@ const testUrlGet = async (url: string, certType: CertType) => {
       .pingURL(`${url}?t=${Date.now()}`, certType === 'self');
     ms = Date.now() - reqStart;
   } catch (err: any) {
-    if (err && err.code >= 100 && err.code <= 599) {
+    if (err && err.code >= 100 && err.code <= 499) {
       ms = Date.now() - reqStart;
     }
   }

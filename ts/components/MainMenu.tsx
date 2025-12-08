@@ -495,7 +495,7 @@ export class MainMenu extends React.Component<Props, State> {
           null,
           null,
           null,
-          [{ number: c.get('id'), name: c.getName() }]
+          [{ number: c.get('id'), name: c.getAccountName() }]
         );
       } else {
         await c.forceSendMessageAuto('', null, [], null, null, null, null, [

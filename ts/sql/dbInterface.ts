@@ -2,10 +2,8 @@ import { LoggerType } from '../logger/types';
 import {
   AttachmentDownloadJobDBType,
   ConversationDBType,
-  FileRiskDBType,
   IdentityKeyDBType,
   ItemDBType,
-  LightTaskDBType,
   MessageDBType,
   PreKeyDBType,
   ReadPositionDBType,
@@ -14,8 +12,6 @@ import {
   SessionDBType,
   SignedPreKeyDBType,
   UnprocessedDBType,
-  UrlRiskDBType,
-  VoteDBType,
   SessionV2DBType,
 } from './sqlTypes';
 
@@ -184,35 +180,6 @@ export interface ILocalDBDatabase extends ILocalDatabase {
   ): MessageDBType[];
   removeKnownAttachments(allAttachments: string[]): string[];
 
-  // light task
-  createOrUpdateLightTask(data: LightTaskDBType): void;
-  updateTaskReadAtVersion(
-    taskId: string,
-    readAtTime: number,
-    readAtVersion: number
-  ): void;
-  setTaskFirstCardMessage(taskId: string, message: any): void;
-  linkTaskConversation(taskId: string, conversationId: string): void;
-  getLightTask(taskId: string): LightTaskDBType | undefined;
-  deleteLocalTask(taskId: string): void;
-  deleteLightTask(taskId: string): void;
-  getLightTaskExt(taskId: string): any;
-  setLightTaskExt(taskId: string, ext: any): void;
-  getAllTasks(): LightTaskDBType[];
-  getTaskRoles(taskId: string, role: number): { uid: string }[];
-  linkTaskMessage(taskId: string, messageId: string): void;
-  getLinkedMessages(taskId: string): { messageId: string }[];
-  delLinkedMessages(taskId: string): void;
-
-  // vote
-  createOrUpdateBasicVote(data: VoteDBType): void;
-  createOrUpdateChangeableVote(data: VoteDBType): void;
-  getVote(voteId: string): any;
-  deleteVote(voteId: string): void;
-  voteLinkMessage(voteId: string, messageId: string): void;
-  getVoteLinkedMessages(voteId: string): { messageId: string }[];
-  delVoteLinkedMessages(voteId: string): void;
-
   //
   getThreadMessagesUnreplied(
     conversationId: string,
@@ -308,14 +275,6 @@ export interface ILocalDBDatabase extends ILocalDatabase {
     ourNumber: string,
     limit: number
   ): MessageDBType[];
-
-  // file risk
-  saveFileRiskInfo(db: FileRiskDBType): void;
-  getFileRiskInfo(sha256: string, fileSize: number): FileRiskDBType | undefined;
-
-  // url risk
-  saveUrlRiskInfo(data: UrlRiskDBType): void;
-  getUrlRiskInfo(url: string): UrlRiskDBType | undefined;
 }
 
 export interface ILocalDBAccelerator extends ILocalDatabase {

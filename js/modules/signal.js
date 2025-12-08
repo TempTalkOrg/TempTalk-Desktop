@@ -109,10 +109,6 @@ const {
 } = require('../../ts/components/conversation/ReminderNotification');
 
 const {
-  TipsForArchiveIndicator,
-} = require('../../ts/components/conversation/TipsForArchiveIndicator');
-
-const {
   AtPersonSelect,
 } = require('../../ts/components/conversation/AtPersonSelect');
 
@@ -338,7 +334,6 @@ exports.setup = (options = {}) => {
     MessageExpiryNotification,
     RemindCycleNotification,
     ReminderNotification,
-    TipsForArchiveIndicator,
     TranslateMenu,
     FriendRequestOption,
     TopicListDialog,

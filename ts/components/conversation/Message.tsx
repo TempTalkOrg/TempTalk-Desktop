@@ -223,6 +223,7 @@ export class Message extends React.PureComponent<Props, State> {
   public messageBodyDivRef: any;
   public isUnmount?: boolean;
   public messageTextContainerRef: React.RefObject<HTMLDivElement>;
+  public messageWrapperRef: React.RefObject<HTMLDivElement>;
 
   public observer: IntersectionObserver | undefined;
   public visibleChangeTimeout: NodeJS.Timeout | undefined;
@@ -240,6 +241,7 @@ export class Message extends React.PureComponent<Props, State> {
     this.contextMenuTriggerRef = React.createRef();
     this.fixedContextMenuTriggerRef = React.createRef();
     this.messageTextContainerRef = React.createRef();
+    this.messageWrapperRef = React.createRef();
 
     this.state = {
       expiring: false,
@@ -1346,6 +1348,7 @@ export class Message extends React.PureComponent<Props, State> {
         )}
       >
         <MessageBody
+          allowExpand
           text={contents || ''}
           isMouseOver={this.state.isMouseOver}
           isConfidentialMessage={isConfidentialMessage}
@@ -1354,10 +1357,16 @@ export class Message extends React.PureComponent<Props, State> {
           i18n={i18n}
           textPending={textPending}
           onClickMask={showInSeparateView}
+          containerRef={this.fixedContextMenuTriggerRef}
+          onScrollIntoView={this.onScrollIntoView}
         />
       </div>
     );
   }
+
+  public onScrollIntoView = () => {
+    this.messageWrapperRef.current?.scrollIntoView({ block: 'end' });
+  };
 
   public renderMenuReactionButton(
     emojiReaction: EmojiReaction,
@@ -2585,6 +2594,7 @@ export class Message extends React.PureComponent<Props, State> {
         <div
           style={{ position: 'relative', height: '100%' }}
           onDoubleClick={this.quickQuoteMessage}
+          ref={this.messageWrapperRef}
         >
           {isSelectingMode && !isConfidentialMessage ? (
             <div
