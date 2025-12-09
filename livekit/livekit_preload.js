@@ -286,3 +286,7 @@ window.getMacScreenShare = options => {
   const macScreenShare = require('@indutny/mac-screen-share');
   return macScreenShare;
 };
+
+window.registerUpdateCallConfigHandler = handler => {
+  return registerIPCEventHandler('update-call-config', handler);
+};

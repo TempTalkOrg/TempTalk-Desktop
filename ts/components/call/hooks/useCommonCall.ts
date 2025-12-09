@@ -10,8 +10,8 @@ import {
   Room,
 } from '@cc-livekit/livekit-client';
 import { callActionType, currentCall } from '../initCall';
-import { roomAtom } from '../atoms/roomAtom';
-import { useAtom } from 'jotai';
+import { roomAtom, roomDurationAtom } from '../atoms/roomAtom';
+import { useAtom, useAtomValue } from 'jotai';
 import { isArray, isEmpty, union } from 'lodash';
 import playAudio from '../PlayAudio';
 import { ICallError } from '../CallRoom';
@@ -43,10 +43,11 @@ export const useCommonCall = ({ i18n, room }: IProps) => {
   const [roomInfo, setRoomInfo] = useAtom(roomAtom);
   const { createCallMsg } = useGlobalConfig();
   const closingWindowRef = useRef(false);
+  const roomDuration = useAtomValue(roomDurationAtom);
 
   const doClose = () => {
     (window as any).closeCallWindow();
-    if (!closingWindowRef.current) {
+    if (!closingWindowRef.current && roomDuration >= 60) {
       (window as any).openCallFeedback({
         userIdentity:
           room.localParticipant.identity ||

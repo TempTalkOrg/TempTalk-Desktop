@@ -11,6 +11,7 @@ import { getFakeName } from './fakeName';
 import { getBase58Id } from './base58Id';
 import { isSneakyLink } from './isSneakyLink';
 import { newIdenticonSvgDataUrl } from './newIdenticonSvgDataUrl';
+import { showToastAtCenter } from './toast';
 
 export {
   arrayBufferToObjectURL,
@@ -27,4 +28,5 @@ export {
   getBase58Id,
   isSneakyLink,
   newIdenticonSvgDataUrl,
+  showToastAtCenter,
 };

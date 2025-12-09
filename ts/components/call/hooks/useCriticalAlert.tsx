@@ -121,6 +121,7 @@ export const useCriticalAlert = ({
 
   return {
     visible,
+    setVisible,
     menuItems,
     criticalAlertToast,
   };

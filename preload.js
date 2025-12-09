@@ -1341,3 +1341,7 @@ window.showCriticalAlert = info => {
 ipc.on('connect-source', (event, source) => {
   Whisper.events.trigger('showConversation', source);
 });
+
+window.updateCallConfig = data => {
+  ipc.send('update-call-config', data);
+};

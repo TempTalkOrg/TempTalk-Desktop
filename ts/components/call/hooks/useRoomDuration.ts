@@ -1,18 +1,20 @@
 import { useMemoizedFn } from 'ahooks';
 import { ConnectionState, Room } from '@cc-livekit/livekit-client';
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useRef, useCallback, useEffect } from 'react';
 import { currentCall } from '../initCall';
 import { useConnectionState } from '../modules/react';
+import { useAtom } from 'jotai';
+import { roomDurationAtom } from '../atoms/roomAtom';
 
-export function useTimer(room: Room) {
-  const [count, setCount] = useState(0);
+export function useRoomDuration(room: Room) {
+  const [duration, setDuration] = useAtom(roomDurationAtom);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const connectionState = useConnectionState(room);
 
   const start = useCallback(() => {
     if (timerRef.current !== null) return; // Prevent multiple intervals
     timerRef.current = setInterval(() => {
-      setCount(prevCount => prevCount + 1);
+      setDuration(prevDuration => prevDuration + 1);
     }, 1000);
   }, []);
 
@@ -25,11 +27,11 @@ export function useTimer(room: Room) {
 
   const reset = useCallback(() => {
     pause();
-    setCount(0);
+    setDuration(0);
   }, [pause]);
 
-  const checkTimer = useMemoizedFn(() => {
-    if (count === 0) {
+  const checkRoomDuration = useMemoizedFn(() => {
+    if (duration === 0) {
       if (room.remoteParticipants.size > 0 || !currentCall.isPrivate) {
         start();
         (window as any).syncCallTimer({
@@ -45,9 +47,9 @@ export function useTimer(room: Room) {
 
   useEffect(() => {
     if (connectionState === ConnectionState.Connected) {
-      checkTimer();
+      checkRoomDuration();
     }
   }, [room.remoteParticipants.size, connectionState]);
 
-  return { count, start, pause, reset };
+  return { duration, start, pause, reset };
 }

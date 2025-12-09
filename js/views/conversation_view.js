@@ -26,92 +26,9 @@
     getAbsoluteAttachmentPath,
   } = window.Signal.Migrations;
 
-  Whisper.ExpiredToast = Whisper.ToastView.extend({
-    render_attributes() {
-      return { toastMessage: i18n('expiredWarning') };
-    },
-  });
-  Whisper.unSpeak = Whisper.CenterToastView.extend({
-    render_attributes() {
-      return { toastMessage: i18n('unSpeak') };
-    },
-  });
-  Whisper.noChatHistory = Whisper.CenterToastView.extend({
-    render_attributes() {
-      return { toastMessage: i18n('noChatHistory') };
-    },
-  });
-
-  Whisper.Blocked = Whisper.CenterToastView.extend({
-    render_attributes() {
-      return { toastMessage: i18n('blocked') };
-    },
-  });
-  Whisper.UnBlocked = Whisper.CenterToastView.extend({
-    render_attributes() {
-      return { toastMessage: i18n('unblocked') };
-    },
-  });
-  Whisper.LeftGroupToast = Whisper.ToastView.extend({
-    render_attributes() {
-      return { toastMessage: i18n('youLeftTheGroup') };
-    },
-  });
-  Whisper.OriginalNotFoundToast = Whisper.ToastView.extend({
-    render_attributes() {
-      return { toastMessage: i18n('originalMessageNotFound') };
-    },
-  });
-  Whisper.OriginalNoLongerAvailableToast = Whisper.ToastView.extend({
-    render_attributes() {
-      return { toastMessage: i18n('originalMessageNotAvailable') };
-    },
-  });
-  Whisper.FoundButNotLoadedToast = Whisper.ToastView.extend({
-    render_attributes() {
-      return { toastMessage: i18n('messageFoundButNotLoaded') };
-    },
-  });
-  Whisper.VoiceNoteMustBeOnlyAttachmentToast = Whisper.ToastView.extend({
-    render_attributes() {
-      return { toastMessage: i18n('voiceNoteMustBeOnlyAttachment') };
-    },
-  });
-
-  const MAX_MESSAGE_BODY_SIZE = 4 * 1024; // 4k
-  Whisper.MessageBodyTooLongToast = Whisper.ToastView.extend({
-    render_attributes() {
-      return { toastMessage: i18n('messageBodyTooLong') };
-    },
-  });
+  const MAX_MESSAGE_BODY_SIZE = 1024 * 1024 * 10; // 10MB
 
   const MAX_SELECTION_COUNT = 50;
-  Whisper.ExceedingMaxNumberOfSelectionToast = Whisper.ToastView.extend({
-    render_attributes() {
-      return {
-        toastMessage: i18n(
-          'exceedingMaxNumberOfSelection',
-          MAX_SELECTION_COUNT
-        ),
-      };
-    },
-  });
-
-  Whisper.MessageCannotBeEmptyWhenQuote = Whisper.ToastView.extend({
-    render_attributes() {
-      return {
-        toastMessage: i18n('messageCannotBeEmptyWhenQuote'),
-      };
-    },
-  });
-
-  Whisper.PullingAttachmentErrorToast = Whisper.ToastView.extend({
-    render_attributes() {
-      return {
-        toastMessage: i18n('pullingAttachmentError'),
-      };
-    },
-  });
 
   Whisper.ConversationView = Whisper.View.extend({
     className() {
@@ -759,6 +676,23 @@
         // this.updateAtViewProps();
         this.updateHeader();
       });
+
+      if (!this.model.isPrivate()) {
+        this.listenTo(this.model, 'change:criticalAlert', value => {
+          const callInfo = this.checkCallOrMeetingAlreadyExist();
+          if (callInfo) {
+            window.updateCallConfig({
+              roomId: callInfo.data.roomId,
+              updates: [
+                {
+                  key: 'criticalAlert',
+                  value: this.model.isCriticalAlertEnabled(),
+                },
+              ],
+            });
+          }
+        });
+      }
     },
     getMessageMode() {
       return this.model.get('confidentialMode') ? 'confidential' : 'normal';
@@ -1072,23 +1006,33 @@
     },
 
     showNoChatHistoryToast() {
-      if (this.noChatHistoryToast) {
-        this.noChatHistoryToast?.close();
-        this.noChatHistoryToast = null;
-      }
-      this.noChatHistoryToast = new Whisper.noChatHistory();
-      this.noChatHistoryToast.$el.appendTo(this.$el);
-      this.noChatHistoryToast.render();
+      this.showToast(i18n('noChatHistory'));
     },
     showUnspeakToast() {
-      if (this.unspeakToast) {
-        this.unspeakToast?.close();
-        this.unspeakToast = null;
-      }
-
-      this.unspeakToast = new Whisper.unSpeak();
-      this.unspeakToast.$el.appendTo(this.$el);
-      this.unspeakToast.render();
+      this.showToast(i18n('unSpeak'));
+    },
+    showMessageBodyTooLongToast() {
+      this.showToast(i18n('messageBodyTooLong'));
+    },
+    showYouLeftTheGroupToast() {
+      this.showToast(i18n('youLeftTheGroup'));
+    },
+    showPullingAttachmentErrorToast() {
+      this.showToast(i18n('pullingAttachmentError'));
+    },
+    showVoiceNoteMustBeOnlyAttachmentToast() {
+      this.showToast(i18n('voiceNoteMustBeOnlyAttachment'));
+    },
+    showOriginalMessageNotFoundToast() {
+      this.showToast(i18n('originalMessageNotFound'));
+    },
+    showOriginalMessageNotAvailableToast() {
+      this.showToast(i18n('originalMessageNotAvailable'));
+    },
+    showExceedingMaxNumberOfSelectionToast() {
+      this.showToast(
+        i18n('exceedingMaxNumberOfSelection', MAX_SELECTION_COUNT)
+      );
     },
     onChooseAttachment(e) {
       if (!this.model.isMeCanSpeak()) {
@@ -1132,9 +1076,7 @@
     async onCreateTopicList() {
       // 若已离开群
       if (!this.model.isPrivate() && this.model.isMeLeftGroup()) {
-        let toast = new Whisper.LeftGroupToast();
-        toast.$el.appendTo(this.$el);
-        toast.render();
+        this.showYouLeftTheGroupToast();
         this.focusMessageFieldAndClearDisabled();
         return;
       }
@@ -1493,9 +1435,7 @@
     onOpenSetting(tempShowId) {
       // 若已离开群
       if (!this.model.isPrivate() && this.model.isMeLeftGroup()) {
-        let toast = new Whisper.LeftGroupToast();
-        toast.$el.appendTo(this.$el);
-        toast.render();
+        this.showYouLeftTheGroupToast();
         this.focusMessageFieldAndClearDisabled();
         return;
       }
@@ -1744,9 +1684,7 @@
       }
 
       if (this.fileInput.hasFiles()) {
-        const toast = new Whisper.VoiceNoteMustBeOnlyAttachmentToast();
-        toast.$el.appendTo(this.$el);
-        toast.render();
+        this.showVoiceNoteMustBeOnlyAttachmentToast();
         return;
       }
 
@@ -2294,9 +2232,7 @@
       // For simplicity's sake, we show the 'not found' toast no matter what if we were
       //   not able to find the referenced message when the quote was received.
       if (referencedMessageNotFound) {
-        const toast = new Whisper.OriginalNotFoundToast();
-        toast.$el.appendTo(this.$el);
-        toast.render();
+        this.showOriginalMessageNotFoundToast();
         return;
       }
 
@@ -2387,9 +2323,7 @@
           targetMessage?.idForLogging()
         );
 
-        const toast = new Whisper.OriginalNoLongerAvailableToast();
-        toast.$el.appendTo(this.$el);
-        toast.render();
+        this.showOriginalMessageNotAvailableToast();
         return;
       }
 
@@ -2398,9 +2332,7 @@
 
       const el = this.$(`${listClass} #${databaseId}`);
       if (!el || el.length === 0) {
-        const toast = new Whisper.OriginalNoLongerAvailableToast();
-        toast.$el.appendTo(this.$el);
-        toast.render();
+        this.showOriginalMessageNotAvailableToast();
 
         window.log.info(
           `Error: had target message ${id} in messageCollection, but it was not in DOM`
@@ -3578,18 +3510,17 @@
       }
 
       if (blocked === true) {
-        const toast = new Whisper.Blocked();
-        toast.$el.appendTo(this.$el);
-        toast.render();
+        this.showBlockedToast();
       } else {
         this.showUnblockedToast();
       }
     },
 
     showUnblockedToast() {
-      const toast = new Whisper.UnBlocked();
-      toast.$el.appendTo(this.$el);
-      toast.render();
+      this.showToast(i18n('unblocked'));
+    },
+    showBlockedToast() {
+      this.showToast(i18n('blocked'));
     },
 
     async leaveGroup() {
@@ -4205,6 +4136,9 @@
         isAtBotTopic: isAtBotTopic,
       };
     },
+    showToast(toast) {
+      window.Signal.Util.showToastAtCenter(toast);
+    },
     async sendMessage(e) {
       e.preventDefault();
       this.sendStart = Date.now();
@@ -4220,11 +4154,11 @@
 
       let toast;
       if (extension.expired()) {
-        toast = new Whisper.ExpiredToast();
+        toast = i18n('expiredWarning');
       }
 
       if (!this.model.isPrivate() && this.model.isMeLeftGroup()) {
-        toast = new Whisper.LeftGroupToast();
+        toast = i18n('youLeftTheGroup');
       }
 
       if (!toast && !this.model.isMeCanSpeak()) {
@@ -4240,13 +4174,12 @@
               return;
             }
 
-            toast = new Whisper.MessageCannotBeEmptyWhenQuote();
+            toast = i18n('messageCannotBeEmptyWhenQuote');
           }
         }
 
         if (toast) {
-          toast.$el.appendTo(this.$el);
-          toast.render();
+          this.showToast(toast);
           this.focusMessageFieldAndClearDisabled();
           return;
         }
@@ -4354,9 +4287,7 @@
           error && error.stack ? error.stack : error
         );
 
-        const toast = new Whisper.PullingAttachmentErrorToast();
-        toast.$el.appendTo(this.$el);
-        toast.render();
+        this.showPullingAttachmentErrorToast();
       } finally {
         if (this.threadView && window.Events.getQuitTopicSetting()) {
           setTimeout(() => {
@@ -4797,9 +4728,7 @@
 
       if (!message.isSelected) {
         if (this.selectedMessages.length >= MAX_SELECTION_COUNT) {
-          const toast = new Whisper.ExceedingMaxNumberOfSelectionToast();
-          toast.$el.appendTo(this.$el);
-          toast.render();
+          this.showExceedingMaxNumberOfSelectionToast();
           return false;
         }
 
@@ -5322,9 +5251,7 @@
       }
       event.target.value = result;
       if (toastFlag) {
-        const toast = new Whisper.MessageBodyTooLongToast();
-        toast.$el.appendTo(this.$el);
-        toast.render();
+        this.showMessageBodyTooLongToast();
         this.focusMessageFieldAndClearDisabled();
       }
     },

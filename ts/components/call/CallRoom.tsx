@@ -2,7 +2,6 @@ import React, { useMemo, useRef } from 'react';
 
 import { message, Spin } from 'antd';
 // import { BackgroundBlur, VirtualBackground } from "@livekit/track-processors";
-// import { useTimer } from './hooks/useTimer';
 import { useRoom } from './hooks/useRoom';
 import { useNameFormatter } from './hooks/useNameFormatter';
 import { RemoteParticipantMask } from './RemoteParticipantMask';
@@ -51,6 +50,7 @@ import { useOverrideCallRequest } from './hooks/useOverrideCallRequest';
 import { useCriticalAlert } from './hooks/useCriticalAlert';
 import { Track } from '@cc-livekit/livekit-client';
 import { useMediaPermissionModal } from './hooks/useMediaPermissionModal';
+import { useUpdateCallConfig } from './hooks/useUpdateCallConfig';
 
 export interface ICallError {
   response: {
@@ -338,12 +338,19 @@ export const CallRoom = ({ i18n }: IProps) => {
 
   const {
     visible: criticalAlertVisible,
+    setVisible: setCriticalAlertVisible,
     menuItems,
     criticalAlertToast,
   } = useCriticalAlert({
     room,
     i18n,
     addMessage,
+  });
+
+  useUpdateCallConfig({
+    onCriticalAlertUpdate: (value: boolean) => {
+      setCriticalAlertVisible(value);
+    },
   });
 
   if (!room) {

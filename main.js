@@ -2770,3 +2770,9 @@ ipc.on('show-critical-alert', (event, info) => {
   }
   handleCriticalAlert(info);
 });
+
+ipc.on('update-call-config', (event, data) => {
+  if (callWindow) {
+    callWindow.webContents.send('update-call-config', data);
+  }
+});

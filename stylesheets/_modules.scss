@@ -826,7 +826,8 @@
   flex: 1;
   padding-left: 8px;
   float: right;
-  margin-top: 2px;
+  margin-top: 4px;
+  height: 20px;
 }
 
 // With an image and no caption, this section needs to be on top of the image overlay
@@ -860,9 +861,6 @@
 .module-message__metadata__status-icon {
   width: 13px;
   height: 13px;
-  display: inline-block;
-  // margin-left: 6px;
-  margin-bottom: 2px;
 }
 
 .module-message__metadata__status-icon--sending {
@@ -895,12 +893,10 @@
 }
 
 .module-message__metadata__status-new-icon--wrapper {
-  display: inline-block;
   position: relative;
   width: 13px;
   height: 13px;
   margin-left: 4px;
-  margin-bottom: 2px;
 }
 
 .module-message__metadata__status-new-icon--read {
@@ -4730,15 +4726,6 @@
   }
 }
 
-.module-message__text:has(.bigger-emoji) {
-  & ~ .module-message__bottom-bar--outgoing,
-  & ~ .module-message__bottom-bar--incoming {
-    .module-message__metadata {
-      margin-top: 14px;
-    }
-  }
-}
-
 .ant-dropdown.universal-dropdown-overlay.message-contextmenu-overlay {
   .ant-dropdown-menu {
     padding-top: 0;
@@ -4933,16 +4920,48 @@
   line-height: 20px;
   cursor: pointer;
   left: 12px;
-  bottom: 3px;
-
-  border-radius: 8px;
-  background: var(--dst-color-background-four);
-  box-shadow: var(--dst-elevation-2);
-  padding: 2px 8px;
-  margin-top: 2px;
+  bottom: 10px;
 
   &.expanded {
     position: sticky;
     width: 84px;
+    bottom: 3px;
   }
+
+  &.sticky {
+    border-radius: 8px;
+    background: var(--dst-color-background);
+    box-shadow: none;
+    padding: 2px 8px;
+    margin-top: 2px;
+    text-align: center;
+  }
+
+  &-indicator {
+    position: absolute;
+    bottom: 10px;
+    height: 1px;
+    width: 1px;
+    background-color: transparent;
+  }
+}
+
+.universal-toast {
+  .ant-message-notice-content {
+    max-width: 305px;
+    background-color: var(--dst-color-background-tooltip) !important;
+    color: var(--dst-color-text-white) !important;
+    box-shadow: none !important;
+    padding: 10px 16px !important;
+    border-radius: 4px !important;
+    text-align: left;
+
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 20px;
+  }
+}
+
+.center-toast {
+  margin-top: 50vh;
 }

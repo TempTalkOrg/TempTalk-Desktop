@@ -25,7 +25,11 @@ exports.migrateDataToFileSystem = async (
   }
 
   const isValidData = isArrayBuffer(data);
-  if (!isValidData) {
+
+  if (isValidData) {
+  } else if (typeof data === 'object' && attachment.path) {
+    return omit(attachment, ['data']);
+  } else {
     throw new TypeError(
       'Expected `attachment.data` to be an array buffer;' +
         ` got: ${typeof attachment.data}`

@@ -146,6 +146,10 @@ export const MessageBody = (props: Props) => {
   const [expanded, setExpanded] = useState(false);
   const expandIconRef = useRef<HTMLDivElement>(null);
 
+  const messageBodyIntersectionObserverRef = useRef<IntersectionObserver>();
+  const stickyIndicatorRef = useRef<HTMLDivElement>(null);
+  const stickyIndicatorIntersectionObserverRef = useRef<IntersectionObserver>();
+
   const { run: onWindowResize } = useDebounceFn(
     () => {
       const isTruncated = isTextTruncated(messageBodyWrapperRef.current);
@@ -163,22 +167,69 @@ export const MessageBody = (props: Props) => {
   );
 
   useEffect(() => {
-    if (!allowExpand) {
+    if (!expanded || !stickyIndicatorRef.current) {
       return;
     }
+
+    stickyIndicatorIntersectionObserverRef.current = new IntersectionObserver(
+      ([entry]) => {
+        expandIconRef.current?.classList.toggle(
+          'sticky',
+          entry.intersectionRatio < 1
+        );
+      },
+      {
+        threshold: 1,
+      }
+    );
+    stickyIndicatorIntersectionObserverRef.current.observe(
+      stickyIndicatorRef.current
+    );
+
+    return () => {
+      stickyIndicatorIntersectionObserverRef.current?.disconnect();
+      stickyIndicatorIntersectionObserverRef.current = undefined;
+    };
+  }, [expanded]);
+
+  useEffect(() => {
+    if (!allowExpand || !messageBodyWrapperRef.current) {
+      return;
+    }
+
     setTimeout(() => {
       const isTruncated = isTextTruncated(messageBodyWrapperRef.current);
       if (isTruncated) {
         setExpandable(true);
-        window.addEventListener('resize', onWindowResize);
       }
     }, 20);
+
+    window.addEventListener('resize', onWindowResize);
+
+    messageBodyIntersectionObserverRef.current = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.intersectionRatio > 0.9) {
+          const isTruncated = isTextTruncated(messageBodyWrapperRef.current);
+          if (isTruncated) {
+            setExpandable(true);
+          }
+        }
+      },
+      {
+        threshold: 1,
+      }
+    );
+    messageBodyIntersectionObserverRef.current.observe(
+      messageBodyWrapperRef.current
+    );
 
     return () => {
       if (!allowExpand) {
         return;
       }
       window.removeEventListener('resize', onWindowResize);
+      messageBodyIntersectionObserverRef.current?.disconnect();
+      messageBodyIntersectionObserverRef.current = undefined;
     };
   }, []);
 
@@ -243,15 +294,21 @@ export const MessageBody = (props: Props) => {
       </span>
       {expandable && containerRef?.current
         ? createPortal(
-            <div
-              ref={expandIconRef}
-              className={classNames('message-body-expand-button', {
-                expanded,
-              })}
-              onClick={onExpandChange}
-            >
-              {expanded ? 'Read Less' : 'Read More'}
-            </div>,
+            <>
+              <div
+                ref={expandIconRef}
+                className={classNames('message-body-expand-button', {
+                  expanded,
+                })}
+                onClick={onExpandChange}
+              >
+                {i18n(expanded ? 'readLess' : 'readMore')}
+              </div>
+              <div
+                ref={stickyIndicatorRef}
+                className="message-body-expand-button-sticky-indicator"
+              ></div>
+            </>,
             containerRef.current
           )
         : null}

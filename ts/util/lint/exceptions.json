@@ -1708,14 +1708,6 @@
   },
   {
     "rule": "jQuery-html(",
-    "path": "js/views/toast_view.js",
-    "line": "      this.$el.html(",
-    "lineNumber": 21,
-    "reasonCategory": "usageTrusted",
-    "updated": "2018-09-15T00:38:04.183Z"
-  },
-  {
-    "rule": "jQuery-html(",
     "path": "js/views/whisper_view.js",
     "line": "        this.$el.html(Mustache.render(template, attrs, partials));",
     "lineNumber": 51,

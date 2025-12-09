@@ -682,8 +682,11 @@ MessageSender.prototype = {
       const rapidResult = await this.server.rapidUpload(rapidHash, numbers);
 
       if (!fillProtoIfRapid(rapidResult, proto)) {
-        const { attachmentId, url: ossUrl } = rapidResult;
-        if (!attachmentId || !ossUrl) {
+        const { attachmentId, url: ossUrl, urls: ossUrls } = rapidResult;
+        if (
+          !attachmentId ||
+          (!ossUrl && !(Array.isArray(ossUrls) && ossUrls.length > 0))
+        ) {
           // upload failed.
           log.error('rapid upload error for response is invalid.');
           throw new Error('rapid upload server response invalid result.');
@@ -732,6 +735,7 @@ MessageSender.prototype = {
           digestHexUpper,
           attachment.data.byteLength,
           ossUrl,
+          ossUrls,
           attachmentId,
           rapidHash,
           attachment.isVoiceNote ? 1 : 0,

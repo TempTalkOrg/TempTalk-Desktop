@@ -12,41 +12,7 @@
 
   window.Whisper = window.Whisper || {};
 
-  const { MIME, VisualAttachment } = window.Signal.Types;
-
-  Whisper.FileSizeToast = Whisper.ToastView.extend({
-    templateName: 'file-size-modal',
-    render_attributes() {
-      return {
-        'file-size-warning': i18n('fileSizeWarning', [this.model.limit]),
-      };
-    },
-  });
-  Whisper.UnableToLoadToast = Whisper.ToastView.extend({
-    render_attributes() {
-      return { toastMessage: i18n('unableToLoadAttachment') };
-    },
-  });
-
-  // 拖拽文件夹设置
-  Whisper.UnsupportedFolderTypeToast = Whisper.ToastView.extend({
-    template: i18n('pulllingFolderError'),
-  });
-  Whisper.UnsupportedZeroSizeToast = Whisper.ToastView.extend({
-    template: i18n('pulllingZeroSizeError'),
-  });
-  Whisper.DangerousFileTypeToast = Whisper.ToastView.extend({
-    template: i18n('dangerousFileType'),
-  });
-  Whisper.OneNonImageAtATimeToast = Whisper.ToastView.extend({
-    template: i18n('oneNonImageAtATimeToast'),
-  });
-  Whisper.CannotMixImageAndNonImageAttachmentsToast = Whisper.ToastView.extend({
-    template: i18n('cannotMixImageAdnNonImageAttachments'),
-  });
-  Whisper.MaxAttachmentsToast = Whisper.ToastView.extend({
-    template: i18n('maximumAttachments'),
-  });
+  const { VisualAttachment } = window.Signal.Types;
 
   Whisper.FileInputView = Backbone.View.extend({
     tagName: 'span',
@@ -272,56 +238,42 @@
       this.$el.trigger('force-resize');
     },
 
+    showToast(toast) {
+      window.Signal.Util.showToastAtCenter(toast);
+    },
+
     // Show errors
 
     showLoadFailure() {
-      const toast = new Whisper.UnableToLoadToast();
-      toast.$el.insertAfter(this.$el);
-      toast.render();
+      this.showToast(i18n('unableToLoadAttachment'));
     },
 
     showUnsupportedFolderError() {
-      const toast = new Whisper.UnsupportedFolderTypeToast();
-      toast.$el.insertAfter(this.$el);
-      toast.render();
+      this.showToast(i18n('pulllingFolderError'));
     },
 
     ShowUnsupportedZeroSizeToast() {
-      const toast = new Whisper.UnsupportedZeroSizeToast();
-      toast.$el.insertAfter(this.$el);
-      toast.render();
+      this.showToast(i18n('pulllingZeroSizeError'));
     },
 
     showDangerousError() {
-      const toast = new Whisper.DangerousFileTypeToast();
-      toast.$el.insertAfter(this.$el);
-      toast.render();
+      this.showToast(i18n('dangerousFileType'));
     },
 
     showFileSizeError(limit) {
-      const toast = new Whisper.FileSizeToast({
-        model: { limit },
-      });
-      toast.$el.insertAfter(this.$el);
-      toast.render();
+      this.showToast(i18n('fileSizeWarning', [limit]));
     },
 
     showCannotMixError() {
-      const toast = new Whisper.CannotMixImageAndNonImageAttachmentsToast();
-      toast.$el.insertAfter(this.$el);
-      toast.render();
+      this.showToast(i18n('cannotMixImageAdnNonImageAttachments'));
     },
 
     showMultipleNonImageError() {
-      const toast = new Whisper.OneNonImageAtATimeToast();
-      toast.$el.insertAfter(this.$el);
-      toast.render();
+      this.showToast(i18n('oneNonImageAtATimeToast'));
     },
 
     showMaximumAttachmentsError() {
-      const toast = new Whisper.MaxAttachmentsToast();
-      toast.$el.insertAfter(this.$el);
-      toast.render();
+      this.showToast(i18n('maximumAttachments'));
     },
 
     // Housekeeping

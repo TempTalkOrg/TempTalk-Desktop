@@ -1,6 +1,6 @@
 import React from 'react';
 import { formatTime } from './utils';
-import { useTimer } from './hooks/useTimer';
+import { useRoomDuration } from './hooks/useRoomDuration';
 import { roomAtom } from './atoms/roomAtom';
 import { useAtomValue } from 'jotai';
 import { Room } from '@cc-livekit/livekit-client';
@@ -14,18 +14,18 @@ export const RoomTitle = ({
   extra?: React.ReactNode;
 }) => {
   const roomInfo = useAtomValue(roomAtom);
-  const { count } = useTimer(room);
+  const { duration } = useRoomDuration(room);
   const { countdownTimerEnabled } = useGlobalConfig();
 
-  const formattedCount = formatTime(count);
+  const formattedDuration = formatTime(duration);
 
   return (
     <div className="call-room-title">
       <div className="content-area">
         <span className="title-text">
           {roomInfo.roomName}{' '}
-          {formattedCount && (
-            <span className="call-timer">{formattedCount}</span>
+          {formattedDuration && (
+            <span className="call-duration">{formattedDuration}</span>
           )}
         </span>
         {countdownTimerEnabled && <div className="content-divider"></div>}

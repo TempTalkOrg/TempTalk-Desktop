@@ -88,14 +88,6 @@ body.dark-theme {
       0 0 0 0.5px rgba(0, 0, 0, 0.08);
   }
 
-  .center-toast {
-    background-color: $color-gray-45;
-    color: $color-white;
-    box-shadow:
-      0 4px 16px 0 rgba(0, 0, 0, 0.12),
-      0 0 0 0.5px rgba(0, 0, 0, 0.08);
-  }
-
   .conversation-loading-screen {
     background-color: $color-gray-95;
   }
@@ -2917,5 +2909,10 @@ body.dark-theme {
   .module-message__container__transcribe--incoming,
   .module-message__container__transcribe--outgoing {
     background-color: var(--dst-color-background);
+  }
+
+  .message-body-expand-button.sticky {
+    background: var(--dst-color-background-four);
+    box-shadow: var(--dst-elevation-3);
   }
 }

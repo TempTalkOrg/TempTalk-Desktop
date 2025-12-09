@@ -10,3 +10,5 @@ export interface IRoomInfo {
 }
 
 export const roomAtom = atom<IRoomInfo>({} as IRoomInfo);
+
+export const roomDurationAtom = atom<number>(0);

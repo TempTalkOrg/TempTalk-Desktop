@@ -17,6 +17,8 @@ const validateMap = (dataMap, validatorWrapper) => {
   }
 };
 
+let _lastOssOrigin = undefined;
+
 // const { redactAll } = require('./privacy');
 
 /* global Buffer: false */
@@ -1677,23 +1679,79 @@ function initialize({
       });
     }
 
+    function sortOssUrls(url, urls) {
+      const ossUrls = [url];
+      if (Array.isArray(urls) && urls.length) {
+        ossUrls.push(...urls);
+      }
+
+      const ossUrlObjs = Array.from(new Set(ossUrls))
+        .map(url => {
+          try {
+            return { origin: new URL(url).origin, url };
+          } catch (error) {
+            log.error('invalid oss url', url, error);
+            return null;
+          }
+        })
+        .filter(Boolean);
+
+      if (ossUrlObjs.length === 0) {
+        throw Error('There is no valid oss url returned from server');
+      }
+
+      if (_lastOssOrigin) {
+        ossUrlObjs.sort((l, r) => {
+          if (l.origin === r.origin) {
+            return 0;
+          }
+
+          if (l.origin === _lastOssOrigin) {
+            return -1;
+          }
+
+          if (r.origin === _lastOssOrigin) {
+            return 1;
+          }
+
+          return 0;
+        });
+      }
+
+      return ossUrlObjs;
+    }
+
     async function getAttachmentNew(rapidHash, authorizeId, gid) {
       try {
         const dlInfo = await requestDownloadInfo(rapidHash, authorizeId, gid);
 
-        const { fileSize, url } = dlInfo;
-        const encryptedBin = await downloadData(url);
+        const { fileSize, url, urls } = dlInfo;
 
-        log.info(
-          'download fileSize, originalSize:',
-          encryptedBin.byteLength,
-          fileSize
-        );
+        const dlUrlObjs = sortOssUrls(url, urls);
 
-        return {
-          ...dlInfo,
-          encryptedBin,
-        };
+        for (const urlObj of dlUrlObjs) {
+          const { origin, url } = urlObj;
+          try {
+            const encryptedBin = await downloadData(url);
+
+            log.info(
+              'download fileSize, originalSize:',
+              encryptedBin.byteLength,
+              fileSize
+            );
+
+            _lastOssOrigin = origin;
+
+            return {
+              ...dlInfo,
+              encryptedBin,
+            };
+          } catch (error) {
+            log.error('download data error:', origin, error);
+          }
+        }
+
+        throw new Error('All download urls are unavaliable');
       } catch (error) {
         log.error('get attachment failed, ', error);
         throw error;
@@ -1705,14 +1763,34 @@ function initialize({
       binMD5,
       plaintextLen,
       ossUrl,
+      ossUrls,
       attachmentId,
       rapidHash,
       attachmentType,
       numbers
     ) {
       try {
+        let uploadOk = false;
+        const upUrlObjs = sortOssUrls(ossUrl, ossUrls);
+
         // 1 upload data
-        await uploadData(ossUrl, encryptedBin, binMD5);
+        for (const urlObj of upUrlObjs) {
+          const { origin, url } = urlObj;
+
+          try {
+            await uploadData(url, encryptedBin);
+
+            _lastOssOrigin = origin;
+            uploadOk = true;
+            break;
+          } catch (error) {
+            log.error('upload data error:', origin, error);
+          }
+        }
+
+        if (!uploadOk) {
+          throw new Error('All upload urls are unavaliable');
+        }
 
         // 2 inform server a new uploaded file
         const attachment = {
