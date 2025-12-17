@@ -2551,7 +2551,7 @@ function initialize({
     }
 
     async function sendCriticalAlert(data) {
-      const { destination, gid } = data;
+      const { destination, gid, timestamp } = data;
 
       if (!destination && !gid) {
         throw new Error('destination or gid is required');
@@ -2560,6 +2560,7 @@ function initialize({
       const jsonData = {
         destination,
         gid,
+        timestamp,
       };
 
       return _ajax({

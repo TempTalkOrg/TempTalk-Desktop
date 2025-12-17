@@ -46,6 +46,7 @@ import { DateSeparator } from '../DateSeparator';
 import ReactDOM from 'react-dom';
 import { getConversationModel } from '../../shims/Whisper';
 import { API_STATUS } from '../../types/APIStatus';
+import { union } from 'lodash';
 
 interface Trigger {
   handleContextClick: (event: React.MouseEvent<HTMLDivElement>) => void;
@@ -1389,6 +1390,7 @@ export class Message extends React.PureComponent<Props, State> {
         onClick={() => {
           if (onClickReaction) {
             onClickReaction(emoji, mineReaction);
+            this.updateRecentEmojis(emoji);
             closePopover();
           }
         }}
@@ -1773,6 +1775,44 @@ export class Message extends React.PureComponent<Props, State> {
     );
   }
 
+  public async updateRecentEmojis(emoji: string) {
+    const recentEmojis: string[] =
+      (window as any).storage.get('recentEmojis') || [];
+
+    await (window as any).storage.put(
+      'recentEmojis',
+      union([emoji], recentEmojis)
+    );
+  }
+
+  public getSortedEmojiReactions(emojiReactions?: Array<EmojiReaction>) {
+    if (!emojiReactions) {
+      return [];
+    }
+    const recentEmojis: string[] =
+      (window as any).storage.get('recentEmojis') || [];
+
+    if (recentEmojis.length === 0) {
+      return emojiReactions;
+    }
+
+    const emojiOrderMap: Record<string, number> = {};
+    recentEmojis.forEach((emoji, index) => {
+      emojiOrderMap[emoji] = index;
+    });
+
+    const sorted = [...emojiReactions].sort((a, b) => {
+      const aIndex = emojiOrderMap[a.emoji] ?? Infinity;
+      const bIndex = emojiOrderMap[b.emoji] ?? Infinity;
+      if (aIndex !== bIndex) {
+        return aIndex - bIndex;
+      }
+      return 0;
+    });
+
+    return sorted;
+  }
+
   public messageContextMenuDropdownRender = (
     menu: any,
     menuItems: MenuProps['items'],
@@ -1787,13 +1827,15 @@ export class Message extends React.PureComponent<Props, State> {
     const isForwardConversation = conversationType === 'forward';
     const showEmojiReaction = !isForwardConversation;
 
+    const sortedEmojiReactions = this.getSortedEmojiReactions(emojiReactions);
+
     return (
       <div>
         {React.cloneElement(menu)}
         {showEmojiReaction && (
           <div className={'emoji-div'}>
             <div className={'emoji-div-mask-right'}></div>
-            {emojiReactions?.map(emojiReaction => {
+            {sortedEmojiReactions.map(emojiReaction => {
               return this.renderMenuReactionButton(emojiReaction, () => {
                 if (
                   simulateClickTrigger &&

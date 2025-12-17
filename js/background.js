@@ -2450,13 +2450,10 @@ const makeMessageCollapseId = ({ timestamp, source, sourceDevice }) => {
 
       const ourName = ConversationController.get(ourNumber).getName();
 
-      let criticalAlert;
-      if (type === '1on1') {
-        criticalAlert =
-          ConversationController.get(
-            getTargetConversation()
-          )?.isCriticalAlertEnabled() ?? false;
-      }
+      const criticalAlert =
+        ConversationController.get(
+          getTargetConversation()
+        )?.isCriticalAlertEnabled() ?? false;
 
       window.dispatchCallMessage('incomingCall', {
         ...conversationId,
@@ -2501,7 +2498,7 @@ const makeMessageCollapseId = ({ timestamp, source, sourceDevice }) => {
     } else if (cancel) {
       window.destroyCall(cancel.roomId);
     } else if (hangup) {
-      window.destroyCall(hangup.roomId, 'hangup');
+      window.destroyCall(hangup.roomId, true);
       Whisper.events.trigger('callRemove', { roomId: hangup.roomId });
     }
     if (typeof confirm === 'function') {
@@ -2977,9 +2974,15 @@ const makeMessageCollapseId = ({ timestamp, source, sourceDevice }) => {
 
   function onChangeNotification(ev) {
     const { notification } = ev;
-    ev.confirm();
+
     log.info('notification for coversation:', notification);
     const { notifyType, notifyTime, display, data } = notification;
+
+    const SHOULD_DELAY_CONFIRM_TYPE = [22];
+    if (!SHOULD_DELAY_CONFIRM_TYPE.includes(notifyType)) {
+      ev.confirm();
+    }
+
     switch (notifyType) {
       case 0:
         return queueGroupChangeHandler(notifyTime, data, display);
@@ -3003,6 +3006,13 @@ const makeMessageCollapseId = ({ timestamp, source, sourceDevice }) => {
         return queueIdentityKeyResetHandler(notifyTime, data);
       case 20:
         return queueCriticalAlertHandler(notifyTime, data);
+      case 22:
+        return queueNewCriticalAlertHandler(
+          notifyTime,
+          data,
+          ev.confirm,
+          ev.extraData
+        );
       default:
         log.warn('unknown notify type,', notifyType);
         return;
@@ -3039,7 +3049,7 @@ const makeMessageCollapseId = ({ timestamp, source, sourceDevice }) => {
   function queueCallDestroyHandler(notifyTime, data) {
     setTimeout(() => {
       // should close call window, if exist
-      window.destroyCall(data.roomId, 'hangup');
+      window.destroyCall(data.roomId, true);
       Whisper.events.trigger('callRemove', { roomId: data.roomId });
     }, 1500);
   }
@@ -3061,7 +3071,14 @@ const makeMessageCollapseId = ({ timestamp, source, sourceDevice }) => {
   }
 
   function queueCriticalAlertHandler(notifyTime, data) {
-    const { conversation: conversationId } = data;
+    const { showCriticalAlert, conversation: conversationId, source } = data;
+    const ourNumber = textsecure.storage.user.getNumber();
+    const isMe = source === ourNumber;
+
+    if (!showCriticalAlert || isMe) {
+      return;
+    }
+
     const foundConversation = ConversationController.get(conversationId);
     if (!foundConversation) {
       console.log(
@@ -3072,12 +3089,150 @@ const makeMessageCollapseId = ({ timestamp, source, sourceDevice }) => {
       return;
     }
 
-    const from = foundConversation.getDisplayName();
+    const title = foundConversation.getDisplayName();
+    const isPrivate = foundConversation.isPrivate();
+    let from = '';
+
+    // group
+    if (!isPrivate) {
+      const sourceConversation = ConversationController.get(source);
+      if (!sourceConversation) {
+        console.log(
+          'handle critical alert notification error: source',
+          source,
+          'not found'
+        );
+      } else {
+        from = sourceConversation.getDisplayName();
+      }
+    }
 
     window.showCriticalAlert({
       conversationId,
+      isPrivate,
+      title,
       from,
     });
+  }
+
+  async function queueNewCriticalAlertHandler(
+    notifyTime,
+    data,
+    confirm,
+    extraData
+  ) {
+    const {
+      conversation: conversationId,
+      source,
+      sourceDevice,
+      timestamp,
+      serverTimestamp,
+      showCriticalAlert,
+    } = data;
+    const ourNumber = textsecure.storage.user.getNumber();
+    const isMe = source === ourNumber;
+
+    const foundConversation = ConversationController.get(conversationId);
+    if (!foundConversation) {
+      console.log(
+        'handle critical alert notification error: conversation',
+        conversationId,
+        'not found'
+      );
+      confirm();
+      return;
+    }
+
+    const isPrivate = foundConversation.isPrivate();
+
+    if (showCriticalAlert && !isMe) {
+      const title = foundConversation.getDisplayName();
+      let from = '';
+
+      // group
+      if (!isPrivate) {
+        const sourceConversation = ConversationController.get(source);
+        if (!sourceConversation) {
+          console.log(
+            'handle critical alert notification error: source',
+            source,
+            'not found'
+          );
+        } else {
+          from = sourceConversation.getDisplayName();
+        }
+      }
+
+      window.showCriticalAlert({
+        conversationId,
+        isPrivate,
+        title,
+        from,
+      });
+    }
+
+    const eventName = isMe ? 'sent' : 'message';
+    const ev = new Event(eventName);
+    ev.confirm = confirm;
+
+    const message = {
+      body: window.getCallTextMessage(
+        textsecure.CallActionType.CriticalAlert,
+        '',
+        ourNumber
+      ),
+      source,
+    };
+
+    if (!isPrivate) {
+      message.group = {
+        id: conversationId,
+      };
+    }
+
+    message.criticalAlert = { alert: showCriticalAlert };
+
+    const { sequenceId, notifySequenceId } = extraData;
+
+    // generate text message
+    if (eventName === 'sent') {
+      ev.data = {
+        destination: conversationId,
+        timestamp,
+        device: sourceDevice,
+        message,
+        serverTimestamp: serverTimestamp,
+        sequenceId,
+        notifySequenceId,
+      };
+    } else {
+      ev.data = {
+        source,
+        sourceDevice,
+        timestamp,
+        serverTimestamp,
+        receivedAt: Date.now(),
+        message,
+        sequenceId,
+        notifySequenceId,
+        messageType: textsecure.protobuf.Envelope.MsgType.MSG_NORMAL,
+      };
+    }
+
+    if (eventName === 'sent') {
+      onSentMessage(ev);
+    } else if (eventName === 'message') {
+      onMessageReceived(ev);
+    }
+
+    // update conversation status
+    foundConversation.set({
+      active_at: timestamp,
+    });
+
+    await window.Signal.Data.updateConversation(foundConversation.attributes);
+
+    confirm();
   }
 
   function queueGroupChangeHandler(notifyTime, data, display) {

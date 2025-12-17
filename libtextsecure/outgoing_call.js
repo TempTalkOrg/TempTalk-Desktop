@@ -161,13 +161,12 @@ class OutgoingCall {
   }
 
   #getMessageDetailType() {
-    const { callMessage, type, forceEnd } = this.#callOptions;
+    const { callMessage, type } = this.#callOptions;
     const proto = callMessage.toProto();
-    if (forceEnd) {
-      return DetailMessageType.FORCE_END_CALL;
-    }
     if ((proto.cancel || proto.reject || proto.hangup) && type === '1on1') {
-      return DetailMessageType.MANUALLY_END_CALL;
+      return DetailMessageType.MANUALLY_END_PRIVATE_CALL;
+    } else if (proto.hangup && type !== '1on1') {
+      return DetailMessageType.MANUALLY_END_NON_PRIVATE_CALL;
     }
 
     return undefined;

@@ -3680,6 +3680,10 @@
             message.set({ messageMode: dataMessage.messageMode });
           }
 
+          if (dataMessage.criticalAlert) {
+            message.set({ criticalAlert: dataMessage.criticalAlert });
+          }
+
           if (conversationPushedAt) {
             // latest conversation message, just update conversation latestMessage
             let lastMessageJSON = null;
@@ -4221,6 +4225,15 @@
                 source,
                 message.get('serverTimestamp')
               );
+            }
+          }
+
+          if (message.get('criticalAlert')) {
+            const latestCriticalAlert =
+              await conversation.updateLatestCriticalAlert(message);
+
+            if (latestCriticalAlert) {
+              attributes.latestCriticalAlert = latestCriticalAlert;
             }
           }
 

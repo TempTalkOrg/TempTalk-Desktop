@@ -78,11 +78,13 @@ function getCallingAPI() {
 type CallActionType = {
   StartCall: 'start-call';
   InviteMembers: 'invite-members';
+  CriticalAlert: 'critical-alert';
 };
 
 type CallControlType = {
   StartCall: 'start-call';
   InviteMembers: 'invite-members';
+  CriticalAlert: 'critical-alert';
 };
 
 export const currentCall: ICurrentCall = {} as ICurrentCall;

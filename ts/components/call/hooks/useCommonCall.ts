@@ -162,7 +162,17 @@ export const useCommonCall = ({ i18n, room }: IProps) => {
       });
       logger.info('finish start call', currentCall.roomId);
 
-      (window as any).finishJoinCall(currentCall.roomId);
+      let conversationId;
+      if (currentCall.type === '1on1') {
+        conversationId = currentCall.number;
+      } else {
+        conversationId = currentCall.groupId;
+      }
+      (window as any).finishJoinCall(
+        currentCall.roomId,
+        conversationId,
+        res.systemShowTimestamp
+      );
 
       if (currentCall.type !== '1on1') {
         if (currentCall.type === 'instant') {
@@ -194,21 +204,21 @@ export const useCommonCall = ({ i18n, room }: IProps) => {
     }
   };
 
-  const handleDestroyCall = useMemoizedFn((_, roomId, reason) => {
+  const handleDestroyCall = useMemoizedFn((roomId, shouldDelay) => {
     if (roomId === currentCall.roomId) {
-      if (reason) {
-        if (reason === 'hangup') {
-          const message =
-            currentCall.type === '1on1'
-              ? i18n('call.hangup')
-              : i18n('call.forceEnd');
+      logger.info('on destroy call, shouldDelay:', shouldDelay);
 
-          currentCall.endingCall = true;
-          delayCloseWindow(message);
-          logger.info('got hangup');
+      if (shouldDelay) {
+        let message = '';
+        const reason = currentCall.type === '1on1' ? 'hangup' : 'end-call';
+
+        if (reason === 'hangup') {
+          message = i18n('call.hangup');
+        } else if (reason === 'end-call') {
+          message = i18n('call.endCall');
         }
+        delayCloseWindow(message);
       } else {
-        logger.error('destroy call without reason');
         doClose();
       }
     }
@@ -216,7 +226,8 @@ export const useCommonCall = ({ i18n, room }: IProps) => {
 
   useEffect(() => {
     const cleanup = (window as any).registerDestroyCallHandler(
-      handleDestroyCall
+      (_: any, roomId: string, shouldDelay: boolean) =>
+        handleDestroyCall(roomId, shouldDelay)
     );
 
     return () => cleanup();

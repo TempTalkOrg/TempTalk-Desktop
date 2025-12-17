@@ -1355,39 +1355,59 @@ table {
   .critical-alert-container {
     height: 100%;
     width: 100%;
-    background-color: var(--dst-color-background);
-    padding: 16px;
+    background-color: var(--dst-color-background-modal);
     display: flex;
-    flex-flow: row nowrap;
+    flex-flow: column nowrap;
     justify-content: space-between;
     align-items: center;
-    gap: 12px;
+    padding-bottom: 24px;
 
     .critical-alert-icon-wrapper {
-      height: 36px;
-      width: 36px;
+      width: 100%;
+      height: 88px;
+      padding: 32px 0 24px;
       display: flex;
       justify-content: center;
       align-items: center;
-      background-color: var(--dst-color-function-error);
-      border-radius: 50%;
       flex-shrink: 0;
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(-45deg, #ff0000, #000000, #ff0000, #000000);
+      background-size: 400% 400%;
+      animation: gradient 1s ease-in infinite;
+    }
+
+    @keyframes gradient {
+      0% {
+        background-position: 0% 50%;
+      }
+      100% {
+        background-position: 100% 50%;
+      }
+    }
+
+    .critical-alert-icon-wrapper > * {
+      position: relative;
+      z-index: 1;
     }
     .critical-alert-icon {
-      height: 18px;
-      width: 18px;
+      height: 32px;
+      width: 32px;
+      color: var(--dst-color-text-white);
     }
 
     .critical-alert-info {
       flex: 1;
-      max-width: 160px;
+      max-width: 220px;
 
       &-title {
         color: var(--dst-color-text-primary);
+        text-align: center;
 
         font-size: 14px;
         font-weight: 510;
         line-height: 20px;
+        margin-bottom: 8px;
       }
       &-content {
         color: var(--dst-color-text-secondary);
@@ -1395,17 +1415,29 @@ table {
         font-size: 12px;
         font-weight: 400;
         line-height: 16px;
-        max-width: 160px;
+        max-width: 220px;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+        text-align: center;
       }
     }
 
     .critical-alert-connect-button {
-      width: 93px;
-      height: 24px;
-      font-size: 12px;
+      width: 52px;
+      height: 32px;
+      font-size: 14px;
     }
+  }
+
+  .critical-alert-close-icon {
+    color: var(--dst-color-icon);
+    height: 16px;
+    width: 16px;
+    cursor: pointer;
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    z-index: 2;
   }
 }

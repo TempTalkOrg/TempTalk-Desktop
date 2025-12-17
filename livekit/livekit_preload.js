@@ -96,8 +96,8 @@ window.registerRejectByCalleeHandler = handler => {
   return registerIPCEventHandler('reject-call-by-callee', handler);
 };
 
-window.finishJoinCall = roomId => {
-  ipcRenderer.send('finish-join-call', roomId);
+window.finishJoinCall = (roomId, conversationId, timestamp) => {
+  ipcRenderer.send('finish-join-call', roomId, conversationId, timestamp);
   ipcRenderer.send('update-call-status', { roomId });
 };
 

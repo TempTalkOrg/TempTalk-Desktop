@@ -46,6 +46,12 @@
       this.listenTo(this.collection, 'update', this.onCollectionUpdate);
       this.listenTo(this.collection, 'reload-message', this.reloadMessage);
 
+      this.listenTo(
+        this.showingCollection,
+        'reset',
+        this.onShowingCollectionReset
+      );
+
       this.render();
       this.checkOnTop();
 
@@ -664,6 +670,13 @@
       }
     },
 
+    onShowingCollectionReset() {
+      if (this.stickyDateView) {
+        this.stickyDateView.remove();
+        this.stickyDateView = null;
+      }
+    },
+
     remove() {
       if (this.observer) {
         this.observer.disconnect();
@@ -707,10 +720,6 @@
         this.itemRenderQueue = null;
       }
 
-      if (this.stickyDateView) {
-        this.stickyDateView.remove();
-        this.stickyDateView = null;
-      }
       this.showingCollection.reset();
 
       Backbone.View.prototype.remove.call(this);

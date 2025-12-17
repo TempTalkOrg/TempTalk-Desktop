@@ -42,8 +42,8 @@ const DetailMessageType = {
   CONFIDE:    8,
   SCREENSHOT: 9,
 
-  MANUALLY_END_CALL: 1001,
-  FORCE_END_CALL: 1002,
+  MANUALLY_END_PRIVATE_CALL: 1001,
+  MANUALLY_END_NON_PRIVATE_CALL: 1002,
 };
 
 // prettier-ignore

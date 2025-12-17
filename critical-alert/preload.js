@@ -32,6 +32,8 @@ window.changeTheme = fn => {
 };
 
 window.getConversationId = () => config.conversationId;
+window.getTitle = () => config.title;
+window.getIsPrivate = () => config.isPrivate === 'true';
 window.getFrom = () => config.from;
 
 window.i18n = i18n.setup(locale, localeMessages);
@@ -59,6 +61,10 @@ window.getCriticalAlertView = () => {
 };
 
 window.connectConversation = conversationId => {
-  ipcRenderer.send('jump-message', { conversationId });
+  ipcRenderer.send('fast-join-call', { conversationId });
+  ipcRenderer.send('want-close-self');
+};
+
+window.closeWindow = () => {
   ipcRenderer.send('want-close-self');
 };

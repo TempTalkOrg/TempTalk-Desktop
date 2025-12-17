@@ -820,6 +820,7 @@
         draftQuotedMessageId: this.get('draftQuotedMessageId'),
         isAliveGroup: this.isAliveGroup(),
         expireTimer: this.getConversationMessageExpiry(),
+        latestCriticalAlert: this.get('latestCriticalAlert'),
       };
 
       return result;
@@ -2525,7 +2526,18 @@
       ) {
         log.info('clear unread count.', newestUnreadDate, this.idForLogging());
 
-        this.set({ unreadCount: 0, atPersons: null });
+        const latestCriticalAlert = this.get('latestCriticalAlert');
+        if (latestCriticalAlert) {
+          this.set('latestCriticalAlert', {
+            timestamp: newestUnreadDate,
+            alert: false,
+          });
+        }
+
+        this.set({
+          unreadCount: 0,
+          atPersons: null,
+        });
       } else {
         if (markReadCount) {
           const unreadCount = oldUnreadCount - markReadCount;
@@ -5961,6 +5973,36 @@
         return this.get('criticalAlert') ?? false;
       }
       // return this.get('publicConfigs')?.criticalAlert ?? false;
+    },
+    async updateLatestCriticalAlert(message) {
+      const messageServerTimestamp = message.getServerTimestamp();
+      const lastReadPosition = await this.getLastReadPosition();
+      const maxServerTimestamp = lastReadPosition?.maxServerTimestamp || 0;
+
+      const latestCriticalAlert = this.get('latestCriticalAlert');
+
+      // ignore older message
+      if (latestCriticalAlert?.timestamp > messageServerTimestamp) {
+        return null;
+      }
+
+      if (messageServerTimestamp > maxServerTimestamp) {
+        return {
+          alert: message.isIncoming() && message.get('criticalAlert')?.alert,
+          timestamp: messageServerTimestamp,
+        };
+      } else {
+        return null;
+      }
+    },
+    resetLatestCriticalAlert(timestamp) {
+      const latestCriticalAlert = this.get('latestCriticalAlert');
+      if (latestCriticalAlert) {
+        this.set('latestCriticalAlert', {
+          timestamp,
+          alert: false,
+        });
+      }
     },
   });
 

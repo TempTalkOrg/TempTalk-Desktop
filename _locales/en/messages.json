@@ -2983,7 +2983,7 @@
   "call.leave": {
     "message": "Leave"
   },
-  "call.forceEnd": {
+  "call.endCall": {
     "message": "Call ended"
   },
   "formatTime.isYear": {
@@ -3191,13 +3191,22 @@
   "urgentCall": {
     "message": "Urgent Call"
   },
-  "connectNow": {
-    "message": "Connect Now"
+  "join": {
+    "message": "Join"
   },
   "readMore": {
     "message": "Read More"
   },
   "readLess": {
     "message": "Read Less"
+  },
+  "criticalAlert.privateContent": {
+    "message": "Critical Alert."
+  },
+  "criticalAlert.nonPrivateContent": {
+    "message": "Critical Alert from $from$."
+  },
+  "criticalAlert": {
+    "message": "[🚨 Critical Alert]"
   }
 }

@@ -9,6 +9,7 @@ const CallType = {
 const CallActionType = {
   StartCall: 'start-call',
   InviteMembers: 'invite-members',
+  CriticalAlert: 'critical-alert',
 };
 
 const CallControlType = {

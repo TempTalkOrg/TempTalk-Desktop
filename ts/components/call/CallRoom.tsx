@@ -303,7 +303,7 @@ export const CallRoom = ({ i18n }: IProps) => {
     onRaiseHand: onRaiseHandMessage,
     onCancelHand: onCancelHandMessage,
     onEndCall: () => {
-      handleDestroyCall(undefined, currentCall.roomId, 'hangup');
+      handleDestroyCall(currentCall.roomId, true);
     },
   });
 

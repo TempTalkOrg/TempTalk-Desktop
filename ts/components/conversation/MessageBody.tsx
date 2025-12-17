@@ -8,7 +8,7 @@ import classNames from 'classnames';
 import ReactDOM, { createPortal } from 'react-dom';
 
 export interface Props {
-  suffixType?: 'atYou' | 'atAll' | 'draft' | undefined;
+  suffixType?: 'atYou' | 'atAll' | 'draft' | 'criticalAlert' | undefined;
   text: string;
   textPending?: boolean;
   mentions?: Array<any>;
@@ -79,6 +79,9 @@ export const MessageBody = (props: Props) => {
         break;
       case 'draft':
         i18nKey = 'prefixDraft';
+        break;
+      case 'criticalAlert':
+        i18nKey = 'criticalAlert';
         break;
       default:
     }

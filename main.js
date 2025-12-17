@@ -2173,26 +2173,27 @@ function startCall(callInfo) {
   showLivekitCallWindow(callInfo);
 }
 
-const criticalAlertWindowWidth = 344;
-const criticalAlertWindowHeight = 68;
-const criticalAlertWindowPadding = 8;
 const criticalAlertWindows = new Map();
+const criticalAlertWindowWidth = 280;
+const criticalAlertWindowHeight = 236;
 
 function handleCriticalAlert(info) {
   const { screen } = electron;
   const theme = globalTheme;
 
-  const heightOffset =
-    criticalAlertWindows.size *
-    (criticalAlertWindowHeight + criticalAlertWindowPadding);
   const options = {
     width: criticalAlertWindowWidth,
     height: criticalAlertWindowHeight,
-    x:
-      screen.getPrimaryDisplay().size.width -
-      criticalAlertWindowWidth -
-      criticalAlertWindowPadding,
-    y: 44 + heightOffset,
+    x: Math.floor(
+      (screen.getPrimaryDisplay().workAreaSize.width -
+        criticalAlertWindowWidth) /
+        2
+    ),
+    y: Math.floor(
+      (screen.getPrimaryDisplay().workAreaSize.height -
+        criticalAlertWindowHeight) /
+        2
+    ),
     transparent: true,
     show: false,
     hasShadow: false,
@@ -2537,8 +2538,11 @@ async function hideIncomingCallWindow(roomId) {
   }
 }
 
-ipc.on('finish-join-call', (event, roomId) => {
+ipc.on('finish-join-call', (event, roomId, conversationId, timestamp) => {
   hideIncomingCallWindow(roomId);
+  if (mainWindow) {
+    mainWindow.webContents.send('finish-join-call', conversationId, timestamp);
+  }
 });
 
 ipc.handle('hide-incoming-call-window', async (event, roomId) => {
@@ -2765,7 +2769,7 @@ ipc.on('sned-frame-to-floating-bar', (event, frameInfo) => {
 });
 
 ipc.on('show-critical-alert', (event, info) => {
-  if (criticalAlertWindows.has(info.conversationId)) {
+  if (criticalAlertWindows.size > 0) {
     return;
   }
   handleCriticalAlert(info);
@@ -2774,5 +2778,11 @@ ipc.on('show-critical-alert', (event, info) => {
 ipc.on('update-call-config', (event, data) => {
   if (callWindow) {
     callWindow.webContents.send('update-call-config', data);
+  }
+});
+
+ipc.on('fast-join-call', (event, info) => {
+  if (mainWindow) {
+    mainWindow.webContents.send('fast-join-call', info);
   }
 });

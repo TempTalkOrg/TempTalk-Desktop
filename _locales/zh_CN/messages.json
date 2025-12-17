@@ -3019,7 +3019,7 @@
   "call.leave": {
     "message": "离开"
   },
-  "call.forceEnd": {
+  "call.endCall": {
     "message": "会议已结束"
   },
   "formatTime.isYear": {
@@ -3227,13 +3227,22 @@
   "urgentCall": {
     "message": "紧急通话"
   },
-  "connectNow": {
-    "message": "立即联系"
+  "join": {
+    "message": "加入"
   },
   "readMore": {
     "message": "查看更多"
   },
   "readLess": {
     "message": "收起内容"
+  },
+  "criticalAlert.privateContent": {
+    "message": "重要提醒。"
+  },
+  "criticalAlert.nonPrivateContent": {
+    "message": "来自 $from$ 的重要提醒。"
+  },
+  "criticalAlert": {
+    "message": "[🚨 重要提醒]"
   }
 }

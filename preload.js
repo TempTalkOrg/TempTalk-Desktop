@@ -1070,8 +1070,8 @@ ipcRenderer.on('incoming-call-respond', (_, info) => {
 });
 
 // 1. clear incoming window if exist
-window.destroyCall = async (roomId, reason) => {
-  await ipcRenderer.invoke('destroy-call', roomId, reason);
+window.destroyCall = async (roomId, shouldDelay = false) => {
+  await ipcRenderer.invoke('destroy-call', roomId, shouldDelay);
 };
 
 ipcRenderer.on('open-add-call-members', (_, { callName, currentMembers }) => {
@@ -1095,6 +1095,8 @@ window.joinCall = async ({ type, roomId, conversation, ...extra }) => {
   const deviceId = window.textsecure.storage.user.getDeviceId();
   const isPrivate = type !== 'group';
 
+  const conversationModel = ConversationController.get(conversation);
+
   ipcRenderer.send('join-call-from-conversation', {
     type,
     isPrivate,
@@ -1106,6 +1108,7 @@ window.joinCall = async ({ type, roomId, conversation, ...extra }) => {
     password,
     deviceId,
     serviceUrls: await window.Signal.Network.getCallServiceUrls(),
+    criticalAlert: conversationModel?.isCriticalAlertEnabled(),
   });
 };
 
@@ -1173,9 +1176,9 @@ async function saveCallLocalMessage(conversationIds, options) {
   const globalConfig = window.getGlobalConfig();
   const recallConfig = globalConfig.recall;
 
-  const { source, serverTimestamp } = options;
+  const { source, serverTimestamp, action } = options;
 
-  const text = getCallTextMessage(options.action, options.type, source);
+  const text = getCallTextMessage(action, options.type, source);
 
   for (const id of conversationIds) {
     const conversation = ConversationController.get(id);
@@ -1198,7 +1201,7 @@ async function saveCallLocalMessage(conversationIds, options) {
       );
     }
 
-    await conversation.saveNewLocalMessage({
+    const message = {
       sent_at: timestamp,
       received_at: timestamp,
       serverTimestamp,
@@ -1212,7 +1215,13 @@ async function saveCallLocalMessage(conversationIds, options) {
       type: 'outgoing',
       recipients: members,
       sent_to: members,
-    });
+    };
+
+    if (action === textsecure.CallActionType.CriticalAlert) {
+      message.criticalAlert = true;
+    }
+
+    await conversation.saveNewLocalMessage(message);
 
     conversation.set({
       active_at: timestamp,
@@ -1237,6 +1246,9 @@ function getCallTextMessage(action, type, callerId) {
     }
     case textsecure.CallActionType.InviteMembers: {
       return `${callerName} invites you to a call`;
+    }
+    case textsecure.CallActionType.CriticalAlert: {
+      return '🚨 Sent a Critical Alert.';
     }
     default: {
       return '';
@@ -1338,10 +1350,21 @@ window.showCriticalAlert = info => {
   ipc.send('show-critical-alert', info);
 };
 
-ipc.on('connect-source', (event, source) => {
-  Whisper.events.trigger('showConversation', source);
-});
-
 window.updateCallConfig = data => {
   ipc.send('update-call-config', data);
 };
+
+ipc.on('fast-join-call', (event, info) => {
+  Whisper.events.trigger('fast-join-call', info);
+});
+
+ipc.on('finish-join-call', (event, conversationId, timestamp) => {
+  if (!conversationId || !window.ConversationController) {
+    return;
+  }
+  const conversation = window.ConversationController.get(conversationId);
+  if (!conversation) {
+    return;
+  }
+  conversation.resetLatestCriticalAlert(timestamp);
+});

@@ -53,10 +53,9 @@ export const useLocalAction = ({
     }
 
     try {
-      const forceEnd = currentCall.endingCall;
-      const needSync = forceEnd || currentCall.type === '1on1';
+      const needSync = currentCall.endingCall || currentCall.type === '1on1';
 
-      // only forceEnd or 1on1 call need to sync end call
+      // sync other device to end call
       if (needSync) {
         onEndingCall?.();
       }
@@ -71,7 +70,6 @@ export const useLocalAction = ({
         ourNumber: currentCall.ourNumber,
         needSync,
         type: currentCall.type,
-        forceEnd,
       };
       await callingAPI.hangupCall(options, roomCipher);
     } catch (e) {

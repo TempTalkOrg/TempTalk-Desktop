@@ -393,8 +393,52 @@
       Whisper.events.on('callRemove', callRemoved);
       Whisper.events.on('callReset', callReset);
 
+      Whisper.events.on('fast-join-call', this.fastJoinCall);
+
       // Finally, add it to the DOM
       this.$('.left-pane-placeholder').append(this.leftPaneView.el);
+    },
+    async fastJoinCall(info) {
+      const { conversationId } = info;
+
+      const store = inboxStore.getState();
+      const { calls } = store.conversations;
+
+      if (_.isEmpty(calls)) {
+        return;
+      }
+
+      if (calls && calls[conversationId]) {
+        const { type, roomId, conversation, roomName } = calls[conversationId];
+
+        window.joinCall({
+          type,
+          roomId,
+          conversation,
+          roomName,
+        });
+      } else {
+        try {
+          const res = await window.callAPI.listCalls();
+          if (res.calls && res.calls.length) {
+            const targetCall = res.calls.find(
+              call => call.conversation === conversationId
+            );
+            if (targetCall) {
+              window.joinCall({
+                ...targetCall,
+                roomName: ConversationController.get(
+                  targetCall.conversation
+                )?.getDisplayName(),
+              });
+            } else {
+              console.log('fast join call error, call info not found');
+            }
+          }
+        } catch (e) {
+          console.log('fast join call error', e.message);
+        }
+      }
     },
     setupContact() {
       this.contactView = new Whisper.ReactWrapperView({

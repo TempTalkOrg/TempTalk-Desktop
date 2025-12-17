@@ -1313,9 +1313,15 @@ MessageReceiver.prototype.extend({
         notification => {
           const ev = new Event('notification');
           ev.confirm = this.removeFromCache.bind(this, envelope);
+          const { sequenceId, notifySequenceId } = envelope;
 
           try {
             ev.notification = JSON.parse(notification);
+
+            ev.extraData = {
+              sequenceId: sequenceId?.toNumber(),
+              notifySequenceId: notifySequenceId?.toNumber(),
+            };
           } catch (e) {
             log.error('JSON parse failed: ' + notification + ', err:' + e);
             throw new Error('Notification format is not valid json.');

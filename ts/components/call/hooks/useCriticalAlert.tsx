@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import React from 'react';
-import { currentCall, callingAPI } from '../initCall';
+import { currentCall, callingAPI, callActionType } from '../initCall';
 import { useMemoizedFn } from 'ahooks';
 import { useAtomValue } from 'jotai';
 import { roomAtom } from '../atoms/roomAtom';
@@ -29,14 +29,29 @@ export const useCriticalAlert = ({
     }
     const identity = room.localParticipant.identity;
     try {
+      const timestamp = Date.now();
+
       const destination =
         currentCall.type === '1on1' ? currentCall.number : undefined;
       const gid =
         currentCall.type === 'group' ? currentCall.groupId : undefined;
-      await callingAPI.sendCriticalAlert({ destination, gid });
+      const response = await callingAPI.sendCriticalAlert({
+        destination,
+        gid,
+        timestamp,
+      });
       addMessage({ identity, text: i18n('sendCriticalAlert.success') });
+
+      (window as any).sendCallText({
+        action: callActionType.CriticalAlert,
+        timestamp: timestamp,
+        serverTimestamp: response.serverTimestamp,
+        type: currentCall.type,
+        conversationIds: [currentCall.number || currentCall.groupId],
+        createCallMsg: true,
+      });
     } catch (e: any) {
-      console.log('sendCriticalAlertMessage error', e);
+      console.log('sendCriticalAlertMessage error', e.message);
       message.error(
         e?.code === 413
           ? i18n('sendCriticalAlert.rateLimitExceeded')

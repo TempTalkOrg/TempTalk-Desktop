@@ -7,6 +7,8 @@ window.ReactDOM.render(
     i18n: window.i18n,
     conversationId: window.getConversationId(),
     from: window.getFrom(),
+    title: window.getTitle(),
+    isPrivate: window.getIsPrivate(),
   }),
   document.querySelector('.critical-alert-root')
 );

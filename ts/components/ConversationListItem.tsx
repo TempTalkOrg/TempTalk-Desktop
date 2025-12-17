@@ -74,6 +74,10 @@ type PropsHousekeeping = {
   style?: Object;
   onClick?: (id: string, event?: ClickEvent) => void;
   onDoubleClick?: (id: string, event?: any) => void;
+  latestCriticalAlert?: {
+    timestamp: number;
+    alert: boolean;
+  };
 };
 
 type Props = PropsData & PropsHousekeeping;
@@ -287,7 +291,20 @@ export class ConversationListItem extends React.Component<Props> {
   }
 
   public getMessagePreview(): { text: string; suffixType?: any } {
-    const { atPersons, unreadCount, ourNumber, lastMessage } = this.props;
+    const {
+      atPersons,
+      unreadCount,
+      ourNumber,
+      lastMessage,
+      latestCriticalAlert,
+    } = this.props;
+
+    if (unreadCount && latestCriticalAlert?.alert) {
+      return {
+        text: lastMessage?.text || '',
+        suffixType: 'criticalAlert',
+      };
+    }
 
     if (unreadCount && atPersons?.length) {
       if (ourNumber?.length && atPersons.includes(ourNumber)) {

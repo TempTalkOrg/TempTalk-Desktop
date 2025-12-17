@@ -127,7 +127,8 @@ export type CallSender = {
   sendCriticalAlert(options: {
     destination?: string;
     gid?: string;
-  }): Promise<void>;
+    timestamp: number;
+  }): Promise<{ serverTimestamp: number }>;
 };
 
 export declare class UserSessionCipher {
