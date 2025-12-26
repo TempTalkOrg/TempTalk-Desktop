@@ -336,7 +336,7 @@
           let virtualIndex;
           if (
             model.getSource() === prevModel?.getSource() &&
-            !model.oldestUnread &&
+            model !== this.oldestLoadedUnreadModel &&
             !model.dateSeparator
           ) {
             virtualIndex = prevModel.virtualIndex + 1;
@@ -359,6 +359,7 @@
       this.debounceTagVirtualIndex = _.debounce(() => {
         const models = this.model.messageCollection.models;
         this.tagVirtualIndex(models);
+        this.view.scrollToBottomIfNeeded();
       }, 100);
 
       this.listenTo(
@@ -2205,11 +2206,8 @@
         this.lastSeenIndicator = null;
         indicator.remove();
 
-        const oldestUnreadModel = this.model.messageCollection.find(
-          model => model.oldestUnread
-        );
-        if (oldestUnreadModel) {
-          delete oldestUnreadModel.oldestUnread;
+        if (this.oldestLoadedUnreadModel) {
+          this.oldestLoadedUnreadModel = null;
         }
 
         this.debounceTagVirtualIndex();
@@ -2587,7 +2585,7 @@
       this.removeLastSeenIndicator();
 
       if (oldestUnreadModel && incomingUnread && unreadCount) {
-        oldestUnreadModel.oldestUnread = true;
+        this.oldestLoadedUnreadModel = oldestUnreadModel;
         this.debounceTagVirtualIndex();
 
         this.lastSeenIndicator = new Whisper.ReactWrapperView({
@@ -2601,7 +2599,9 @@
 
         const lastSeenEl = this.lastSeenIndicator.$el;
 
-        lastSeenEl.insertBefore(this.$(`#${oldestUnreadModel.get('id')}`));
+        lastSeenEl.insertBefore(
+          this.$(`#${this.oldestLoadedUnreadModel.get('id')}`)
+        );
 
         if (this.view.atBottom() || options.scroll) {
           lastSeenEl[0].scrollIntoView();

@@ -252,6 +252,16 @@
           "livekit-sg1",
           "livekit-sg2"
         ]
+      },
+      {
+        "name": "grayCheck",
+        "path": "/grayCheck",
+        "domains": [
+          "chat1",
+          "chat2",
+          "chat3",
+          "chat4"
+        ]
       }
     ]
   }

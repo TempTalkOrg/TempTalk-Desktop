@@ -2361,6 +2361,13 @@ ipc.on('dispatch-call-message', async (event, type, payload) => {
       break;
     }
     case 'incomingCall': {
+      const { groupId, number } = payload;
+      if (criticalAlertWindows.has(groupId || number)) {
+        console.log(
+          'ignore incoming call since corresponding critical alert exist'
+        );
+        return;
+      }
       handleIncomingCall(payload);
       break;
     }
@@ -2415,13 +2422,13 @@ ipc.on('join-call-from-incoming', (event, info) => {
   }, 0);
 });
 
-ipc.handle('destroy-call', async (_, roomId, reason) => {
-  const window = incomingCallWindows.get(roomId, reason);
+ipc.handle('destroy-call', async (_, roomId, shouldDelay) => {
+  const window = incomingCallWindows.get(roomId);
   if (window) {
     window.close();
   }
   if (callWindow) {
-    callWindow.webContents.send('destroy-call', roomId, reason);
+    callWindow.webContents.send('destroy-call', roomId, shouldDelay);
   }
 });
 
@@ -2538,8 +2545,16 @@ async function hideIncomingCallWindow(roomId) {
   }
 }
 
+function hideCriticalAlertWindow(conversationId) {
+  if (criticalAlertWindows.has(conversationId)) {
+    criticalAlertWindows.get(conversationId)?.close();
+    criticalAlertWindows.delete(conversationId);
+  }
+}
+
 ipc.on('finish-join-call', (event, roomId, conversationId, timestamp) => {
   hideIncomingCallWindow(roomId);
+  hideCriticalAlertWindow(conversationId);
   if (mainWindow) {
     mainWindow.webContents.send('finish-join-call', conversationId, timestamp);
   }
@@ -2785,4 +2800,8 @@ ipc.on('fast-join-call', (event, info) => {
   if (mainWindow) {
     mainWindow.webContents.send('fast-join-call', info);
   }
+});
+
+ipc.on('hide-critical-alert-window', (event, conversationId) => {
+  hideCriticalAlertWindow(conversationId);
 });

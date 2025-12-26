@@ -21,6 +21,8 @@
         className,
         onInitialRender,
         elCallback,
+        enableAntdConfigProvider,
+        configProviderProps,
       } = options;
       this.render();
       if (elCallback) {
@@ -33,6 +35,8 @@
       this.Component = Component;
       this.onClose = onClose;
       this.onInitialRender = onInitialRender;
+      this.enableAntdConfigProvider = enableAntdConfigProvider;
+      this.configProviderProps = configProviderProps;
 
       this.update(props);
 
@@ -40,9 +44,19 @@
     },
     update(props) {
       const updatedProps = this.augmentProps(props);
-      const reactElement = this.JSX
+      let reactElement = this.JSX
         ? this.JSX
         : React.createElement(this.Component, updatedProps);
+
+      if (this.enableAntdConfigProvider) {
+        const ConfigProvider = window.Signal.Components.ConfigProvider;
+        reactElement = React.createElement(
+          ConfigProvider,
+          this.configProviderProps,
+          reactElement
+        );
+      }
+
       ReactDOM.render(reactElement, this.el, () => {
         if (this.hasRendered) {
           return;

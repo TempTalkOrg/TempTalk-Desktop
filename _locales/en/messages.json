@@ -3208,5 +3208,8 @@
   },
   "criticalAlert": {
     "message": "[🚨 Critical Alert]"
+  },
+  "networkErrAndRetry": {
+    "message": "Network error, will retry connecting in $seconds$s ..."
   }
 }

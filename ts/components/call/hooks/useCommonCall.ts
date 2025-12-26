@@ -70,6 +70,7 @@ export const useCommonCall = ({ i18n, room }: IProps) => {
           ...currentCall,
           createdAt: null,
         });
+        console.log('[add-call-button]', 'room not ended.');
       }
     } else {
       if (!currentCall.isPassive) {
@@ -180,6 +181,7 @@ export const useCommonCall = ({ i18n, room }: IProps) => {
           (window as any).removeJoinCallButton(currentCall.roomId);
         }
         (window as any).addJoinCallButton({ ...currentCall });
+        console.log('[add-call-button]', 'finish start call.');
       }
     }
   });
@@ -209,6 +211,7 @@ export const useCommonCall = ({ i18n, room }: IProps) => {
       logger.info('on destroy call, shouldDelay:', shouldDelay);
 
       if (shouldDelay) {
+        currentCall.endingCall = true;
         let message = '';
         const reason = currentCall.type === '1on1' ? 'hangup' : 'end-call';
 

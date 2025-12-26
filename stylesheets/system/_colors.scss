@@ -43,6 +43,7 @@
   --dst-color-primary: #056ffa;
   --dst-color-function-success: #01bc6a;
   --dst-color-function-error: #f84135;
+  --dst-color-function-warning: #ffc814;
 
   @if $theme ==light {
     --dst-color-background: #ffffff;

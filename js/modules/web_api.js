@@ -38,6 +38,7 @@ const SERVICE_LIST = {
   SPEECH2TEXT: 'speech2text',
   AVATAR: 'avatar',
   LIVEKIT: 'livekit',
+  GRAY_CHECK: 'grayCheck',
 
   // outer
   OUTER: 'outer',
@@ -52,6 +53,7 @@ const AUTH_TOKEN_SERVICES = [
   SERVICE_LIST.CALL,
   SERVICE_LIST.FILE_SHARING,
   SERVICE_LIST.SPEECH2TEXT,
+  SERVICE_LIST.GRAY_CHECK,
 ];
 
 function disableNetwork(type, url) {
@@ -722,6 +724,7 @@ function initialize({
       getCallToken,
       submitCallFeedback,
       speechToText,
+      checkGrayRules,
       sendCriticalAlert,
     };
 
@@ -1877,6 +1880,7 @@ function initialize({
         certificateAuthority: mainDomain ? certificateAuthority : undefined,
         userAgent,
         type: 'GET',
+        timeout: 3000,
       });
     }
 
@@ -2581,6 +2585,31 @@ function initialize({
       const path = 'whisperX/transcribe';
 
       return _request(path, jsonData, options);
+    }
+
+    function checkGrayRules(data = {}) {
+      const jsonData = {};
+      const assignJsonData = newObj => Object.assign(jsonData, newObj);
+
+      const optionalMap = {
+        sources: isArray,
+      };
+
+      const optionalWrapper = (key, validator) => {
+        const value = data[key];
+        if (validator(value)) {
+          assignJsonData({ [key]: value });
+        }
+      };
+
+      validateMap(optionalMap, optionalWrapper);
+
+      const options = {
+        serverType: SERVICE_LIST.GRAY_CHECK,
+        type: 'POST',
+      };
+
+      return _request('v1/grayCheck', jsonData, options);
     }
   }
 }

@@ -109,9 +109,10 @@ window.noticeWithoutType = (message, expireTime) => {
 };
 
 window.showNotice = (type, message, expireTime) => {
-  const obj = { type, message, expireTime };
-  const ev = new CustomEvent('main-menu-show-notice', { detail: obj });
-  window.dispatchEvent(ev);
+  window.Signal.Util.showToastAtCenter(message, {
+    duration: expireTime,
+    type,
+  });
 };
 
 window.setBadgeCount = (redCount, greyCount) => {
@@ -1127,14 +1128,17 @@ ipcRenderer.on('add-join-call-button', (_, callInfo) => {
     Whisper.events.trigger('callRemove', {
       conversation: callInfo.prev1on1Numebr,
     });
+    console.log('[remove-call-button]', 'convert to instant call');
   }
   if (callInfo.createdAt === undefined) {
     callInfo.createdAt = Date.now();
   }
   Whisper.events.trigger('callAdd', callInfo);
+  console.log('[add-call-button]', 'from call window');
 });
 
 ipcRenderer.on('sync-call-timer', (_, callInfo) => {
+  console.log('[add-call-button]', 'sync call timer.');
   Whisper.events.trigger('callAdd', {
     ...callInfo,
     createdAt: Date.now(),
@@ -1368,3 +1372,7 @@ ipc.on('finish-join-call', (event, conversationId, timestamp) => {
   }
   conversation.resetLatestCriticalAlert(timestamp);
 });
+
+window.hideCriticalAlertWindow = conversationId => {
+  ipc.send('hide-critical-alert-window', conversationId);
+};

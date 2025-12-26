@@ -3244,5 +3244,8 @@
   },
   "criticalAlert": {
     "message": "[🚨 重要提醒]"
+  },
+  "networkErrAndRetry": {
+    "message": "网络错误，将在 $seconds$ 秒后重试..."
   }
 }

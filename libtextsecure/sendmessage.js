@@ -1833,6 +1833,9 @@ MessageSender.prototype = {
   speechToText(attachment) {
     return this.server.speechToText(attachment);
   },
+  checkGrayRules(data) {
+    return this.server.checkGrayRules(data);
+  },
 };
 
 window.textsecure = window.textsecure || {};
@@ -1919,6 +1922,8 @@ textsecure.MessageSender = function MessageSenderWrapper(username, password) {
 
   this.makeAttachmentPointer = sender.makeAttachmentPointer.bind(sender);
   this.speechToText = sender.speechToText.bind(sender);
+
+  this.checkGrayRules = sender.checkGrayRules.bind(sender);
 };
 
 textsecure.MessageSender.prototype = {

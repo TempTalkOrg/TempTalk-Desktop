@@ -193,6 +193,13 @@
           "livekit-uae1",
           "livekit-uae2"
         ]
+      },
+      {
+        "name": "grayCheck",
+        "path": "/grayCheck",
+        "domains": [
+          "chat1"
+        ]
       }
     ]
   }

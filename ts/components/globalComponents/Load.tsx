@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { LocalizerType } from '../../types/Util';
 import MembersChange from './MembersChange';
-import { Notice } from '../Notice';
 import CreateGroup from './CreateGroup';
 
 import { ICreateGroupProps } from './CreateGroup';
@@ -490,7 +489,6 @@ export default function Load(props: PropsType) {
 
   return (
     <>
-      <Notice />
       {showMembersChangeDialog ? (
         <MembersChange
           i18n={i18n}

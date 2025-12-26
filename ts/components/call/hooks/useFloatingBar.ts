@@ -106,37 +106,27 @@ export const useFloatingBar = ({
     };
   }, []);
 
-  const updateLocalMuteStatus = useMemoizedFn((muted: boolean) => {
-    (window as any).updateFloatingBar({ muted });
-  });
-
-  const handleLocalTrackMuted = useMemoizedFn(() => {
-    updateLocalMuteStatus(true);
-  });
-
-  const handleLocalTrackUnmuted = useMemoizedFn(() => {
-    updateLocalMuteStatus(false);
+  const handleMutedChange = useMemoizedFn(track => {
+    if (track.source === Track.Source.Microphone) {
+      (window as any).updateFloatingBar({
+        muted: !room.localParticipant.isMicrophoneEnabled,
+      });
+    }
   });
 
   useEffect(() => {
-    room.localParticipant.on(
-      ParticipantEvent.TrackMuted,
-      handleLocalTrackMuted
-    );
+    room.localParticipant.on(ParticipantEvent.TrackMuted, handleMutedChange);
 
-    room.localParticipant.on(
-      ParticipantEvent.TrackUnmuted,
-      handleLocalTrackUnmuted
-    );
+    room.localParticipant.on(ParticipantEvent.TrackUnmuted, handleMutedChange);
 
     return () => {
       room.localParticipant.removeListener(
         ParticipantEvent.TrackMuted,
-        handleLocalTrackMuted
+        handleMutedChange
       );
       room.localParticipant.removeListener(
         ParticipantEvent.TrackUnmuted,
-        handleLocalTrackUnmuted
+        handleMutedChange
       );
     };
   }, []);

@@ -2083,10 +2083,6 @@ body.dark-theme {
     color: rgb(219, 221, 222);
   }
 
-  .notice-icon-success {
-    @include color-svg('../images/notice-icon-success.svg', #2e8c5e);
-  }
-
   .notice-warning {
     color: rgb(219, 221, 222);
   }
@@ -2914,5 +2910,11 @@ body.dark-theme {
   .message-body-expand-button.sticky {
     background: var(--dst-color-background-four);
     box-shadow: var(--dst-elevation-3);
+  }
+
+  .universal-toast {
+    .ant-message-notice-content {
+      background-color: var(--dst-color-line) !important;
+    }
   }
 }

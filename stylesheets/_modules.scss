@@ -4949,7 +4949,7 @@
 .universal-toast {
   .ant-message-notice-content {
     max-width: 305px;
-    background-color: var(--dst-color-background-tooltip) !important;
+    background-color: var(--dst-color-icon) !important;
     color: var(--dst-color-text-white) !important;
     box-shadow: none !important;
     padding: 10px 16px !important;
@@ -4959,6 +4959,25 @@
     font-size: 14px;
     font-weight: 400;
     line-height: 20px;
+  }
+
+  .toast-icon {
+    height: 20px;
+    width: 20px;
+    margin-right: 8px;
+
+    &-success {
+      color: var(--dst-color-function-success);
+    }
+    &-error {
+      color: var(--dst-color-function-error);
+    }
+    &-info {
+      color: var(--dst-color-primary);
+    }
+    &-warning {
+      color: var(--dst-color-function-warning);
+    }
   }
 }
 

@@ -89,38 +89,6 @@
   text-align: center;
   background-color: rgb(62, 62, 67);
 }
-.notice-icon-info {
-  @include color-svg('../images/notice-icon-info.svg', rgb(70, 124, 253));
-  height: 20px;
-  width: 20px;
-  vertical-align: middle;
-  display: inline-block;
-  margin-right: 8px;
-}
-.notice-icon-success {
-  @include color-svg('../images/notice-icon-success.svg', rgb(146, 226, 187));
-  height: 20px;
-  width: 20px;
-  vertical-align: middle;
-  display: inline-block;
-  margin-right: 8px;
-}
-.notice-icon-warning {
-  @include color-svg('../images/notice-icon-warning.svg', rgb(250, 173, 20));
-  height: 20px;
-  width: 20px;
-  vertical-align: middle;
-  display: inline-block;
-  margin-right: 8px;
-}
-.notice-icon-error {
-  @include color-svg('../images/notice-icon-error.svg', rgb(253, 107, 109));
-  height: 20px;
-  width: 20px;
-  vertical-align: middle;
-  display: inline-block;
-  margin-right: 8px;
-}
 
 .forward-dialog {
   padding: 5px 20px;

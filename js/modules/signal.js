@@ -167,6 +167,7 @@ const {
 const {
   ComposeToolbar,
 } = require('../../ts/components/conversation/ComposeToolbar');
+const { ConfigProvider } = require('../../ts/components/shared/ConfigProvider');
 
 // State
 const { createContactPane } = require('../../ts/state/roots/createContactPane');
@@ -199,6 +200,8 @@ const MessageDataMigrator = require('./messages_data_migrator');
 
 const { setupServiceConfig } = require('../../ts/web_api/service-generator');
 const { getCallServiceUrls } = require('../../ts/web_api/call-service');
+
+const { startGrayRulesSync, isInGray } = require('../../ts/web_api/gray-rules');
 
 function initializeMigrations({
   userDataPath,
@@ -362,6 +365,7 @@ exports.setup = (options = {}) => {
     MentionsJumpButton,
     ComposeToolbar,
     CallFeedback,
+    ConfigProvider,
   };
 
   const Roots = {
@@ -408,6 +412,11 @@ exports.setup = (options = {}) => {
     getCallServiceUrls,
   };
 
+  const GrayService = {
+    startGrayRulesSync,
+    isInGray,
+  };
+
   return {
     AttachmentDownloads,
     Backbone,
@@ -424,5 +433,6 @@ exports.setup = (options = {}) => {
     Workflow,
     ID,
     Network,
+    GrayService,
   };
 };

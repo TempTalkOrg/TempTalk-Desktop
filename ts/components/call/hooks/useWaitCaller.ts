@@ -57,6 +57,7 @@ export const useWaitCaller = ({
       // 1on1 被叫转 instant
       if (currentCall.type === '1on1') {
         (window as any).addJoinCallButton({ ...currentCall });
+        console.log('[add-call-button]', '1on1 participant connected.');
         if (room.remoteParticipants.size > 1) {
           convertToInstantCall?.();
         }

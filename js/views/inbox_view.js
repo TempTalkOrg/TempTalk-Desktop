@@ -248,6 +248,7 @@
       this.leftPaneView2 = new Whisper.ReactWrapperView({
         JSX: Signal.State.Roots.createFirstPane(window.inboxStore),
         className: 'first-pane-wrapper',
+        enableAntdConfigProvider: true,
       });
       this.$('.main-menu').append(this.leftPaneView2.el);
     },

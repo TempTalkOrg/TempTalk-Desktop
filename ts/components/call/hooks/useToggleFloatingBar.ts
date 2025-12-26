@@ -91,10 +91,23 @@ const usePageVisibility = () => {
   const [pageVisibility, setPageVisibility] = useState(
     () => document.visibilityState
   );
+  const setHiddenTimeout = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     document.onvisibilitychange = () => {
-      setPageVisibility(document.visibilityState);
+      if (document.visibilityState === 'hidden') {
+        setHiddenTimeout.current = setTimeout(() => {
+          setPageVisibility('hidden');
+          setHiddenTimeout.current = null;
+        }, 300);
+      } else {
+        // ignore middle hidden state caused by fullscreen transition
+        if (setHiddenTimeout.current) {
+          clearTimeout(setHiddenTimeout.current);
+          setHiddenTimeout.current = null;
+        }
+        setPageVisibility(document.visibilityState);
+      }
     };
 
     return () => {

@@ -161,6 +161,38 @@ const makeMessageCollapseId = ({ timestamp, source, sourceDevice }) => {
   return collapseId;
 };
 
+async function fetchCallList() {
+  let response = [];
+  try {
+    const res = await window.callAPI.listCalls();
+    if (res.calls && res.calls.length) {
+      res.calls.forEach(call => {
+        if (call.type === 'group') {
+          const conversation = ConversationController.get(call.conversation);
+          if (!conversation || conversation.isMeLeftGroup()) {
+            call.type = 'instant';
+            call.conversation = null;
+          }
+        }
+      });
+      response = res.calls;
+    }
+  } catch (e) {
+    console.log('fetch call list error', e.message);
+  }
+  return response;
+}
+
+async function getCallInfoByConversationId(conversationId) {
+  const { conversations = {} } = window.inboxStore.getState();
+  const calls = conversations.calls || {};
+  if (calls[conversationId]) {
+    return calls[conversationId];
+  }
+  const callList = await fetchCallList();
+  return callList.find(call => call.conversation === conversationId);
+}
+
 // eslint-disable-next-line func-names
 (async function () {
   'use strict';
@@ -1322,6 +1354,7 @@ const makeMessageCollapseId = ({ timestamp, source, sourceDevice }) => {
               uid: data.caller,
             },
           });
+          console.log('[add-call-button]', 'reject call.');
         }
       }
     });
@@ -1629,25 +1662,12 @@ const makeMessageCollapseId = ({ timestamp, source, sourceDevice }) => {
   }
 
   async function initCallList() {
-    // fetch livekit call status
-    try {
-      const res = await window.callAPI.listCalls();
-      if (res.calls && res.calls.length) {
-        console.log('[add join button] init call list', Date.now());
-        res.calls.forEach(call => {
-          if (call.type === 'group') {
-            const conversation = ConversationController.get(call.conversation);
-            if (!conversation || conversation.isMeLeftGroup()) {
-              call.type = 'instant';
-              call.conversation = null;
-            }
-          }
-          Whisper.events.trigger('callAdd', call);
-        });
-      }
-    } catch (e) {
-      console.log('fetch call status error', e);
-    }
+    const callList = await fetchCallList();
+
+    callList.forEach(call => {
+      Whisper.events.trigger('callAdd', call);
+      console.log('[add-call-button]', 'init call list.');
+    });
   }
 
   function updateCallList() {
@@ -1820,6 +1840,8 @@ const makeMessageCollapseId = ({ timestamp, source, sourceDevice }) => {
     storage.onready(async () => {
       idleDetector.start();
     });
+
+    window.Signal.GrayService.startGrayRulesSync();
   }
 
   function onChangeTheme() {
@@ -2423,6 +2445,7 @@ const makeMessageCollapseId = ({ timestamp, source, sourceDevice }) => {
         type,
         conversation: getTargetConversation(),
       });
+      console.log('[add-call-button]', 'received calling');
 
       if (fromMe || callInfo.anotherDeviceJoined || callInfo.userStopped) {
         return confirm?.();
@@ -2479,20 +2502,26 @@ const makeMessageCollapseId = ({ timestamp, source, sourceDevice }) => {
             uid: callInfo.caller,
           },
         });
+        console.log('[add-call-button]', 'reject by other device');
         incomingCallMap.delete(roomId);
       }
     } else if (joined) {
       await window.hideIncomingCallWindow(joined.roomId);
       const callInfo = incomingCallMap.get(joined.roomId);
 
-      // fix: desktop 先入会，mobile 后入会，join button 会在 1on1 会话上短暂出现
-      if (callInfo && callInfo.roomId !== window.currentCallRoomId) {
-        Whisper.events.trigger('callAdd', {
-          ...callInfo,
-          caller: {
-            uid: callInfo.caller,
-          },
-        });
+      if (callInfo) {
+        // fix: desktop 先入会，mobile 后入会，join button 会在 1on1 会话上短暂出现
+        if (callInfo.roomId !== window.currentCallRoomId) {
+          Whisper.events.trigger('callAdd', {
+            ...callInfo,
+            caller: {
+              uid: callInfo.caller,
+            },
+          });
+          console.log('[add-call-button]', 'joined call.');
+        }
+        window.hideCriticalAlertWindow(callInfo.conversation);
+
         incomingCallMap.delete(joined.roomId);
       }
     } else if (cancel) {
@@ -2500,6 +2529,7 @@ const makeMessageCollapseId = ({ timestamp, source, sourceDevice }) => {
     } else if (hangup) {
       window.destroyCall(hangup.roomId, true);
       Whisper.events.trigger('callRemove', { roomId: hangup.roomId });
+      console.log('[remove-call-button]', 'got hangup call');
     }
     if (typeof confirm === 'function') {
       confirm();
@@ -3051,6 +3081,7 @@ const makeMessageCollapseId = ({ timestamp, source, sourceDevice }) => {
       // should close call window, if exist
       window.destroyCall(data.roomId, true);
       Whisper.events.trigger('callRemove', { roomId: data.roomId });
+      console.log('[remove-call-button]', 'got destroy call');
     }, 1500);
   }
 
@@ -3169,6 +3200,11 @@ const makeMessageCollapseId = ({ timestamp, source, sourceDevice }) => {
         title,
         from,
       });
+
+      const callInfo = await getCallInfoByConversationId(conversationId);
+      if (callInfo) {
+        window.hideIncomingCallWindow(callInfo.roomId);
+      }
     }
 
     const eventName = isMe ? 'sent' : 'message';
