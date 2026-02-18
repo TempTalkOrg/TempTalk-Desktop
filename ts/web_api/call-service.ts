@@ -7,39 +7,42 @@ const testCallDomains = createDomainSelector();
 
 async function refreshCallServiceUrls() {
   try {
-    let serverUrls;
+    let serverUrls = [];
 
     if (!(window as any).callAPI) {
       console.log('callAPI not ready');
-      return;
+      return [];
     }
     try {
       const response = await (window as any).callAPI.getServiceUrls();
+      callServiceUrls = response.serviceUrls;
       serverUrls = response.serviceUrls.map((url: string) => ({
         url,
-        certType: 'self',
+        certType: 'authority',
       }));
     } catch (e) {
       console.log('refresh call service urls from server failed', e);
     }
 
-    const domains = (serverUrls || []).map((item: ServerConfigType) => ({
+    const domains = serverUrls.map((item: ServerConfigType) => ({
       domain: new URL(item.url).hostname,
     }));
 
-    const callServiceDomains = await testCallDomains(domains);
+    // update tested result in thenable
+    testCallDomains(domains).then(callServiceDomains => {
+      callServiceUrls = callServiceDomains.map(
+        server => `https://${server.domain}`
+      );
+      console.log('test call service urls done:', serverUrls);
+    });
 
-    callServiceUrls = callServiceDomains.map(
-      server => `https://${server.domain}`
-    );
+    return serverUrls.map((item: ServerConfigType) => item.url);
   } catch (e) {
     console.log('refresh call service urls failed', e);
   }
 }
 
-export const startTestCallServiceUrls = (initials: ServerConfigType[]) => {
-  callServiceUrls = initials.map(item => item.url);
-
+export const startTestCallServiceUrls = () => {
   if (testCallServiceInterval) {
     clearInterval(testCallServiceInterval);
   }
@@ -58,12 +61,6 @@ export const getCallServiceUrls = async () => {
   if (callServiceUrls.length) {
     return callServiceUrls;
   } else {
-    try {
-      const response = await (window as any).callAPI.getServiceUrls();
-      callServiceUrls = response.serviceUrls;
-    } catch (e) {
-      console.log('get call service urls from server failed', e);
-    }
-    return callServiceUrls;
+    return await refreshCallServiceUrls();
   }
 };

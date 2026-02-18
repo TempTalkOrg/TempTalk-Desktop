@@ -63,7 +63,6 @@ export const getSearchResults = createSelector(
       'name',
       'email',
       'signature',
-      'id',
       'title',
       'profileName',
       'protectedConfigs',

@@ -96,7 +96,7 @@ const doSearch = async ({
       .reverse()
       .filter((message: any) => {
         message.correctExpireTimer();
-        return !message.isExpired();
+        return !message.isExpired() && !message.isConfidentialMessage();
       })
       .map((message: any) => message.attributes)
   );
@@ -142,7 +142,6 @@ export const LocalSearch = (props: PropsType) => {
     if (!myNumber) {
       throw Error('LocalSearch.tsx ourNumber not found!');
     }
-    (window as any).setupWaterMark(myNumber);
     setOurNumber(myNumber);
 
     await (window as any).ConversationController.load(true);
@@ -247,6 +246,7 @@ export const LocalSearch = (props: PropsType) => {
           name={(c as any).name}
           color={(c as any).color}
           profileName={(c as any).profileName}
+          accountName={(c as any).accountName}
           avatarPath={(c as any).avatarPath}
           body={body}
           i18n={i18n}

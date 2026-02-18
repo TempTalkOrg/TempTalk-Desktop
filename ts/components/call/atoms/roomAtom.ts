@@ -4,7 +4,7 @@ export interface IRoomInfo {
   token?: string;
   key?: ArrayBuffer;
   serviceUrl: string;
-  serviceUrls: string[];
+  // serviceUrls: string[];
   type?: '1on1' | 'instant' | 'group';
   roomName?: string;
 }
@@ -12,3 +12,5 @@ export interface IRoomInfo {
 export const roomAtom = atom<IRoomInfo>({} as IRoomInfo);
 
 export const roomDurationAtom = atom<number>(0);
+
+export const inviteMembersAtom = atom<Set<string>>(new Set([]));

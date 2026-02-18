@@ -1,7 +1,8 @@
-import SQL from '@signalapp/better-sqlite3';
-import type { Database } from '@signalapp/better-sqlite3';
+import SQL from '@opensource-lib/better-sqlite3';
 
-import { LoggerType } from '../../logger/types';
+import type { Database } from '@opensource-lib/better-sqlite3';
+import type { LoggerType } from '../../logger/types';
+
 import { formatError } from '../../logger/utils';
 import { consoleLogger } from '../../logger/consoleLogger';
 
@@ -274,5 +275,9 @@ export class Sqlite3Database implements ILocalDatabase {
     }
 
     return calcFilesSize(this.dbFilePath, this.logger);
+  }
+
+  public getReport(): Record<string, unknown> {
+    throw new Error('Method not implemented.');
   }
 }

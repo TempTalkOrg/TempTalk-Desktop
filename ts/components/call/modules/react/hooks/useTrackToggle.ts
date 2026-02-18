@@ -103,7 +103,7 @@ export function useTrackToggle<T extends ToggleSource>({
       'aria-pressed': enabled,
       'data-lk-source': source,
       'data-lk-enabled': enabled,
-      disabled: pending,
+      disabled: pending || newProps.disabled,
       onClick: clickHandler,
     } as React.ButtonHTMLAttributes<HTMLButtonElement>,
   };

@@ -32,6 +32,8 @@ import {
 } from '../../../../shared/icons';
 import { useControlBarTooltip } from '../hooks/useControlBarTooltip';
 import { ScreenShareModeMenu } from './ScreenShareModeMenu';
+import { screenShareAtom } from '../../../atoms/screenShareAtom';
+import { useAtomValue } from 'jotai';
 
 /** @public */
 export type ControlBarControls = {
@@ -96,6 +98,7 @@ export function ControlBar({
 
   const localPermissions = useLocalParticipantPermissions();
   const participants = useParticipants();
+  const { isRequesting: requestingScreenShare } = useAtomValue(screenShareAtom);
 
   const connectionState = useConnectionState();
   const { localParticipant } = useLocalParticipant();
@@ -160,6 +163,7 @@ export function ControlBar({
 
   const featureFlags = useFeatureContext();
   const onSendMessage = featureFlags?.onSendMessage || undefined;
+  const onSendBubbleMessage = featureFlags?.onSendBubbleMessage || undefined;
 
   const onEndCall = () => {
     featureFlags?.onEndCall?.();
@@ -181,6 +185,13 @@ export function ControlBar({
         <BackToMainButton onClick={onBackToMain}>
           <IconBackToMain />
         </BackToMainButton>
+      )}
+      {visibleControls.chat && (
+        <MessageSender
+          onSendMessage={onSendMessage}
+          presetTexts={featureFlags?.chatPresets}
+          onSendBubbleMessage={onSendBubbleMessage}
+        />
       )}
       <div className="lk-control-area">
         {visibleControls.raiseHand && connected && (
@@ -245,6 +256,7 @@ export function ControlBar({
             {isSupportSystemMode ? (
               localParticipant.isScreenShareEnabled ? (
                 <TrackToggle
+                  disabled={requestingScreenShare}
                   source={Track.Source.ScreenShare}
                   captureOptions={{
                     audio: true,
@@ -270,6 +282,7 @@ export function ControlBar({
               ) : (
                 <div className="lk-button-group">
                   <TrackToggle
+                    disabled={requestingScreenShare}
                     source={Track.Source.ScreenShare}
                     captureOptions={{
                       audio: true,
@@ -297,6 +310,7 @@ export function ControlBar({
               )
             ) : (
               <TrackToggle
+                disabled={requestingScreenShare}
                 source={Track.Source.ScreenShare}
                 captureOptions={{
                   audio: true,
@@ -372,19 +386,6 @@ export function ControlBar({
             </div>
           </div>
         )}
-        {criticalAlert?.visible && (
-          <Tooltip {...tooltipProps} title={tooltipText.moreAction}>
-            <ContextMenu
-              menu={{ items: criticalAlert.menuItems }}
-              placement="top"
-              trigger={['click']}
-            >
-              <button className="more-action-button">
-                <IconMoreAction className="call-icon control-bar-icon more-action-icon" />
-              </button>
-            </ContextMenu>
-          </Tooltip>
-        )}
         {visibleControls.leave && featureFlags?.type === '1on1' && (
           <DisconnectButton title={tooltipText.endCall}>
             {showIcon && (
@@ -407,11 +408,22 @@ export function ControlBar({
           </div>
         )}
       </div>
-      {visibleControls.chat && (
-        <MessageSender
-          onSendMessage={onSendMessage}
-          presetTexts={featureFlags?.chatPresets}
-        />
+      {criticalAlert?.visible && (
+        <Tooltip
+          {...tooltipProps}
+          title={tooltipText.moreAction}
+          placement="topRight"
+        >
+          <ContextMenu
+            menu={{ items: criticalAlert.menuItems }}
+            placement="topRight"
+            trigger={['click']}
+          >
+            <div className="more-action-button">
+              <IconMoreAction className="call-icon control-bar-icon more-action-icon" />
+            </div>
+          </ContextMenu>
+        </Tooltip>
       )}
     </div>
   );

@@ -3,7 +3,7 @@ window.textsecure = window.textsecure || {};
 class OuterRequest {
   constructor() {
     // no need authentication
-    this.server = WebAPI.connect({ username: '', password: '' });
+    this.server = window.WebAPI.connect({ username: '', password: '' });
   }
 
   async pingURL(url, mainDomain, userAgent) {

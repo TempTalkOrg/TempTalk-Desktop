@@ -8,14 +8,21 @@ import {
 } from '@cc-livekit/livekit-client';
 import { decodeText, encodeText } from '../utils';
 import { v4 as uuidv4 } from 'uuid';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { Contact } from './useInitials';
 import { CallRoomCipher } from '../types';
+
+enum CHAT_MESSAGE_TYPE {
+  DEFAULT = 0,
+  BUBBLE = 1,
+}
 
 type ChatMessageType = {
   text: string;
   topic: 'chat';
+  type?: CHAT_MESSAGE_TYPE;
 };
+
 type ControlMessageType = {
   topic: 'mute-other';
   identities: string[];
@@ -59,6 +66,37 @@ type EndCallMessageType = {
   sendTimestamp: number;
 };
 
+type SpeedHintMessageType = {
+  topic: 'speaker-following';
+  action: 'slower' | 'faster';
+  sendTimestamp: number;
+};
+
+type RequireScreenMessageType = {
+  topic: 'require-screen';
+  sendTimestamp: number;
+};
+
+export type UpdateRequireScreenMessageType = {
+  topic: 'update-require-screen';
+  sendTimestamp: number;
+  requireUsers: { identity: string; ts: string }[];
+  rejectUsers: { identity: string; times: number }[];
+  ownerIdentity: string;
+  type: 'require' | 'cancel' | 'accept' | 'reject';
+};
+
+type AcceptRequireScreenMessageType = {
+  topic: 'accept-require-screen';
+  sendTimestamp: number;
+  identity: string;
+};
+
+type RejectRequireScreenMessageType = {
+  topic: 'reject-require-screen';
+  sendTimestamp: number;
+};
+
 type UserMessageType =
   | ChatMessageType
   | ControlMessageType
@@ -70,12 +108,18 @@ type UserMessageType =
   | CountdownResponseMessageType
   | RaiseHandMessageType
   | CancelHandMessageType
-  | EndCallMessageType;
+  | EndCallMessageType
+  | SpeedHintMessageType
+  | RequireScreenMessageType
+  | UpdateRequireScreenMessageType
+  | AcceptRequireScreenMessageType
+  | RejectRequireScreenMessageType;
 
 type RtmMessageType = {
   userMessage: UserMessageType;
   uuid: string;
   sendTimestamp: number;
+  serverTimestamp: number;
 };
 
 export type CountdownResponseMessageType = {
@@ -128,12 +172,13 @@ async function parseRtmData(
   contact?: Contact
 ): Promise<RtmMessageType> {
   const cipherObject = JSON.parse(decodeText(data));
-  const { uuid, sendTimestamp } = cipherObject;
+  const { uuid, sendTimestamp, serverTimestamp } = cipherObject;
 
   if (!roomCipher || !contact) {
     return {
       uuid,
       sendTimestamp,
+      serverTimestamp,
       userMessage: JSON.parse(cipherObject.payload),
     };
   }
@@ -148,6 +193,7 @@ async function parseRtmData(
   return {
     uuid,
     sendTimestamp,
+    serverTimestamp,
     userMessage: JSON.parse(decryptedText),
   };
 }
@@ -157,6 +203,7 @@ const ENCRYPTED_TOPICS = [
   'mute-other',
   'continue-call-after-silence',
   'end-call',
+  'speaker-following',
 ];
 
 export const useRTMMessage = ({
@@ -172,6 +219,9 @@ export const useRTMMessage = ({
   onRaiseHand,
   onCancelHand,
   onEndCall,
+  onSpeedHint,
+  onBubbleMessage,
+  onUpdateRequireScreen,
 }: {
   room: Room;
   roomCipher: CallRoomCipher;
@@ -185,6 +235,15 @@ export const useRTMMessage = ({
   onRaiseHand: (arg: RaiseHandResponseMessageType) => void;
   onCancelHand: (arg: RaiseHandResponseMessageType) => void;
   onEndCall: () => void;
+  onSpeedHint: ({
+    action,
+    contact,
+  }: {
+    action: 'slower' | 'faster';
+    contact: Contact | null;
+  }) => void;
+  onBubbleMessage: (arg: { identity: string; text: string }) => void;
+  onUpdateRequireScreen: (arg: UpdateRequireScreenMessageType) => void;
 }) => {
   const sendRTMMessage = useMemoizedFn(
     async (
@@ -209,19 +268,29 @@ export const useRTMMessage = ({
     }
   );
 
-  const sendChatText = useMemoizedFn(async (text: string) => {
-    try {
-      const chatMessage: ChatMessageType = {
-        text,
-        topic: 'chat',
-      };
+  const sendChatText = useMemoizedFn(
+    async (
+      text: string,
+      type: CHAT_MESSAGE_TYPE = CHAT_MESSAGE_TYPE.DEFAULT
+    ) => {
+      try {
+        const chatMessage: ChatMessageType = {
+          text,
+          topic: 'chat',
+          type,
+        };
 
-      await sendRTMMessage(chatMessage, roomCipher);
-      onChatMessage?.({ identity: room.localParticipant.identity, text });
-    } catch (e) {
-      console.log('sendChatText error', e);
+        await sendRTMMessage(chatMessage, roomCipher);
+        if (type === CHAT_MESSAGE_TYPE.DEFAULT) {
+          onChatMessage?.({ identity: room.localParticipant.identity, text });
+        } else if (type === CHAT_MESSAGE_TYPE.BUBBLE) {
+          onBubbleMessage?.({ identity: room.localParticipant.identity, text });
+        }
+      } catch (e: any) {
+        console.log('sendChatText error', e, e?.message);
+      }
     }
-  });
+  );
 
   const sendMuteMessage = useMemoizedFn(async (participant: Participant) => {
     try {
@@ -348,13 +417,80 @@ export const useRTMMessage = ({
     }
   });
 
+  const sendSpeedHintMessage = useMemoizedFn(
+    async (action: 'slower' | 'faster') => {
+      try {
+        const speedHintMessage: SpeedHintMessageType = {
+          topic: 'speaker-following',
+          action,
+          sendTimestamp: Date.now(),
+        };
+
+        await sendRTMMessage(speedHintMessage, roomCipher);
+      } catch (e) {
+        console.log('sendSpeedHintMessage error', e);
+      }
+    }
+  );
+  const sendBubbleMessage = useMemoizedFn(async (text: string) => {
+    return sendChatText(text, CHAT_MESSAGE_TYPE.BUBBLE);
+  });
+
+  const sendRequestScreenShareMessage = useMemoizedFn(async () => {
+    try {
+      const requireScreenMessage: RequireScreenMessageType = {
+        topic: 'require-screen',
+        sendTimestamp: Date.now(),
+      };
+
+      await sendRTMMessage(requireScreenMessage);
+    } catch (e) {
+      console.log('sendRequestScreenShareMessage error', e);
+    }
+  });
+
+  const sendApprovalScreenShareMessage = useMemoizedFn(
+    async (identity: string) => {
+      try {
+        const acceptRequireScreenMessage: AcceptRequireScreenMessageType = {
+          topic: 'accept-require-screen',
+          sendTimestamp: Date.now(),
+          identity,
+        };
+        await sendRTMMessage(acceptRequireScreenMessage);
+      } catch (e) {
+        console.log('sendApprovalScreenShareMessage error', e);
+      }
+    }
+  );
+
+  const sendRejectScreenShareMessage = useMemoizedFn(async () => {
+    try {
+      const rejectRequireScreenMessage: RejectRequireScreenMessageType = {
+        topic: 'reject-require-screen',
+        sendTimestamp: Date.now(),
+      };
+      await sendRTMMessage(rejectRequireScreenMessage);
+    } catch (e) {
+      console.log('sendRejectScreenShareMessage error', e);
+    }
+  });
+
   const handleChatTopic = useMemoizedFn(
     async (chatMessage: ChatMessageType, participant: RemoteParticipant) => {
       try {
-        onChatMessage?.({
-          identity: participant.identity,
-          text: chatMessage.text,
-        });
+        const type = chatMessage.type ?? CHAT_MESSAGE_TYPE.DEFAULT;
+        if (type === CHAT_MESSAGE_TYPE.DEFAULT) {
+          onChatMessage?.({
+            identity: participant.identity,
+            text: chatMessage.text,
+          });
+        } else if (type === CHAT_MESSAGE_TYPE.BUBBLE) {
+          onBubbleMessage?.({
+            identity: participant.identity,
+            text: chatMessage.text,
+          });
+        }
       } catch (e) {
         console.log(e);
       }
@@ -415,6 +551,38 @@ export const useRTMMessage = ({
     onEndCall?.();
   });
 
+  const lastSpeedHintTimestampMapRef = useRef<
+    Map<SpeedHintMessageType['action'], number>
+  >(new Map<SpeedHintMessageType['action'], number>());
+
+  const handleSpeedHint = useMemoizedFn(
+    async (
+      speedHintMessage: SpeedHintMessageType,
+      participant: RemoteParticipant,
+      serverTimestamp: number,
+      uuid: string
+    ) => {
+      const { action } = speedHintMessage;
+      const lastTimestamp = lastSpeedHintTimestampMapRef.current.get(action);
+      if (!lastTimestamp || lastTimestamp < serverTimestamp) {
+        lastSpeedHintTimestampMapRef.current.set(action, serverTimestamp);
+
+        onSpeedHint?.({
+          action: speedHintMessage.action,
+          contact: contactMap.get(participant.identity.split('.')[0]) || null,
+        });
+      } else {
+        console.log('ignore speed hint: outdated timestamp. uuid:', uuid);
+      }
+    }
+  );
+
+  const handleUpdateRequireScreen = useMemoizedFn(
+    async (message: UpdateRequireScreenMessageType) => {
+      onUpdateRequireScreen?.(message);
+    }
+  );
+
   const handleDataReceived = useMemoizedFn(
     async (
       data: Uint8Array,
@@ -442,7 +610,7 @@ export const useRTMMessage = ({
           }
         }
 
-        const { userMessage } = await parseRtmData(
+        const { userMessage, serverTimestamp, uuid } = await parseRtmData(
           data,
           needEncrypt ? roomCipher : undefined,
           needEncrypt ? contact : undefined
@@ -492,6 +660,17 @@ export const useRTMMessage = ({
             );
           case 'end-call':
             return handleEndCall();
+          case 'speaker-following':
+            return handleSpeedHint(
+              userMessage as SpeedHintMessageType,
+              participant as RemoteParticipant,
+              serverTimestamp,
+              uuid
+            );
+          case 'update-require-screen':
+            return handleUpdateRequireScreen(
+              userMessage as UpdateRequireScreenMessageType
+            );
           default:
             return console.log('unknown topic', topic);
         }
@@ -523,5 +702,13 @@ export const useRTMMessage = ({
     sendCancelHandMessage,
     // end call
     sendEndCallMessage,
+    // speed hint
+    sendSpeedHintMessage,
+    // bubble message
+    sendBubbleMessage,
+    // scrreen share
+    sendRequestScreenShareMessage,
+    sendApprovalScreenShareMessage,
+    sendRejectScreenShareMessage,
   };
 };

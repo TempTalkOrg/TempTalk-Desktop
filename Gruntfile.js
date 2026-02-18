@@ -159,27 +159,6 @@ module.exports = grunt => {
         cmd: 'yarn build-protobuf',
       },
     },
-    'test-release': {
-      osx: {
-        archive: `mac/${packageJson.productName}.app/Contents/Resources/app.asar`,
-        appUpdateYML: `mac/${packageJson.productName}.app/Contents/Resources/app-update.yml`,
-        exe: `mac/${packageJson.productName}.app/Contents/MacOS/${packageJson.productName}`,
-      },
-      mas: {
-        archive: `mas/${packageJson.productName}.app/Contents/Resources/app.asar`,
-        appUpdateYML: `mac/${packageJson.productName}.app/Contents/Resources/app-update.yml`,
-        exe: `mas/${packageJson.productName}.app/Contents/MacOS/${packageJson.productName}`,
-      },
-      linux: {
-        archive: 'linux-unpacked/resources/app.asar',
-        exe: `linux-unpacked/${packageJson.name}`,
-      },
-      win: {
-        archive: 'win-unpacked/resources/app.asar',
-        appUpdateYML: 'win-unpacked/resources/app-update.yml',
-        exe: `win-unpacked/${packageJson.productName}.exe`,
-      },
-    },
     gitinfo: {}, // to be populated by grunt gitinfo
   });
 
@@ -392,87 +371,6 @@ module.exports = grunt => {
       const done = this.async();
 
       runTests(environment, done);
-    }
-  );
-
-  grunt.registerMultiTask(
-    'test-release',
-    'Test packaged releases',
-    function thisNeeded() {
-      const dir = grunt.option('dir') || 'release';
-      const environment = grunt.option('env') || 'production';
-      const config = this.data;
-      const archive = [dir, config.archive].join('/');
-      const files = [
-        'config/default.json',
-        `config/${environment}.json`,
-        `config/local-${environment}.json`,
-      ];
-
-      console.log(this.target, archive);
-      const releaseFiles = files.concat(config.files || []);
-      releaseFiles.forEach(fileName => {
-        console.log(fileName);
-        try {
-          asar.statFile(archive, fileName);
-          return true;
-        } catch (e) {
-          console.log(e);
-          throw new Error(`Missing file ${fileName}`);
-        }
-      });
-
-      if (config.appUpdateYML) {
-        const appUpdateYML = [dir, config.appUpdateYML].join('/');
-        if (fs.existsSync(appUpdateYML)) {
-          console.log('auto update ok');
-        } else {
-          throw new Error(`Missing auto update config ${appUpdateYML}`);
-        }
-      }
-
-      const done = this.async();
-      // A simple test to verify a visible window is opened with a title
-      const { Application } = spectron;
-
-      const app = new Application({
-        path: [dir, config.exe].join('/'),
-        requireName: 'unused',
-      });
-
-      app
-        .start()
-        .then(() => app.client.getWindowCount())
-        .then(count => {
-          assert.equal(count, 1);
-          console.log('window opened');
-        })
-        .then(() =>
-          // Get the window's title
-          app.client.getTitle()
-        )
-        .then(title => {
-          // Verify the window's title
-          assert.equal(title, packageJson.productName);
-          console.log('title ok');
-        })
-        .then(() => {
-          assert(
-            app.chromeDriver.logLines.indexOf(`NODE_ENV ${environment}`) > -1
-          );
-          console.log('environment ok');
-        })
-        .then(
-          () =>
-            // Successfully completed test
-            app.stop(),
-          error =>
-            // Test failed!
-            app.stop().then(() => {
-              grunt.fail.fatal(`Test failed: ${error.message} ${error.stack}`);
-            })
-        )
-        .then(done);
     }
   );
 

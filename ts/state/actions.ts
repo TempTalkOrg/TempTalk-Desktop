@@ -6,6 +6,7 @@ import { actions as user } from './ducks/user';
 import { actions as contactSearch } from './ducks/contactSearch';
 import { actions as dock } from './ducks/dock';
 import { actions as preferences } from './ducks/preferences';
+import { actions as sidebar } from './ducks/sidebar';
 
 const actions = {
   ...search,
@@ -14,6 +15,7 @@ const actions = {
   ...contactSearch,
   ...dock,
   ...preferences,
+  ...sidebar,
 };
 
 export function mapDispatchToProps(dispatch: Dispatch): Object {

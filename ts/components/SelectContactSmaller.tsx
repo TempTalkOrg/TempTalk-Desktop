@@ -3,6 +3,7 @@ import { ContactListItem } from './ContactListItem';
 import { AutoSizer, List } from 'react-virtualized';
 import { LocalizerType } from '../types/Util';
 import { ConversationType } from '../state/ducks/conversations';
+import { IconClearCircle, IconSearch } from './shared/icons';
 
 type PropsType = {
   i18n: LocalizerType;
@@ -183,7 +184,7 @@ export default function SelectContactSmaller(props: PropsType) {
       <div style={{ width: '240px', height: '100%', float: 'left' }}>
         <div className="module-main-header">
           <div className="module-main-header__search">
-            <div role="button" className="module-main-header__search__icon" />
+            <IconSearch className="module-search-icon" />
             <input
               style={{ width: '210px' }}
               type="text"
@@ -199,8 +200,7 @@ export default function SelectContactSmaller(props: PropsType) {
               spellCheck={false}
             />
             {searchText ? (
-              <div
-                role="button"
+              <IconClearCircle
                 className="module-main-header__search__cancel-icon"
                 onClick={clearSearch}
               />

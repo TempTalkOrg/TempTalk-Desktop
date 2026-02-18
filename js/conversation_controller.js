@@ -76,11 +76,14 @@
       const doCheck = events => this.forEach(c => c.trigger(events));
 
       this.interval = setInterval(
-        () => doCheck('prune check-archive'),
+        () => doCheck('prune check-archive check-active-conversation'),
         halfHour
       );
 
-      setTimeout(() => doCheck('check-archive'), 10 * 60 * 1000);
+      setTimeout(
+        () => doCheck('check-archive check-active-conversation'),
+        10 * 60 * 1000
+      );
     },
   }))();
 
@@ -257,6 +260,7 @@
     'protectedConfigs',
     'publicConfigs',
     'remarkName',
+    'customUid',
   ];
 
   const GROUP_FIXED_ATTRS = [
@@ -642,7 +646,7 @@
             const group = groupContactArray[i];
             const { gid, name, avatar, status } = group;
             if (typeof gid != 'string' || typeof name != 'string') {
-              window.log.error('invalid group:', gid, name);
+              window.log.error('invalid group:', gid);
               continue;
             }
 
@@ -794,10 +798,7 @@
             const { groupDisplayName } = attributes || {};
             let update;
             if (displayName !== groupDisplayName) {
-              log.info(
-                'Changing groupDisplayName from ' +
-                  `${groupDisplayName} to ${displayName} for ${id}`
-              );
+              log.info('Changing groupDisplayName for:', id);
               attributes.groupDisplayName = displayName;
               update = true;
             }
@@ -806,7 +807,7 @@
               arrayToUpdate.push(attributes);
             }
           } else {
-            log.info(`New groupContact ${displayName} of ${id}`);
+            log.info('New groupContact:', id);
             arrayToSave.push({
               id,
               type: 'private',

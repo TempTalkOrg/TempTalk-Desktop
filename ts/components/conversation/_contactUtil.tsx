@@ -44,6 +44,7 @@ export function renderAvatar({
       conversationType="direct"
       i18n={i18n}
       name={contact.name}
+      accountName={contact.name}
       size={size}
       id={contact.number}
       notShowStatus={true}

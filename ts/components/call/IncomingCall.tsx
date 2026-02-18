@@ -15,6 +15,7 @@ export const IncomingCall = ({ i18n }: { i18n: LocalizerType }) => {
     onReject,
     onAccept,
     name,
+    accountName,
     inviteName,
     avatarPath,
     renderDefaultAvatar,
@@ -31,6 +32,7 @@ export const IncomingCall = ({ i18n }: { i18n: LocalizerType }) => {
           size={36}
           conversationType={renderDefaultAvatar ? 'group' : 'direct'}
           name={name}
+          accountName={accountName}
           noClickEvent={true}
         />
       </div>

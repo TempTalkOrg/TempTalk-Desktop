@@ -1,6 +1,11 @@
-import type { Database } from '@signalapp/better-sqlite3';
+import type { Database } from '@opensource-lib/better-sqlite3';
 import { getUnprocessedDuplicatedCountInner } from '../schemaMigrate/database/schemaUpdater_21-25';
-import { ArrayQuery, EmptyQuery, Query, UnprocessedDBType } from '../sqlTypes';
+import type {
+  ArrayQuery,
+  EmptyQuery,
+  Query,
+  UnprocessedDBType,
+} from '../sqlTypes';
 import {
   batchQueryWithMultiVar,
   countTableRows,

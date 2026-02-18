@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import emojiRegex from 'emoji-regex';
 import linkify from 'linkifyjs';
 
@@ -26,6 +26,7 @@ interface Props {
   /** Allows you to customize now non-links are rendered. Simplest is just a <span>. */
   renderNonLink?: RenderTextCallbackType;
   disableShowProfile?: boolean;
+  conversationId?: string;
 }
 
 const SUPPORTED_PROTOCOLS = /^(http|https|chative|temptalk):/i;
@@ -87,10 +88,10 @@ export class Linkify extends React.Component<Props, { countStr: string }> {
     return isOnlyEmoji && emojiCount === 1;
   }
 
-  public analyzeURL(text: string) {
+  public analyzeURL(text: string, offset: number = 0) {
     const results: Array<any> = [];
     let last = 0;
-    const countStr = this.state.countStr;
+    const countStr = this.state.countStr + offset;
     let count = 0;
 
     if (this.shouldShowBiggerEmoji(text)) {
@@ -216,7 +217,7 @@ export class Linkify extends React.Component<Props, { countStr: string }> {
       results.push(<span key={countStr + count++}>{text.slice(last)}</span>);
     }
 
-    return <>{results}</>;
+    return <Fragment key={countStr + '-fragment'}>{results}</Fragment>;
   }
 
   public analyzeText(text: string, mentions: Array<any> | undefined) {
@@ -249,9 +250,10 @@ export class Linkify extends React.Component<Props, { countStr: string }> {
       // prefix
       const prefixString = text.substring(curPosition, start);
       if (prefixString) {
-        mergedSpans = mergedSpans.concat(this.analyzeURL(prefixString));
+        mergedSpans = mergedSpans.concat(
+          this.analyzeURL(prefixString, curPosition)
+        );
       }
-
       // mention
       mergedSpans.push(
         <MentionUser
@@ -260,6 +262,7 @@ export class Linkify extends React.Component<Props, { countStr: string }> {
           uid={uid}
           type={type}
           disableShowProfile={this.props.disableShowProfile}
+          conversationId={this.props.conversationId}
         />
       );
 
@@ -271,13 +274,12 @@ export class Linkify extends React.Component<Props, { countStr: string }> {
 
     const lastString = text.substring(curPosition);
     if (lastString) {
-      const result = this.analyzeURL(lastString);
+      const result = this.analyzeURL(lastString, curPosition);
       if (result) {
         for (let i = 0; i < result.props.children.length; i++) {
           mergedSpans = mergedSpans.concat(result.props.children[i]);
         }
       }
-      // mergedSpans = mergedSpans.concat(this.analyzeURL(lastString, index));
     }
 
     return mergedSpans;

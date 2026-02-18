@@ -169,12 +169,20 @@ const {
 } = require('../../ts/components/conversation/ComposeToolbar');
 const { ConfigProvider } = require('../../ts/components/shared/ConfigProvider');
 
+const {
+  ConfidentialMessageReadNotification,
+} = require('../../ts/components/conversation/ConfidentialMessageReadNotification');
+const {
+  UnknowUserIndicator,
+} = require('../../ts/components/conversation/UnknowUserIndicator');
+
 // State
 const { createContactPane } = require('../../ts/state/roots/createContactPane');
 const { createFirstPane } = require('../../ts/state/roots/createFirstPane');
 const { createLeftPane } = require('../../ts/state/roots/createLeftPane');
 const { createStore } = require('../../ts/state/createStore');
 const conversationsDuck = require('../../ts/state/ducks/conversations');
+const sidebarDuck = require('../../ts/state/ducks/sidebar');
 const userDuck = require('../../ts/state/ducks/user');
 
 // Types
@@ -199,12 +207,16 @@ const { IdleDetector } = require('./idle_detector');
 const MessageDataMigrator = require('./messages_data_migrator');
 
 const { setupServiceConfig } = require('../../ts/web_api/service-generator');
-const { getCallServiceUrls } = require('../../ts/web_api/call-service');
+const {
+  getCallServiceUrls,
+  startTestCallServiceUrls,
+} = require('../../ts/web_api/call-service');
 
 const { startGrayRulesSync, isInGray } = require('../../ts/web_api/gray-rules');
 
 function initializeMigrations({
   userDataPath,
+  tempDataPath,
   getRegionCode,
   Attachments,
   Type,
@@ -220,6 +232,7 @@ function initializeMigrations({
     createAbsolutePathGetter,
     createWriterForNew,
     createWriterForExisting,
+    createDeleter,
   } = Attachments;
   const {
     makeObjectUrl,
@@ -245,6 +258,7 @@ function initializeMigrations({
     deleteExternalMessageFiles: MessageType.deleteAllExternalFiles({
       deleteAttachmentData: Type.deleteData(deleteOnDisk),
       deleteOnDisk,
+      deleteTempData: Attachments.createDeleter(tempDataPath),
     }),
     getAbsoluteAttachmentPath,
     loadAttachmentData,
@@ -290,10 +304,12 @@ function initializeMigrations({
 }
 
 exports.setup = (options = {}) => {
-  const { Attachments, userDataPath, getRegionCode, logger } = options;
+  const { Attachments, userDataPath, tempDataPath, getRegionCode, logger } =
+    options;
 
   const Migrations = initializeMigrations({
     userDataPath,
+    tempDataPath,
     getRegionCode,
     Attachments,
     Type: AttachmentType,
@@ -366,6 +382,8 @@ exports.setup = (options = {}) => {
     ComposeToolbar,
     CallFeedback,
     ConfigProvider,
+    ConfidentialMessageReadNotification,
+    UnknowUserIndicator,
   };
 
   const Roots = {
@@ -376,6 +394,7 @@ exports.setup = (options = {}) => {
   const Ducks = {
     conversations: conversationsDuck,
     user: userDuck,
+    sidebar: sidebarDuck,
   };
   const State = {
     bindActionCreators,
@@ -409,6 +428,7 @@ exports.setup = (options = {}) => {
 
   const Network = {
     setupServiceConfig,
+    startTestCallServiceUrls,
     getCallServiceUrls,
   };
 

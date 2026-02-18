@@ -103,10 +103,7 @@ export type CallType = {
   conversation: string;
   roomId: string;
   type: '1on1' | 'instant' | 'group';
-  caller: {
-    uid: string;
-    did?: number;
-  };
+  caller: string;
   createdAt?: number;
   encMeta?: any;
   version: number;
@@ -644,6 +641,16 @@ export function reducer(
         },
       },
     };
+
+    if (type === 'instant') {
+      const previous1on1Call = Object.values(state.calls).find(
+        call => call?.roomId === roomId
+      );
+      if (previous1on1Call) {
+        nextState.calls[previous1on1Call.conversation] = undefined;
+      }
+    }
+
     return nextState;
   }
 

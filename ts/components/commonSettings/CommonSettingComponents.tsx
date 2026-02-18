@@ -1,3 +1,4 @@
+import { Switch, SwitchProps } from 'antd';
 import React from 'react';
 
 interface CommonSettingItemProps {
@@ -128,3 +129,25 @@ export class SettingChooseItem extends React.Component<NotificationSettingProps>
     }
   }
 }
+
+interface SwitchItemProps extends SwitchProps {
+  label: string;
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+  size?: 'small' | 'default';
+}
+
+export const SettingSwitchItem = (props: SwitchItemProps) => {
+  const { label, checked, onChange, size = 'small' } = props;
+  return (
+    <div className="setting-item-switch">
+      <div className="setting-item-switch-label">{label}</div>
+      <Switch
+        checked={checked}
+        onChange={onChange}
+        size={size}
+        className="universal-switch"
+      />
+    </div>
+  );
+};

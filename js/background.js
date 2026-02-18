@@ -8,34 +8,7 @@
   storage,
   textsecure,
   Whisper,
-  watermark,
 */
-
-const MAC_MEETINGVERSION = 3;
-const LINUX_MEETINGVERSION = 1;
-// 设置meetingVersion
-const meetingVersion = window.Signal.OS.isMacOS()
-  ? MAC_MEETINGVERSION
-  : LINUX_MEETINGVERSION;
-
-window.setupWaterMark = () => {
-  'use strict';
-
-  let user = storage.get('number_id');
-  if (user) {
-    user = user.replace('+', '');
-    if (user.indexOf('.') !== -1) {
-      user = user.substr(0, user.indexOf('.'));
-    }
-
-    $('.simple_blind_watermark').remove();
-    watermark({ watermark_txt: user });
-    window.addEventListener('resize', () => {
-      $('.simple_blind_watermark').remove();
-      watermark({ watermark_txt: user });
-    });
-  }
-};
 
 function generateGroupAvatar(items, sizePx = 512) {
   const backgroundColors = _.shuffle([
@@ -174,6 +147,7 @@ async function fetchCallList() {
             call.conversation = null;
           }
         }
+        call.caller = call.caller.uid;
       });
       response = res.calls;
     }
@@ -228,15 +202,10 @@ async function getCallInfoByConversationId(conversationId) {
 
   preload([
     'alert-outline.svg',
-    'android.svg',
-    'apple.svg',
-    'audio.svg',
     'back.svg',
-    'chat-bubble-outline.svg',
     'chat-bubble.svg',
     'check-circle-outline.svg',
     'check.svg',
-    'clock.svg',
     'close-circle.svg',
     'complete.svg',
     'delete.svg',
@@ -249,11 +218,8 @@ async function getCallInfoByConversationId(conversationId) {
     'file-gradient.svg',
     'file.svg',
     'forward.svg',
-    'gear.svg',
     'group-chats.svg',
     'group_default.png',
-    'hourglass_empty.svg',
-    'hourglass_full.svg',
     'icon_128.png',
     'icon_16.png',
     'icon_256.png',
@@ -271,7 +237,6 @@ async function getCallInfoByConversationId(conversationId) {
     'read.svg',
     'reply.svg',
     'save.svg',
-    'search.svg',
     'sending.svg',
     'shield.svg',
     'sync.svg',
@@ -378,13 +343,13 @@ async function getCallInfoByConversationId(conversationId) {
 
   window.selectBestDomain = setupServiceConfig();
 
-  const initilize = async () => {
+  const initialize = async () => {
     Views.Initialization.setMessage(window.i18n('connecting') + ' ...');
 
     try {
       await window.tryToInitDatabase();
 
-      window.log.info('Initilize database successfully in background.');
+      window.log.info('Initialize database successfully in background.');
     } catch (error) {
       const { name } = error;
       if (name === 'NoPermissionError') {
@@ -418,7 +383,7 @@ async function getCallInfoByConversationId(conversationId) {
         );
 
         // retry in timeout seconds
-        setTimeout(initilize, timeout * 1000);
+        setTimeout(initialize, timeout * 1000);
       }
       return;
     }
@@ -428,11 +393,11 @@ async function getCallInfoByConversationId(conversationId) {
       storage.fetch();
     } else {
       // db is not initialized
-      log.warn('db is not initilized.');
+      log.warn('db is not initialized.');
     }
   };
 
-  await initilize();
+  await initialize();
 
   // We need this 'first' check because we don't want to start the app up any other time
   //   than the first time. And storage.fetch() will cause onready() to fire.
@@ -446,7 +411,6 @@ async function getCallInfoByConversationId(conversationId) {
     // 定义更新名字函数
     window.updateName = async name => {
       // const nameLengthMax = 30;
-      window.log.info('updateName name:', name);
       if (!name) {
         window.log.error('updateName name is empty.');
         alert(i18n('changeNameCannotBeEmpty'));
@@ -688,6 +652,9 @@ async function getCallInfoByConversationId(conversationId) {
         storage.put('spell-check', value);
         startSpellCheck();
       },
+      getVoicePlaybackSpeed: () => storage.get('voice-playback-speed', 1),
+      setVoicePlaybackSpeed: value =>
+        storage.put('voice-playback-speed', value),
       getQuitTopicSetting: () => storage.get('quit-topic-setting', true),
       setQuitTopicSetting: value => {
         storage.put('quit-topic-setting', value);
@@ -730,8 +697,9 @@ async function getCallInfoByConversationId(conversationId) {
     };
 
     if (
-      window.isDBLegacyInitilized ||
-      textsecure.storage.get('should-upgrade-db-key')
+      window.isDBLegacyInitialized ||
+      textsecure.storage.get('should-upgrade-db-key') ||
+      !textsecure.storage.get('legacy-db-key-upgraded')
     ) {
       // try to call web api to detect whether logout or not
       try {
@@ -739,9 +707,6 @@ async function getCallInfoByConversationId(conversationId) {
 
         // do not link with device info now
         await window.uploadSecretDBKey(undefined, showOptimizingMessage);
-
-        // mark as upgraded
-        await textsecure.storage.remove('should-upgrade-db-key');
       } catch (error) {
         log.warn('upgrade db failed:', Errors.toLogFormat(error));
       }
@@ -760,31 +725,25 @@ async function getCallInfoByConversationId(conversationId) {
       );
 
       try {
-        await window.Signal.Data.rebuildMessagesIndexesIfNotExists();
+        await window.ensureDatabaseAuxObjects();
       } catch (error) {
         window.log.error(
-          'rebuildMessagesIndexesIfNotExists failed,',
-          error && error.stack ? error.stack : error
+          'ensureDatabaseAuxObjects error,',
+          Errors.toLogFormat(error)
         );
       }
 
-      try {
-        await window.Signal.Data.rebuildMessagesTriggersIfNotExists();
-      } catch (error) {
-        window.log.error(
-          'rebuildMessagesTriggersIfNotExists failed,',
-          error && error.stack ? error.stack : error
-        );
-      }
-
-      try {
-        // cleanup orphaned attachments
-        await window.Signal.Data.cleanupOrphanedAttachments();
-      } catch (error) {
-        window.log.error(
-          'cleanupOrphanedAttachments error,',
-          error && error.stack ? error.stack : error
-        );
+      if (!storage.get('cleaned-up-orphaned-attachments') || true) {
+        try {
+          // cleanup orphaned attachments
+          await window.Signal.Data.cleanupOrphanedAttachments();
+          await storage.put('cleaned-up-orphaned-attachments', true);
+        } catch (error) {
+          window.log.error(
+            'cleanupOrphanedAttachments error,',
+            Errors.toLogFormat(error)
+          );
+        }
       }
     }
 
@@ -950,50 +909,6 @@ async function getCallInfoByConversationId(conversationId) {
   async function start() {
     window.dispatchEvent(new Event('storage_ready'));
 
-    window.log.info('Cleanup: starting...');
-    const messagesForCleanup =
-      await window.Signal.Data.getOutgoingWithoutExpiresAt({
-        MessageCollection: Whisper.MessageCollection,
-      });
-    window.log.info(
-      `Cleanup: Found ${messagesForCleanup.length} messages for cleanup`
-    );
-    await Promise.all(
-      messagesForCleanup.map(async message => {
-        const delivered = message.get('delivered');
-        const sentAt = message.get('sent_at');
-        const expirationStartTimestamp = message.get(
-          'expirationStartTimestamp'
-        );
-
-        if (message.hasErrors()) {
-          return;
-        }
-
-        if (delivered) {
-          window.log.info(
-            `Cleanup: Starting timer for delivered message ${sentAt}`
-          );
-          message.set(
-            'expirationStartTimestamp',
-            expirationStartTimestamp || sentAt
-          );
-          await message.setToExpire();
-          return;
-        }
-
-        window.log.info(`Cleanup: Deleting unsent message ${sentAt}`);
-        await window.Signal.Data.removeMessage(message.id, {
-          Message: Whisper.Message,
-        });
-        const conversation = message.getConversation();
-        if (conversation) {
-          conversation.debouncedUpdateLastMessage();
-        }
-      })
-    );
-    window.log.info('Cleanup: complete');
-
     // correct history messages with improper expireTimer
     if (newVersion) {
       try {
@@ -1005,7 +920,7 @@ async function getCallInfoByConversationId(conversationId) {
           }
 
           const messages =
-            await window.Signal.Data.getNextMessagesToCorrectTimer(ourNumber, {
+            await window.Signal.Data.getNextMessagesToCorrectTimer({
               limit: 50,
               Message: Whisper.Message,
             });
@@ -1061,15 +976,12 @@ async function getCallInfoByConversationId(conversationId) {
       window.log.info('handling registration event');
 
       if (
-        window.isDBLegacyInitilized ||
+        window.isDBLegacyInitialized ||
         textsecure.storage.get('should-upgrade-db-key')
       ) {
         // legacy initialized or different user logged in
         try {
           await window.uploadSecretDBKey();
-
-          // mark as upgraded
-          await textsecure.storage.remove('should-upgrade-db-key');
         } catch (error) {
           window.log.warn(
             'upgrade db failed after registration:',
@@ -1127,30 +1039,23 @@ async function getCallInfoByConversationId(conversationId) {
 
     let lastOpenedId;
     //记录会话来源
-    window.conversationFrom;
     Whisper.events.on(
       'showConversation',
-      (
-        id,
-        messageId,
-        recentConversationSwitch,
-        type,
-        conversationFrom = null
-      ) => {
+      (id, messageId, recentConversationSwitch, type, from = null) => {
+        let conversationFrom;
         if (lastOpenedId && lastOpenedId != id) {
           const conversation = ConversationController.get(lastOpenedId);
-          window.conversationFrom = {
-            id: conversation.id,
+          conversationFrom = {
+            groupID: conversation.id,
             type: 'fromGroup',
-            isSend: !conversation.isPrivate(),
           };
           if (conversation) {
             conversation.clearReadConfidentialMessages();
           }
         }
         //追加会话来源
-        if (conversationFrom) {
-          window.conversationFrom = conversationFrom;
+        if (from) {
+          conversationFrom = from;
         }
 
         // update
@@ -1161,7 +1066,8 @@ async function getCallInfoByConversationId(conversationId) {
             id,
             messageId,
             recentConversationSwitch,
-            type
+            type,
+            { conversationFrom }
           );
         }
       }
@@ -1275,8 +1181,6 @@ async function getCallInfoByConversationId(conversationId) {
           alert(window.i18n('group_editor_remove_admin_failed'));
         }
       }
-
-      // sendGroupOperationResult(fromWinId, {...result});
     });
 
     Whisper.events.on('update-avatar', async id => {
@@ -1350,9 +1254,6 @@ async function getCallInfoByConversationId(conversationId) {
           Whisper.events.trigger('callAdd', {
             ...data,
             conversation: data.groupId,
-            caller: {
-              uid: data.caller,
-            },
           });
           console.log('[add-call-button]', 'reject call.');
         }
@@ -1769,6 +1670,7 @@ async function getCallInfoByConversationId(conversationId) {
 
     if (connectCount === 1) {
       // On startup after upgrading to a new version, or running first time
+      window.Signal.Network.startTestCallServiceUrls();
 
       window.preloadCallWindow();
 
@@ -1781,18 +1683,35 @@ async function getCallInfoByConversationId(conversationId) {
       }
 
       window.getAccountManager().setProfile({
-        meetingVersion,
+        meetingVersion: window.getMeetingVersion(),
         msgEncVersion: window.MESSAGE_CURRENT_VERSION,
       });
 
       let directoryVersion;
       let contacts;
+      const OFFICIAL_BOT_NUMBER = '+10000';
+
       try {
         const result = await textsecure.messaging.fetchDirectoryContacts();
         contacts = result['contacts'];
         directoryVersion = result['directoryVersion'];
       } catch (error) {
         window.log.error('load directory contacts failed.', error);
+      }
+
+      if (!contacts?.some(contact => contact.number === OFFICIAL_BOT_NUMBER)) {
+        try {
+          await textsecure.messaging.sendFriendRequest(OFFICIAL_BOT_NUMBER);
+          const profile = await textsecure.messaging.fetchContactProfile(
+            OFFICIAL_BOT_NUMBER,
+            'all'
+          );
+          if (profile) {
+            contacts.push(profile);
+          }
+        } catch (error) {
+          console.log('auto add offcial bot error', error?.message);
+        }
       }
 
       if (directoryVersion) {
@@ -2352,7 +2271,7 @@ async function getCallInfoByConversationId(conversationId) {
   };
 
   async function onCallMessage(ev) {
-    const { callMessage, confirm, source } = ev;
+    const { callMessage, confirm, source, serverTimestamp } = ev;
     const { calling, reject, joined, cancel, hangup } = callMessage;
 
     const deviceId = textsecure.storage.user.getDeviceId();
@@ -2390,6 +2309,7 @@ async function getCallInfoByConversationId(conversationId) {
           isPrivate = true;
           type = 'instant';
           conversationId = null;
+          calling.conversationId = null;
         }
       }
 
@@ -2414,13 +2334,20 @@ async function getCallInfoByConversationId(conversationId) {
         }
       }
 
-      console.log('incoming calling object', calling);
+      console.log('incoming calling object', roomId);
 
       let callInfo;
 
       try {
         callInfo = await window.callAPI.checkCall(roomId);
-        console.log('check call info', callInfo);
+        console.log(
+          'check call info',
+          roomId,
+          'anotherDeviceJoined',
+          callInfo.anotherDeviceJoined,
+          'userStopped',
+          callInfo.userStopped
+        );
       } catch (e) {
         console.log('check call info error, already destroyed');
         return confirm?.();
@@ -2444,6 +2371,7 @@ async function getCallInfoByConversationId(conversationId) {
         roomId,
         type,
         conversation: getTargetConversation(),
+        roomName,
       });
       console.log('[add-call-button]', 'received calling');
 
@@ -2469,6 +2397,7 @@ async function getCallInfoByConversationId(conversationId) {
         roomId,
         type,
         conversation: conversation[type],
+        roomName,
       });
 
       const ourName = ConversationController.get(ourNumber).getName();
@@ -2498,9 +2427,6 @@ async function getCallInfoByConversationId(conversationId) {
       if (callInfo && callInfo.caller !== ourNumber) {
         Whisper.events.trigger('callAdd', {
           ...callInfo,
-          caller: {
-            uid: callInfo.caller,
-          },
         });
         console.log('[add-call-button]', 'reject by other device');
         incomingCallMap.delete(roomId);
@@ -2514,13 +2440,18 @@ async function getCallInfoByConversationId(conversationId) {
         if (callInfo.roomId !== window.currentCallRoomId) {
           Whisper.events.trigger('callAdd', {
             ...callInfo,
-            caller: {
-              uid: callInfo.caller,
-            },
           });
           console.log('[add-call-button]', 'joined call.');
         }
-        window.hideCriticalAlertWindow(callInfo.conversation);
+        window.hideCriticalAlertWindow(
+          callInfo.roomId || callInfo.conversation
+        );
+        const conversationModel = ConversationController.get(
+          callInfo.conversation
+        );
+        if (conversationModel) {
+          conversationModel.resetLatestCriticalAlert(serverTimestamp);
+        }
 
         incomingCallMap.delete(joined.roomId);
       }
@@ -2543,9 +2474,7 @@ async function getCallInfoByConversationId(conversationId) {
 
     // the client version too old
     if (error && error.code === 450) {
-      await window.forceUpdateAlert();
-      window.sendBrowserOpenUrl('https://yelling.pro');
-      window.wantQuit();
+      window.forceUpdateAlert();
       return;
     }
 
@@ -3082,6 +3011,7 @@ async function getCallInfoByConversationId(conversationId) {
       window.destroyCall(data.roomId, true);
       Whisper.events.trigger('callRemove', { roomId: data.roomId });
       console.log('[remove-call-button]', 'got destroy call');
+      window.hideCriticalAlertWindow(data.roomId);
     }, 1500);
   }
 
@@ -3106,7 +3036,10 @@ async function getCallInfoByConversationId(conversationId) {
     const ourNumber = textsecure.storage.user.getNumber();
     const isMe = source === ourNumber;
 
-    if (!showCriticalAlert || isMe) {
+    const now = Date.now();
+    const isExpired = now - notifyTime > 8 * 60 * 60 * 1000;
+
+    if (!showCriticalAlert || isMe || isExpired) {
       return;
     }
 
@@ -3159,9 +3092,17 @@ async function getCallInfoByConversationId(conversationId) {
       timestamp,
       serverTimestamp,
       showCriticalAlert,
+      roomId,
     } = data;
     const ourNumber = textsecure.storage.user.getNumber();
+    const localDeviceId = Number(textsecure.storage.user.getDeviceId());
+
     const isMe = source === ourNumber;
+
+    if (isMe && sourceDevice === localDeviceId) {
+      confirm();
+      return;
+    }
 
     const foundConversation = ConversationController.get(conversationId);
     if (!foundConversation) {
@@ -3176,7 +3117,10 @@ async function getCallInfoByConversationId(conversationId) {
 
     const isPrivate = foundConversation.isPrivate();
 
-    if (showCriticalAlert && !isMe) {
+    const now = Date.now();
+    const isExpired = now - notifyTime > 8 * 60 * 60 * 1000;
+
+    if (showCriticalAlert && !isMe && !isExpired) {
       const title = foundConversation.getDisplayName();
       let from = '';
 
@@ -3199,11 +3143,16 @@ async function getCallInfoByConversationId(conversationId) {
         isPrivate,
         title,
         from,
+        roomId,
       });
 
-      const callInfo = await getCallInfoByConversationId(conversationId);
-      if (callInfo) {
-        window.hideIncomingCallWindow(callInfo.roomId);
+      if (roomId) {
+        window.hideIncomingCallWindow(roomId);
+      } else {
+        const callInfo = await getCallInfoByConversationId(conversationId);
+        if (callInfo) {
+          window.hideIncomingCallWindow(callInfo.roomId);
+        }
       }
     }
 
@@ -3382,6 +3331,7 @@ async function getCallInfoByConversationId(conversationId) {
         // left
         const left = _.difference(existingMembers, conversation.get('members'));
         if (left.length > 0) {
+          const ourNumber = textsecure.storage.user.getNumber();
           if (left.includes(ourNumber)) {
             // myself was removed
             conversation.set({ left: true });
@@ -3858,12 +3808,7 @@ async function getCallInfoByConversationId(conversationId) {
     const { ver, directoryVersion, members } = data;
 
     if (ver != 1) {
-      log.error(
-        '[',
-        idV2,
-        notifyTime,
-        '] directory notification version must be 1.'
-      );
+      log.error(' directory notification version must be 1.', notifyTime);
       return;
     }
 
@@ -4053,12 +3998,7 @@ async function getCallInfoByConversationId(conversationId) {
     const { ver, conversation } = data;
 
     if (ver != 1) {
-      log.error(
-        '[',
-        idV2,
-        notifyTime,
-        '] conversation notification version must be 1.'
-      );
+      log.error(' conversation notification version must be 1.', notifyTime);
       return;
     }
 

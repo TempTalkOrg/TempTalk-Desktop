@@ -142,7 +142,6 @@ export function FocusLayoutContainer(props: FocusLayoutContainerProps) {
                 >
                   <ParticipantTile
                     trackRef={speakingIndicatorTrackRef}
-                    hideSourcePrefix
                     renderPlaceholderExtraProps={{ size: 64 }}
                     toggleable
                   ></ParticipantTile>

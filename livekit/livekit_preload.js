@@ -7,7 +7,6 @@ const config = url.parse(window.location.toString(), true).query;
 // eslint-disable-next-line no-console
 const { locale } = config;
 const localeMessages = ipcRenderer.sendSync('locale-data');
-const bs58 = require('bs58');
 
 const { Window } = require('@cc-kit/node-screenshots');
 
@@ -134,9 +133,6 @@ window.sendBrowserOpenUrl = link => {
 window.addJoinCallButton = callInfo => {
   const data = {
     ...callInfo,
-    caller: {
-      uid: callInfo.caller,
-    },
     conversation:
       callInfo.type === 'group' ? callInfo.groupId : callInfo.number,
   };
@@ -289,4 +285,8 @@ window.getMacScreenShare = options => {
 
 window.registerUpdateCallConfigHandler = handler => {
   return registerIPCEventHandler('update-call-config', handler);
+};
+
+window.registerRequireScreenShareActionHandler = handler => {
+  return registerIPCEventHandler('require-screen-share-action', handler);
 };

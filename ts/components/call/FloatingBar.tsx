@@ -17,9 +17,13 @@ import {
   IconMicrophoneEnable,
   IconScreenShare,
 } from '../shared/icons';
+import { Button, Flex, Radio } from 'antd';
+import { ExclamationCircleOutlined } from '@ant-design/icons';
+import { ConfigProvider } from '../shared/ConfigProvider';
 
 type SpeakerUserInfoType = {
   name: string;
+  accountName: string;
   avatarPath: string;
   id: string;
   isSpeaking?: boolean;
@@ -29,6 +33,7 @@ type SpeakerUserInfoType = {
 
 type ScreenShareUserInfoType = {
   name: string;
+  accountName: string;
   avatarPath: string;
   id: string;
 };
@@ -116,6 +121,52 @@ export const FloatingBar = (props: PropsType) => {
   >(undefined);
   const countdownTimerRef = useRef<ICountdownTimerRef>(null);
 
+  const radioGroupRef = useRef<HTMLDivElement>(null);
+  const [selected, setSelected] = useState<string>();
+  const [requireScreenShare, setRequireScreenShare] = useState<{
+    countdown: number;
+    radioOptions: { label: string; value: string }[];
+  } | null>(null);
+
+  const onRequireScreenShareChange = useMemoizedFn(
+    (requireScreenShare: {
+      countdown: number;
+      radioOptions: { label: string; value: string }[];
+    }) => {
+      setRequireScreenShare(requireScreenShare);
+      if (!selected) {
+        setSelected(requireScreenShare.radioOptions[0].value);
+      }
+    }
+  );
+
+  const cleanupRequireScreenShare = useMemoizedFn(() => {
+    setRequireScreenShare(null);
+    setSelected(undefined);
+  });
+
+  useEffect(() => {
+    if (!selected) {
+      return;
+    }
+    (window as any).sendRequireScreenShareAction({
+      action: 'select',
+      value: selected,
+    });
+  }, [selected]);
+
+  const onApproveScreenShare = useMemoizedFn(() => {
+    (window as any).sendRequireScreenShareAction({
+      action: 'approve',
+    });
+  });
+
+  const onRejectScreenShare = useMemoizedFn(() => {
+    (window as any).sendRequireScreenShareAction({
+      action: 'reject',
+    });
+  });
+
   const onFloatingBarUpdate = useMemoizedFn(
     (
       _,
@@ -126,17 +177,22 @@ export const FloatingBar = (props: PropsType) => {
         countdown?: {
           duration: number;
         };
+        requireScreenShare?: {
+          countdown: number;
+          radioOptions: { label: string; value: string }[];
+        };
       }
     ) => {
-      const { muted, speaker, screenShare, countdown } = props ?? {};
+      const { muted, speaker, screenShare, countdown, requireScreenShare } =
+        props ?? {};
       console.log(
         '[floating bar] receive update event:',
         'muted',
         muted,
         'speaker',
-        speaker,
+        speaker?.id,
         'screenShare',
-        screenShare,
+        screenShare?.id,
         'countdown',
         countdown
       );
@@ -155,6 +211,13 @@ export const FloatingBar = (props: PropsType) => {
           countdownTimerRef.current?.clearCountdown();
         } else {
           countdownTimerRef.current?.setCountdown(countdown);
+        }
+      }
+      if (requireScreenShare !== undefined) {
+        if (requireScreenShare) {
+          onRequireScreenShareChange(requireScreenShare);
+        } else {
+          cleanupRequireScreenShare();
         }
       }
     }
@@ -235,70 +298,130 @@ export const FloatingBar = (props: PropsType) => {
     };
   }, []);
 
+  const title = i18n(
+    `screenShare.approvalModal.title.${
+      (requireScreenShare?.radioOptions?.length || 0) > 1
+        ? 'miltiRequest'
+        : 'singleRequest'
+    }`
+  );
+
   return (
-    <div className="floating-bar-body">
-      {frameInfo.imageB64 && (
-        <div className="frame-container">
-          <img
-            src={frameInfo.imageB64}
-            alt="frame"
-            className={classNames('frame-content', {
-              'is-local-frame': frameInfo.isLocalTrack,
-            })}
-          />
-        </div>
-      )}
-      <div className="header"></div>
-      <ActiveIndicator info={activeInfo} localStatus={{ micMute }} />
-      <div
-        className="floating-bar-countdown-timer"
-        onClick={onCountdownTimerClick}
-      >
-        <CountdownTimer ref={countdownTimerRef} readonly={true} />
-      </div>
-      <div className="active-info">
-        <Avatar
-          i18n={i18n}
-          size={80}
-          conversationType="direct"
-          id={activeInfo?.id}
-          name={activeInfo?.name}
-          avatarPath={activeInfo?.avatarPath}
-          notShowStatus={true}
-          noClickEvent={true}
-        />
-      </div>
-      <div className="button-list" ref={buttonListRef}>
-        <div className="button-item-wrapper">
-          <IconBackCall
-            className="back-call"
-            onClick={backToCall}
-            onDoubleClick={preventDefault}
-          />
-        </div>
+    <ConfigProvider>
+      <div className="floating-bar-body">
+        {frameInfo.imageB64 && (
+          <div className="frame-container">
+            <img
+              src={frameInfo.imageB64}
+              alt="frame"
+              className={classNames('frame-content', {
+                'is-local-frame': frameInfo.isLocalTrack,
+              })}
+            />
+          </div>
+        )}
+        <div className="header"></div>
+        <ActiveIndicator info={activeInfo} localStatus={{ micMute }} />
         <div
-          className="button-item-wrapper"
-          onClick={() => {
-            setMuted(!micMute);
-          }}
-          onDoubleClick={preventDefault}
+          className="floating-bar-countdown-timer"
+          onClick={onCountdownTimerClick}
         >
-          {micMute ? (
-            <IconMicrophoneEnable className="mic-muted" />
-          ) : (
-            <IconMicrophoneDisable className="mic-normal" />
-          )}
+          <CountdownTimer ref={countdownTimerRef} readonly={true} />
         </div>
-        <div className="button-item-wrapper is-danger">
-          <IconLeaveCall
-            className="window-close"
+        <div className="active-info">
+          <Avatar
+            i18n={i18n}
+            size={80}
+            conversationType="direct"
+            id={activeInfo?.id}
+            name={activeInfo?.name}
+            accountName={activeInfo?.accountName}
+            avatarPath={activeInfo?.avatarPath}
+            notShowStatus={true}
+            noClickEvent={true}
+          />
+        </div>
+        <div className="button-list" ref={buttonListRef}>
+          <div className="button-item-wrapper">
+            <IconBackCall
+              className="back-call"
+              onClick={backToCall}
+              onDoubleClick={preventDefault}
+            />
+          </div>
+          <div
+            className="button-item-wrapper"
             onClick={() => {
-              hangup();
+              setMuted(!micMute);
             }}
             onDoubleClick={preventDefault}
-          />
+          >
+            {micMute ? (
+              <IconMicrophoneEnable className="mic-muted" />
+            ) : (
+              <IconMicrophoneDisable className="mic-normal" />
+            )}
+          </div>
+          <div className="button-item-wrapper is-danger">
+            <IconLeaveCall
+              className="window-close"
+              onClick={() => {
+                hangup();
+              }}
+              onDoubleClick={preventDefault}
+            />
+          </div>
         </div>
+        {requireScreenShare && (
+          <div className="floating-bar-require-screen-share">
+            <span className="floating-bar-require-screen-share-title">
+              <ExclamationCircleOutlined className="content-icon" />
+              <span className="content-title-info-text">
+                {requireScreenShare.radioOptions.length === 1 ? (
+                  <span className="content-title-info-name">
+                    {requireScreenShare.radioOptions?.[0]?.label}
+                  </span>
+                ) : null}
+                {title}
+                <span className="content-title-countdown">
+                  ({requireScreenShare.countdown}s)
+                </span>
+              </span>
+            </span>
+            {requireScreenShare.radioOptions.length > 1 && (
+              <Radio.Group
+                size="small"
+                ref={radioGroupRef}
+                options={requireScreenShare.radioOptions}
+                value={selected}
+                className="floating-bar-require-screen-share-radio-group universal-radio-group"
+                onChange={e => setSelected(e.target.value)}
+              ></Radio.Group>
+            )}
+            <Flex
+              className="floating-bar-require-screen-share-button-group"
+              gap={8}
+            >
+              <Button
+                size="small"
+                className="floating-bar-require-screen-share-button"
+                type="default"
+                onClick={onApproveScreenShare}
+              >
+                {i18n('approveNow')}
+              </Button>
+              <Button
+                size="small"
+                className="floating-bar-require-screen-share-button"
+                type="default"
+                onClick={onRejectScreenShare}
+              >
+                {i18n('reject')}
+              </Button>
+            </Flex>
+          </div>
+        )}
       </div>
-    </div>
+    </ConfigProvider>
   );
 };

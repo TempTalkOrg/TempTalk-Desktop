@@ -26,23 +26,7 @@ export interface AudioTrackProps
   muted?: boolean;
 }
 
-/**
- * The AudioTrack component is responsible for rendering participant audio tracks.
- * This component must have access to the participant's context, or alternatively pass it a `Participant` as a property.
- *
- * @example
- * ```tsx
- *   <ParticipantTile>
- *     <AudioTrack trackRef={trackRef} />
- *   </ParticipantTile>
- * ```
- *
- * @see `ParticipantTile` component
- * @public
- */
-export const AudioTrack: (
-  props: AudioTrackProps & React.RefAttributes<HTMLAudioElement>
-) => any = /* @__PURE__ */ React.forwardRef<HTMLAudioElement, AudioTrackProps>(
+export const AudioTrack = React.forwardRef<HTMLAudioElement, AudioTrackProps>(
   function AudioTrack(
     {
       trackRef,
@@ -94,6 +78,6 @@ export const AudioTrack: (
       }
     }, [muted, pub, track]);
 
-    return <audio ref={mediaEl} {...elementProps} />;
+    return <audio ref={mediaEl} {...elementProps} muted={muted} />;
   }
 );

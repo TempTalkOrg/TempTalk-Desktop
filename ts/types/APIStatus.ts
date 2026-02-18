@@ -62,6 +62,9 @@ export enum API_STATUS {
   // 因为不是好友，创建群失败
   GroupMemberNotYouFriend = 10125,
 
+  CustomUidAlreadyExists = 10301,
+  SetCustomUidRateLimit = 10302,
+
   MismatchedUsers = 11001,
   UnsupportedEncLevel = 11002,
 

@@ -1,13 +1,16 @@
 import {
+  ConnectionError,
+  LogLevel,
   Room,
   RoomEvent,
   TTCallRequest,
   TTStartCall,
 } from '@cc-livekit/livekit-client';
-import { callingAPI, currentCall } from '../initCall';
+import { callingAPI, currentCall, switchServiceUrl } from '../initCall';
 import { useMemoizedFn } from 'ahooks';
 import { CallResponse } from '../types';
 import { getWebApiUserAgent } from '../../../web_api/util';
+import { useRef } from 'react';
 
 type OverrideRequestData = TTStartCall & { conversation: string };
 
@@ -22,6 +25,8 @@ export const useOverrideCallRequest = ({
   room: Room;
   onTimeout: () => void;
 }) => {
+  const retryCountRef = useRef(0);
+
   const getConnectResponse = useMemoizedFn(() => {
     return {
       ...room.ttCallResp?.body,
@@ -50,15 +55,20 @@ export const useOverrideCallRequest = ({
   const overrideCallRequest: OverrideRequestType = useMemoizedFn(
     async callData => {
       const newRequestFn = async () => {
-        await room.connect(currentCall.serviceUrls[0], '', {
+        const userAgent = getWebApiUserAgent();
+        await room.connect(currentCall.serviceUrl, '', {
           ttCallRequest: new TTCallRequest({
             token: await callingAPI.getCallToken(),
             startCall: new TTStartCall({
               ...callData,
               conversationId: callData.conversation,
             }),
-            userAgent: getWebApiUserAgent(),
+            userAgent,
           }),
+          transportKind: currentCall.quicEnabled ? 'quic' : undefined,
+          enableQuicLogging: true,
+          quicLogLevel: LogLevel.warn,
+          userAgent,
         });
         return getConnectResponse();
       };
@@ -76,6 +86,16 @@ export const useOverrideCallRequest = ({
           return await overrideCallRequest(callData);
         } else if (e.message === 'start-call-timeout') {
           onTimeout?.();
+        } else if (
+          e instanceof ConnectionError &&
+          e.name === 'ConnectionError'
+        ) {
+          if (retryCountRef.current >= currentCall.serviceUrls.length - 1) {
+            throw { reason: 'network error' };
+          }
+          retryCountRef.current++;
+          switchServiceUrl();
+          return await overrideCallRequest(callData);
         } else {
           throw e;
         }

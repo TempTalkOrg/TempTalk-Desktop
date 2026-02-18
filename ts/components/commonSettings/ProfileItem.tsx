@@ -86,36 +86,10 @@ const ProfileItem = (props: Props) => {
       onMouseLeave={mouseLeave}
       style={{ margin: '0 0 12px 24px', height: 'auto' }}
     >
-      <div
-        className={'profile-item-title'}
-        style={{
-          width: '60px',
-          height: '20px',
-          marginRight: '8px',
-          display: 'inline-block',
-          // fontFamily: 'SF Pro',
-          // fontStyle: 'normal',
-          // fontWeight: 400,
-          // fontSize: '14px',
-          // lineHeight: '20px',
-          // color: '#1E2329',
-        }}
-      >
-        {props.title}
-      </div>
-
+      <div className={'profile-item-title'}>{props.title}</div>
       <div
         className={'profile-item-sub'}
-        style={{
-          width: '176px',
-          cursor: 'pointer',
-          // display:'inline-block',
-          // whiteSpace: 'nowrap',
-          // textOverflow: 'ellipsis',
-          // overflow: 'hidden',
-          wordBreak: 'break-word',
-        }}
-        onClick={props.onClickArrowimg}
+        onClick={props.isShowArrowimg ? props.onClickArrowimg : undefined}
       >
         {isRole && !props.onClick ? (
           <Tooltip

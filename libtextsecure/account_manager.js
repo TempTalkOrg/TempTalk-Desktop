@@ -128,10 +128,6 @@
                               ) {
                                 throw new Error('Invalid device name');
                               }
-                              //配置meetingVersion 来自(background.js)
-                              let meetingVersion = window.Signal.OS.isMacOS()
-                                ? MAC_MEETINGVERSION
-                                : LINUX_MEETINGVERSION;
 
                               return createAccount(
                                 provisionMessage.number,
@@ -142,7 +138,7 @@
                                 provisionMessage.userAgent,
                                 provisionMessage.readReceipts,
                                 null,
-                                meetingVersion
+                                window.getMeetingVersion()
                               )
                                 .then(clearSessionsAndPreKeys)
                                 .then(() => {
@@ -416,6 +412,12 @@
     },
     getDirectoryProfile() {
       return this.server.getDirectoryProfile();
+    },
+    setDirectoryProfile(data) {
+      return this.server.setDirectoryProfile(data);
+    },
+    searchUserByUid(uid) {
+      return this.server.searchUserByUid(uid);
     },
     requestBindVerificationEmail(email, nonce) {
       return this.server.requestBindVerificationEmail(email, nonce);

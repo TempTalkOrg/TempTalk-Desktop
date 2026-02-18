@@ -14,6 +14,8 @@ export interface IImageFile {
   fileName: string;
   contentType: string;
   attachmentId: string;
+  messageId: string;
+  path: string;
 }
 
 interface IProps {
@@ -94,6 +96,8 @@ export const IndividuralImageImpl: React.FC<
       fileName: fileName,
       contentType: contentType,
       attachmentId,
+      messageId,
+      path,
     },
     handlePrevImage,
     handleNextImage,
@@ -327,6 +331,8 @@ export const IndividuralImageImpl: React.FC<
         setReadonly={setReadonly}
         readonly={readonly}
         handleControls={handleControls}
+        messageId={messageId}
+        path={path}
       />
       <div className="image-container" ref={containerRef}>
         {renderContent()}

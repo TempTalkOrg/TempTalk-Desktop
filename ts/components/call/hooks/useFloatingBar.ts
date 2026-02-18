@@ -39,6 +39,7 @@ export const useFloatingBar = ({
         id: contact.id,
         avatarPath: contact.avatarPath,
         name: contact.getDisplayName(),
+        accountName: contact.getAccountName(),
       };
     }
     return undefined;

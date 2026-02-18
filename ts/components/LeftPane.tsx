@@ -17,10 +17,10 @@ import { ContactListItem } from './ContactListItem';
 import ReactDOM from 'react-dom';
 import { MenuProps, Popover } from 'antd';
 import { ContextMenu } from './shared/ContextMenu';
-import { Profile } from './commonSettings/Profile';
 import { ConversationListInstantCallItem } from './ConversationListInstantCallItem';
 import { getConversationModel } from '../shims/Whisper';
 import { formatInstantCallName } from '../util/formatInstantCallName';
+import { ProfileCard } from './commonSettings/ProfileCard';
 
 interface INotificationType {
   type: number;
@@ -124,8 +124,7 @@ export class LeftPane extends React.Component<Props, State> {
     const callList = Object.values(calls);
     for (const call of callList) {
       if (call?.type === 'instant') {
-        const { uid } = call.caller;
-        const conversationModel = getConversationModel(uid);
+        const conversationModel = getConversationModel(call.caller);
         const name = formatInstantCallName(conversationModel);
         result.push({ ...call, name });
       }
@@ -971,14 +970,12 @@ export class LeftPane extends React.Component<Props, State> {
       <Popover
         open={showProfileModal}
         content={() => (
-          <Profile
+          <ProfileCard
             id={this.state.currentCheckConversation.id}
             i18n={i18n}
             onClose={() => {
               this.setState({ showProfileModal: false });
             }}
-            x={0}
-            y={0}
             avatarPath={''}
           />
         )}

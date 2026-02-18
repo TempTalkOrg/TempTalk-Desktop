@@ -1,43 +1,43 @@
-import { useMemoizedFn } from 'ahooks';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { LocalizerType } from '../../types/Util';
-import {
-  MessageBody,
-  Props as MessageBodyProps,
-} from '../conversation/MessageBody';
-
-interface DataType extends MessageBodyProps {
-  id: string;
-}
+import { useMemoizedFn } from 'ahooks';
+import { LottieAnimation } from '../LottieAnimation';
+import { Spin } from 'antd';
+import { ForwardView } from './ForwardView';
+import { TextView } from './TextView';
 
 export const SeparateMessageView = ({ i18n }: { i18n: LocalizerType }) => {
-  const [messageData, setMessageData] = useState<DataType>();
-  const messageIdRef = useRef<string | null>(null);
-  const readRef = useRef<boolean>(false);
-  const [isMouseOver, setIsMouseOver] = useState<boolean>(false);
-
-  const handleUpdateMessage = useMemoizedFn((_, data: DataType) => {
-    setMessageData(data);
-    messageIdRef.current = data.id;
-    readRef.current = false;
+  const [spinning, setSpinning] = useState(false);
+  const [messageType, setMessageType] = useState<'forward' | 'text'>();
+  const [data, setData] = useState<any>({
+    messageData: null,
+    title: '',
+    messageId: '',
   });
+  const [title, setTitle] = useState<string>('');
 
-  const handleMouseEnter = useMemoizedFn(() => {
-    setIsMouseOver(true);
-    if (readRef.current === false) {
-      (window as any).readConfidentialMessage(messageIdRef.current);
-      readRef.current = true;
+  const initData = useMemoizedFn(
+    async (_, data: { messageId: string; title: string }) => {
+      try {
+        const { messageId, title } = data;
+        setSpinning(true);
+        const messageData = await (window as any).getMessageProps(messageId);
+        setData({ messageData, title, messageId });
+        // single forwarded message will be shown in text view
+        if (messageData.forwardedMessages?.length > 1) {
+          setMessageType('forward');
+        } else {
+          setMessageType('text');
+        }
+        setSpinning(false);
+      } catch (error: any) {
+        console.log('initData error', error.message);
+      }
     }
-  });
-
-  const handleMouseLeave = useMemoizedFn(() => {
-    setIsMouseOver(false);
-  });
+  );
 
   useEffect(() => {
-    const cleanup = (window as any).registerShowMessageInSeparateView(
-      handleUpdateMessage
-    );
+    const cleanup = (window as any).registerShowMessageInSeparateView(initData);
 
     return () => {
       cleanup();
@@ -46,23 +46,30 @@ export const SeparateMessageView = ({ i18n }: { i18n: LocalizerType }) => {
 
   return (
     <>
-      <div className="separate-message-viewer-title"></div>
-      <div className="separate-message-viewer-body-wrapper">
-        <div onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
-          <div className="module-message__text">
-            {messageData && (
-              <MessageBody
-                isMouseOver={isMouseOver}
-                text={messageData.text}
-                i18n={i18n}
-                isConfidentialMessage={true}
-                mentions={messageData.mentions}
-                showOnMouseOver={true}
-              />
-            )}
-          </div>
-        </div>
+      <Spin
+        rootClassName="separate-message-viewer-spin"
+        spinning={spinning}
+        fullscreen
+        indicator={
+          <LottieAnimation
+            src={`../lotties/conversation-loading-${(window as any).getCurrentTheme()}.lottie`}
+            style={{ height: 120 }}
+          />
+        }
+      ></Spin>
+      <div className="separate-message-viewer-title">
+        <span
+          className="apple-close"
+          onClick={() => (window as any).closeWindow()}
+        ></span>
+        {title}
       </div>
+      {messageType === 'forward' && (
+        <ForwardView i18n={i18n} data={data} onTitleChange={setTitle} />
+      )}
+      {messageType === 'text' && (
+        <TextView i18n={i18n} messageData={data.messageData} />
+      )}
     </>
   );
 };

@@ -1,9 +1,9 @@
 import { ModuleThread, spawn, Thread, Worker } from 'threads';
 import { consoleLogger } from '../../logger/consoleLogger';
-import { LoggerType } from '../../logger/types';
+import type { LoggerType } from '../../logger/types';
 import { WorkerData } from './types';
 import { handleLog } from './logger';
-import { CloseDBOption, InitDBOption } from '../dbInterface';
+import type { CloseDBOption, InitDBOption } from '../dbInterface';
 
 export class WorkerAccelerator {
   private readonly workerPath: string;
@@ -43,7 +43,7 @@ export class WorkerAccelerator {
     }
 
     if (!this.proxy) {
-      const error = 'proxy is not initilized';
+      const error = 'proxy is not initialized';
       this.getLogger().warn(error);
       throw new Error(error);
     }

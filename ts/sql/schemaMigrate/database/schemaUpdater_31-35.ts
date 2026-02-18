@@ -1,6 +1,6 @@
-import { Database } from '@signalapp/better-sqlite3';
-import { LoggerType } from '../../../logger/types';
-import { EmptyQuery } from '../../sqlTypes';
+import type { Database } from '@opensource-lib/better-sqlite3';
+import type { LoggerType } from '../../../logger/types';
+import type { EmptyQuery } from '../../sqlTypes';
 
 export function updateToSchemaVersion31(
   currentVersion: number,
@@ -47,33 +47,7 @@ export function updateToSchemaVersion32(
 
   logger.info('updateToSchemaVersion32: starting...');
 
-  // -- table file_check_result
-  // -- table url_check_result
   db.transaction(() => {
-    db.exec(
-      `
-      CREATE TABLE file_risk (
-        file_id     INTEGER NOT NULL,
-        sha256      TEXT NOT NULL,
-        file_size   INTEGER NOT NULL,
-        risk_status INTEGER NOT NULL,
-        created_at  INTEGER NOT NULL,
-        checked_at  INTEGER NOT NULL,
-        PRIMARY KEY(file_id AUTOINCREMENT),
-        UNIQUE(sha256, file_size)
-      );
-
-      CREATE TABLE url_risk (
-        url_id      INTEGER NOT NULL,
-        url         TEXT NOT NULL UNIQUE,
-        risk_status INTEGER NOT NULL,
-        created_at  INTEGER NOT NULL,
-        checked_at  INTEGER NOT NULL,
-        PRIMARY KEY(url_id AUTOINCREMENT)
-      );
-      `
-    );
-
     db.pragma('user_version = 32');
   })();
 
@@ -216,8 +190,6 @@ export function updateToSchemaVersion35(
         `
       );
     }
-
-    db.exec(`DELETE FROM messages_expired;`);
 
     db.pragma('user_version = 35');
   })();

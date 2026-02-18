@@ -98,8 +98,13 @@ export const useLocalAction = ({
           await callingAPI.cancelCall(options, roomCipher);
 
           logger.info('cancel sent, roomId:', currentCall.roomId);
-        } catch (e) {
-          logger.info('send cancel error', e, 'roomId', currentCall.roomId);
+        } catch (e: any) {
+          logger.info(
+            'send cancel error',
+            e?.message,
+            'roomId',
+            currentCall.roomId
+          );
         }
         return onFinishHangup?.();
       }
@@ -112,10 +117,44 @@ export const useLocalAction = ({
 
   const endCallConfirmModalRef = useRef<ReturnType<ModalFunc>>();
 
-  const doEndCall = useMemoizedFn(async () => {
+  const checkEndCallModalRef = useRef<ReturnType<ModalFunc>>();
+
+  const confirmEndCall = useMemoizedFn(async () => {
     currentCall.endingCall = true;
     await doHangup();
     onFinishEndCall?.();
+  });
+
+  const doEndCall = useMemoizedFn(async () => {
+    const othersSpeaking = room.activeSpeakers.some(p => !p.isLocal);
+
+    if (othersSpeaking) {
+      checkEndCallModalRef.current = Modal.info({
+        icon: null,
+        title: i18n('checkEndCall.title'),
+        content: i18n('checkEndCall.content'),
+        className: 'universal-modal',
+        closable: true,
+        footer() {
+          return (
+            <>
+              <Button
+                type="default"
+                ghost
+                onClick={() => checkEndCallModalRef.current?.destroy()}
+              >
+                {i18n('cancel')}
+              </Button>
+              <Button type="primary" danger onClick={confirmEndCall}>
+                {i18n('call.end')}
+              </Button>
+            </>
+          );
+        },
+      });
+    } else {
+      await confirmEndCall();
+    }
   });
 
   const cancelEndCall = useMemoizedFn(() => {
@@ -143,7 +182,14 @@ export const useLocalAction = ({
                 <Button type="default" ghost danger onClick={leaveCall}>
                   {i18n('call.leave')}
                 </Button>
-                <Button type="primary" danger onClick={doEndCall}>
+                <Button
+                  type="primary"
+                  danger
+                  onClick={() => {
+                    doEndCall();
+                    endCallConfirmModalRef.current?.destroy();
+                  }}
+                >
                   {i18n('call.end')}
                 </Button>
               </>

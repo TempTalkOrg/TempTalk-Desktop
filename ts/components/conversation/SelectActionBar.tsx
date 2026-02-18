@@ -7,6 +7,7 @@ import {
   IconClose,
   IconCombineAndForward,
   IconForward,
+  IconRecall,
   IconSaveToNote,
 } from '../shared/icons';
 import { Divider } from 'antd';
@@ -15,22 +16,26 @@ interface Props {
   i18n: LocalizerType;
   open: boolean;
   onForwardTo: (conversationIds?: Array<string>, isMerged?: boolean) => void;
+  onBatchRecall: () => void;
   onCancel: () => void;
   ourNumber: string;
   isDisabled?: boolean;
   selectedCount: number;
   maxSelectionCount?: number;
+  recallableCount: number;
 }
 
 export const SelectActionBar: React.FC<Props> = ({
   i18n,
   open,
   onForwardTo,
+  onBatchRecall,
   onCancel,
   ourNumber,
   isDisabled,
   selectedCount,
   maxSelectionCount = 50,
+  recallableCount,
 }) => {
   const [isShowForwardDialog, setIsShowForwardDialog] = useState(false);
   const [isMerge, setIsMerge] = useState<boolean>(false);
@@ -73,6 +78,13 @@ export const SelectActionBar: React.FC<Props> = ({
   const handleSaveToNoteForward = useMemoizedFn(() => {
     if (!isDisabled) {
       onForwardMessageToMe();
+    }
+  });
+
+  const handleBatchRecall = useMemoizedFn(() => {
+    if (recallableCount > 0) {
+      onBatchRecall();
+      onCancel();
     }
   });
 
@@ -124,6 +136,19 @@ export const SelectActionBar: React.FC<Props> = ({
           <IconSaveToNote className="action-button-icon" />
           <div className={classNames('action-button-text')}>
             {i18n('saveToNoteForward')}
+          </div>
+        </div>
+        <div
+          className={classNames(
+            'action-button action-button-danger',
+            recallableCount <= 0 ? 'action-button-disabled' : null
+          )}
+          onClick={handleBatchRecall}
+        >
+          <IconRecall className="action-button-icon" />
+          <div className={classNames('action-button-text')}>
+            {i18n('recallTitle')}
+            {recallableCount > 0 ? `(${recallableCount})` : ''}
           </div>
         </div>
         <div className={classNames('action-button')} onClick={onCancel}>

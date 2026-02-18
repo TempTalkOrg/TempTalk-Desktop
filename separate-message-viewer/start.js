@@ -4,21 +4,15 @@
   document,
   Whisper,
   $,
-  Sound,
 */
 
-window.Whisper = window.Whisper || {};
-Whisper.SeparateMessageViewer = new Whisper.ReactWrapperView({
-  className: 'separate-message-viewer-root',
-  Component: window.getSeparateMessageView(),
-  props: {
-    i18n: window.i18n,
-  },
-});
-
-const $body = $(document.body);
 window.setImmediate = window.nodeSetImmediate;
-Whisper.SeparateMessageViewer.$el.appendTo($body);
+window.ReactDOM.render(
+  window.React.createElement(window.getSeparateMessageView(), {
+    i18n: window.i18n,
+  }),
+  document.querySelector('.separate-message-viewer-root')
+);
 
 const setTheme = async theme => {
   let newTheme = theme;
@@ -28,11 +22,8 @@ const setTheme = async theme => {
 
   const newThemeClass = `${newTheme}-theme`;
 
-  $(document.body)
-    .removeClass('dark-theme')
-    .removeClass('light-theme')
-    .addClass(newThemeClass)
-    .addClass('ios-theme');
+  document.body.classList.remove('dark-theme', 'light-theme');
+  document.body.classList.add(newThemeClass, 'ios-theme');
 };
 
 window.changeTheme(setTheme);

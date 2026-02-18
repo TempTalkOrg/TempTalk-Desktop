@@ -360,6 +360,34 @@ a {
           }
         }
       }
+
+      &-danger {
+        .action-button-text,
+        .action-button-icon {
+          color: var(--dst-color-text-error);
+        }
+
+        &:hover {
+          .action-button-text,
+          .action-button-icon {
+            @include hover-color(var(--dst-color-text-error));
+          }
+        }
+
+        &.action-button-disabled {
+          .action-button-text,
+          .action-button-icon {
+            color: var(--dst-color-text-disable);
+          }
+
+          &:hover {
+            .action-button-text,
+            .action-button-icon {
+              @include hover-color(var(--dst-color-text-disable));
+            }
+          }
+        }
+      }
     }
 
     .cancel-button-wrapper {
@@ -759,22 +787,6 @@ $loading-height: 16px;
     }
   }
 
-  .os-icon {
-    height: 3em;
-    width: 3em;
-    vertical-align: text-bottom;
-    display: inline-block;
-    margin: 0.5em;
-
-    &.apple {
-      @include color-svg('../images/apple.svg', black);
-    }
-
-    &.android {
-      @include color-svg('../images/android.svg', black);
-    }
-  }
-
   .header {
     font-weight: normal;
     margin-bottom: 0.8em;
@@ -1108,15 +1120,6 @@ $loading-height: 16px;
       border: 1px solid #dbdbdb;
     }
   }
-}
-
-.simple_blind_watermark {
-  transform: rotate(-15deg);
-  position: absolute;
-  z-index: 9999;
-  pointer-events: none;
-  opacity: 0.005;
-  color: red;
 }
 
 .emoji-mart-emoji {
@@ -1536,7 +1539,7 @@ $loading-height: 16px;
 .left-pane-contextmenu-item {
   @include common-menu-item-inner;
   &-delete {
-    @include common-menu-item('danger');
+    @include common-menu-item('danger', 'nested');
     @include common-menu-item-inner(172px);
   }
 }

@@ -6,7 +6,7 @@ const _ = require('lodash');
 const packageJson = require('./package.json');
 const testJson = require('./config/dev-test.json');
 
-const { version } = packageJson;
+// const { version } = packageJson;
 // const test = /test/;
 
 // You might be wondering why this file is necessary. It comes down to our desire to allow
@@ -44,12 +44,12 @@ const TEST_DESCRIPTION = 'YellingTest Desktop';
 
 // -------
 
-function checkValue(object, objectPath, expected) {
-  const actual = _.get(object, objectPath);
-  if (actual !== expected) {
-    throw new Error(`${objectPath} was ${actual}; expected ${expected}`);
-  }
-}
+// function checkValue(object, objectPath, expected) {
+//   const actual = _.get(object, objectPath);
+//   if (actual !== expected) {
+//     throw new Error(`${objectPath} was ${actual}; expected ${expected}`);
+//   }
+// }
 
 // ------
 

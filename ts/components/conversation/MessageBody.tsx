@@ -5,7 +5,7 @@ import { LocalizerType, RenderTextCallbackType } from '../../types/Util';
 import { MentionUser } from './MentionUser';
 import { useDebounceFn, useMemoizedFn } from 'ahooks';
 import classNames from 'classnames';
-import ReactDOM, { createPortal } from 'react-dom';
+import ReactDOM from 'react-dom';
 
 export interface Props {
   suffixType?: 'atYou' | 'atAll' | 'draft' | 'criticalAlert' | undefined;
@@ -25,6 +25,8 @@ export interface Props {
   showOnMouseOver?: boolean;
   containerRef?: React.RefObject<HTMLDivElement>;
   onScrollIntoView?: () => void;
+  disableShowProfile?: boolean;
+  conversationId?: string;
 }
 
 const renderNewLines: RenderTextCallbackType = ({
@@ -63,6 +65,7 @@ export const MessageBody = (props: Props) => {
     allowExpand,
     containerRef,
     onScrollIntoView,
+    conversationId,
   } = props;
 
   const shouldRedacted = isConfidentialMessage && !isMouseOver;
@@ -94,7 +97,7 @@ export const MessageBody = (props: Props) => {
   }, [suffixType]);
 
   const renderTextMaskItem = useMemoizedFn((segment: string, index: number) => {
-    const { showOnMouseOver } = props;
+    const { showOnMouseOver, disableShowProfile } = props;
     if (segment.trim() === '' || segment === '&nbsp;') {
       return segment;
     } else {
@@ -105,10 +108,15 @@ export const MessageBody = (props: Props) => {
               uid={index.toString()}
               text={segment}
               type={1}
-              disableShowProfile={showOnMouseOver}
+              disableShowProfile={showOnMouseOver || disableShowProfile}
+              conversationId={conversationId}
             />
           ) : (
-            <Linkify text={segment} disableShowProfile={showOnMouseOver} />
+            <Linkify
+              text={segment}
+              disableShowProfile={showOnMouseOver || disableShowProfile}
+              conversationId={conversationId}
+            />
           )}
         </span>
       );
@@ -128,7 +136,14 @@ export const MessageBody = (props: Props) => {
   });
 
   const renderBodyText = useMemoizedFn(() => {
-    const { text, disableLinks, i18n, mentions, showOnMouseOver } = props;
+    const {
+      text,
+      disableLinks,
+      i18n,
+      mentions,
+      showOnMouseOver,
+      disableShowProfile,
+    } = props;
     const textWithPending = textPending ? `${text}...` : text;
     if (!disableLinks) {
       return (
@@ -136,7 +151,8 @@ export const MessageBody = (props: Props) => {
           text={textWithPending}
           i18n={i18n}
           mentions={mentions}
-          disableShowProfile={showOnMouseOver}
+          disableShowProfile={showOnMouseOver || disableShowProfile}
+          conversationId={conversationId}
         />
       );
     }
@@ -295,26 +311,23 @@ export const MessageBody = (props: Props) => {
           ) : null}
         </span>
       </span>
-      {expandable && containerRef?.current
-        ? createPortal(
-            <>
-              <div
-                ref={expandIconRef}
-                className={classNames('message-body-expand-button', {
-                  expanded,
-                })}
-                onClick={onExpandChange}
-              >
-                {i18n(expanded ? 'readLess' : 'readMore')}
-              </div>
-              <div
-                ref={stickyIndicatorRef}
-                className="message-body-expand-button-sticky-indicator"
-              ></div>
-            </>,
-            containerRef.current
-          )
-        : null}
+      {expandable && containerRef?.current ? (
+        <>
+          <div
+            ref={expandIconRef}
+            className={classNames('message-body-expand-button', {
+              expanded,
+            })}
+            onClick={onExpandChange}
+          >
+            {i18n(expanded ? 'readLess' : 'readMore')}
+          </div>
+          <div
+            ref={stickyIndicatorRef}
+            className="message-body-expand-button-sticky-indicator"
+          ></div>
+        </>
+      ) : null}
     </>
   );
 };

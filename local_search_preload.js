@@ -1,11 +1,9 @@
 /* global
   window,
-  watermark,
   $,
 */
 
 const { ipcRenderer } = require('electron');
-const { app, getCurrentWindow } = require('@electron/remote');
 
 const url = require('url');
 
@@ -27,6 +25,9 @@ window.getVersion = () => config.version;
 window.getAppInstance = () => config.appInstance;
 window.systemTheme = config.systemTheme;
 
+const getTempDataPath = () => config.tempDataPath;
+const getUserDataPath = () => config.userDataPath;
+
 window.PROTO_ROOT = 'protos';
 window.React = require('react');
 window.ReactDOM = require('react-dom');
@@ -46,7 +47,8 @@ window.moment.locale(locale.toLowerCase());
 
 window.Signal = Signal.setup({
   Attachments,
-  userDataPath: app.getPath('userData'),
+  userDataPath: getUserDataPath(),
+  tempDataPath: getTempDataPath(),
   getRegionCode: () => window.storage.get('regionCode'),
   logger: window.log,
 });
@@ -62,7 +64,7 @@ window.jumpMessage = info => {
 
 // only worked on windows
 window.changeTitleBarOverlay = overlay => {
-  getCurrentWindow()?.setTitleBarOverlay?.(overlay);
+  ipcRenderer.send('set-title-bar-overlay', overlay);
 };
 
 // 更改主题
@@ -70,23 +72,6 @@ window.changeTheme = fn => {
   ipcRenderer.on('set-theme-setting', (_, info) => {
     fn(info);
   });
-};
-
-// 设置水印
-window.setupWaterMark = userNumber => {
-  if (userNumber) {
-    let user = userNumber.replace('+', '');
-    if (user.indexOf('.') !== -1) {
-      user = user.substr(0, user.indexOf('.'));
-    }
-
-    $('.simple_blind_watermark').remove();
-    watermark({ watermark_txt: user });
-    window.addEventListener('resize', () => {
-      $('.simple_blind_watermark').remove();
-      watermark({ watermark_txt: user });
-    });
-  }
 };
 
 // 获取系统主题

@@ -348,7 +348,7 @@ function ValueInput(props: ValueInputProps) {
       rules={fieldRules}
     >
       <Input
-        className="link-modal-input"
+        className="link-modal-input universal-input"
         allowClear
         placeholder={i18n(
           `setting.account.linkModal.input.placeholder.${field}`

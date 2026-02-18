@@ -35,7 +35,7 @@ import { ForwardDialog } from '../ForwardDialog';
 import { ForwardPreviewBody, ForwardedMessage } from './ForwardPreviewBody';
 import { Language } from './TranslateMenu';
 import moment from 'moment';
-import { Tooltip, Popover, MenuProps } from 'antd';
+import { Tooltip, Popover, MenuProps, Modal } from 'antd';
 import {
   ReactionContactList,
   Contact as ReactionContact,
@@ -100,6 +100,7 @@ export interface Props {
   /** Note: this should be formatted for display */
   authorPhoneNumber: string;
   authorColor?: ColorType;
+  authorNoClickEvent?: boolean;
   conversationType: 'group' | 'direct' | 'forward';
   conversationId?: string;
   attachments?: Array<AttachmentType>;
@@ -176,6 +177,11 @@ export interface Props {
   transcribing?: boolean;
   transcribingError?: string;
   transcribedText?: string;
+  disableShowProfile?: boolean;
+  showInEnlargeView?: () => void;
+  getVoicePlaybackSpeed: () => number;
+  setVoicePlaybackSpeed: (playbackSpeed: number) => void;
+  onAudioPlay?: () => void;
 }
 
 interface State {
@@ -197,6 +203,7 @@ interface State {
 
   contextMenuPosition?: [number, number];
   showContextMenu: boolean;
+  showEnlarged: boolean;
 }
 
 const EXPIRATION_CHECK_MINIMUM = 2 * 1000;
@@ -263,6 +270,7 @@ export class Message extends React.PureComponent<Props, State> {
 
       contextMenuPosition: undefined,
       showContextMenu: false,
+      showEnlarged: false,
     };
   }
 
@@ -832,6 +840,9 @@ export class Message extends React.PureComponent<Props, State> {
       threadProps,
       onOpenFile,
       getAttachmentObjectUrl,
+      getVoicePlaybackSpeed,
+      setVoicePlaybackSpeed,
+      onAudioPlay,
     } = this.props;
     const { imageBroken } = this.state;
 
@@ -862,7 +873,11 @@ export class Message extends React.PureComponent<Props, State> {
         (isVideo(attachments) && hasVideoScreenshot(attachments)))
     ) {
       return (
-        <div style={shouldHide ? { background: '#B7BDC6' } : {}}>
+        <div
+          className={classNames({
+            'with-confidential-mask': shouldHide,
+          })}
+        >
           <div
             className={classNames(
               'module-message__attachment-container',
@@ -894,7 +909,11 @@ export class Message extends React.PureComponent<Props, State> {
       !firstAttachment.fetchError
     ) {
       return (
-        <div style={shouldHide ? { background: '#B7BDC6' } : {}}>
+        <div
+          className={classNames({
+            'with-confidential-mask': shouldHide,
+          })}
+        >
           {!firstAttachment.isVoiceMessage ? (
             <div className="module-message__audio-file-prefix">
               <div className="module-message__audio-file-prefix__icon" />
@@ -904,11 +923,14 @@ export class Message extends React.PureComponent<Props, State> {
             </div>
           ) : null}
           <AudioMessage
+            getVoicePlaybackSpeed={getVoicePlaybackSpeed}
+            setVoicePlaybackSpeed={setVoicePlaybackSpeed}
             getAttachmentObjectUrl={() =>
               getAttachmentObjectUrl(firstAttachment)
             }
             src={firstAttachment.url}
             classNames={classNames([shouldHide ? 'should-hidden' : ''])}
+            onPlay={onAudioPlay}
           />
         </div>
       );
@@ -927,7 +949,11 @@ export class Message extends React.PureComponent<Props, State> {
       const extension = getExtensionForDisplay({ contentType, fileName });
       const isDangerous = isFileDangerous(fileName || '');
       return (
-        <div style={shouldHide ? { background: '#B7BDC6' } : {}}>
+        <div
+          className={classNames({
+            'with-confidential-mask': shouldHide,
+          })}
+        >
           <div
             className={classNames(
               'module-message__generic-attachment',
@@ -939,7 +965,7 @@ export class Message extends React.PureComponent<Props, State> {
                 : null
             )}
             onClick={async () => {
-              if (error || pending || fetchError) {
+              if (error || pending || fetchError || isDangerous) {
                 return;
               }
 
@@ -1178,7 +1204,9 @@ export class Message extends React.PureComponent<Props, State> {
       authorId,
       i18n,
       text,
+      isConfidentialMessage,
     } = this.props;
+    const { isMouseOver } = this.state;
     if (!contact) {
       return null;
     }
@@ -1187,7 +1215,15 @@ export class Message extends React.PureComponent<Props, State> {
     const withContentBelow = withCaption || !collapseMetadata;
 
     return (
-      <div className="card-message-content-wrapper">
+      <div
+        className={classNames([
+          'card-message-content-wrapper',
+          {
+            'is-confidential-message': isConfidentialMessage,
+            'is-mouse-over': isMouseOver,
+          },
+        ])}
+      >
         <EmbeddedContact
           //分享人id
           shareId={authorId}
@@ -1250,6 +1286,7 @@ export class Message extends React.PureComponent<Props, State> {
       conversationId,
       leftGroup,
       virtualIndex,
+      authorNoClickEvent,
     } = this.props;
 
     // if (
@@ -1280,6 +1317,7 @@ export class Message extends React.PureComponent<Props, State> {
         }}
       >
         <Avatar
+          noClickEvent={authorNoClickEvent}
           id={authorId}
           avatarPath={authorAvatarPath}
           color={authorColor}
@@ -1314,6 +1352,8 @@ export class Message extends React.PureComponent<Props, State> {
       forwardedMessages,
       mentions,
       showInSeparateView,
+      disableShowProfile,
+      conversationId,
     } = this.props;
 
     const contents =
@@ -1354,12 +1394,14 @@ export class Message extends React.PureComponent<Props, State> {
           isMouseOver={this.state.isMouseOver}
           isConfidentialMessage={isConfidentialMessage}
           showOnMouseOver={false}
+          disableShowProfile={disableShowProfile}
           mentions={singleForwardMentions || mentions}
           i18n={i18n}
           textPending={textPending}
           onClickMask={showInSeparateView}
           containerRef={this.fixedContextMenuTriggerRef}
           onScrollIntoView={this.onScrollIntoView}
+          conversationId={conversationId}
         />
       </div>
     );
@@ -1458,8 +1500,9 @@ export class Message extends React.PureComponent<Props, State> {
   }
 
   public renderMessageReactions() {
-    const { hasReactions, emojiReactions, direction } = this.props;
-    if (!hasReactions || !emojiReactions?.length) {
+    const { hasReactions, emojiReactions, direction, isConfidentialMessage } =
+      this.props;
+    if (!hasReactions || !emojiReactions?.length || isConfidentialMessage) {
       return;
     }
 
@@ -1822,15 +1865,16 @@ export class Message extends React.PureComponent<Props, State> {
       return <></>;
     }
 
-    const { conversationType, emojiReactions } = this.props;
+    const { conversationType, emojiReactions, isConfidentialMessage } =
+      this.props;
 
     const isForwardConversation = conversationType === 'forward';
-    const showEmojiReaction = !isForwardConversation;
+    const showEmojiReaction = !isForwardConversation && !isConfidentialMessage;
 
     const sortedEmojiReactions = this.getSortedEmojiReactions(emojiReactions);
 
     return (
-      <div>
+      <div className="module-message__context-menu-content-wrapper">
         {React.cloneElement(menu)}
         {showEmojiReaction && (
           <div className={'emoji-div'}>
@@ -1909,6 +1953,11 @@ export class Message extends React.PureComponent<Props, State> {
     return menuItems;
   };
 
+  public onShowEnlarged = () => {
+    console.log('onShowEnlarged', this.props.id);
+    this.props.showInEnlargeView?.();
+  };
+
   public getMessageContextmenuItems() {
     const {
       attachments,
@@ -1929,12 +1978,13 @@ export class Message extends React.PureComponent<Props, State> {
       // onChangeTranslation,
       // supportedLanguages,
       onCopyImage,
-      // contact,
+      contact,
       isConfidentialMessage,
       // showThreadBar,
       onChangeSpeechToText,
       transcribedText,
       conversationId,
+      forwardedMessages,
     } = this.props;
 
     if (!this.state.isVisible) {
@@ -2012,8 +2062,11 @@ export class Message extends React.PureComponent<Props, State> {
       }
     }
 
+    // status for messag alreay post to server.
+    const alreayPost = status !== 'error' && status !== 'sending';
+
     const isForwardConversation = conversationType === 'forward';
-    const showReply = !isForwardConversation;
+    const showReply = !isForwardConversation && alreayPost;
 
     if (showReply) {
       menuItems.push({
@@ -2030,8 +2083,6 @@ export class Message extends React.PureComponent<Props, State> {
     }
 
     const attachmentsReady = this.isAttachmentsReady(attachments || []);
-    // status for messag alreay post to server.
-    const alreayPost = status !== 'error' && status !== 'sending';
     //alert(isConfidentialMessage);
 
     const showSave =
@@ -2052,6 +2103,37 @@ export class Message extends React.PureComponent<Props, State> {
             onClick={this.onForwardMessage}
           >
             {i18n('forwardMessage')}
+          </span>
+        ),
+      });
+    }
+
+    const isMultipleForwardedMessages =
+      forwardedMessages && forwardedMessages.length > 1;
+    const isSingleForwardedMessage =
+      forwardedMessages && forwardedMessages.length === 1;
+
+    const noAttachments =
+      !firstAttachment ||
+      (isSingleForwardedMessage &&
+        (forwardedMessages[0].attachments || []).length === 0);
+
+    const showEnlargedOperation =
+      noAttachments &&
+      !isConfidentialMessage &&
+      !isMultipleForwardedMessages &&
+      conversationType !== 'forward' &&
+      !contact;
+
+    if (showEnlargedOperation) {
+      menuItems.push({
+        key: 'enlarged',
+        label: (
+          <span
+            className="module-message-contextmenu-item module-message__context__enlarged"
+            onClick={this.onShowEnlarged}
+          >
+            {i18n('enlarged')}
           </span>
         ),
       });
@@ -2598,13 +2680,42 @@ export class Message extends React.PureComponent<Props, State> {
 
   public quickQuoteMessage = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation();
-    const { onReply } = this.props;
+    const { onReply, conversationType, status } = this.props;
+
+    const isForwardConversation = conversationType === 'forward';
+    const alreayPost = status !== 'error' && status !== 'sending';
+
+    if (isForwardConversation || !alreayPost) {
+      return;
+    }
+
     if (this.messageTextContainerRef.current?.contains(e.target as Node)) {
       return;
     } else {
       onReply?.();
     }
   };
+
+  public renderEnlarged() {
+    const { showEnlarged } = this.state;
+    if (!showEnlarged) {
+      return null;
+    }
+
+    return (
+      <Modal
+        open
+        width={640}
+        centered
+        title={null}
+        footer={null}
+        onCancel={() => this.setState({ showEnlarged: false })}
+        className="universal-modal enlarged-message-modal"
+      >
+        <div className="enlarged-message-wrapper">{this.renderText()}</div>
+      </Modal>
+    );
+  }
 
   public render() {
     const {
@@ -2680,6 +2791,7 @@ export class Message extends React.PureComponent<Props, State> {
 
           {this.renderForwardDialog()}
         </div>
+        {this.renderEnlarged()}
       </>
     );
   }

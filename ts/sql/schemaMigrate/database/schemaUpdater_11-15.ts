@@ -1,6 +1,5 @@
-import { Database } from '@signalapp/better-sqlite3';
-import { LoggerType } from '../../../logger/types';
-import { getCreateSQL } from '../../utils/sqlUtils';
+import type { Database } from '@opensource-lib/better-sqlite3';
+import type { LoggerType } from '../../../logger/types';
 
 export function updateToSchemaVersion11(
   currentVersion: number,
@@ -61,15 +60,6 @@ export function updateToSchemaVersion13(
   logger.info('updateToSchemaVersion13: starting...');
 
   db.transaction(() => {
-    const createSQL = getCreateSQL(db, 'table', 'messages');
-
-    const newSql = createSQL[0].sql.replace(
-      /(CREATE TABLE) "?messages"?/i,
-      '$1 IF NOT EXISTS messages_expired'
-    );
-
-    db.exec(newSql);
-
     db.pragma('user_version = 13');
   })();
 
@@ -88,53 +78,6 @@ export function updateToSchemaVersion14(
   logger.info('updateToSchemaVersion14: starting...');
 
   db.transaction(() => {
-    db.exec(
-      `
-      CREATE TABLE tasks(
-        taskId TEXT PRIMARY KEY,
-        uid TEXT,
-        gid TEXT,
-        version INTEGER,
-        readAtTime INTEGER,
-        readAtVersion INTEGER,
-        creator TEXT,
-        timestamp INTEGER,
-        updater TEXT,
-        updateTime INTEGER,
-        name TEXT,
-        notes TEXT,
-        message TEXT,
-        dueTime INTEGER,
-        priority INTEGER,
-        status INTEGER,
-        remove INTEGER,
-        ext TEXT
-      );
-
-      -- task <--> conversation
-      CREATE TABLE task_conversations (
-        taskId TEXT,
-        conversationId TEXT,
-        PRIMARY KEY(taskId, conversationId)
-      );
-
-      -- task <--> messages
-      CREATE TABLE task_messages(
-        taskId TEXT,
-        messageId TEXT,
-        PRIMARY KEY(taskId, messageId)
-      );
-
-      -- task -> user role: 2-executor, 3-follower
-      CREATE TABLE task_roles (
-        taskId TEXT,
-        uid TEXT,
-        role INTEGER,
-        PRIMARY KEY(taskId, uid, role)
-      );
-      `
-    );
-
     db.pragma('user_version = 14');
   })();
 
@@ -153,33 +96,6 @@ export function updateToSchemaVersion15(
   logger.info('updateToSchemaVersion15: starting...');
 
   db.transaction(() => {
-    db.exec(
-      `
-      CREATE TABLE votes(
-        voteId TEXT PRIMARY KEY,
-        gid TEXT,
-        creator TEXT,
-        version INTEGER,
-        name TEXT,
-        multiple INTEGER,
-        options TEXT,
-        selected TEXT,
-        optionsCount TEXT,
-        votersCount INTEGER,
-        totalVotes INTEGER,
-        dueTime INTEGER,
-        status INTEGER
-      );
-
-      -- vote <--> messages
-      CREATE TABLE vote_messages(
-        voteId TEXT,
-        messageId TEXT,
-        PRIMARY KEY(voteId, messageId)
-      );
-      `
-    );
-
     db.pragma('user_version = 15');
   })();
 

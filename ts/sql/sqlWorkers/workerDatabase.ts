@@ -6,9 +6,9 @@ if (!parentPort) {
   throw new Error('Must run sql worker as a worker thread');
 }
 
-import { LoggerType, LogLevel } from '../../logger/types';
+import type { LoggerType, LogLevel } from '../../logger/types';
 import { formatError, logSeqId, shouldTrace } from '../../logger/utils';
-import { ILocalDBDatabase } from '../dbInterface';
+import type { ILocalDBDatabase } from '../dbInterface';
 import { SqliteDatabase } from '../sqlDatabases/dbDatabase';
 import { WorkerRequest } from './types';
 

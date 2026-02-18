@@ -1,17 +1,18 @@
 import React, { useRef, useState } from 'react';
 import { Popover } from 'antd';
-import { Profile } from '../commonSettings/Profile';
 import { CloseWhenScrollMove } from '../CloseWhenScrollMove';
+import { ProfileCard } from '../commonSettings/ProfileCard';
 
 interface Props {
   uid: string;
   text: string;
   type: number;
   disableShowProfile?: boolean;
+  conversationId?: string;
 }
 
 export const MentionUser = (props: Props) => {
-  const { text, uid, disableShowProfile } = props;
+  const { text, uid, disableShowProfile, conversationId } = props;
   const [showProfileDialog, SetShowProfileDialog] = useState(false);
   const [popoverPlacement, setPopoverPlacement] = useState<any>(undefined);
   const elementRef = useRef<any>();
@@ -82,12 +83,11 @@ export const MentionUser = (props: Props) => {
 
   const renderProfile = () => {
     return (
-      <Profile
+      <ProfileCard
         id={uid}
         i18n={(window as any).i18n}
         onClose={() => SetShowProfileDialog(false)}
-        x={0}
-        y={0}
+        conversationId={conversationId}
       />
     );
   };

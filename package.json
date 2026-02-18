@@ -3,7 +3,7 @@
   "productName": "Yelling",
   "description": "Yelling Desktop",
   "repository": "https://github.com/TempTalkOrg/TempTalk-Desktop.git",
-  "version": "2.7.25121201",
+  "version": "2.7.26021601",
   "license": "GPL-3.0",
   "author": {
     "name": "Yelling Developer Team",
@@ -11,7 +11,7 @@
   },
   "main": "main.js",
   "scripts": {
-    "postinstall": "patch-package && electron-builder install-app-deps && rimraf node_modules/dtrace-provider",
+    "postinstall": "husky && patch-package && electron-builder install-app-deps && rimraf node_modules/dtrace-provider",
     "proxy_start": "cross-env https_proxy=http://127.0.0.1:8888 electron .",
     "start": "electron .",
     "dev": "electron . & grunt watch",
@@ -53,15 +53,14 @@
     "@cc-kit/node-screenshots": "2.0.1",
     "@cc-kit/react-screenshots": "1.0.5",
     "@cc-livekit/components-styles": "3.0.45",
-    "@cc-livekit/denoise-plugin": "1.0.6",
-    "@cc-livekit/livekit-client": "2.15.15",
-    "@electron/remote": "2.1.2",
+    "@cc-livekit/denoise-plugin": "1.0.10",
+    "@cc-livekit/livekit-client": "2.17.0-4",
     "@emoji-mart/data": "1.2.1",
     "@emoji-mart/react": "1.1.1",
     "@indutny/mac-screen-share": "1.2.0",
     "@lottiefiles/dotlottie-web": "0.47.0",
+    "@opensource-lib/better-sqlite3": "9.0.14",
     "@react-spring/web": "9.7.4",
-    "@signalapp/better-sqlite3": "9.0.13",
     "@use-gesture/react": "10.3.1",
     "ahooks": "3.8.4",
     "antd": "5.22.7",
@@ -93,7 +92,7 @@
     "jquery-migrate": "3.5.2",
     "js-yaml": "3.14.2",
     "linkifyjs": "4.3.2",
-    "lodash": "4.17.21",
+    "lodash": "4.17.23",
     "mkdirp": "1.0.4",
     "moment": "2.30.1",
     "mustache": "2.3.2",
@@ -120,7 +119,7 @@
     "rxjs": "7.8.1",
     "sanitize-filename": "1.6.3",
     "semver": "5.7.2",
-    "tar": "6.2.1",
+    "tar": "7.5.7",
     "threads": "1.7.0",
     "tmp": "0.2.5",
     "to-arraybuffer": "1.0.1",
@@ -136,7 +135,6 @@
     "@electron/notarize": "2.5.0",
     "@rdil/parallel-prettier": "3.0.0",
     "@svgr/cli": "8.1.0",
-    "@types/better-sqlite3": "7.6.12",
     "@types/blueimp-load-image": "5.16.6",
     "@types/chai": "4.3.20",
     "@types/config": "3.3.5",
@@ -166,9 +164,9 @@
     "bower": "1.8.14",
     "chai": "4.5.0",
     "cross-env": "7.0.3",
-    "electron": "37.10.2",
+    "electron": "38.8.2",
     "electron-builder": "26.0.12",
-    "eslint": "8.27.0",
+    "eslint": "9.39.2",
     "eslint-config-prettier": "8.3.0",
     "eslint-plugin-mocha": "9.0.0",
     "eslint-plugin-more": "1.0.5",
@@ -180,6 +178,8 @@
     "grunt-exec": "3.0.0",
     "grunt-gitinfo": "0.1.9",
     "grunt-sass": "3.1.0",
+    "husky": "9.1.7",
+    "lint-staged": "16.2.7",
     "mocha": "10.8.2",
     "node-gyp": "11.2.0",
     "nyc": "15.1.0",
@@ -195,7 +195,7 @@
     "**/getobject": "1.1.1"
   },
   "engines": {
-    "node": "22.21.0"
+    "node": "22.22.0"
   },
   "build": {
     "appId": "org.difft.chative-desktop",
@@ -218,7 +218,7 @@
       "entitlementsInherit": "build/entitlements.mac.plist",
       "releaseInfo": {
         "vendor": {
-          "minOSVersion": "20.0.0"
+          "minOSVersion": "21.0.0"
         }
       },
       "target": [
@@ -338,10 +338,10 @@
       "node_modules/socks/build/common/*.js",
       "node_modules/socks/build/client/*.js",
       "node_modules/smart-buffer/build/*.js",
-      "!node_modules/@signalapp/better-sqlite3/deps/*",
-      "!node_modules/@signalapp/better-sqlite3/src/*",
-      "!node_modules/@signalapp/better-sqlite3/build/**/*",
-      "node_modules/@signalapp/better-sqlite3/build/Release/better_sqlite3.node",
+      "!node_modules/@opensource-lib/better-sqlite3/deps/*",
+      "!node_modules/@opensource-lib/better-sqlite3/src/*",
+      "!node_modules/@opensource-lib/better-sqlite3/build/**/*",
+      "node_modules/@opensource-lib/better-sqlite3/build/Release/better_sqlite3.node",
       "node_modules/human-signals/build/src/*.js",
       "lib-crypto-client/${platform}/${arch}/index.node",
       "separate-message-viewer/**/*",

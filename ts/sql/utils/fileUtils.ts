@@ -2,7 +2,7 @@ import { existsSync, statSync } from 'node:fs';
 import fsPromise from 'node:fs/promises';
 import path from 'node:path';
 
-import { LoggerType } from '../../logger/types';
+import type { LoggerType } from '../../logger/types';
 
 export function getExternalFilesForMessage(message: any): Array<string> {
   const { attachments, contacts, quote, forwardContext } = message;
@@ -33,6 +33,10 @@ export function getExternalFilesForMessage(message: any): Array<string> {
 
       if (thumbnail && thumbnail.path) {
         files.push(thumbnail.path);
+      }
+
+      if (thumbnail?.thumbnail?.path) {
+        files.push(thumbnail.thumbnail.path);
       }
     });
   }

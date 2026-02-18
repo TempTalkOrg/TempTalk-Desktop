@@ -18,7 +18,7 @@ import { LocalizerType } from '../../types/Util';
 import { useRemoteAction } from './hooks/useRemoteAction';
 import { useWaitCaller } from './hooks/useWaitCaller';
 import { roomAtom } from './atoms/roomAtom';
-import { useAtomValue } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { currentCall } from './initCall';
 import { useGroupCall } from './hooks/useGroupCall';
 import { useAddMember } from './hooks/useAddMember';
@@ -51,7 +51,13 @@ import { useCriticalAlert } from './hooks/useCriticalAlert';
 import { Track } from '@cc-livekit/livekit-client';
 import { useMediaPermissionModal } from './hooks/useMediaPermissionModal';
 import { useUpdateCallConfig } from './hooks/useUpdateCallConfig';
-
+import { SpeedHint } from '../SpeedHint';
+import { useSpeedHint } from './hooks/useSpeedHint';
+import { useBubbleMessage } from './hooks/useBubbleMessage';
+import { BubbleMessageList } from './BubbleMessageList';
+import { ScreenShareApprovalModal } from './ScreenShareApprovalModal';
+import { ScreenShareStatus, screenShareAtom } from './atoms/screenShareAtom';
+import { ConfigProvider } from '../shared/ConfigProvider';
 export interface ICallError {
   response: {
     status: number;
@@ -90,6 +96,9 @@ export const CallRoom = ({ i18n }: IProps) => {
   const { nameFormatter } = useNameFormatter(contactMap);
 
   const renderParticipantPlaceholder = useParticipantRenderer(contactMap, i18n);
+
+  const [screenShareStatus, setScreenShareStatus] =
+    useAtom<ScreenShareStatus>(screenShareAtom);
 
   const {
     showMediaPermissionError,
@@ -196,11 +205,25 @@ export const CallRoom = ({ i18n }: IProps) => {
     isSupportSystemMode,
     screenShareMode,
     onScreenShareModeChange,
+    requestingMessageContextHolder,
+    onUpdateRequireScreen,
+    onApproveScreenShareRequest,
+    onRejectScreenShareRequest,
   } = useShareScreen({
     room,
+    i18n,
     onStartShare: resizeCallWindow,
     onLimit: () => message.warning(i18n('callError.screenShareExist')),
     onPermissionError: () => showMediaPermissionError(Track.Source.ScreenShare),
+    handleRequestScreenShare: async () => {
+      await sendRequestScreenShareMessage();
+    },
+    handleApproveScreenShareRequest: async (identity: string) => {
+      await sendApprovalScreenShareMessage(identity);
+    },
+    handleRejectScreenShareRequest: async () => {
+      await sendRejectScreenShareMessage();
+    },
   });
 
   const onDeviceError = useMemoizedFn(
@@ -225,7 +248,7 @@ export const CallRoom = ({ i18n }: IProps) => {
 
   const { denoiseEnable, onDenoiseEnableChange } = useDenoisePluginFilter({
     room,
-    // filterOptions: { debugLogs: true, vadLogs: true },
+    filterOptions: { debugLogs: true, vadLogs: false },
     defaultEnabled: true,
   });
 
@@ -271,12 +294,19 @@ export const CallRoom = ({ i18n }: IProps) => {
   } = useRaiseHand({
     contactMap,
     handleRaiseHand: async () => {
+      prePublishAudio();
       await sendRaiseHandMessage();
     },
     handleCancelHand: async (identities: string[]) => {
       await sendCancelHandMessage(identities);
     },
   });
+
+  const {
+    bubbleMessages,
+    addBubbleMessage,
+    onReset: onRestBubbleMessage,
+  } = useBubbleMessage({ contactMap });
 
   const {
     sendChatText,
@@ -289,6 +319,11 @@ export const CallRoom = ({ i18n }: IProps) => {
     sendRaiseHandMessage,
     sendCancelHandMessage,
     sendEndCallMessage,
+    sendSpeedHintMessage,
+    sendBubbleMessage,
+    sendRequestScreenShareMessage,
+    sendApprovalScreenShareMessage,
+    sendRejectScreenShareMessage,
   } = useRTMMessage({
     room,
     roomCipher: roomCipherRef.current,
@@ -305,9 +340,14 @@ export const CallRoom = ({ i18n }: IProps) => {
     onEndCall: () => {
       handleDestroyCall(currentCall.roomId, true);
     },
+    onSpeedHint: async ({ action, contact }) => {
+      await addSpeedHint({ action, contact });
+    },
+    onBubbleMessage: addBubbleMessage,
+    onUpdateRequireScreen,
   });
 
-  usePrePublishAudio({ room });
+  const { prePublishAudio } = usePrePublishAudio({ room });
 
   const { onContextMenu } = useParticipantContextmenu({
     onMute: sendMuteMessage,
@@ -345,6 +385,7 @@ export const CallRoom = ({ i18n }: IProps) => {
     room,
     i18n,
     addMessage,
+    contactMap,
   });
 
   useUpdateCallConfig({
@@ -353,12 +394,20 @@ export const CallRoom = ({ i18n }: IProps) => {
     },
   });
 
+  const { speedHints, onSendSpeedHint, addSpeedHint } = useSpeedHint({
+    room,
+    contactMap,
+    handleSendSpeedHint: async (speed: 'slower' | 'faster') => {
+      await sendSpeedHintMessage(speed);
+    },
+  });
+
   if (!room) {
     return null;
   }
 
   return (
-    <>
+    <ConfigProvider>
       <Spin
         spinning={!roomInfo.token}
         fullscreen
@@ -384,23 +433,34 @@ export const CallRoom = ({ i18n }: IProps) => {
         <RoomTitle
           room={room}
           extra={
-            countdownTimerEnabled ? (
-              <CountdownTimer
-                {...countdownTimerProps}
-                ref={countdownTimerRef}
-              />
-            ) : null
+            <>
+              {countdownTimerEnabled ? (
+                <CountdownTimer
+                  {...countdownTimerProps}
+                  ref={countdownTimerRef}
+                />
+              ) : null}
+              {roomInfo.type !== '1on1' ? (
+                <SpeedHint
+                  i18n={i18n}
+                  speedHints={speedHints}
+                  onSendSpeedHint={onSendSpeedHint}
+                />
+              ) : null}
+            </>
           }
         />
         {roomInfo.token && e2eeSetupComplete ? (
           <LiveKitRoom
             prepareConnection={false}
             featureFlags={{
+              i18n,
               nameFormatter,
               renderParticipantPlaceholder,
               type: roomInfo.type,
               onHangup,
               onSendMessage: sendChatText,
+              onSendBubbleMessage: sendBubbleMessage,
               chatPresets,
               onContextMenu,
               onEndCall,
@@ -456,7 +516,28 @@ export const CallRoom = ({ i18n }: IProps) => {
           </LiveKitRoom>
         ) : null}
         {criticalAlertToast}
+        <BubbleMessageList
+          messages={bubbleMessages}
+          onRest={onRestBubbleMessage}
+        />
+        <div key="requesting-message-context-holder">
+          {requestingMessageContextHolder}
+        </div>
+        <ScreenShareApprovalModal
+          i18n={i18n}
+          open={screenShareStatus.approvalModalOpen}
+          requireUsers={screenShareStatus.requireUsers}
+          contactMap={contactMap}
+          onApprove={onApproveScreenShareRequest}
+          onReject={onRejectScreenShareRequest}
+          onCancel={() =>
+            setScreenShareStatus((prev: ScreenShareStatus) => ({
+              ...prev,
+              approvalModalOpen: false,
+            }))
+          }
+        />
       </div>
-    </>
+    </ConfigProvider>
   );
 };

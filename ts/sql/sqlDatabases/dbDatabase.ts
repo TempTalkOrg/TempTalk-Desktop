@@ -1,6 +1,8 @@
 // SQL connection and operations
 
-import type { Database } from '@signalapp/better-sqlite3';
+import type { Database } from '@opensource-lib/better-sqlite3';
+import type { LoggerType } from '../../logger/types';
+import type { ILocalDBDatabase } from '../dbInterface';
 
 import {
   batchQueryWithMultiVar,
@@ -11,9 +13,10 @@ import {
   mapWithJsonToObject,
   objectToJSON,
   StatementCache,
+  TableIterator,
+  traverseJsonObject,
 } from '../utils/sqlUtils';
-import { Dictionary, fromPairs } from 'lodash';
-import {
+import type {
   ArrayQuery,
   ConversationDBType,
   EmptyQuery,
@@ -24,15 +27,15 @@ import {
   Query,
   ReadPositionDBType,
   SearchResultDBType,
-  // RecordWithIdString,
   SessionDBType,
   SignedPreKeyDBType,
   UnprocessedDBType,
   SessionV2DBType,
+  RecordWithIdString,
+  TableType,
 } from '../sqlTypes';
 import { updateSchema } from '../schemaMigrate/database';
 
-import { LoggerType } from '../../logger/types';
 import {
   TableIdentityKeys,
   TableItems,
@@ -43,7 +46,24 @@ import {
 import { join } from 'path';
 
 import { Sqlite3Database } from './sqlite3Database';
-import { ILocalDBDatabase } from '../dbInterface';
+
+import fileSize from 'filesize';
+import {
+  getExternalFilesForConversation,
+  getExternalFilesForMessage,
+} from '../utils/fileUtils';
+import { toLogFormat } from '../../types/errors';
+
+type NumberPoint = {
+  value: number;
+  inclusive: boolean;
+};
+
+type AscLimit = {
+  limit: number;
+  begin: NumberPoint;
+  max: NumberPoint;
+};
 
 export class SqliteDatabase
   extends Sqlite3Database
@@ -54,6 +74,7 @@ export class SqliteDatabase
   private tableSignedPreKeys: TableSignedPreKeys;
   private tableItems: TableItems;
   private tableSessions: TableSessions;
+  private clearableIterator?: Generator<MessageDBType[]>;
 
   constructor(logger?: LoggerType) {
     super(logger);
@@ -63,6 +84,41 @@ export class SqliteDatabase
     this.tableSignedPreKeys = new TableSignedPreKeys();
     this.tableItems = new TableItems();
     this.tableSessions = new TableSessions();
+  }
+
+  protected checkTimeout({
+    prevStart,
+    maxWait,
+  }: {
+    prevStart: number;
+    maxWait: number;
+  }) {
+    const elapsed = Date.now() - prevStart;
+    if (elapsed > maxWait) {
+      this.getLogger().info('checkTimeout timed out', elapsed, maxWait);
+      return true;
+    }
+    return false;
+  }
+
+  protected getAscConditions(
+    limit: AscLimit,
+    field: string = 'serverTimestamp'
+  ) {
+    const { begin, max } = limit;
+    const params: number[] = [];
+    const conditions = [];
+
+    conditions.push(`${field} ${begin.inclusive ? '>=' : '>'} ?`);
+    params.push(begin.value);
+
+    conditions.push(`${field} ${max.inclusive ? '<=' : '<'} ?`);
+    params.push(max.value);
+
+    return {
+      ascConditions: conditions.join(' AND '),
+      ascParams: params,
+    };
   }
 
   protected getDBFilePath(dbDir: string): string {
@@ -75,6 +131,41 @@ export class SqliteDatabase
 
   protected testWithSQL(db: Database) {
     return countTableRows(db, 'messages');
+  }
+
+  protected getOurNumberDevice():
+    | { ourNumber: string; ourDeviceId: number }
+    | undefined {
+    const logger = this.getLogger();
+
+    const number_id = this.getItemById('number_id');
+    if (!number_id) {
+      logger.warn('There is no number id');
+      return undefined;
+    }
+
+    const { value } = number_id;
+    if (!value || typeof value !== 'string') {
+      logger.warn('Invalid number id value 1');
+      return undefined;
+    }
+
+    const values = value.split('.');
+    if (values.length !== 2) {
+      logger.warn('Invalid number id value 2');
+      return undefined;
+    }
+
+    const ourNumber = values[0];
+    const deviceIdStr = values[1];
+
+    const ourDeviceId = Number(deviceIdStr);
+    if (Number.isNaN(ourDeviceId) || String(ourDeviceId) !== deviceIdStr) {
+      logger.warn('Invalid id value');
+      return undefined;
+    }
+
+    return { ourNumber, ourDeviceId };
   }
 
   // 'identityKeys'
@@ -525,6 +616,75 @@ export class SqliteDatabase
     return mapWithJsonToObject(jsons);
   }
 
+  protected _getContactsWithKeyReset(db: Database) {
+    const rows = db
+      .prepare<EmptyQuery>(
+        `
+        SELECT
+          id,
+          json_extract(json, '$.identityKeyResetAt') AS keyResetAt
+        FROM
+          conversations
+        INDEXED BY conversation_key_reset_at
+        WHERE
+          type = 'private'
+          AND keyResetAt > 0;
+        `
+      )
+      .all();
+
+    return rows as { id: string; keyResetAt: number }[];
+  }
+
+  protected _getConversationsWithClearAnchor(db: Database) {
+    const rows = db
+      .prepare<EmptyQuery>(
+        `
+        SELECT
+          id,
+          json_extract(json, '$.messageClearAnchor') AS clearAnchor
+        FROM
+          conversations
+        INDEXED BY conversation_clear_anchor
+        WHERE
+          clearAnchor > 0;
+        `
+      )
+      .all();
+
+    return rows as { id: string; clearAnchor: number }[];
+  }
+
+  protected _getAllReadConversationSummaries(db: Database): {
+    conversationId: string;
+    totalMessages: number;
+  }[] {
+    return StatementCache.prepare<EmptyQuery>(
+      db,
+      `
+      SELECT
+        CASE
+          WHEN typeof(conversationId) IS 'integer' THEN '+' || CAST(conversationId AS TEXT)
+          ELSE conversationId
+        END conversationId,
+        COUNT(*) AS totalMessages
+      FROM
+        messages
+      WHERE
+        conversationId IN (
+          SELECT
+            DISTINCT conversationId
+          FROM
+            read_positions
+        )
+        AND pin IS NULL
+      GROUP BY
+        conversationId
+      ORDER BY totalMessages ASC;
+      `
+    ).all();
+  }
+
   // 'messages'
   public getAllMessageCount(conversationId?: string): number {
     const db = this.getConnection();
@@ -846,24 +1006,6 @@ export class SqliteDatabase
     db.transaction(() => {
       db.prepare<ArrayQuery>(
         `
-        DELETE FROM votes
-        WHERE voteId IN
-        (
-          SELECT json_extract(json, '$.vote.voteId')
-          FROM messages WHERE id IN ( ${ids.map(() => '?').join(', ')} )
-        );
-        `
-      ).run(ids);
-
-      db.prepare<ArrayQuery>(
-        `
-        DELETE FROM vote_messages
-        WHERE messageId IN ( ${ids.map(() => '?').join(', ')} );
-        `
-      ).run(ids);
-
-      db.prepare<ArrayQuery>(
-        `
         DELETE FROM messages
         WHERE id IN ( ${ids.map(() => '?').join(', ')} );
         `
@@ -1140,6 +1282,675 @@ export class SqliteDatabase
     return mapWithJsonToObject(jsons);
   }
 
+  // get expired messages, scanning up to a maximum count
+  protected _getExpiredMessagesByStep(
+    db: Database,
+    options: AscLimit & {
+      conversationId: string;
+      defaultMessageExpiry: number;
+      scanLimit: number;
+    }
+  ): {
+    messages: MessageDBType[];
+    maxServerTimestamp: number;
+  } {
+    const { limit, scanLimit } = options;
+
+    if (limit <= 0 || scanLimit <= 0) {
+      throw new Error('limit must be bigger than 0');
+    }
+
+    const { conversationId, begin, defaultMessageExpiry } = options;
+
+    let messages: MessageDBType[] = [];
+    let maxServerTimestamp = begin.value;
+
+    const logger = this.getLogger();
+
+    db.transaction(() => {
+      const messageExpiry = db
+        .prepare<Query>(
+          `
+          SELECT
+            json_extract(json, '$.messageExpiry')
+          FROM
+            conversations
+          WHERE
+            id = $conversationId;
+          `
+        )
+        .pluck()
+        .get({ conversationId });
+
+      const expireTimer =
+        typeof messageExpiry === 'number' && messageExpiry >= 0
+          ? messageExpiry
+          : defaultMessageExpiry;
+
+      db.exec(
+        `
+        DROP TABLE IF EXISTS tmp_scaned;
+        DROP INDEX IF EXISTS tmp_scaned_serverTimestamp;
+
+        CREATE TEMP TABLE tmp_scaned(
+          id STRING PRIMARY KEY,
+          serverTimestamp INTEGER
+        );
+
+        CREATE INDEX tmp_scaned_serverTimestamp
+        ON tmp_scaned (
+          serverTimestamp ASC,
+          id
+        );
+        `
+      );
+
+      const { ascConditions, ascParams } = this.getAscConditions(options);
+      const params = [conversationId, ...ascParams, scanLimit];
+
+      const { changes } = StatementCache.prepare<ArrayQuery>(
+        db,
+        `
+        INSERT INTO tmp_scaned (
+          id,
+          serverTimestamp
+        )
+        SELECT
+          id,
+          serverTimestamp
+        FROM
+          messages
+        WHERE
+          pin IS NULL
+          AND json_extract(json, '$.hasBeenRecalled') IS NOT TRUE
+          AND conversationId = ?
+          AND ${ascConditions}
+        ORDER BY serverTimestamp ASC
+        LIMIT ?;
+        `
+      ).run(params);
+
+      do {
+        if (changes === 0) {
+          // no messages selected, already scan to the latest
+          maxServerTimestamp = Number.MAX_VALUE;
+          logger.info('there is no more messages', {
+            conversationId,
+            scanLimit,
+            limit,
+          });
+          break;
+        }
+
+        const realLimit = Math.min(limit, changes);
+
+        const expiredRows = StatementCache.prepare<Query>(
+          db,
+          `
+          SELECT
+            id,
+            serverTimestamp
+          FROM
+            tmp_scaned s
+          WHERE
+            EXISTS (
+              SELECT
+                1
+              FROM
+                read_positions p
+              WHERE
+                p.conversationId = $conversationId
+                AND p.maxServerTimestamp >= s.serverTimestamp
+                AND MAX(p.readAt, p.maxServerTimestamp) < $maxReadAt
+            )
+          ORDER BY
+            serverTimestamp ASC
+          LIMIT
+            $limit;
+          `
+        ).all({
+          limit: realLimit,
+          conversationId,
+          maxReadAt: Date.now() - expireTimer * 1000,
+        });
+
+        const expiredLen = expiredRows.length;
+        if (changes < scanLimit) {
+          // scanning the last $changes messages in the conversation
+          if (expiredLen < realLimit || expiredLen === changes) {
+            // has scaned all
+            maxServerTimestamp = Number.MAX_VALUE;
+          } else {
+            // has more to scan
+            maxServerTimestamp = expiredRows[expiredLen - 1].serverTimestamp;
+          }
+        } else {
+          // scanning in the middle of messages
+          if (expiredLen < realLimit) {
+            // has scaned the current $changes messages
+            maxServerTimestamp = StatementCache.prepare<EmptyQuery>(
+              db,
+              `
+              SELECT serverTimestamp
+              FROM tmp_scaned
+              ORDER BY serverTimestamp DESC
+              LIMIT 1;
+              `
+            )
+              .pluck()
+              .get();
+          } else {
+            // has more to scan
+            maxServerTimestamp = expiredRows[expiredLen - 1].serverTimestamp;
+          }
+        }
+
+        if (expiredLen === 0) {
+          logger.debug('[expiring] there is no expired messages', {
+            conversationId,
+            scanLimit,
+            limit,
+          });
+          break;
+        }
+
+        const ids = expiredRows.map(row => row.id);
+        const jsons = StatementCache.prepare<ArrayQuery>(
+          db,
+          `
+          SELECT
+            json
+          FROM
+            messages
+          WHERE
+            id IN(${ids.map(() => '?').join(', ')});
+          `
+        )
+          .pluck()
+          .all(ids);
+
+        messages = mapWithJsonToObject(jsons);
+
+        break;
+      } while (true);
+
+      db.exec(`DROP TABLE tmp_scaned;`);
+    })();
+
+    return { messages, maxServerTimestamp };
+  }
+
+  protected _getMessagesByConversationId(
+    db: Database,
+    options: AscLimit & { conversationId: string }
+  ) {
+    const { conversationId, limit } = options;
+    const { ascConditions, ascParams } = this.getAscConditions(options);
+    const params = [conversationId, ...ascParams, limit];
+
+    const jsons = db
+      .prepare<ArrayQuery>(
+        `
+        SELECT
+          json
+        FROM
+          messages
+        WHERE
+          pin IS NULL
+          AND conversationId = ?
+          AND json_extract(json, '$.hasBeenRecalled') IS NOT TRUE
+          AND ${ascConditions}
+        ORDER BY serverTimestamp ASC
+        LIMIT ?;
+        `
+      )
+      .pluck()
+      .all(params);
+
+    return mapWithJsonToObject<MessageDBType>(jsons);
+  }
+
+  protected _getMessagesByNumberSource(
+    db: Database,
+    options: AscLimit & { conversationId: string; source: string }
+  ) {
+    const { conversationId, source, limit } = options;
+    const { ascConditions, ascParams } = this.getAscConditions(options);
+    const params = [conversationId, source, ...ascParams, limit];
+
+    const jsons = db
+      .prepare<ArrayQuery>(
+        `
+        SELECT
+          json
+        FROM
+          messages
+        INDEXED BY messages_conversation_source_st
+        WHERE
+          pin IS NULL
+          AND conversationId = ?
+          AND source = ?
+          AND ${ascConditions}
+        ORDER BY serverTimestamp ASC
+        LIMIT ?;
+        `
+      )
+      .pluck()
+      .all(params);
+
+    return mapWithJsonToObject<MessageDBType>(jsons);
+  }
+
+  // be carefull with self Number
+  protected _getMessagesByNullSource(
+    db: Database,
+    options: AscLimit & { conversationId: string }
+  ) {
+    const { conversationId, limit } = options || {};
+    const { ascConditions, ascParams } = this.getAscConditions(options);
+    const params = [conversationId, ...ascParams, limit];
+
+    const jsons = db
+      .prepare<ArrayQuery>(
+        `
+        SELECT
+          json
+        FROM
+          messages
+        INDEXED BY messages_conversation_source_st
+        WHERE
+          pin IS NULL
+          AND conversationId = ?
+          AND source IS NULL
+          AND ${ascConditions}
+        ORDER BY serverTimestamp ASC
+        LIMIT ?;
+        `
+      )
+      .pluck()
+      .all(params);
+
+    return mapWithJsonToObject<MessageDBType>(jsons);
+  }
+
+  protected _getConversationsByNumberSource(db: Database, source: string) {
+    return db
+      .prepare<Query>(
+        `
+        SELECT
+          DISTINCT conversationId
+        FROM
+          messages
+        WHERE
+          source = $source
+          AND pin IS NULL;
+        `
+      )
+      .pluck()
+      .all({ source });
+  }
+
+  protected _getConversationsByNullSource(db: Database) {
+    return db
+      .prepare<EmptyQuery>(
+        `
+        SELECT
+          DISTINCT conversationId
+        FROM
+          messages
+        WHERE
+          source IS NULL
+          AND pin IS NULL;
+        `
+      )
+      .pluck()
+      .all();
+  }
+
+  protected _wrapGetMessages<T extends object>(
+    getMessages: (options: AscLimit & T) => MessageDBType[]
+  ) {
+    return (options: AscLimit & T) => {
+      const messages = getMessages(options);
+      if (messages.length < options.limit) {
+        return { messages, maxServerTimestamp: Number.MAX_VALUE };
+      } else {
+        const last = messages[messages.length - 1];
+        return {
+          messages,
+          maxServerTimestamp: last.serverTimestamp || last.sent_at,
+        };
+      }
+    };
+  }
+
+  protected *_createGetMessagesIterator<T extends object>(
+    getMessages: (options: AscLimit & T) => {
+      messages: MessageDBType[];
+      maxServerTimestamp: number;
+    },
+    options: AscLimit & T,
+    acc: { prevStart: number; maxWait: number }
+  ) {
+    const logger = this.getLogger();
+    const { begin } = options;
+
+    logger.debug('getMessagesIterator begin');
+
+    if (this.checkTimeout(acc)) {
+      yield [];
+      acc.prevStart = Date.now();
+    }
+
+    do {
+      const { messages, maxServerTimestamp } = getMessages(options);
+
+      logger.debug(
+        'getMessagesIterator got messages',
+        messages?.length,
+        maxServerTimestamp
+      );
+
+      if (messages.length) {
+        yield messages;
+        acc.prevStart = Date.now();
+      } else {
+        if (this.checkTimeout(acc)) {
+          yield [];
+          acc.prevStart = Date.now();
+        }
+      }
+
+      begin.value = maxServerTimestamp;
+
+      if (maxServerTimestamp === Number.MAX_VALUE) {
+        break;
+      }
+    } while (true);
+
+    logger.debug('getMessagesIterator end');
+  }
+
+  protected *_createKeyResetExpireIteratorByContact(
+    keyResetContact: {
+      id: string;
+      keyResetAt: number;
+    },
+    conversationIds: string[],
+    getMessages: (
+      options: AscLimit & { conversationId: string; source: string }
+    ) => {
+      messages: MessageDBType[];
+      maxServerTimestamp: number;
+    },
+    acc: { prevStart: number; maxWait: number }
+  ) {
+    const { id: source, keyResetAt } = keyResetContact;
+    const max: NumberPoint = { value: keyResetAt, inclusive: false };
+
+    const logger = this.getLogger();
+
+    logger.debug(
+      '[expiring] resetExpireIteratorByContact begin',
+      `+${source}`,
+      keyResetAt,
+      conversationIds.length
+    );
+
+    for (const conversationId of conversationIds) {
+      const begin: NumberPoint = { value: 0, inclusive: true };
+
+      const options = {
+        source,
+        max,
+        begin,
+        limit: 50,
+        conversationId,
+      };
+
+      yield* this._createGetMessagesIterator(getMessages, options, acc);
+    }
+
+    logger.debug('[expiring] resetExpireIteratorByContact end');
+  }
+
+  protected *_createKeyResetExpireIterator(
+    ourNumber: string,
+    acc: {
+      prevStart: number;
+      maxWait: number;
+    }
+  ) {
+    const logger = this.getLogger();
+    const db = this.getConnection();
+
+    const isMe = (id: string) => id === ourNumber;
+    const isNotMe = (id: string) => !isMe(id);
+
+    const keyResetContacts = this._getContactsWithKeyReset(db);
+
+    logger.debug('[expiring] resetExpireIterator begin');
+
+    const selfContact = keyResetContacts.find(c => isMe(c.id));
+    if (selfContact) {
+      const getMessages = this._wrapGetMessages<{
+        conversationId: string;
+        source: string;
+      }>(this._getMessagesByNullSource.bind(this, db));
+
+      // me conversation do not expired
+      yield* this._createKeyResetExpireIteratorByContact(
+        selfContact,
+        this._getConversationsByNullSource(db).filter(isNotMe),
+        getMessages,
+        acc
+      );
+    }
+
+    const getMessages = this._wrapGetMessages<{
+      conversationId: string;
+      source: string;
+    }>(this._getMessagesByNumberSource.bind(this, db));
+
+    for (const contact of keyResetContacts) {
+      // getting conversations takes time,
+      // we should check timeout here
+      if (this.checkTimeout(acc)) {
+        yield [];
+        acc.prevStart = Date.now();
+      }
+
+      // me conversation do not expired
+      yield* this._createKeyResetExpireIteratorByContact(
+        contact,
+        this._getConversationsByNumberSource(db, contact.id).filter(isNotMe),
+        getMessages,
+        acc
+      );
+    }
+
+    logger.debug('[expiring] resetExpireIterator end');
+  }
+
+  protected *_createExpireForClearAnchorIterator(
+    ourNumber: string,
+    acc: {
+      prevStart: number;
+      maxWait: number;
+    }
+  ) {
+    const logger = this.getLogger();
+    const db = this.getConnection();
+
+    const getMessages = this._wrapGetMessages<{ conversationId: string }>(
+      this._getMessagesByConversationId.bind(this, db)
+    );
+
+    logger.debug('[expiring] clearAnchorIterator begin');
+
+    const rows = this._getConversationsWithClearAnchor(db);
+    for (const row of rows) {
+      const { id: conversationId, clearAnchor } = row;
+
+      // me conversation do not expired
+      if (conversationId === ourNumber) {
+        continue;
+      }
+
+      logger.debug(
+        '[expiring] clearAnchorIterator',
+        conversationId,
+        clearAnchor
+      );
+
+      const maxServerTimestamp = this._getMaxPositionBeforeAnchor(db, {
+        conversationId,
+        timestampAnchor: clearAnchor,
+      });
+
+      if (!maxServerTimestamp) {
+        logger.debug('[expiring] clearAnchorIterator no position');
+
+        // getting max position takes time,
+        // we should check timeout here
+        if (this.checkTimeout(acc)) {
+          yield [];
+          acc.prevStart = Date.now();
+        }
+
+        continue;
+      }
+
+      const max: NumberPoint = { value: maxServerTimestamp, inclusive: true };
+      const begin: NumberPoint = { value: 0, inclusive: true };
+      const options = { conversationId, begin, max, limit: 50 };
+
+      yield* this._createGetMessagesIterator(getMessages, options, acc);
+    }
+
+    logger.debug('[expiring] clearAnchorIterator end');
+  }
+
+  protected *_createExpireForReadPositionIterator(
+    ourNumber: string,
+    acc: {
+      prevStart: number;
+      maxWait: number;
+    },
+    defaultMessageExpiry: number
+  ) {
+    const logger = this.getLogger();
+    const db = this.getConnection();
+
+    const getMessages = this._getExpiredMessagesByStep.bind(this, db);
+
+    logger.debug('[expiring] readPositionIterator begin');
+
+    const summaries = this._getAllReadConversationSummaries(db);
+
+    logger.debug('[expiring] readPositionIterator summaries', summaries.length);
+
+    for (const { conversationId, totalMessages } of summaries) {
+      // skip empty conversation
+      if (!totalMessages) {
+        continue;
+      }
+
+      // me conversation do not expired
+      if (ourNumber === conversationId) {
+        continue;
+      }
+
+      const begin: NumberPoint = { value: 0, inclusive: true };
+      const max: NumberPoint = { value: Number.MAX_VALUE, inclusive: false };
+
+      const options = {
+        conversationId,
+        defaultMessageExpiry,
+        begin,
+        max,
+        limit: 50,
+        scanLimit: 1000,
+      };
+
+      yield* this._createGetMessagesIterator(getMessages, options, acc);
+    }
+
+    logger.debug('[expiring] readPositionIterator end');
+  }
+
+  protected *_createRecalledIterator(acc: {
+    prevStart: number;
+    maxWait: number;
+  }) {
+    const logger = this.getLogger();
+    const db = this.getConnection();
+
+    logger.debug('[recalled] recalledIterator begin');
+
+    const getMessages = this._wrapGetMessages(
+      this._getRecalleds.bind(this, db)
+    );
+
+    const begin: NumberPoint = { value: 0, inclusive: true };
+    const max: NumberPoint = { value: Number.MAX_VALUE, inclusive: false };
+
+    const options = {
+      begin,
+      max,
+      limit: 50,
+    };
+
+    yield* this._createGetMessagesIterator(getMessages, options, acc);
+
+    logger.debug('[recalled] recalledIterator end');
+  }
+
+  protected *_createClearableMessagesIterator(defaultMessageExpiry: number) {
+    const { ourNumber } = this.getOurNumberDevice() || {};
+    if (!ourNumber) {
+      throw new Error('our number is not available');
+    }
+
+    const acc = { prevStart: Date.now(), maxWait: 100, ourNumber };
+
+    yield* this._createRecalledIterator(acc);
+    yield* this._createKeyResetExpireIterator(ourNumber, acc);
+    yield* this._createExpireForClearAnchorIterator(ourNumber, acc);
+    yield* this._createExpireForReadPositionIterator(
+      ourNumber,
+      acc,
+      defaultMessageExpiry
+    );
+  }
+
+  public getClearableMessages(defaultMessageExpiry: number) {
+    const logger = this.getLogger();
+
+    logger.info('[clearable] getClearableMessages begin');
+
+    if (!defaultMessageExpiry) {
+      logger.error('defaultMessageExpiry was not passed in');
+      throw new Error('defaultMessageExpiry was not passed in');
+    }
+
+    if (!this.clearableIterator) {
+      logger.info('[clearable] clearableIterator start ');
+      this.clearableIterator =
+        this._createClearableMessagesIterator(defaultMessageExpiry);
+    }
+
+    const res = this.clearableIterator.next();
+    if (res.done) {
+      logger.info('[clearable] clearableIterator done');
+      this.clearableIterator = undefined;
+    }
+
+    logger.info('[clearable] getClearableMessages end');
+
+    return { messages: res.value || [], done: !!res.done };
+  }
+
   // unprocessed
   public getUnprocessedCount(): number {
     return countTableRows(this.getConnection(), 'unprocessed');
@@ -1184,17 +1995,8 @@ export class SqliteDatabase
         DELETE FROM conversations;
 
         -- DELETE FROM messages;
-        -- DELETE FROM messages_expired;
         DELETE FROM messages_fts;
         DELETE FROM read_positions;
-
-        DELETE FROM tasks;
-        DELETE FROM task_messages;
-        DELETE FROM task_roles;
-        DELETE FROM task_conversations;
-
-        DELETE FROM votes;
-        DELETE FROM vote_messages;
         `
       );
 
@@ -1242,9 +2044,6 @@ export class SqliteDatabase
           db.exec(sql);
         }
       }
-
-      // clear records
-      db.exec(`DELETE FROM messages_expired;`);
     })();
   }
 
@@ -1345,79 +2144,186 @@ export class SqliteDatabase
     return mapWithJsonToObject(jsons);
   }
 
-  public removeKnownAttachments(allAttachments: string[]): string[] {
+  private doubleCheckOrphanedAttachments(fileSet: Set<string>) {
+    const db = this.getConnection();
     const logger = this.getLogger();
 
-    // const db = this.getConnection();
-    const lookup: Dictionary<boolean> = fromPairs(
-      allAttachments.map((file: any) => [file, true])
-    );
-    // const chunkSize = 50;
+    const getFtsName = (table: string) => `temp.${table}_fts`;
+    const getTmpFtsSqls = (table: string) => {
+      const ftsName = getFtsName(table);
+      return `
+        CREATE VIRTUAL TABLE ${ftsName}
+        USING fts5(
+          json,
+          content='${table}',
+          tokenize = 'signal_tokenizer'
+        );
 
-    const total = this.getAllMessageCount();
+        INSERT INTO
+          ${ftsName}(rowid, json)
+        SELECT
+          rowid,
+          json
+        FROM
+          ${table};
+      `;
+    };
+
+    const getSearchSql = (table: string) => {
+      const ftsName = getFtsName(table);
+      return `
+        SELECT
+          ${table}.id AS id,
+          ${table}.json AS json
+        FROM
+          ${table}
+        INNER JOIN ${ftsName}
+          ON ${ftsName}.rowid = ${table}.rowid
+        WHERE
+          ${ftsName}.json MATCH $query;
+      `;
+    };
+
+    const foundSet = new Set<string>();
+
+    const checkFile = (
+      key: string,
+      value: any,
+      ancestors: any[],
+      object: RecordWithIdString,
+      file: string,
+      table: string
+    ) => {
+      if (typeof value === 'string' && value.includes(file)) {
+        const paths = ancestors.map(a => Object.keys(a)).flat(3);
+        paths.push(key);
+
+        logger.info(
+          `removeKnownAttachments: found useful attachment ${value}`,
+          `in ${table}.${object.id}.${paths.join('/')}`
+        );
+
+        // refered by somewhere
+        foundSet.add(file);
+      }
+      return false;
+    };
+
+    const files = Array.from(fileSet);
+    const tables = ['messages', 'conversations'];
+
+    // use transaction for all db operations
+    db.transaction(() => {
+      try {
+        const stmts = tables.map(table => {
+          db.exec(getTmpFtsSqls(table));
+          return db.prepare<Query>(getSearchSql(table));
+        });
+
+        for (const file of files) {
+          const query = file.split('/').at(-1) || '';
+
+          stmts.forEach((stmt, index) => {
+            const rows = stmt.all({ query });
+            if (!rows?.length) {
+              return;
+            }
+
+            for (const row of rows) {
+              const { id, json } = row;
+
+              try {
+                const obj: RecordWithIdString = jsonToObject(json);
+
+                const check = (key: string, value: any, ancestors: any[]) =>
+                  checkFile(key, value, ancestors, obj, file, tables[index]);
+
+                traverseJsonObject('/root', obj, check, []);
+              } catch (error) {
+                logger.info(
+                  `removeKnownAttachments: found useful attachment ${file}` +
+                    `in ${tables[index]}.${id}, but traverse json error`,
+                  toLogFormat(error)
+                );
+              }
+            }
+          });
+        }
+      } catch (error) {
+        logger.error(
+          'removeKnownAttachments: iterate double check error:',
+          toLogFormat(error)
+        );
+      } finally {
+        tables.forEach(table =>
+          db.exec(`DROP TABLE IF EXISTS ${getFtsName(table)};`)
+        );
+      }
+    })();
+
+    return foundSet;
+  }
+
+  public removeKnownAttachments(
+    allAttachments: string[],
+    requireDoubleCheck: boolean = false
+  ): string[] {
+    const logger = this.getLogger();
+    const db = this.getConnection();
+
+    const fileSet = new Set(allAttachments);
+
+    logger.info(`removeKnownAttachments: About ${fileSet.size} attachments`);
     logger.info(
-      `removeKnownAttachments: About to iterate through ${total} messages`
+      `removeKnownAttachments: About to iterate through db:`,
+      this.getReport()
     );
 
-    // let count = 0;
+    function iterateFiles(
+      table: TableType,
+      getExternalFiles: (item: any) => string[]
+    ): { itemCount: number; fileCount: number } {
+      const count = { itemCount: 0, fileCount: 0, uniqueCount: 0 };
 
-    // for (const message of new TableIterator<any>(db, 'messages')) {
-    //   const externalFiles = getExternalFilesForMessage(message);
-    //   forEach(externalFiles, (file: string) => {
-    //     delete lookup[file];
-    //   });
-    //   count += 1;
-    // }
+      for (const item of new TableIterator(db, table)) {
+        count.itemCount += 1;
 
-    // logger.info(`removeKnownAttachments: Done processing ${count} messages`);
+        const files = getExternalFiles(item);
+        count.fileCount += files.length;
 
-    // let complete = false;
-    // count = 0;
-    // let id = '';
+        files.forEach(file => {
+          if (fileSet.delete(file)) {
+            count.uniqueCount += 1;
+          }
+        });
+      }
+      return count;
+    }
 
-    const conversationTotal = this.getConversationCount();
+    //
+    // iterate messages
+    let total = iterateFiles('messages', getExternalFilesForMessage);
+    logger.info(`removeKnownAttachments: Processed m`, total);
+
+    //
+    // iterate conversations
+    total = iterateFiles('conversations', getExternalFilesForConversation);
+    logger.info(`removeKnownAttachments: Processed c`, total);
+
+    //
     logger.info(
-      `removeKnownAttachments: About to iterate through ${conversationTotal} conversations`
+      `removeKnownAttachments: About ${fileSet.size} orphaned attachments`
     );
 
-    // const fetchConversations =  StatementCache.prepare<Query>(db,
-    //   `
-    //     SELECT json FROM conversations
-    //     WHERE id > $id
-    //     ORDER BY id ASC
-    //     LIMIT $chunkSize;
-    //   `
-    // );
+    if (requireDoubleCheck && fileSet.size > 0) {
+      const foundSet = this.doubleCheckOrphanedAttachments(fileSet);
+      foundSet.forEach(found => fileSet.delete(found));
+      logger.info(
+        `removeKnownAttachments: Found ${foundSet.size} false-positives`
+      );
+    }
 
-    // while (!complete) {
-    //   const rows = fetchConversations.all({
-    //     id,
-    //     chunkSize,
-    //   });
-
-    //   const conversations: any[] = map(rows, (row: { json: string }) =>
-    //     jsonToObject(row.json)
-    //   );
-    //   conversations.forEach(conversation => {
-    //     const externalFiles = getExternalFilesForConversation(conversation);
-    //     externalFiles.forEach(file => {
-    //       delete lookup[file];
-    //     });
-    //   });
-
-    //   const lastMessage: any = last(conversations);
-    //   if (lastMessage) {
-    //     ({ id } = lastMessage);
-    //   }
-    //   complete = conversations.length < chunkSize;
-    //   count += conversations.length;
-    // }
-
-    // logger.info(
-    //   `removeKnownAttachments: Done processing ${count} conversations`
-    // );
-
-    return Object.keys(lookup);
+    return Array.from(fileSet);
   }
 
   public getThreadMessagesUnreplied(
@@ -1669,6 +2575,35 @@ export class SqliteDatabase
       end,
       limit,
     });
+  }
+
+  protected _getMaxPositionBeforeAnchor(
+    db: Database,
+    options: { conversationId: string; timestampAnchor: number }
+  ) {
+    const { conversationId, timestampAnchor } = options;
+
+    const maxServerTimestamp = db
+      .prepare<Query>(
+        `
+        SELECT
+          MAX(maxServerTimestamp)
+        FROM
+          read_positions
+        INDEXED BY read_position_conversation_read_at
+        WHERE
+          conversationId = $conversationId
+          AND readAt <= $timestampAnchor;
+        `
+      )
+      .pluck()
+      .get({ conversationId, timestampAnchor });
+
+    if (!maxServerTimestamp) {
+      return null;
+    }
+
+    return maxServerTimestamp as number;
   }
 
   // using index messages_conversation
@@ -2009,12 +2944,12 @@ export class SqliteDatabase
     );
   }
 
-  public rebuildMessagesIndexesIfNotExists(): void {
+  public rebuildIndexesIfNotExists(): void {
     const db = this.getConnection();
 
     const logger = this.getLogger();
 
-    logger.info('rebuildMessagesIndexesIfNotExists begin ...');
+    logger.info('rebuildIndexesIfNotExists begin ...');
 
     db.exec(
       `
@@ -2101,6 +3036,14 @@ export class SqliteDatabase
             conversationId,
             source,
             type,
+            serverTimestamp ASC
+          )
+        WHERE pin IS NULL;
+
+      CREATE INDEX IF NOT EXISTS messages_conversation_source_st
+        ON messages (
+            conversationId,
+            source,
             serverTimestamp ASC
           )
         WHERE pin IS NULL;
@@ -2320,17 +3263,47 @@ export class SqliteDatabase
         WHERE
           json_type(json, '$.recall') = 'object'
           AND json_extract(json, '$.recall.target') IS NULL;
+
+      CREATE INDEX IF NOT EXISTS messages_recalled
+        ON messages (
+          serverTimestamp ASC
+        )
+        WHERE
+          pin IS NULL
+          AND json_extract(json, '$.hasBeenRecalled') IS TRUE;
+
+      CREATE INDEX IF NOT EXISTS read_position_conversation_read_at
+        ON read_positions (
+          conversationId,
+          readAt ASC,
+          maxServerTimestamp DESC
+        );
+
+      CREATE INDEX IF NOT EXISTS conversation_key_reset_at
+        ON conversations (
+          json_extract(json, '$.identityKeyResetAt')
+        )
+        WHERE
+          type = 'private'
+          AND json_extract(json, '$.identityKeyResetAt') IS NOT NULL;
+
+      CREATE INDEX IF NOT EXISTS conversation_clear_anchor
+        ON conversations (
+          json_extract(json, '$.messageClearAnchor')
+        )
+        WHERE
+          json_extract(json, '$.messageClearAnchor') IS NOT NULL;
       `
     );
 
-    logger.info('rebuildMessagesIndexesIfNotExists end ...');
+    logger.info('rebuildIndexesIfNotExists end ...');
   }
 
-  public rebuildMessagesTriggersIfNotExists(): void {
+  public rebuildTriggersIfNotExists(): void {
     const db = this.getConnection();
     const logger = this.getLogger();
 
-    logger.info('rebuildMessagesTriggersIfNotExists start ...');
+    logger.info('rebuildTriggersIfNotExists start ...');
 
     db.transaction(() => {
       const maxRowId = db
@@ -2383,7 +3356,7 @@ export class SqliteDatabase
       );
     })();
 
-    logger.info('rebuildMessagesTriggersIfNotExists end ...');
+    logger.info('rebuildTriggersIfNotExists end ...');
   }
 
   public getGroupMemberLastActiveList(
@@ -2487,10 +3460,33 @@ export class SqliteDatabase
     return mapWithJsonToObject(jsons);
   }
 
-  public getNextMessagesToCorrectTimer(
-    ourNumber: string,
-    limit: number = 50
-  ): MessageDBType[] {
+  protected _getRecalleds(db: Database, options: AscLimit) {
+    const { ascConditions, ascParams } = this.getAscConditions(options);
+    const params = [...ascParams, options.limit];
+
+    const jsons = StatementCache.prepare<ArrayQuery>(
+      db,
+      `
+      SELECT
+        json
+      FROM
+        messages
+      WHERE
+        pin IS NULL
+        AND json_extract(json, '$.hasBeenRecalled') IS TRUE
+        AND ${ascConditions}
+      ORDER BY serverTimestamp ASC
+      LIMIT ?;
+      `
+    )
+      .pluck()
+      .all(params);
+
+    return mapWithJsonToObject<MessageDBType>(jsons);
+  }
+
+  public getNextMessagesToCorrectTimer(limit: number = 50): MessageDBType[] {
+    const { ourNumber } = this.getOurNumberDevice() || {};
     if (!ourNumber) {
       throw new Error('invalid our number');
     }
@@ -2563,5 +3559,27 @@ export class SqliteDatabase
       registrationId,
       msgEncVersion,
     };
+  }
+
+  getReport(): Record<string, unknown> {
+    const report = { name: 'main' };
+
+    try {
+      Object.assign(report, { size: fileSize(this.getFilesSize()) });
+
+      const db = this.getConnection();
+
+      Object.assign(report, {
+        summary: [
+          countTableRows(db, 'messages'),
+          countTableRows(db, 'conversations'),
+          countTableRows(db, 'read_positions'),
+        ],
+      });
+    } catch (error) {
+      Object.assign(report, { error: 'database is not initialized.' });
+    }
+
+    return report;
   }
 }

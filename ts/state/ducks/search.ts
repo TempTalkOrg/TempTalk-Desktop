@@ -185,6 +185,7 @@ async function queryConversationsAndContacts(
 
   const { ourNumber, noteToSelf } = options;
 
+  query = query.replace(/\\/g, '\\\\');
   query = query.replace(/_/g, '\\_');
   query = query.replace(/%/g, '\\%');
   const searchResults: Array<DBConversationType> =

@@ -1,0 +1,1 @@
+export const VOICE_PLAYBACK_SPEED_OPTIONS = [1, 1.5, 2];

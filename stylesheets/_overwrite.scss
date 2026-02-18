@@ -171,3 +171,58 @@
     line-height: 20px;
   }
 }
+
+.universal-input {
+  background-color: var(--dst-color-background) !important;
+  color: var(--dst-color-text-primary);
+  &,
+  input {
+    &::placeholder {
+      color: var(--dst-color-text-third);
+    }
+  }
+  .ant-input-clear-icon {
+    color: var(--dst-color-text-third);
+  }
+
+  &-secondary {
+    background-color: var(--dst-color-background-secondary) !important;
+  }
+}
+
+.universal-switch {
+  &.ant-switch {
+    background-color: var(--dst-color-background-disable);
+    &:hover {
+      @include hover-background(var(--dst-color-background-disable));
+    }
+    &-checked {
+      background-color: var(--dst-color-brand-primary);
+    }
+  }
+}
+
+.ant-modal.universal-modal {
+  .ant-modal-content,
+  .ant-modal-body {
+    background-color: var(--dst-color-background-modal);
+
+    .ant-modal-confirm-content {
+      color: var(--dst-color-text-primary);
+    }
+  }
+}
+
+.common-tooltip {
+  .ant-tooltip-inner {
+    color: var(--dst-color-text-primary);
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 16px;
+  }
+}
+
+.common-tooltip-default-icon {
+  color: var(--dst-color-icon);
+  margin: 0 4px;
+}

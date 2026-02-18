@@ -5,7 +5,7 @@ import { createGzip } from 'zlib';
 import { createCipheriv, randomBytes, publicEncrypt } from 'crypto';
 import path from 'path';
 import os from 'os';
-import tar from 'tar';
+import * as tar from 'tar';
 
 // @ts-ignore
 import * as packageJson from '../../package.json';

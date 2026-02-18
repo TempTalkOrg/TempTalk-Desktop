@@ -10,9 +10,8 @@ import {
   // renderContactEmail,
   renderName,
 } from './_contactUtil';
-// import ProfileModal from '../ProfileModal';
-import { Profile } from '../commonSettings/Profile';
 import { Popover } from 'antd';
+import { ProfileCard } from '../commonSettings/ProfileCard';
 
 interface Props {
   contact: Contact;
@@ -198,15 +197,13 @@ export class EmbeddedContact extends React.Component<Props, State> {
     }
 
     return (
-      <Profile
+      <ProfileCard
         id={id}
         i18n={i18n}
-        shareid={shareId}
+        shareId={shareId}
         onClose={() => {
           this.setState({ showProfileDialog: false });
         }}
-        x={0}
-        y={0}
         avatarPath={undefined}
       />
     );
@@ -237,25 +234,6 @@ export class EmbeddedContact extends React.Component<Props, State> {
           {/*  {i18n('contact_card')}*/}
           {/*</div>*/}
         </div>
-        {/*// ) : null}*/}
-        {/*{this.state.showProfileDialog ? (*/}
-        {/*  <ProfileModal*/}
-        {/*    onClose={() => {*/}
-        {/*      this.setState({ showProfileDialog: false });*/}
-        {/*    }}*/}
-        {/*  >*/}
-        {/*    <Profile*/}
-        {/*      id={this.state.userId || ''}*/}
-        {/*      i18n={i18n}*/}
-        {/*      onClose={() => {*/}
-        {/*        this.setState({ showProfileDialog: false });*/}
-        {/*      }}*/}
-        {/*      x={this.state.x}*/}
-        {/*      y={this.state.y}*/}
-        {/*      avatarPath={undefined}*/}
-        {/*    />*/}
-        {/*  </ProfileModal>*/}
-        {/*) : null}*/}
       </Popover>
     );
   }

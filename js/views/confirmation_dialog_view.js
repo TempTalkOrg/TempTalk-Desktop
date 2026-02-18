@@ -88,7 +88,7 @@
       $('.inbox').append(dialog.el);
       dialog.focusOk();
     } else {
-      windowAlert(message);
+      window.windowAlert(message);
     }
   };
 })();

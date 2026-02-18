@@ -12,6 +12,7 @@ interface Props {
   name?: string;
   color: string;
   profileName?: string;
+  accountName?: string;
   avatarPath?: string;
   i18n: LocalizerType;
   style?: object;
@@ -30,6 +31,7 @@ export class TextMessageListItem extends React.Component<Props> {
       color,
       name,
       profileName,
+      accountName,
       id,
       isMe,
     } = this.props;
@@ -43,6 +45,7 @@ export class TextMessageListItem extends React.Component<Props> {
         i18n={i18n}
         name={name}
         profileName={profileName}
+        accountName={accountName}
         size={36}
         noteToSelf={isMe}
         noClickEvent={true}

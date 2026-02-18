@@ -1,7 +1,6 @@
 import { useCountDown, useMemoizedFn } from 'ahooks';
 import { useEffect, useRef, useState } from 'react';
 import { LocalizerType } from '../../../types/Util';
-import { omit } from 'lodash';
 import playAudio from '../PlayAudio';
 
 const mainWindow: any = window;
@@ -12,13 +11,14 @@ export const useIncomingCall = ({ i18n }: { i18n: LocalizerType }) => {
   const [avatarPath, setAvatarPath] = useState('');
   const [inviteName, setInviteName] = useState('');
   const [renderDefaultAvatar, setRenderDefaultAvatar] = useState(false);
+  const [accountName, setAccountName] = useState('');
 
   const setupIncomingCall = useMemoizedFn(() => {
     globalInComingRef.current = mainWindow.getIncomingCallInfo();
 
     console.log(
-      'incoming call window created options:',
-      omit(globalInComingRef.current, ['emk', 'publicKey'])
+      'incoming call window created, roomId:',
+      globalInComingRef.current.roomId
     );
 
     const audioType = globalInComingRef.current.isPrivate
@@ -29,13 +29,6 @@ export const useIncomingCall = ({ i18n }: { i18n: LocalizerType }) => {
     setRenderDefaultAvatar(globalInComingRef.current.type === 'group');
   });
 
-  useEffect(() => {
-    setupIncomingCall();
-    mainWindow.registerSearchUser(handleSearchUser);
-
-    mainWindow.searchUser(globalInComingRef.current.caller);
-  }, []);
-
   const handleSearchUser = useMemoizedFn((info: any) => {
     if (
       info.id !== globalInComingRef.current.groupId &&
@@ -43,8 +36,9 @@ export const useIncomingCall = ({ i18n }: { i18n: LocalizerType }) => {
     ) {
       return;
     }
-    if (globalInComingRef.current.type != 'group') {
+    if (globalInComingRef.current.type !== 'group') {
       setName(info.name || '');
+      setAccountName(info.accountName || '');
       setAvatarPath(info.avatar || '');
       if (globalInComingRef.current.type === '1on1') {
         globalInComingRef.current.roomName = info.name;
@@ -52,6 +46,7 @@ export const useIncomingCall = ({ i18n }: { i18n: LocalizerType }) => {
     } else {
       if (info.id === globalInComingRef.current.groupId) {
         setName(info.name || '');
+        setAccountName(info.accountName || '');
         setAvatarPath(info.avatar || '');
         setRenderDefaultAvatar(true);
       } else {
@@ -63,7 +58,6 @@ export const useIncomingCall = ({ i18n }: { i18n: LocalizerType }) => {
   useEffect(() => {
     setupIncomingCall();
     mainWindow.registerSearchUser(handleSearchUser);
-
     mainWindow.searchUser(globalInComingRef.current.caller);
     if (globalInComingRef.current.type === 'group') {
       mainWindow.searchUser(globalInComingRef.current.groupId);
@@ -108,6 +102,7 @@ export const useIncomingCall = ({ i18n }: { i18n: LocalizerType }) => {
 
   return {
     name,
+    accountName,
     inviteName,
     avatarPath,
     renderDefaultAvatar,

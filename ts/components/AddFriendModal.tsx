@@ -1,80 +1,127 @@
-import { useMemoizedFn } from 'ahooks';
-import { Input, Modal, ModalProps, GetRef } from 'antd';
+import { useControllableValue, useMemoizedFn } from 'ahooks';
+import { Input, Modal, ModalProps, GetRef, Button } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 import { trigger } from '../shims/events';
 import { LocalizerType } from '../types/Util';
+import { ConfigProvider } from './shared/ConfigProvider';
+import { getAccountManager } from '../shims/apiService';
 
-type InputRef = GetRef<typeof Input.OTP>;
+type InputRef = GetRef<typeof Input>;
 
 export const AddFriendModal = (
   props: ModalProps & { onComplete?: () => void; i18n: LocalizerType }
 ) => {
   const { open, onCancel, onComplete, i18n } = props;
 
-  const [showErrorMessage, setShowErrorMessage] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const inputRef = useRef<InputRef>(null);
+  const [inputValue, setInputValue] = useControllableValue({
+    defaultValue: '',
+  });
 
   const handleCloseModal = useMemoizedFn(e => {
     onCancel?.(e);
-    setShowErrorMessage(false);
+    setErrorMessage('');
   });
 
-  const onInputFinish = useMemoizedFn(async (value: string) => {
+  const showConversation = useMemoizedFn(
+    (uid: string, type: 'randomCode' | 'search') => {
+      trigger('showConversation', uid, null, null, null, {
+        type,
+      });
+      const myEvent = new Event('event-toggle-switch-chat');
+      window.dispatchEvent(myEvent);
+      onComplete?.();
+    }
+  );
+
+  const addFriendByRandomCode = useMemoizedFn(async (value: string) => {
     try {
       const resp = await (
         window as any
       ).textsecure.messaging.queryUserByInviteCode(value);
       if (resp.uid) {
-        trigger('showConversation', resp.uid, null, null, null, null);
-        const myEvent = new Event('event-toggle-switch-chat');
-        window.dispatchEvent(myEvent);
+        showConversation(resp.uid, 'randomCode');
         onComplete?.();
       }
     } catch (e) {
-      setShowErrorMessage(true);
-      console.log(e);
+      setErrorMessage(i18n('addFriend.modal.errorFriendCode'));
+      console.log('add friend by random code error', e);
     }
   });
 
-  const inputRef = useRef<InputRef>(null);
+  const addFriendByUid = useMemoizedFn(async (value: string) => {
+    try {
+      const resp = await getAccountManager().searchUserByUid(value);
+      if (resp.uid) {
+        showConversation(resp.uid, 'search');
+        onComplete?.();
+      }
+    } catch (e: any) {
+      setErrorMessage(i18n('addFriend.modal.errorUid'));
+      console.log('add friend by uid error', e);
+    }
+  });
+
+  const onSubmit = useMemoizedFn(async () => {
+    const value = inputValue.trim();
+    setLoading(true);
+    if (/^\d{4}$/.test(value)) {
+      await addFriendByRandomCode(value);
+    } else {
+      await addFriendByUid(value);
+    }
+    setLoading(false);
+  });
 
   useEffect(() => {
     if (open) {
       setTimeout(() => {
         inputRef.current?.focus();
       });
+    } else {
+      setInputValue('');
+      setErrorMessage('');
     }
   }, [open]);
 
   return (
-    <Modal
-      open={open}
-      onCancel={handleCloseModal}
-      title={false}
-      footer={null}
-      width={384}
-      destroyOnClose={true}
-      centered
-    >
-      <div className="friend-code-input-wrapper">
-        <div className="friend-code-input-title">
-          {i18n('addFriend.modal.title')}
-        </div>
-        <div className="friend-code-input-sub-title">
-          {i18n('addFriend.modal.subtitle')}
-        </div>
-        <Input.OTP
-          ref={inputRef}
-          className="friend-code-input-otp"
-          size="large"
-          length={4}
-          onChange={onInputFinish}
-        ></Input.OTP>
-        {showErrorMessage ? (
-          <div className="friend-code-input-error-message">
-            {i18n('addFriend.modal.errorFriendCode')}
+    <ConfigProvider>
+      <Modal
+        open={open}
+        onCancel={handleCloseModal}
+        title={false}
+        footer={null}
+        width={384}
+        destroyOnClose={true}
+        centered
+      >
+        <div className="friend-code-input-wrapper">
+          <div className="friend-code-input-title">
+            {i18n('addFriend.modal.title')}
           </div>
-        ) : null}
-      </div>
-    </Modal>
+          <Input
+            ref={inputRef}
+            className="universal-input"
+            size="large"
+            value={inputValue}
+            onChange={e => setInputValue(e.target.value)}
+            placeholder={i18n('addFriend.modal.placeholder')}
+          />
+          <div className="friend-code-input-error-message">{errorMessage}</div>
+          <Button
+            disabled={!inputValue}
+            onClick={onSubmit}
+            className="add-friend-button"
+            type="primary"
+            loading={loading}
+          >
+            {i18n('add')}
+          </Button>
+        </div>
+      </Modal>
+    </ConfigProvider>
   );
 };

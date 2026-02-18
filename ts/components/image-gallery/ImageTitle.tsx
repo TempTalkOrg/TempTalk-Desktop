@@ -47,6 +47,8 @@ export const ImageTitle: React.FC<any> = props => {
     setReadonly,
     readonly,
     handleControls,
+    path,
+    messageId,
   } = props;
 
   const { i18n } = ImageGalleryApis;
@@ -72,7 +74,14 @@ export const ImageTitle: React.FC<any> = props => {
   };
 
   const openFileExternal = () => {
-    ImageGalleryApis.openFileDefault(url, fileName, contentType, attachmentId);
+    ImageGalleryApis.openFileDefault({
+      url,
+      fileName,
+      contentType,
+      attachmentId,
+      messageId,
+      path,
+    });
   };
 
   const onZoomIn = () => {

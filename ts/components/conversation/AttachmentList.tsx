@@ -14,6 +14,7 @@ import {
   getUrl,
   isVideoAttachment,
 } from '../../types/Attachment';
+import { IconClearCircle } from '../shared/icons';
 
 interface Props {
   attachments: Array<AttachmentType>;
@@ -49,10 +50,9 @@ export class AttachmentList extends React.Component<Props> {
       <div className="module-attachments">
         {attachments.length > 1 ? (
           <div className="module-attachments__header">
-            <div
-              role="button"
-              onClick={onClose}
+            <IconClearCircle
               className="module-attachments__close-button"
+              onClick={onClose}
             />
           </div>
         ) : null}

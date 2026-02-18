@@ -23,7 +23,7 @@ export const RoomTitle = ({
     <div className="call-room-title">
       <div className="content-area">
         <span className="title-text">
-          {roomInfo.roomName}{' '}
+          <span className="room-name">{roomInfo.roomName}</span>
           {formattedDuration && (
             <span className="call-duration">{formattedDuration}</span>
           )}

@@ -4,23 +4,7 @@
 /* eslint-disable no-console */
 
 const electron = require('electron');
-const _ = require('lodash');
-
-const Privacy = require('./modules/privacy');
-
 const ipc = electron.ipcRenderer;
-
-// Default Bunyan levels: https://github.com/trentm/node-bunyan#levels
-// To make it easier to visually scan logs, we make all levels the same length
-const BLANK_LEVEL = '     ';
-const LEVELS = {
-  60: 'fatal',
-  50: 'error',
-  40: 'warn ',
-  30: 'info ',
-  20: 'debug',
-  10: 'trace',
-};
 
 // Backwards-compatible logging, simple strings and no level (defaulted to INFO)
 function now() {
@@ -28,21 +12,159 @@ function now() {
   return date.toJSON();
 }
 
-// To avoid [Object object] in our log since console.log handles non-strings smoothly
-function cleanArgsForIPC(args) {
-  const str = args.map(item => {
-    if (typeof item !== 'string') {
-      try {
-        return JSON.stringify(item);
-      } catch (error) {
-        return item;
+const jsonReplacer = (objectCache, value) => {
+  const type = typeof value;
+
+  // These basic types should be passed through and let JSON handle them by default
+  // undefined, symbol, and function values will be dropped during JSON serialization
+  if (['boolean', 'string', 'undefined', 'symbol', 'function'].includes(type)) {
+    return value;
+  }
+
+  if (type === 'bigint') {
+    return `${value.toString()}n`;
+  }
+
+  if (type === 'number') {
+    if (Number.isNaN(value)) {
+      return 'NaN';
+    } else if (!Number.isFinite(value)) {
+      return value.toString();
+    } else {
+      return value;
+    }
+  }
+
+  // typeof null === 'object'
+  if (value === null) {
+    return value;
+  }
+
+  if (value instanceof Map) {
+    return Array.from(value.entries());
+  }
+
+  if (value instanceof Set) {
+    return Array.from(value.values());
+  }
+
+  if (value instanceof Error) {
+    const { name, code, message, stack, response } = value;
+    const error = {
+      name,
+      code,
+      message,
+    };
+
+    // log more details for HTTPError like errors
+    if (response && typeof response === 'object') {
+      const { status, reason } = response;
+      if (status || reason) {
+        error.response = { status, reason };
       }
     }
 
-    return item;
-  });
+    // error is printed in insertion order, so we put the stack field at the end
+    if (stack) {
+      error.stack = stack;
+    }
 
-  return str.join(' ');
+    return error;
+  }
+
+  if (value instanceof Date) {
+    return value.toISOString();
+  }
+
+  if (value instanceof ArrayBuffer) {
+    return `[ArrayBuffer(${value.byteLength})]`;
+  }
+
+  if (ArrayBuffer.isView(value)) {
+    return `[${value.constructor?.name || 'UnkownView'}(${value.byteLength})]`;
+  }
+
+  if (value === global) {
+    return '[Global: Env]';
+  }
+
+  if (typeof Node !== 'undefined' && value instanceof Node) {
+    return `[HTMLElement: ${value.nodeName}]`;
+  }
+
+  if (typeof Event !== 'undefined' && value instanceof Event) {
+    return `[Event: ${value.type}]`;
+  }
+
+  if (type === 'object') {
+    if (objectCache.has(value)) {
+      return '[Circular]';
+    }
+
+    objectCache.add(value);
+
+    const objectName = value.constructor?.name || '';
+    if (['process', 'Window', 'HTMLDocument'].includes(objectName)) {
+      return `[Global: ${objectName}]`;
+    }
+  }
+
+  return value;
+};
+
+function cleanArgsForIPC(args) {
+  const objectCache = new WeakSet();
+
+  return args.map(arg => {
+    if (arg === null) {
+      return arg;
+    }
+
+    const type = typeof arg;
+    if (['boolean', 'string', 'undefined'].includes(type)) {
+      return arg;
+    }
+
+    if (type === 'bigint') {
+      return `${arg.toString()}n`;
+    }
+
+    if (type === 'number') {
+      if (Number.isNaN(arg)) {
+        return 'NaN';
+      } else if (!Number.isFinite(arg)) {
+        return arg.toString();
+      } else {
+        return arg;
+      }
+    }
+
+    if (type === 'symbol') {
+      return '[Symbol]';
+    }
+
+    if (type === 'function') {
+      return '[Function]';
+    }
+
+    // if (type === 'object') {
+    //   // to JSON stringify + parse
+    // }
+
+    try {
+      return JSON.parse(
+        JSON.stringify(arg, (_, value) => {
+          try {
+            return jsonReplacer(objectCache, value);
+          } catch (error) {
+            return '[UnreadableValue]';
+          }
+        })
+      );
+    } catch (error) {
+      return `[Unserializable]: ${Object.prototype.toString.call(arg)}`;
+    }
+  });
 }
 
 function log(...args) {
@@ -54,82 +176,25 @@ if (window.console) {
   console.log = log;
 }
 
-// The mechanics of preparing a log for publish
-
-function getHeader() {
-  let header = window.navigator.userAgent;
-
-  header += ` node/${window.getNodeVersion()}`;
-  header += ` env/${window.getEnvironment()}`;
-
-  return header;
-}
-
-function getLevel(level) {
-  const text = LEVELS[level];
-  if (!text) {
-    return BLANK_LEVEL;
-  }
-
-  return text.toUpperCase();
-}
-
-function formatLine(entry) {
-  return `${getLevel(entry.level)} ${entry.time} ${entry.msg}`;
-}
-
-function format(entries) {
-  return Privacy.redactAll(entries.map(formatLine).join('\n'));
-}
-
-function fetch() {
-  return new Promise(resolve => {
-    ipc.send('fetch-log');
-
-    ipc.on('fetched-log', (event, text) => {
-      const result = `${getHeader()}\n${format(text)}`;
-      resolve(result);
-    });
-  });
-}
-
 // A modern logging interface for the browser
 
 // The Bunyan API: https://github.com/trentm/node-bunyan#log-method-api
 function logAtLevel(level, prefix, ...args) {
   console._log(prefix, now(), ...args);
 
-  const str = cleanArgsForIPC(args);
-  const logText = Privacy.redactAll(str);
-  ipc.send(`log-${level}`, logText);
+  const cleanedArgs = cleanArgsForIPC(args);
+  ipc.send(`log-${level}`, ...cleanedArgs);
 }
 
-window.log = {
-  fatal: _.partial(logAtLevel, 'fatal', 'FATAL'),
-  error: _.partial(logAtLevel, 'error', 'ERROR'),
-  warn: _.partial(logAtLevel, 'warn', 'WARN '),
-  info: _.partial(logAtLevel, 'info', 'INFO '),
-  debug: _.partial(logAtLevel, 'debug', 'DEBUG'),
-  trace: _.partial(logAtLevel, 'trace', 'TRACE'),
-  fetch,
-};
+const levels = ['fatal', 'error', 'warn', 'info', 'debug', 'trace'];
+
+window.log = levels.reduce((acc, level) => {
+  acc[level] = (...args) =>
+    logAtLevel(level, level.toUpperCase().padEnd(5), ...args);
+  return acc;
+}, {});
 
 window.onerror = (message, script, line, col, error) => {
-  if (
-    error &&
-    error.message &&
-    error.message.includes('executing a cancelled action')
-  ) {
-    return;
-  }
-  if (
-    error &&
-    error.stack &&
-    error.stack.includes('executing a cancelled action')
-  ) {
-    return;
-  }
-
   const errorInfo = error && error.stack ? error.stack : JSON.stringify(error);
   window.log.error(`Top-level unhandled error: ${errorInfo}`);
 };

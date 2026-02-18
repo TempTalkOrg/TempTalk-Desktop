@@ -290,16 +290,6 @@ body.dark-theme {
       }
     }
 
-    .os-icon {
-      &.apple {
-        @include color-svg('../images/apple.svg', black);
-      }
-
-      &.android {
-        @include color-svg('../images/android.svg', black);
-      }
-    }
-
     .banner-icon {
       // generic
       &.check-circle-outline {
@@ -399,14 +389,6 @@ body.dark-theme {
           background: $blue;
         }
       }
-    }
-  }
-
-  .tool-bar {
-    color: $color-dark-05;
-
-    .search-icon {
-      background-color: $color-light-35;
     }
   }
 
@@ -550,22 +532,6 @@ body.dark-theme {
 
     &:hover {
       @include color-svg('../images/message-forward.svg', $color-dark-05);
-    }
-  }
-
-  .module-message__buttons__recall {
-    @include color-svg('../images/message-recall.svg', $color-light-45);
-
-    &:hover {
-      @include color-svg('../images/message-recall.svg', $color-dark-05);
-    }
-  }
-
-  .module-message__buttons__jump {
-    @include color-svg('../images/message-jump.svg', $color-light-45);
-
-    &:hover {
-      @include color-svg('../images/message-jump.svg', $color-dark-05);
     }
   }
 
@@ -1290,11 +1256,6 @@ body.dark-theme {
     @include color-svg('../images/complete.svg', $color-dark-30);
   }
 
-  .module-conversation-header__history-icon {
-    @include color-svg('../images/search.svg', $color-dark-30);
-    -webkit-mask-size: 85%;
-  }
-
   // Module: Message Detail
 
   .module-message-detail__unix-timestamp {
@@ -1586,43 +1547,6 @@ body.dark-theme {
     }
   }
 
-  .module-main-header__search__input {
-    background-color: $app-color-background-2-dark;
-    // border: solid 1px $color-gray-75;
-    color: $color-gray-05;
-
-    &::placeholder {
-      color: $color-gray-45;
-    }
-
-    &:focus {
-      border: solid 1px $color-signal-blue;
-      outline: none;
-    }
-  }
-
-  .module-main-header__search__input_contact {
-    background-color: $app-color-background-2-dark;
-    color: $color-gray-05;
-
-    &::placeholder {
-      color: $color-gray-45;
-    }
-
-    &:focus {
-      border: solid 1px $color-signal-blue;
-      outline: none;
-    }
-  }
-
-  .module-main-header__search__icon {
-    @include color-svg('../images/search.svg', $color-gray-25);
-  }
-
-  .module-main-header__search__cancel-icon {
-    @include color-svg('../images/x-16.svg', $color-gray-25);
-  }
-
   .module-main-header__entry__plus-icon {
     @include color-svg('../images/entry-plus.svg', $color-gray-25);
   }
@@ -1663,20 +1587,12 @@ body.dark-theme {
     border-top: 1px solid $color-gray-75;
   }
 
-  .module-attachments__close-button {
-    @include color-svg('../images/x-16.svg', $color-gray-45);
-  }
-
   // Module: Staged Generic Attachment
 
   .module-staged-generic-attachment {
     box-shadow: inset 0px 0px 0px 1px $color-gray-45;
     background-color: $color-gray-75;
     color: $color-dark-05;
-  }
-
-  .module-staged-generic-attachment__close-button {
-    @include color-svg('../images/x.svg', $color-gray-45);
   }
 
   .module-staged-generic-attachment__icon {
@@ -1731,10 +1647,6 @@ body.dark-theme {
 
   .module-caption-editor {
     background-color: $color-black;
-  }
-
-  .module-caption-editor__close-button {
-    @include color-svg('../images/x-16.svg', $color-white);
   }
 
   .module-caption-editor__media-container {
@@ -1864,10 +1776,6 @@ body.dark-theme {
 
   .module-start-history-search {
     border-bottom: 1px solid rgba(111, 111, 111, 0.5);
-
-    &:hover {
-      background-color: $color-dark-70;
-    }
   }
 
   .module-start-history-search__number {
@@ -2032,31 +1940,6 @@ body.dark-theme {
     border-bottom: 1px solid #474d57;
   }
 
-  .module-common-header__search__input {
-    background-color: $color-gray-95;
-    border-radius: 8px;
-    border: solid 1px #181a20;
-    color: $color-gray-05;
-    background: #1e2329;
-
-    &::placeholder {
-      color: $color-gray-45;
-    }
-
-    &:focus {
-      border: solid 1px $color-signal-blue;
-      outline: none;
-    }
-  }
-
-  .module-common-header__search__icon {
-    @include color-svg('../images/search.svg', $color-gray-25);
-  }
-
-  .module-common-header__search__cancel-icon {
-    @include color-svg('../images/x-16.svg', $color-gray-25);
-  }
-
   .account-settings {
     .account-name-editor {
       background-color: $color-gray-95;
@@ -2113,7 +1996,7 @@ body.dark-theme {
     }
   }
 
-  .profile-dialog {
+  .profile-wrapper {
     .profile-status {
       color: #b7bdc6;
     }
@@ -2133,7 +2016,7 @@ body.dark-theme {
       }
     }
 
-    .profile-name {
+    .profile-name-text {
       color: #eaecef;
     }
 
@@ -2916,5 +2799,11 @@ body.dark-theme {
     .ant-message-notice-content {
       background-color: var(--dst-color-line) !important;
     }
+  }
+  .separate-message-viewer-title {
+    background-color: var(--dst-color-text-black);
+  }
+  .separate-message-viewer-body-wrapper {
+    background-image: url('../images/message-bg-dark.png');
   }
 }

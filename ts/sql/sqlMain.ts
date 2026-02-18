@@ -2,13 +2,13 @@
 // and forward messages bettween worker and render
 
 import { consoleLogger } from '../logger/consoleLogger';
-import { LoggerType } from '../logger/types';
+import type { LoggerType } from '../logger/types';
 import { WorkerAccelerator } from './sqlWorkerWrapper/workerAccelerator';
 import { WorkerDatabase } from './sqlWorkerWrapper/workerDatabase';
 import { WrappedCallResult } from './sqlWorkerWrapper/types';
 import { MethodCache } from './utils/methodCache';
 import { logSeqId, shouldTrace } from '../logger/utils';
-import { InitDBOption, CloseDBOption } from './dbInterface';
+import type { InitDBOption, CloseDBOption } from './dbInterface';
 import { checkDiskAvailable, copyFileWithLog } from './utils/fileUtils';
 
 import path from 'node:path';
@@ -167,6 +167,8 @@ export class MainSQL {
 
       await copyFileWithLog(configDir, targetDir, SQL_JSON, false, logger);
       await copyFileWithLog(configDir, targetDir, CONFIG_JSON, true, logger);
+
+      return targetDir;
     } catch (error) {
       logger.error('backup failed:', error);
 
@@ -213,5 +215,20 @@ export class MainSQL {
   public async sqlCallEasy(method: string, ...args: ReadonlyArray<any>) {
     const wrappedResult = await this.sqlCall(method, ...args);
     return wrappedResult.result;
+  }
+
+  private async sqlCallEasyAll(method: string, ...args: ReadonlyArray<any>) {
+    if (!this.isReady) {
+      throw new Error('Not initialized');
+    }
+
+    return await Promise.all([
+      this.workerDatabase.sqlCallEasy(method, args),
+      this.workerAccelerator.sqlCallEasy(method, args),
+    ]);
+  }
+
+  public async getReport() {
+    return await this.sqlCallEasyAll('getReport');
   }
 }

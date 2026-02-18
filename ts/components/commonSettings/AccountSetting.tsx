@@ -8,19 +8,23 @@ import { useMemoizedFn } from 'ahooks';
 import { deleteAllData, getAccountManager } from '../../shims/apiService';
 import LinkModal from './LinkModal';
 import { normalize } from '../../types/PhoneNumber';
+import { CustomUidModel } from './CustomUidModel';
+import { SettingSwitchItem } from './CommonSettingComponents';
 
 interface SettingProps {
   i18n: LocalizerType;
   id: string;
+  customUid?: string;
   deviceName?: string;
   email?: string;
   phoneNumber?: string;
   onClose: () => void;
   onRefreshProfile: () => Promise<void>;
   profileLoading: boolean;
+  searchByCustomUid: boolean;
 }
 
-type SettingField = 'id' | 'deviceName' | 'email' | 'phoneNumber';
+type SettingField = 'customUid' | 'deviceName' | 'email' | 'phoneNumber';
 
 interface ItemProps {
   i18n: LocalizerType;
@@ -40,6 +44,7 @@ interface ItemProps {
 
 function SettingItem(props: ItemProps) {
   const [showLinkModal, setShowLinkModal] = useState(false);
+  const [showCustomUidModal, setShowCustomUidModal] = useState(false);
 
   const {
     i18n,
@@ -53,10 +58,14 @@ function SettingItem(props: ItemProps) {
     onRefreshProfile,
   } = props;
 
-  const modifiable =
+  const isModifyingLink =
+    (field === 'email' || field === 'phoneNumber') &&
     isFunction(onUpdate) &&
     isFunction(onRequestCode) &&
-    isArray<FormRule>(fieldRules);
+    isArray(fieldRules);
+
+  const isModifyingCustomUid =
+    field === 'customUid' && isFunction(onUpdate) && isArray(fieldRules);
 
   return (
     <div className="setting-account-item">
@@ -73,7 +82,7 @@ function SettingItem(props: ItemProps) {
         ) : (
           <div>{value || placeholder}</div>
         )}
-        {modifiable ? (
+        {isModifyingLink ? (
           <>
             <Button
               className="setting-account-button"
@@ -98,6 +107,28 @@ function SettingItem(props: ItemProps) {
             ></LinkModal>
           </>
         ) : null}
+        {isModifyingCustomUid ? (
+          <>
+            <Button
+              className="setting-account-button"
+              onClick={() => setShowCustomUidModal(true)}
+              disabled={profileLoading}
+              loading={profileLoading}
+            >
+              {profileLoading ? '' : i18n(`setting.account.button.edit`)}
+            </Button>
+            <CustomUidModel
+              i18n={i18n}
+              field={field}
+              initialValue={value}
+              fieldRules={fieldRules}
+              openModal={showCustomUidModal}
+              onCancel={() => setShowCustomUidModal(false)}
+              onUpdate={(newValue: string) => onUpdate(newValue, '', undefined)}
+              onRefreshProfile={onRefreshProfile}
+            ></CustomUidModel>
+          </>
+        ) : null}
       </div>
     </div>
   );
@@ -117,12 +148,14 @@ export default function AccountSetting(props: SettingProps) {
   const {
     i18n,
     id,
+    customUid,
     deviceName,
     email,
     phoneNumber,
     onClose,
     onRefreshProfile,
     profileLoading,
+    searchByCustomUid,
   } = props;
 
   const logout = useMemoizedFn(() => deleteAllData());
@@ -168,6 +201,47 @@ export default function AccountSetting(props: SettingProps) {
     }
   );
 
+  const onUpdateCustomUid = useMemoizedFn(async (newValue: string) => {
+    await getAccountManager().setDirectoryProfile({
+      customUid: newValue,
+    });
+  });
+
+  const contactNameValidator = useMemoizedFn(async (_, value: string) => {
+    if (!value) {
+      // only show required error message
+      return Promise.resolve();
+    }
+    const str = value.trim();
+    if (str.length < 6 || str.length > 20) {
+      throw new Error(
+        i18n('setting.account.customUidModal.validateError.length')
+      );
+    }
+    if (!/^[a-zA-Z_]/.test(str)) {
+      throw new Error(
+        i18n('setting.account.customUidModal.validateError.start')
+      );
+    }
+    if (!/^[a-zA-Z0-9_-]+$/.test(str)) {
+      throw new Error(
+        i18n('setting.account.customUidModal.validateError.content')
+      );
+    }
+    return Promise.resolve();
+  });
+
+  const onUpdateSearchByCustomUid = useMemoizedFn(async (newValue: boolean) => {
+    try {
+      await getAccountManager().setDirectoryProfile({
+        searchByCustomUid: Number(newValue),
+      });
+      await onRefreshProfile?.();
+    } catch (error: any) {
+      console.log('update searchByCustomUid error', error);
+    }
+  });
+
   const fieldPhone = 'phoneNumber';
   const fieldEmail = 'email';
 
@@ -180,7 +254,28 @@ export default function AccountSetting(props: SettingProps) {
         <div className="close-button-inner"></div>
       </div>
       <div className="setting-list-content sub-setting-content setting-account">
-        <SettingItem i18n={i18n} field={'id'} value={id}></SettingItem>
+        <SettingItem
+          i18n={i18n}
+          field={'customUid'}
+          value={customUid || id}
+          onUpdate={onUpdateCustomUid}
+          fieldRules={[
+            {
+              required: true,
+              message: getRequiredTips(i18n, 'customUid'),
+            },
+            {
+              validator: contactNameValidator,
+            },
+          ]}
+          profileLoading={profileLoading}
+          onRefreshProfile={onRefreshProfile}
+        ></SettingItem>
+        <SettingSwitchItem
+          checked={Boolean(searchByCustomUid)}
+          label={i18n('setting.account.searchByCustomUid')}
+          onChange={onUpdateSearchByCustomUid}
+        ></SettingSwitchItem>
         <SettingItem
           i18n={i18n}
           field={'deviceName'}
@@ -232,7 +327,7 @@ export default function AccountSetting(props: SettingProps) {
           profileLoading={profileLoading}
           onRefreshProfile={onRefreshProfile}
         ></SettingItem>
-        <hr className="setting-account-divider"></hr>
+        <hr className="common-setting-divider"></hr>
         <div className="setting-account-logout" onClick={logout}>
           {i18n('clearDataButton')}
         </div>

@@ -1,5 +1,5 @@
-import { Database } from '@signalapp/better-sqlite3';
-import {
+import type { Database } from '@opensource-lib/better-sqlite3';
+import type {
   ArrayQuery,
   EmptyQuery,
   IdentityKeyDBType,

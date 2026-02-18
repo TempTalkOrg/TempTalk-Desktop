@@ -393,7 +393,8 @@ class CallSender {
       throw new Error('invalid param: roomCipher');
     }
 
-    if (!options?.roomId) {
+    const { roomId, callees } = options || {};
+    if (!roomId) {
       throw new Error('invalid param: roomId');
     }
 
@@ -503,6 +504,9 @@ class CallSender {
   async sendCriticalAlert(data) {
     return await this.#server.sendCriticalAlert(data);
   }
+  async sendCriticalAlertNew(data) {
+    return await this.#server.sendCriticalAlertNew(data);
+  }
 }
 
 // use a wrapper function to filter out
@@ -527,6 +531,7 @@ class CallSenderWrapper {
     this.getCallToken = bindSender('getCallToken');
     this.submitCallFeedback = bindSender('submitCallFeedback');
     this.sendCriticalAlert = bindSender('sendCriticalAlert');
+    this.sendCriticalAlertNew = bindSender('sendCriticalAlertNew');
   }
 }
 

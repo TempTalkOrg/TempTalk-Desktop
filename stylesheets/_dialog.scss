@@ -362,17 +362,10 @@
   }
 
   .search-member-input {
-    background-color: var(--dst-color-background);
     border: 1px solid transparent;
     &:active,
     &:focus-within {
       border-color: #1677ff;
-    }
-    input {
-      color: var(--dst-color-text-primary);
-      &::placeholder {
-        color: var(--dst-color-text-third);
-      }
     }
   }
 

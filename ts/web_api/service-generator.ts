@@ -5,7 +5,6 @@ import {
   DomainConfigType,
   SpeedTestResult,
 } from './endpoint-selector';
-import { startTestCallServiceUrls } from './call-service';
 
 type ServerConfigType = {
   url: string;
@@ -73,7 +72,7 @@ function freshWebApiUrlCache(config: Record<string, ServerConfigType[]>) {
 }
 
 const useGlobalConfigCache = () => {
-  let config = getLocalStorageItem(GLOBAL_CONFIG_STORAGE_KEY);
+  const config = getLocalStorageItem(GLOBAL_CONFIG_STORAGE_KEY);
 
   const isNewVersionConfig = config && config.domains;
 
@@ -85,7 +84,7 @@ const useGlobalConfigCache = () => {
 };
 
 const useServiceConfigCache = () => {
-  let config = getLocalStorageItem(SERVICE_CONFIG_STORAGE_KEY);
+  const config = getLocalStorageItem(SERVICE_CONFIG_STORAGE_KEY);
 
   if (config) {
     mainWindow.log.info('serviceConfig cache get:', config);
@@ -174,8 +173,6 @@ export const setupServiceConfig = () => {
   if (isEmpty(mainWindow.getGlobalWebApiUrls())) {
     regenerateServiceConfig(mainWindow.globalConfig, false);
   }
-
-  startTestCallServiceUrls(mainWindow.getGlobalWebApiUrls().livekit);
 
   return selectBestDomain;
 };

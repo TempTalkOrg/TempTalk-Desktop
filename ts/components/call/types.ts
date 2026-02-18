@@ -129,6 +129,14 @@ export type CallSender = {
     gid?: string;
     timestamp: number;
   }): Promise<{ serverTimestamp: number }>;
+  sendCriticalAlertNew(options: {
+    destinations?: { number: string; timestamp: number }[];
+    group?: {
+      gid: string;
+      timestamp: number;
+    };
+    roomId: string;
+  }): Promise<{ data: { delivers?: string[] }; serverTimestamp: number }>;
 };
 
 export declare class UserSessionCipher {

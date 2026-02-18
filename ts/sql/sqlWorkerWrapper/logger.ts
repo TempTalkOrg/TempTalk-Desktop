@@ -1,6 +1,5 @@
-import { LoggerType } from '../../logger/types';
+import type { LoggerType } from '../../logger/types';
 import { LogRepsonse } from '../sqlWorkers/types';
-import { format } from 'util';
 
 export function handleLog(
   logger: LoggerType,
@@ -11,9 +10,7 @@ export function handleLog(
   const tag = `Worker-${logTag || ''}`;
 
   if (args?.length) {
-    const first = args[0];
-    const remains = args.slice(1);
-    logger[level](`[${tag}]: ${format(first, ...remains)}`);
+    logger[level](`[${tag}]:`, ...args);
   } else {
     logger[level](`[${tag}]: [Empty Log]`);
   }

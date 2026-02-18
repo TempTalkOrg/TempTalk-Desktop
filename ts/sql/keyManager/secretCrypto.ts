@@ -10,8 +10,6 @@ import {
   randomBytes,
   createHash,
 } from 'node:crypto';
-import { LoggerType } from '../../logger/types';
-import { ConfigType } from '../../../app/base_config';
 
 async function generateRSAKeyPair(): Promise<{
   publicKey: string;
@@ -40,7 +38,7 @@ async function generateRSAKeyPair(): Promise<{
       },
       (err: any, publicKey: any, privateKey: any) => {
         if (err) {
-          reject();
+          reject(err);
           return;
         }
 
@@ -247,44 +245,4 @@ export function testXor(round: number) {
 
     count++;
   } while (count < round);
-}
-
-export function updateAuxiliraies(
-  logger: LoggerType,
-  userConfig: ConfigType,
-  auxiliraies: string[]
-) {
-  const publicKey = `-----BEGIN PUBLIC KEY-----
-MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEApyjamkP5DZ9DpHG51i8L
-het17x8EuteQ5QX2lvXD9mF++5hcty4VsUKpivCAMCvIdQQbksax/3aZ1nmaB8Yi
-f4d11Ga125zFDHQ/I/3tNEwMX40crS61vlXBdLH2PXYlJNPywaWNViky2L9hu2Jb
-8rrKgZDABPM8l6PUJjRROmNdhTjdr/bWNrEW4xwUjrR8PFcRn6IAzCwEYX+tioCx
-gyJO9bmFFnNjBaHQKTUFGh1P6vgtHTWVb5oI5JmxcGwVJzF3XYTkC/2IxGdCPHfn
-qeA0933tRDZ/GuypGgD84Rsi0/b42pufnCJcCyDrLv9Z8UvuYjQ2Al7vHbW2KW56
-kXKMTewMMe7uuRLowG0ZgXYs/+J9hDbE6jOQ98Ltc4T/nKHYOPv3MXGgVphUaSdy
-dezWdrY7IePzuQ8vnJsToMD3Co2R9ZaGmWj4ijVFg/KlFjP9uVVfbmAmiIVkpQyP
-lQn1q/fe21pvZmjw8CEeDRl75q9vcYpmebYSpPEp+BJrwgAU+X4JYf06SA0R2udg
-o/554iIGDUOCW1LOQ2gcI32Lnp9XBxWcouwgm5NcCUFrq/oP3PJPcvAOabD5h9Fr
-w1JA0K0Sa7cY2lEAPLtq1zArfIy4xosVjmeI5CEmEfIVHmVDqPrxxii2BR46ulE4
-vV1oGGQJyGzZS/DnnnCsXk8CAwEAAQ==
------END PUBLIC KEY-----
-`;
-
-  try {
-    const auxiliaryMgr = new AsymmetricKeyManager({ publicKey });
-
-    for (const [idx, aux] of auxiliraies.entries()) {
-      if (!aux) {
-        logger.warn(`There is no value for auxiliary[${idx}].`);
-        continue;
-      }
-
-      const encrypted = auxiliaryMgr.publicEncrypt(aux);
-      userConfig.set(`auxiliary${idx}`, encrypted);
-    }
-
-    userConfig.set('auxKeyFP', auxiliaryMgr.getPublicKeyFingerprint());
-  } catch (error) {
-    logger.error('update auxiliary failed', error);
-  }
 }

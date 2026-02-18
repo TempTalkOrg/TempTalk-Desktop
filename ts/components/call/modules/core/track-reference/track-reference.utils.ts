@@ -14,7 +14,9 @@ export function getTrackReferenceId(
   ) {
     return `${trackReference}`;
   } else if (isTrackReferencePlaceholder(trackReference)) {
-    return `${trackReference.participant.identity}_${trackReference.source}_placeholder`;
+    const participantKey =
+      trackReference.participant.sid ?? trackReference.participant.identity;
+    return `${participantKey}_${trackReference.source}_placeholder`;
   } else if (isTrackReference(trackReference)) {
     return `${trackReference.participant.identity}_${trackReference.publication.source}_${trackReference.publication.trackSid}`;
   } else {

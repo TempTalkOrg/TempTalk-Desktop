@@ -28,6 +28,7 @@ export const useParticipantRenderer = (
           size={extraProps.size}
           id={contact?.id}
           name={contact?.getDisplayName()}
+          accountName={contact?.getAccountName()}
           avatarPath={contact?.avatarPath}
           notShowStatus={true}
           noClickEvent={true}

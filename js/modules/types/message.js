@@ -123,10 +123,7 @@ exports._withSchemaVersion = ({ schemaVersion, upgrade }) => {
     const { logger } = context;
 
     if (!exports.isValid(message)) {
-      logger.error(
-        'Message._withSchemaVersion: Invalid input message:',
-        message
-      );
+      logger.error('Message._withSchemaVersion: Invalid input message');
       return message;
     }
 
@@ -158,10 +155,7 @@ exports._withSchemaVersion = ({ schemaVersion, upgrade }) => {
     }
 
     if (!exports.isValid(upgradedMessage)) {
-      logger.error(
-        'Message._withSchemaVersion: Invalid upgraded message:',
-        upgradedMessage
-      );
+      logger.error('Message._withSchemaVersion: Invalid upgraded message');
       return message;
     }
 
@@ -631,7 +625,11 @@ exports.loadForwardContextData = loadAttachmentData => {
   };
 };
 
-exports.deleteAllExternalFiles = ({ deleteAttachmentData, deleteOnDisk }) => {
+exports.deleteAllExternalFiles = ({
+  deleteAttachmentData,
+  deleteOnDisk,
+  deleteTempData,
+}) => {
   if (!isFunction(deleteAttachmentData)) {
     throw new TypeError(
       'deleteAllExternalFiles: deleteAttachmentData must be a function'
@@ -641,6 +639,12 @@ exports.deleteAllExternalFiles = ({ deleteAttachmentData, deleteOnDisk }) => {
   if (!isFunction(deleteOnDisk)) {
     throw new TypeError(
       'deleteAllExternalFiles: deleteOnDisk must be a function'
+    );
+  }
+
+  if (!isFunction(deleteTempData)) {
+    throw new TypeError(
+      'deleteAllExternalFiles: deleteTempData must be a function'
     );
   }
 
@@ -659,8 +663,12 @@ exports.deleteAllExternalFiles = ({ deleteAttachmentData, deleteOnDisk }) => {
           // To prevent spoofing, we copy the original image from the quoted message.
           //   If so, it will have a 'copied' field. We don't want to delete it if it has
           //   that field set to true.
-          if (thumbnail && thumbnail.path && !thumbnail.copied) {
+          if (thumbnail?.path && !thumbnail.copied) {
             await deleteOnDisk(thumbnail.path);
+
+            if (thumbnail.thumbnail?.path) {
+              await deleteOnDisk(thumbnail.thumbnail.path);
+            }
           }
         })
       );
@@ -699,6 +707,9 @@ exports.deleteAllExternalFiles = ({ deleteAttachmentData, deleteOnDisk }) => {
         })
       );
     }
+
+    // delete temp data by message id
+    await deleteTempData(message.id);
   };
 };
 

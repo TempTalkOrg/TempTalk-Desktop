@@ -2,11 +2,15 @@ import React, { FC, useEffect, useRef, useState } from 'react';
 import classnames from 'classnames';
 import { useMemoizedFn } from 'ahooks';
 import { IconPause, IconPlay } from './shared/icons';
+import { VOICE_PLAYBACK_SPEED_OPTIONS } from './shared/constant';
 
 interface AudioMessageProps {
   src: string;
   classNames?: string;
   getAttachmentObjectUrl: () => Promise<string | null>;
+  getVoicePlaybackSpeed: () => number;
+  setVoicePlaybackSpeed: (playbackSpeed: number) => void;
+  onPlay?: () => void;
 }
 
 const TRACK_COUNT = 35;
@@ -16,7 +20,20 @@ const MAX_HEIGHT = 30;
 const formatTime = (time: number) => {
   const minutes = Math.floor(time / 60);
   const seconds = Math.floor(time % 60);
-  return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+};
+
+// 根据音频的全局最大振幅计算动态最大高度
+const calculateDynamicMaxHeight = (globalMax: number): number => {
+  if (globalMax >= 0.7) {
+    return MAX_HEIGHT;
+  } else if (globalMax >= 0.4) {
+    return MIN_HEIGHT + ((globalMax - 0.4) / 0.3) * (MAX_HEIGHT - 20) + 18;
+  } else if (globalMax >= 0.2) {
+    return MIN_HEIGHT + ((globalMax - 0.2) / 0.2) * 18 + 10;
+  } else {
+    return MIN_HEIGHT + (globalMax / 0.2) * 10 + 4;
+  }
 };
 
 const analyzeAudio = async (src: string): Promise<number[]> => {
@@ -25,34 +42,38 @@ const analyzeAudio = async (src: string): Promise<number[]> => {
     const arrayBuffer = await response.arrayBuffer();
     const audioContext = new AudioContext();
     const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-
     const channelData = audioBuffer.getChannelData(0);
     const blockSize = Math.floor(channelData.length / TRACK_COUNT);
     const samples: number[] = [];
+    // 先找出全局最大值用于归一化
+    let globalMax = 0;
+    for (let i = 0; i < channelData.length; i++) {
+      globalMax = Math.max(globalMax, Math.abs(channelData[i]));
+    }
+    // 根据 globalMax 的实际大小动态计算最大高度
+    const dynamicMaxHeight = calculateDynamicMaxHeight(globalMax);
 
     for (let i = 0; i < TRACK_COUNT; i++) {
       const start = blockSize * i;
       const end = start + blockSize;
-      let sum = 0;
+      let peak = 0;
 
+      // 使用峰值而不是平均值
       for (let j = start; j < end; j++) {
-        sum += Math.abs(channelData[j]);
+        peak = Math.max(peak, Math.abs(channelData[j]));
       }
 
-      const average = sum / blockSize;
-      const height = Math.max(MIN_HEIGHT, Math.min(MAX_HEIGHT, average * 100));
-      samples.push(height);
-    }
-
-    // 检查是否需要放大
-    const maxHeight = Math.max(...samples);
-    if (maxHeight <= 15) {
-      const scaleFactor = 3;
-      return samples.map(height =>
-        height === MIN_HEIGHT
-          ? height
-          : Math.min(MAX_HEIGHT, height * scaleFactor)
+      // 归一化并缩放到动态最大高度
+      const normalized = globalMax > 0 ? peak / globalMax : 0;
+      const height = Math.max(
+        MIN_HEIGHT,
+        Math.min(
+          dynamicMaxHeight,
+          MIN_HEIGHT + normalized * (dynamicMaxHeight - MIN_HEIGHT)
+        )
       );
+
+      samples.push(height);
     }
 
     return samples;
@@ -62,11 +83,15 @@ const analyzeAudio = async (src: string): Promise<number[]> => {
   }
 };
 
-export const AudioMessage: FC<AudioMessageProps> = ({
-  src,
-  classNames,
-  getAttachmentObjectUrl,
-}) => {
+export const AudioMessage: FC<AudioMessageProps> = props => {
+  const {
+    src,
+    classNames,
+    getAttachmentObjectUrl,
+    getVoicePlaybackSpeed,
+    setVoicePlaybackSpeed,
+    onPlay,
+  } = props;
   const [isPlaying, setIsPlaying] = useState(false);
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
@@ -101,7 +126,9 @@ export const AudioMessage: FC<AudioMessageProps> = ({
       if (isPlaying) {
         audioRef.current.pause();
       } else {
+        audioRef.current.playbackRate = getVoicePlaybackSpeed();
         audioRef.current.play();
+        onPlay?.();
       }
       setIsPlaying(prev => !prev);
     }
@@ -180,8 +207,32 @@ export const AudioMessage: FC<AudioMessageProps> = ({
     };
   }, []);
 
+  const handlePlaybackSpeedClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    const newPlaybackSpeed =
+      VOICE_PLAYBACK_SPEED_OPTIONS[
+        (VOICE_PLAYBACK_SPEED_OPTIONS.indexOf(getVoicePlaybackSpeed()) + 1) %
+          VOICE_PLAYBACK_SPEED_OPTIONS.length
+      ];
+    setVoicePlaybackSpeed(newPlaybackSpeed);
+    if (audioRef.current) {
+      audioRef.current.playbackRate = newPlaybackSpeed;
+    }
+  };
+
+  const audioPlayBackSpeed = getVoicePlaybackSpeed();
+  const audioPlayBackSpeedText = audioPlayBackSpeed
+    ? `${audioPlayBackSpeed}x`
+    : '';
+
   return (
-    <div className={classnames(['audio-message', classNames])}>
+    <div
+      className={classnames([
+        'audio-message',
+        classNames,
+        { 'is-playing': isPlaying },
+      ])}
+    >
       <audio
         ref={audioRef}
         src={audioUrl}
@@ -235,7 +286,18 @@ export const AudioMessage: FC<AudioMessageProps> = ({
       </div>
 
       <div className="audio-message__time">
-        {isPlaying ? formatTime(duration - currentTime) : formatTime(duration)}
+        <div className="audio-message__time-text">
+          {isPlaying
+            ? formatTime(duration - currentTime)
+            : formatTime(duration)}
+        </div>
+        <div
+          className="audio-message__playback-speed-control"
+          onClick={handlePlaybackSpeedClick}
+          onDoubleClick={e => e.stopPropagation()}
+        >
+          {audioPlayBackSpeedText}
+        </div>
       </div>
     </div>
   );

@@ -21,7 +21,7 @@
 
   Whisper.ConversationStack = Whisper.View.extend({
     className: 'conversation-stack',
-    open(conversation, messageId) {
+    open(conversation, messageId, options) {
       const id = `conversation-${conversation.cid}`;
       if (id !== this.el.firstChild.id) {
         this.$el
@@ -41,7 +41,7 @@
         }
         $el.prependTo(this.el);
       }
-      conversation.trigger('opened', messageId);
+      conversation.trigger('opened', { ...options, messageId });
     },
   });
 
@@ -84,7 +84,7 @@
       this.$('.container').show();
     },
     getAllBot() {
-      this.convoBotCollection = getAllBot();
+      this.convoBotCollection = window.getAllBot();
       const botContacts = this.convoBotCollection.sort((a, b) => {
         return a.cachedProps.name
           .trim()
@@ -312,6 +312,12 @@
           this.store.dispatch
         );
 
+      const { addSidebarItem, removeSidebarItem } =
+        Signal.State.bindActionCreators(
+          Signal.State.Ducks.sidebar.actions,
+          this.store.dispatch
+        );
+
       this.openConversationAction = openConversationExternal;
 
       // In the future this listener will be added by the conversation view itself. But
@@ -396,11 +402,15 @@
 
       Whisper.events.on('fast-join-call', this.fastJoinCall);
 
+      // Sidebar Item Events
+      Whisper.events.on('add-sidebar-item', addSidebarItem);
+      Whisper.events.on('remove-sidebar-item', removeSidebarItem);
+
       // Finally, add it to the DOM
       this.$('.left-pane-placeholder').append(this.leftPaneView.el);
     },
     async fastJoinCall(info) {
-      const { conversationId } = info;
+      const { conversationId, roomId } = info;
 
       const store = inboxStore.getState();
       const { calls } = store.conversations;
@@ -409,8 +419,17 @@
         return;
       }
 
-      if (calls && calls[conversationId]) {
-        const { type, roomId, conversation, roomName } = calls[conversationId];
+      let targetCall;
+      if (roomId) {
+        targetCall = Object.values(calls).find(callInfo => {
+          return callInfo?.roomId === roomId;
+        });
+      } else {
+        targetCall = calls[conversationId];
+      }
+
+      if (targetCall) {
+        const { type, roomId, conversation, roomName } = targetCall;
 
         window.joinCall({
           type,
@@ -423,7 +442,8 @@
           const res = await window.callAPI.listCalls();
           if (res.calls && res.calls.length) {
             const targetCall = res.calls.find(
-              call => call.conversation === conversationId
+              call =>
+                call.roomId === roomId || call.conversation === conversationId
             );
             if (targetCall) {
               window.joinCall({
@@ -502,7 +522,13 @@
     reloadBackgroundPage() {
       window.location.reload();
     },
-    async openConversation(id, messageId, recentConversationSwitch, type) {
+    async openConversation(
+      id,
+      messageId,
+      recentConversationSwitch,
+      type,
+      options
+    ) {
       window.log.info(
         'inbox_view openConversation:',
         window.Signal.ID.convertIdToV2(id)
@@ -534,7 +560,7 @@
 
       await new Promise(r => setTimeout(r, 0));
 
-      this.conversation_stack.open(conversation, messageId);
+      this.conversation_stack.open(conversation, messageId, options);
 
       this.focusConversation();
 

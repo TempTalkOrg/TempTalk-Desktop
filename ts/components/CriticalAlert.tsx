@@ -12,6 +12,7 @@ type PropsType = {
   i18n: LocalizerType;
   title: string;
   isPrivate: boolean;
+  roomId: string;
 };
 
 export const CriticalAlert = ({
@@ -20,11 +21,12 @@ export const CriticalAlert = ({
   i18n,
   title,
   isPrivate,
+  roomId,
 }: PropsType) => {
   useTheme();
 
   const onClick = useMemoizedFn(() => {
-    (window as any).connectConversation(conversationId);
+    (window as any).fastJoinCall({ conversationId, roomId });
   });
 
   useEffect(() => {

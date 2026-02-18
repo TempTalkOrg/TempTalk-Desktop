@@ -3,6 +3,8 @@ import { Participant, Room, RoomEvent } from '@cc-livekit/livekit-client';
 import { useEffect, useMemo, useState } from 'react';
 import { UserSessionCipher } from '../types';
 import { getFakeName } from '../../../util';
+import { inviteMembersAtom } from '../atoms/roomAtom';
+import { useAtom } from 'jotai';
 
 const mainWindow = window as any;
 
@@ -12,17 +14,21 @@ export class Contact {
   avatarPath?: string;
   fakeName: string;
   cipher?: UserSessionCipher;
+  accountName?: string;
 
   constructor(contact: {
     id: string;
     name?: string;
     avatarPath?: string;
     cipher?: UserSessionCipher;
+    accountName?: string;
   }) {
     this.id = contact.id;
     this.name = contact.name ?? '';
     this.avatarPath = contact.avatarPath ?? '';
     this.fakeName = getFakeName(contact.id);
+    this.accountName = contact.accountName ?? '';
+
     if (contact.cipher) {
       this.setCipher(contact.cipher);
     }
@@ -30,6 +36,10 @@ export class Contact {
 
   public getDisplayName() {
     return this.name || this.fakeName;
+  }
+
+  public getAccountName() {
+    return this.accountName;
   }
 
   public setCipher(cipher: UserSessionCipher) {
@@ -47,6 +57,7 @@ export type IInitials =
 
 export const useInitials = (room: Room) => {
   const [initials, setInitials] = useState<IInitials>(null);
+  const [inviteMembers, setInviteMembers] = useAtom(inviteMembersAtom);
   const update = useUpdate();
   const getContacts = async () => {
     try {
@@ -75,6 +86,14 @@ export const useInitials = (room: Room) => {
   const supplementContactMap = useMemoizedFn(
     async (participant: Participant) => {
       const id = participant.identity.split('.')[0];
+
+      if (inviteMembers.has(id)) {
+        setInviteMembers(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(id);
+          return newSet;
+        });
+      }
 
       const { ciphers } = await (
         window as any

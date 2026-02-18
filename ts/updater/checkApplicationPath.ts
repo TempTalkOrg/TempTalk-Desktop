@@ -1,5 +1,5 @@
 import { app, dialog, MessageBoxOptions } from 'electron';
-import { LoggerType } from '../logger/types';
+import type { LoggerType } from '../logger/types';
 import { isMacOS } from '../OS';
 import { moveSync, pathExistsSync } from 'fs-extra';
 

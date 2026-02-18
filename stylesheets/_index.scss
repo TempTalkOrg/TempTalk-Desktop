@@ -199,29 +199,6 @@
   }
 }
 
-.tool-bar {
-  color: $color-light-90;
-
-  padding: 8px;
-  padding-top: 0px;
-  margin-top: -1px;
-
-  position: relative;
-  .search-icon {
-    content: '';
-    display: inline-block;
-    float: left;
-    width: 24px;
-    height: 33px;
-    -webkit-mask: url('../images/search.svg') no-repeat left center;
-    -webkit-mask-size: 100%;
-    background-color: $color-light-35;
-    position: absolute;
-    left: 20px;
-    top: 0;
-  }
-}
-
 $search-x-size: 16px;
 $search-padding-right: 12px;
 $search-padding-left: 30px;

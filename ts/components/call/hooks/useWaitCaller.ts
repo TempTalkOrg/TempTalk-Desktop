@@ -40,7 +40,7 @@ export const useWaitCaller = ({
     if (currentCall.type === '1on1' && room.remoteParticipants.size > 1) {
       convertToInstantCall?.();
     }
-    logger.info('local connected', room, currentCall.roomId);
+    logger.info('local connected', currentCall.roomId);
   });
 
   const handleParticipantConnected = useMemoizedFn(

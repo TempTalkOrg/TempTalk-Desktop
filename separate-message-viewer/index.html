@@ -3,12 +3,25 @@
   <head>
     <meta charset="utf-8" />
     <title>Separate Message Viewer</title>
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none';
+          child-src 'self';
+          connect-src 'self' https: wss:;
+          font-src 'self';
+          form-action 'self';
+          frame-src 'none';
+          img-src 'self' blob: data:;
+          media-src 'self' blob:;
+          object-src 'none';
+          script-src 'self';
+          style-src 'self' 'unsafe-inline';"
+    />
     <link href="../stylesheets/manifest.css" rel="stylesheet" type="text/css" />
   </head>
 
   <body>
-    <script src="../js/components.js"></script>
-    <script src="../js/views/react_wrapper_view.js"></script>
+    <div class="separate-message-viewer-root"></div>
     <script src="start.js"></script>
   </body>
 </html>

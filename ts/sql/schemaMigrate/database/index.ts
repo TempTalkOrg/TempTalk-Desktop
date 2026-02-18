@@ -1,5 +1,5 @@
-import type { Database } from '@signalapp/better-sqlite3';
-import { LoggerType } from '../../../logger/types';
+import type { Database } from '@opensource-lib/better-sqlite3';
+import type { LoggerType } from '../../../logger/types';
 import {
   getSchemaVersion,
   getSQLCipherVersion,
@@ -58,6 +58,7 @@ import {
   updateToSchemaVersion36,
   updateToSchemaVersion37,
   updateToSchemaVersion38,
+  updateToSchemaVersion39,
 } from './schemaUpdater_36-40';
 
 const SCHEMA_VERSIONS: Array<
@@ -101,6 +102,7 @@ const SCHEMA_VERSIONS: Array<
   updateToSchemaVersion36,
   updateToSchemaVersion37,
   updateToSchemaVersion38,
+  updateToSchemaVersion39,
 ];
 
 export const maxUserSchemaVersion = SCHEMA_VERSIONS.length;

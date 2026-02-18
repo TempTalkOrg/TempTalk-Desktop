@@ -170,7 +170,6 @@
     },
 
     async tryGetAttachmentsFromHTML(itemsArray) {
-      console.warn(itemsArray);
       let parseHTML = html => {
         let template = document.createElement('template');
         template.innerHTML = html;

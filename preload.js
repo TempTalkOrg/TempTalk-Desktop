@@ -10,15 +10,13 @@ window._lodash = require('lodash');
 const { isFileRegular } = require('./ts/util/isFileRegular');
 const MIME = require('./ts/types/MIME');
 const sanitize = require('sanitize-filename');
+const crypto = require('crypto');
 
 window.MESSAGE_MINIMUM_SUPPORTED_VERSION = 2;
 window.MESSAGE_CURRENT_VERSION = 2;
 
 const { platform, arch } = process;
 window.libCryptoClient = require(`./lib-crypto-client/${platform}/${arch}`);
-
-const { app, getCurrentWindow, dialog } = require('@electron/remote');
-window.getLocalLanguage = () => app.getLocale();
 
 const {
   globalConfig: globalConfigDefault,
@@ -63,6 +61,10 @@ window.getSystemTheme = () => config.systemTheme;
 window.getRunningUnderArch = () => config.runningUnderArch;
 window.isInsiderUpdate = () => config.insiderUpdateEnabled === 'true';
 window.getFlavorId = () => config.flavorId;
+window.getLocalLanguage = () => config.locale;
+
+const getTempDataPath = () => config.tempDataPath;
+const getUserDataPath = () => config.userDataPath;
 
 window.copyText = async text => {
   await navigator.clipboard.writeText(text).catch(() => {
@@ -160,7 +162,11 @@ ipc.on('unlink-current-device', async () => {
       error && error.stack ? error.stack : error
     );
 
-    dialog.showErrorBox('Logout Warning', 'Log out from server failed!');
+    await ipc.invoke(
+      'show-error-box',
+      'Logout Warning',
+      'Log out from server failed!'
+    );
   } finally {
     // always clear configuration data
     Whisper.events.trigger('manual-logout', {
@@ -196,19 +202,7 @@ window.restart = () => {
 };
 
 window.forceUpdateAlert = () => {
-  const options = {
-    type: 'error',
-    buttons: [window.i18n('downloadTooltip')],
-    message: window.i18n('forceUpdateLatestVersion'),
-    detail: '',
-  };
-
-  return dialog.showMessageBox(getCurrentWindow(), options);
-};
-
-window.wantQuit = () => {
-  window.log.info('want quit!');
-  app.quit();
+  ipc.send('force-update-alert');
 };
 
 window.relaunch = () => {
@@ -254,6 +248,7 @@ ipc.on('meeting-get-all-contacts', () => {
           id: item.id,
           avatarPath: item.avatarPath,
           name: item.name || item.id,
+          accountName: item.accountName,
         };
       }
       return undefined;
@@ -321,19 +316,6 @@ ipc.on('jump-message', (_, info) => {
 ipc.on('event-open-user-setting', () => {
   const myEvent = new Event('event-open-user-setting');
   window.dispatchEvent(myEvent);
-});
-
-ipc.on('open-profile', (_, uid, pos) => {
-  // 检查此会话是否存在
-  const c = window.ConversationController.get(uid);
-  if (!c) {
-    window.noticeError(window.i18n('number_not_register_error'));
-    return;
-  }
-  const ev = new CustomEvent('open-profile-with-position', {
-    detail: { uid, pos },
-  });
-  window.dispatchEvent(ev);
 });
 
 ipc.on('add-dark-overlay', () => {
@@ -411,32 +393,6 @@ window.showRemoveGroupAdminsWindow = groupId => {
   window.dispatchEvent(ev);
 };
 
-// window.showGroupEditorWindow = (options) => {
-//   ipc.send('show-group-editor', options);
-// }
-
-window.sendOperationResult = (operation, targetWinId, result) => {
-  if (!targetWinId) {
-    return;
-  }
-  const { BrowserWindow } = require('@electron/remote');
-  const targetWin = BrowserWindow.fromId(targetWinId);
-
-  if (targetWin) {
-    targetWin.webContents.send(operation, result);
-  } else {
-    window.log.info('window does not exists for window ID:', targetWinId);
-  }
-};
-
-// window.sendGroupOperationResult = (targetWinId, result) => {
-//   sendOperationResult('group-operation-result', targetWinId, result);
-// }
-
-window.sendEditResult = (targetWinId, result) => {
-  sendOperationResult('edit-result', targetWinId, result);
-};
-
 // create or edit group
 // this channel usually triggerred by group editor window.
 // and this listener usually transfer it to the whisper events
@@ -449,7 +405,13 @@ window.showCallWindow = () => {
   ipc.send('show-call-window');
 };
 
-window.openFileDefault = async (absPath, fileName, contentType) => {
+window.openFileDefault = async ({
+  path: relativePath,
+  absPath,
+  fileName,
+  contentType,
+  messageId,
+}) => {
   fileName = sanitize(fileName || '');
 
   let extension = '';
@@ -459,8 +421,20 @@ window.openFileDefault = async (absPath, fileName, contentType) => {
   }
 
   const ext = isFileRegular(extension);
-  const cacheDir = path.join(app.getPath('userData'), 'tempFiles/');
-  const newFileName = path.join(cacheDir, fileName);
+  const cacheDir = getTempDataPath();
+
+  const relativePathHash = crypto
+    .createHash('md5')
+    .update(relativePath || '')
+    .digest('hex');
+
+  const newFileName = path.join(
+    cacheDir,
+    messageId,
+    relativePathHash,
+    fileName
+  );
+
   try {
     await fse.ensureDir(cacheDir);
     await fse.copy(absPath, newFileName);
@@ -507,6 +481,9 @@ installSetter('audio-notification', 'setAudioNotification');
 installGetter('spell-check', 'getSpellCheck');
 installSetter('spell-check', 'setSpellCheck');
 
+installGetter('voice-playback-speed', 'getVoicePlaybackSpeed');
+installSetter('voice-playback-speed', 'setVoicePlaybackSpeed');
+
 installGetter('quit-topic-setting', 'getQuitTopicSetting');
 installSetter('quit-topic-setting', 'setQuitTopicSetting');
 
@@ -521,6 +498,9 @@ window.setAudioNotification = makeSettingSetter('audio-notification');
 
 window.getSpellCheck = makeSettingGetter('spell-check');
 window.setSpellCheck = makeSettingSetter('spell-check');
+
+window.getVoicePlaybackSpeed = makeSettingGetter('voice-playback-speed');
+window.setVoicePlaybackSpeed = makeSettingSetter('voice-playback-speed');
 
 window.getQuitTopicSetting = makeSettingGetter('quit-topic-setting');
 window.setQuitTopicSetting = makeSettingSetter('quit-topic-setting');
@@ -728,7 +708,8 @@ window.moment.locale(locale.toLowerCase());
 
 window.Signal = Signal.setup({
   Attachments,
-  userDataPath: app.getPath('userData'),
+  userDataPath: getUserDataPath(),
+  tempDataPath: getTempDataPath(),
   getRegionCode: () => window.storage.get('regionCode'),
   logger: window.log,
 });
@@ -757,7 +738,7 @@ window.electronConfirm = async (
     defaultId: okButton,
   };
 
-  const res = await dialog.showMessageBox(getCurrentWindow(), newOptions);
+  const res = await ipc.invoke('show-message-box', newOptions);
   return res.response === okButton;
 };
 
@@ -881,19 +862,26 @@ ipc.on('query-user-by-inviteCode', async (_, pi) => {
     await window.Signal.Data.updateConversation(conversation.attributes, {
       Conversation: Whisper.Conversation,
     });
-    Whisper.events.trigger('showConversation', uid);
+    Whisper.events.trigger(
+      'showConversation',
+      uid,
+      undefined,
+      undefined,
+      undefined,
+      { type: 'link' }
+    );
     const myEvent = new Event('event-toggle-switch-chat');
     window.dispatchEvent(myEvent);
   } catch (e) {
     console.log(e);
-    alert(JSON.stringify(e));
+    window.alert(JSON.stringify(e));
   }
 });
 
-window.isDBLegacyInitilized = config.dbInitilized == 'true';
+window.isDBLegacyInitialized = config.dbInitialized == 'true';
 
-let dbInitilized = window.isDBLegacyInitilized;
-window.hasDBInitialized = () => dbInitilized;
+let dbInitialized = window.isDBLegacyInitialized;
+window.hasDBInitialized = () => dbInitialized;
 
 function makeIpcCall(name) {
   return params =>
@@ -944,7 +932,7 @@ class InvalidKeyPairsError extends Error {
 }
 
 window.tryToInitDatabase = async () => {
-  if (dbInitilized) {
+  if (dbInitialized) {
     return;
   }
 
@@ -1003,7 +991,7 @@ window.tryToInitDatabase = async () => {
   }
 
   try {
-    dbInitilized = await ipcInitDBWithSecret(secretDBKey);
+    dbInitialized = await ipcInitDBWithSecret(secretDBKey);
   } catch (error) {
     log.error('ipcInitDBWithSecret failed:', error);
     throw new NotMatchedSecretError('Secret is not matched with database');
@@ -1048,7 +1036,13 @@ window.uploadSecretDBKey = async (deviceInfo, showMessageBeforeConfirm) => {
     log.error('saveSecretDBKey error:', error);
     throw new Error('confirm secret failed');
   }
+
+  // mark as upgraded
+  await textsecure.storage.remove('should-upgrade-db-key');
+  await textsecure.storage.put('legacy-db-key-upgraded', true);
 };
+
+window.ensureDatabaseAuxObjects = makeIpcCall('ensureDatabaseAuxObjects');
 
 ipcRenderer.on('is-caller-directory-user', (_event, callerId) => {
   const conversation = window.ConversationController?.get(callerId);
@@ -1063,6 +1057,7 @@ window.dispatchCallMessage = async (type, payload) => {
   ipcRenderer.send('dispatch-call-message', type, {
     ...payload,
     serviceUrls: await window.Signal.Network.getCallServiceUrls(),
+    quicEnabled: window.Signal.GrayService.isInGray('quic'),
   });
 };
 
@@ -1102,14 +1097,15 @@ window.joinCall = async ({ type, roomId, conversation, ...extra }) => {
     type,
     isPrivate,
     roomId,
-    groupId: conversation,
-    number: conversation,
+    groupId: type === 'group' ? conversation : undefined,
+    number: type === '1on1' ? conversation : undefined,
     ...extra,
     username,
     password,
     deviceId,
     serviceUrls: await window.Signal.Network.getCallServiceUrls(),
     criticalAlert: conversationModel?.isCriticalAlertEnabled(),
+    quicEnabled: window.Signal.GrayService.isInGray('quic'),
   });
 };
 
@@ -1180,20 +1176,26 @@ async function saveCallLocalMessage(conversationIds, options) {
   const globalConfig = window.getGlobalConfig();
   const recallConfig = globalConfig.recall;
 
-  const { source, serverTimestamp, action } = options;
+  const { source, serverTimestamp, action, version, allDelivers } = options;
 
   const text = getCallTextMessage(action, options.type, source);
 
   for (const id of conversationIds) {
     const conversation = ConversationController.get(id);
     if (!conversation) {
-      window.log.warn('Not found conversation for', id);
       continue;
     }
-    const timestamp = textsecure.CallHelper.generateCallMessageTimestamp({
-      ...options,
-      id,
-    });
+    let timestamp;
+    if (version === 2) {
+      timestamp = allDelivers.find(
+        deliver => deliver.number === id || deliver.gid === id
+      )?.timestamp;
+    } else {
+      timestamp = textsecure.CallHelper.generateCallMessageTimestamp({
+        ...options,
+        id,
+      });
+    }
 
     let members;
 
@@ -1252,7 +1254,7 @@ function getCallTextMessage(action, type, callerId) {
       return `${callerName} invites you to a call`;
     }
     case textsecure.CallActionType.CriticalAlert: {
-      return '🚨 Sent a Critical Alert.';
+      return window.i18n('callActionText.criticalAlert');
     }
     default: {
       return '';
@@ -1262,6 +1264,35 @@ function getCallTextMessage(action, type, callerId) {
 
 window.getCallTextMessage = getCallTextMessage;
 
+function saveCallLocalMessageV2(data) {
+  const {
+    action,
+    type,
+    serverTimestamp,
+    privateMessageDelivers,
+    groupMessageDelivers,
+    version,
+  } = data;
+
+  const ourNumber = textsecure.storage.user.getNumber();
+
+  const allDelivers = [...privateMessageDelivers, ...groupMessageDelivers];
+  const conversationIds = allDelivers.map(
+    deliver => deliver.number || deliver.gid
+  );
+
+  saveCallLocalMessage(conversationIds, {
+    source: ourNumber,
+    sourceDevice: 2,
+    action,
+    ourNumber,
+    serverTimestamp,
+    type,
+    version,
+    allDelivers,
+  });
+}
+
 ipc.on('send-call-text', (event, data) => {
   const {
     action,
@@ -1270,11 +1301,17 @@ ipc.on('send-call-text', (event, data) => {
     createCallMsg,
     timestamp,
     serverTimestamp,
+    version,
   } = data;
 
   const ourNumber = textsecure.storage.user.getNumber();
 
   if (createCallMsg) {
+    if (version === 2) {
+      saveCallLocalMessageV2(data);
+      return;
+    }
+
     saveCallLocalMessage(conversationIds, {
       source: ourNumber,
       timestamp,
@@ -1305,7 +1342,7 @@ window.preloadCallWindow = () => {
 
 window.showMessageInSeparateView = data => {
   try {
-    ipc.send('update-separate-view-data', data);
+    ipc.send('show-separate-view', data);
   } catch (e) {
     console.log('show message in separate view error', e);
   }
@@ -1373,6 +1410,52 @@ ipc.on('finish-join-call', (event, conversationId, timestamp) => {
   conversation.resetLatestCriticalAlert(timestamp);
 });
 
-window.hideCriticalAlertWindow = conversationId => {
-  ipc.send('hide-critical-alert-window', conversationId);
+window.hideCriticalAlertWindow = id => {
+  ipc.send('hide-critical-alert-window', id);
 };
+
+ipc.on('get-message-props', async (event, messageId) => {
+  const message = await getMessageById(messageId);
+
+  const messageDetail = message.getPropsForMessageDetail();
+
+  ipcRenderer.send(
+    `get-message-${messageId}-props-success`,
+    JSON.parse(JSON.stringify(messageDetail.message || {}))
+  );
+});
+
+ipc.on('call-window-closed', () => {
+  Whisper.events.trigger('callAdd', {});
+});
+
+ipc.on('add-sidebar-item', (event, data) => {
+  Whisper.events.trigger('add-sidebar-item', data);
+});
+
+ipc.on('remove-sidebar-item', (event, data) => {
+  Whisper.events.trigger('remove-sidebar-item', data);
+});
+
+window.showIndividualWindow = category => {
+  ipc.send('show-individual-window', category);
+};
+
+window.getMeetingVersion = (() => {
+  let meetingVersion = undefined;
+
+  return () => {
+    if (meetingVersion !== undefined) {
+      return meetingVersion;
+    }
+
+    const MAC_MEETINGVERSION = 3;
+    const LINUX_MEETINGVERSION = 1;
+
+    meetingVersion = window.Signal.OS.isMacOS()
+      ? MAC_MEETINGVERSION
+      : LINUX_MEETINGVERSION;
+
+    return meetingVersion;
+  };
+})();

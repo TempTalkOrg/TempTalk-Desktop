@@ -1,7 +1,8 @@
-import React, { Component } from 'react';
+import React, { useEffect, useState } from 'react';
 import { LocalizerType } from '../../types/Util';
 import { Radio, Space, Modal } from 'antd';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
+import { useMemoizedFn } from 'ahooks';
 
 interface LanguageProps {
   i18n: LocalizerType;
@@ -21,30 +22,37 @@ const getInitialData = async () => ({
   originalLanguage: await mainWindow.getOriginalLanguage(),
 });
 
-export class LanguageSetting extends Component<LanguageProps, LanguageState> {
-  constructor(props: Readonly<LanguageProps>) {
-    super(props);
-    this.state = {
-      language: 'en',
-      originalLanguage: 'en',
-    };
-    getInitialData().then(data => {
-      this.setState({
-        language: data.language,
-        originalLanguage: data.originalLanguage,
-      });
-    });
-  }
+export const LanguageSetting = (props: LanguageProps) => {
+  const { i18n } = props;
+  const [settings, setSettings] = useState<LanguageState>({
+    language: 'en',
+    originalLanguage: 'en',
+  });
 
-  public onLanguageChange = async (event: any) => {
-    const { i18n } = this.props;
-    const { originalLanguage } = this.state;
+  const initData = useMemoizedFn(async () => {
+    try {
+      const data = await getInitialData();
+      setSettings(data);
+    } catch (error: any) {
+      mainWindow.log.error(
+        'settings.initialRequest error:',
+        error && error.stack ? error.stack : error
+      );
+    }
+  });
+
+  useEffect(() => {
+    initData();
+  }, []);
+
+  const onLanguageChange = useMemoizedFn(async (event: any) => {
     const language = event?.target?.value;
-    this.setState({
+    setSettings(prev => ({
+      ...prev,
       language,
-    });
+    }));
     await mainWindow.setLanguage(language);
-    if (originalLanguage === language) {
+    if (settings.originalLanguage === language) {
       return;
     }
     Modal.confirm({
@@ -60,37 +68,28 @@ export class LanguageSetting extends Component<LanguageProps, LanguageState> {
         // this.setState({ language });
       },
     });
-  };
+  });
 
-  renderSettingItems() {
-    const { language } = this.state;
-    return (
-      <div className={'language-setting-content'}>
-        <Radio.Group onChange={this.onLanguageChange} value={language}>
-          <Space direction="vertical">
-            <Radio value={'en'}>English</Radio>
-            <Radio value={'zh-CN'}>简体中文</Radio>
-          </Space>
-        </Radio.Group>
+  const { closeSetting, title } = props;
+
+  return (
+    <div id="common-setting" className="common-setting">
+      <div className="common-setting header-bg"></div>
+      <div className="common-setting bottom-bg"></div>
+      <div className="common-setting page-title"> {title} </div>
+      <div className="common-setting close-button" onClick={closeSetting}>
+        <div className="close-button-inner"></div>
       </div>
-    );
-  }
-
-  render() {
-    const { closeSetting, title } = this.props;
-
-    return (
-      <div id="common-setting" className="common-setting">
-        <div className="common-setting header-bg"></div>
-        <div className="common-setting bottom-bg"></div>
-        <div className="common-setting page-title"> {title} </div>
-        <div className="common-setting close-button" onClick={closeSetting}>
-          <div className="close-button-inner"></div>
-        </div>
-        <div className="setting-list-content sub-setting-content">
-          {this.renderSettingItems()}
+      <div className="setting-list-content sub-setting-content">
+        <div className={'language-setting-content'}>
+          <Radio.Group onChange={onLanguageChange} value={settings.language}>
+            <Space direction="vertical">
+              <Radio value={'en'}>English</Radio>
+              <Radio value={'zh-CN'}>简体中文</Radio>
+            </Space>
+          </Radio.Group>
         </div>
       </div>
-    );
-  }
-}
+    </div>
+  );
+};

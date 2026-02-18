@@ -9,6 +9,7 @@ window.ReactDOM.render(
     from: window.getFrom(),
     title: window.getTitle(),
     isPrivate: window.getIsPrivate(),
+    roomId: window.getRoomId(),
   }),
   document.querySelector('.critical-alert-root')
 );

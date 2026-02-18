@@ -40,6 +40,7 @@ window.getIncomingCallInfo = () => {
     ourName: config.ourName,
     serviceUrls: config.serviceUrls,
     criticalAlert: config.criticalAlert === 'true',
+    quicEnabled: config.quicEnabled === 'true',
   };
 };
 

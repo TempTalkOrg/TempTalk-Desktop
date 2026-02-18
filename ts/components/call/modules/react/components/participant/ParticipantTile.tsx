@@ -19,7 +19,7 @@ import {
 } from '../../context';
 import { VideoTrack } from './VideoTrack';
 import { AudioTrack } from './AudioTrack';
-import { useParticipantTile } from '../../hooks';
+import { useParticipants, useParticipantTile } from '../../hooks';
 import { PinchableBlock, PinchableBlockInstance } from '../layout/FocusLayout';
 import { ZoomIn } from './ZoomIn';
 import { ZoomReset } from './ZoomReset';
@@ -29,6 +29,10 @@ import { useParticipantContextMenu } from '../../hooks/useParticipantContextMenu
 import classNames from 'classnames';
 import { ContextMenu } from '../../../../../shared/ContextMenu';
 import { IconScreenShare } from '../../../../../shared/icons';
+import { remove } from 'lodash';
+import { deferredSpeakingParticipantAtom } from '../../../../atoms/deferredSpeakingParticipantAtom';
+import { useAtomValue } from 'jotai';
+import { Tooltip } from 'antd';
 
 export function ParticipantContextIfNeeded(
   props: React.PropsWithChildren<{
@@ -60,6 +64,80 @@ export function TrackRefContextIfNeeded(
   );
 }
 
+const MicOnLineUp = () => {
+  const participants = useParticipants();
+  const deferredSpeakingParticipant = useAtomValue(
+    deferredSpeakingParticipantAtom
+  );
+
+  const featureFlags = useFeatureContext();
+
+  const i18n = featureFlags?.i18n;
+  const renderParticipantPlaceholder =
+    featureFlags?.renderParticipantPlaceholder;
+  const nameFormatter = featureFlags?.nameFormatter;
+
+  const lineUpForDisplay = remove(
+    participants.filter(participant => participant.isMicrophoneEnabled),
+    p => p !== deferredSpeakingParticipant
+  ).slice(0, 3);
+
+  if (!lineUpForDisplay.length) {
+    return null;
+  }
+
+  return (
+    <Tooltip
+      trigger="hover"
+      placement="bottom"
+      overlayClassName="mic-on-line-up-tooltip"
+      align={{
+        offset: [10, 14],
+      }}
+      title={
+        <div className="mic-on-line-up-tooltip-content">
+          <p className="mic-on-line-up-names">
+            <span className="mic-on-line-up-names-prefix">
+              {i18n?.('micOnLineUpPrefix')}
+            </span>
+            <span className="mic-on-line-up-names-content">
+              {lineUpForDisplay
+                .map(participant => nameFormatter?.(participant) || '')
+                .join(',')}
+            </span>
+          </p>
+        </div>
+      }
+    >
+      <div className="mic-on-line-up">
+        <div className="mic-on-line-up-divider"></div>
+        <div
+          className={classNames([
+            'mic-on-line-up-participants',
+            {
+              'is-multi-participants': lineUpForDisplay.length > 1,
+            },
+            `participant-count-${lineUpForDisplay.length}`,
+          ])}
+        >
+          {lineUpForDisplay.map((participant, index) => (
+            <div
+              key={participant.identity}
+              className="mic-on-line-up-participant"
+              style={{
+                zIndex: lineUpForDisplay.length - index,
+              }}
+            >
+              {renderParticipantPlaceholder?.(participant, { size: 16 }) ??
+                null}
+            </div>
+          ))}
+        </div>
+      </div>
+    </Tooltip>
+  );
+};
+
 /** @public */
 export interface ParticipantTileProps
   extends React.HTMLAttributes<HTMLDivElement> {
@@ -72,7 +150,6 @@ export interface ParticipantTileProps
   index?: number;
   isFocus?: boolean;
   onRestPlaceholderClick?: () => void;
-  hideSourcePrefix?: boolean;
   renderPlaceholderExtraProps?: Record<string, any>;
   toggleable?: boolean;
   renderExtraCount?: boolean;
@@ -91,7 +168,6 @@ export const ParticipantTile = /* @__PURE__ */ React.forwardRef<
     index,
     isFocus,
     onRestPlaceholderClick,
-    hideSourcePrefix,
     renderPlaceholderExtraProps,
     toggleable,
     renderExtraCount,
@@ -105,6 +181,8 @@ export const ParticipantTile = /* @__PURE__ */ React.forwardRef<
   const containerRef = React.useRef<any>(null);
   const pinchableRef = React.useRef<PinchableBlockInstance>(null);
   const [isExpand, setIsExpand] = React.useState(false);
+
+  const type = featureFlags?.type;
 
   React.useEffect(() => {
     if (trackReference.source === Track.Source.ScreenShare) {
@@ -179,7 +257,7 @@ export const ParticipantTile = /* @__PURE__ */ React.forwardRef<
 
   const extraCount = React.useMemo(() => {
     if (!participantCount) return 0;
-    return participantCount - 16 + 1;
+    return participantCount - 15 + 1;
   }, [participantCount]);
 
   const setRefs = React.useCallback(
@@ -232,9 +310,7 @@ export const ParticipantTile = /* @__PURE__ */ React.forwardRef<
                 style={{ marginRight: '0.25rem' }}
                 className="call-icon main-screen-share-icon"
               />
-              <ParticipantName>
-                {hideSourcePrefix ? '' : "'s screen"}
-              </ParticipantName>
+              <ParticipantName></ParticipantName>
             </>
           )}
         </div>
@@ -279,7 +355,14 @@ export const ParticipantTile = /* @__PURE__ */ React.forwardRef<
 
   if (!isExpand && toggleable) {
     return (
-      <div className="lk-participant-tile-minimal-view">
+      <div
+        className={classNames([
+          'lk-participant-tile-minimal-view',
+          isExpand ? 'is-expand' : 'is-collapse',
+          `room-type-${type}`,
+        ])}
+        onClick={() => setIsExpand(!isExpand)}
+      >
         <div className="lk-participant-tile-minimal-view-metadata">
           <TrackMutedIndicator
             trackRef={{
@@ -290,7 +373,7 @@ export const ParticipantTile = /* @__PURE__ */ React.forwardRef<
           ></TrackMutedIndicator>
           <ParticipantName />
         </div>
-
+        {type !== '1on1' && <MicOnLineUp />}
         {renderToggleableIcon()}
       </div>
     );

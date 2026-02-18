@@ -1,16 +1,19 @@
-import { LoggerType } from '../../logger/types';
-
-import { AttachmentDownloadJobDBType, UnprocessedDBType } from '../sqlTypes';
-import { ILocalDBAccelerator } from '../dbInterface';
+import type { LoggerType } from '../../logger/types';
+import type { Database } from '@opensource-lib/better-sqlite3';
+import type {
+  AttachmentDownloadJobDBType,
+  UnprocessedDBType,
+} from '../sqlTypes';
+import type { ILocalDBAccelerator } from '../dbInterface';
 
 import { updateSchema } from '../schemaMigrate/accelerator';
-
 import { Sqlite3Database } from './sqlite3Database';
 import { TableUnprocessed } from '../sqlTables/sqlTableUnprocessed';
 import { TableAttachmentDownloads } from '../sqlTables/sqlTableAttachmentDownloads';
-import { Database } from '@signalapp/better-sqlite3';
+
 import { join } from 'path';
 import { countTableRows } from '../utils/sqlUtils';
+import fileSize from 'filesize';
 
 export class DBAccelerator
   extends Sqlite3Database
@@ -30,6 +33,7 @@ export class DBAccelerator
       this.rekey,
       this.backup,
       this.getFilesSize,
+      this.getReport,
 
       // unprocessed
       this.saveUnprocessed,
@@ -194,5 +198,26 @@ export class DBAccelerator
     const db = this.getConnection();
 
     db.exec(`DELETE FROM unprocessed;`);
+  }
+
+  getReport(): Record<string, unknown> {
+    const report = { name: 'acc' };
+
+    try {
+      Object.assign(report, { size: fileSize(this.getFilesSize()) });
+
+      const db = this.getConnection();
+
+      Object.assign(report, {
+        summary: [
+          countTableRows(db, 'unprocessed'),
+          countTableRows(db, 'attachment_downloads'),
+        ],
+      });
+    } catch (error) {
+      Object.assign(report, { error: 'database is not initialized.' });
+    }
+
+    return report;
   }
 }

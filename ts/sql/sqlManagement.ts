@@ -5,7 +5,7 @@ import attachmentChannel from '../../app/attachment_channel';
 import { app, clipboard, dialog } from 'electron';
 import { redactAll } from '../../js/modules/privacy';
 import { formatError } from '../logger/utils';
-import { LoggerType } from '../logger/types';
+import type { LoggerType } from '../logger/types';
 import { consoleLogger } from '../logger/consoleLogger';
 
 export class SqlManagement {
@@ -48,7 +48,7 @@ export class SqlManagement {
     await attachmentChannel.initialize({
       configDir,
       cleanupOrphanedAttachments: () =>
-        this.cleanupOrphanedAttachments(configDir),
+        this.cleanupOrphanedAttachments(configDir, true),
     });
 
     this.initialized = true;
@@ -58,20 +58,41 @@ export class SqlManagement {
     return this.initialized;
   }
 
-  async cleanupOrphanedAttachments(configDir: string) {
+  async cleanupOrphanedAttachments(
+    configDir: string,
+    requireDoubleCheck: boolean = false
+  ) {
+    const logger = this.getLogger();
     const allAttachments = await attachments.getAllAttachments(configDir);
 
-    // @ts-ignore
-    const orphanedAttachments = await this.sql.sqlCallEasy(
-      'removeKnownAttachments',
-      allAttachments
+    const regex = /^[0-9a-f]{2}\/[0-9a-f]{64}$/;
+    const [unmatchedSet, matchedSet] = allAttachments.reduce(
+      (acc, value) => {
+        acc[Number(regex.test(value))].add(value);
+        return acc;
+      },
+      [new Set<string>(), new Set<string>()]
     );
 
-    // TODO:// current do not delete files
-    // await attachments.deleteAll({
-    //   userDataPath,
-    //   attachments: orphanedAttachments,
-    // });
+    logger.info(
+      `cleanupOrphanedAttachments: About ${matchedSet.size},${unmatchedSet.size} attachments`
+    );
+
+    const orphanedAttachments: string[] = await this.sql.sqlCallEasy(
+      'removeKnownAttachments',
+      Array.from(matchedSet),
+      requireDoubleCheck
+    );
+
+    await attachments.deleteAll({
+      userDataPath: configDir,
+      attachments: orphanedAttachments,
+    });
+
+    this.getLogger().info(
+      'cleanupOrphanedAttachments: done with files:',
+      orphanedAttachments.length
+    );
   }
 
   async close(exit: boolean) {
@@ -86,7 +107,7 @@ export class SqlManagement {
   }
 
   async backup() {
-    await this.sql.backup();
+    return await this.sql.backup();
   }
 
   async onDatabaseError(
@@ -125,5 +146,17 @@ export class SqlManagement {
     }
 
     app.exit(1);
+  }
+
+  async getReport() {
+    return await this.sql.getReport();
+  }
+
+  async ensureAuxObjects() {
+    const report = await this.getReport();
+    this.getLogger().info('ensureAuxObjects db report:', report);
+
+    await this.sql.sqlCallEasy('rebuildIndexesIfNotExists');
+    await this.sql.sqlCallEasy('rebuildTriggersIfNotExists');
   }
 }

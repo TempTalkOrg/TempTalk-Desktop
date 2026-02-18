@@ -70,6 +70,12 @@
         "me": 0,
         "other": 2592000,
         "group": 2592000
+      },
+      "activeConversation": {
+        "default": 604800,
+        "me": 0,
+        "other": 604800,
+        "group": 604800
       }
     },
     "recall": {
@@ -102,6 +108,32 @@
         "Please go faster",
         "Gotta go, bye"
       ],
+      "chatMessage": {
+        "maxLength": 30
+      },
+      "bubbleMessage": {
+        "emojiPresets": [
+          "👍",
+          "👏",
+          "🎉",
+          "🚀",
+          "❤️",
+          "😂"
+        ],
+        "textPresets": [
+          "Agree ✅",
+          "Disagree ⛔️",
+          "Bye 👋",
+          "Can't hear 🙉"
+        ],
+        "columns": [
+          10,
+          40,
+          70
+        ],
+        "baseSpeed": 4600,
+        "deltaSpeed": 400
+      },
       "chat": {
         "autoHideTimeout": 9000
       },
@@ -112,6 +144,7 @@
       }
     },
     "group": {
+      "confidentialModeThreshold": 20,
       "chatWithoutReceiptThreshold": 50,
       "membersMaxSize": 200,
       "messageArchivingTimeOptionValues": [

@@ -4,11 +4,12 @@ export type TableType =
   | 'identityKeys'
   | 'items'
   | 'messages'
-  | 'messages_expired'
   | 'preKeys'
   | 'sessions'
   | 'signedPreKeys'
   | 'unprocessed';
+
+export type ExtendedTableType = TableType | 'read_positions';
 
 export type EmptyQuery = [];
 export type ArrayQuery = Array<Array<null | number | bigint | string>>;

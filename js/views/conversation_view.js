@@ -40,10 +40,13 @@
     template: $('#conversation').html(),
     render_attributes() {
       return {
-        'send-message': i18n('sendMessage', [
-          this.getPlaceholderForMessageField(),
-        ]),
+        'send-message': this.getPlaceholder(),
       };
+    },
+    getPlaceholder() {
+      return this.getMessageMode() === 'confidential'
+        ? i18n('confidential-mode-placeholder')
+        : i18n('sendMessage', [this.getPlaceholderForMessageField()]);
     },
     initialize(options) {
       this.selectedMessages = new Whisper.MessageCollection();
@@ -59,6 +62,10 @@
           this.updateHeader();
         }
       );
+
+      this.listenTo(this.model, 'change:directoryUser', () => {
+        this.updateUnknowUserIndicator();
+      });
 
       this.listenTo(this.model, 'blockedToSend', this.showUnblockedToast);
       this.listenTo(this.model, 'sendHistory', this.quickSendHistory);
@@ -108,10 +115,7 @@
         this.model,
         'change:name change:remarkName update_view threadModeChange',
         () => {
-          this.$messageField.prop(
-            'placeholder',
-            i18n('sendMessage', [this.getPlaceholderForMessageField()])
-          );
+          this.updateMessageFieldPlaceholder();
 
           window.autosize.update(this.$messageField);
           this.updateMessageFieldSize({});
@@ -124,6 +128,11 @@
         this.model.messageCollection,
         'show-message-in-separate-view',
         this.showMessageInSeparateView
+      );
+      this.listenTo(
+        this.model.messageCollection,
+        'show-message-in-enlarge-view',
+        this.showMessageInEnlargeView
       );
 
       this.listenTo(
@@ -304,7 +313,7 @@
           }
 
           const timestamp = model.getServerTimestamp();
-          const dateTime = moment(timestamp).format('YYYYMMDD');
+          const dateTime = window.moment(timestamp).format('YYYYMMDD');
 
           if (!prevDateTime) {
             // 第一个 message dateSeparator 的空间留给 stickyDateView
@@ -359,7 +368,7 @@
       this.debounceTagVirtualIndex = _.debounce(() => {
         const models = this.model.messageCollection.models;
         this.tagVirtualIndex(models);
-        this.view.scrollToBottomIfNeeded();
+        this.view?.scrollToBottomIfNeeded?.();
       }, 100);
 
       this.listenTo(
@@ -504,6 +513,7 @@
           name: this.model.getName(),
           phoneNumber: this.model.getNumber(),
           profileName: this.model.getProfileName(),
+          accountName: this.model.getAccountName(),
           color: this.model.getColor(),
           avatarPath: this.model.getAvatarPath(),
           email: this.model.get('email'),
@@ -662,6 +672,7 @@
       setTimeout(() => {
         this.initComposeToolbar();
         this.updateMessageToolBar();
+        this.checkMessageMode();
       }, 0);
 
       this.atPersons = '';
@@ -676,6 +687,14 @@
         this.updateSettingDialog();
         // this.updateAtViewProps();
         this.updateHeader();
+      });
+
+      this.listenTo(this.model, 'change:members', () => {
+        this.checkMessageMode();
+      });
+
+      this.listenTo(this.model, 'change:confidentialMode', () => {
+        this.updateMessageFieldPlaceholder();
       });
 
       if (!this.model.isPrivate()) {
@@ -695,8 +714,28 @@
         });
       }
     },
+    updateMessageFieldPlaceholder() {
+      if (this.$messageField) {
+        this.$messageField.prop('placeholder', this.getPlaceholder());
+      }
+    },
     getMessageMode() {
       return this.model.get('confidentialMode') ? 'confidential' : 'normal';
+    },
+    checkMessageMode() {
+      const shouldVisible = this.model.isConfidentialModeAvaliable();
+      const currentMode = this.getMessageMode();
+
+      this.updateComposeToolbar({
+        messageMode: {
+          visible: shouldVisible,
+          mode: currentMode,
+        },
+      });
+
+      if (!shouldVisible && currentMode === 'confidential') {
+        this.model.setConfidentialMode(0);
+      }
     },
     initComposeToolbarProps() {
       const toolbarProps = {
@@ -769,6 +808,11 @@
         return false;
       }
     },
+    updateMessageMode() {
+      this.updateComposeToolbar({
+        messageMode: { mode: this.getMessageMode() },
+      });
+    },
     updateComposeToolbar(newProps) {
       const messageModeVisibleChanged = this.toolbarItemVisibleChanged(
         newProps,
@@ -791,13 +835,17 @@
 
       if (messageModeVisibleChanged) {
         if (this.composeToolbarProps.messageMode.visible) {
-          this.listenTo(this.model, 'change:confidentialMode', () => {
-            this.updateComposeToolbar({
-              messageMode: { mode: this.getMessageMode() },
-            });
-          });
+          this.listenTo(
+            this.model,
+            'change:confidentialMode',
+            this.updateMessageMode
+          );
         } else {
-          this.stopListening(this.model, 'change:confidentialMode');
+          this.stopListening(
+            this.model,
+            'change:confidentialMode',
+            this.updateMessageMode
+          );
         }
       }
     },
@@ -821,7 +869,7 @@
           });
         } else {
           this.updateComposeToolbar({
-            messageMode: { visible: true },
+            messageMode: { visible: this.model.isConfidentialModeAvaliable() },
             attachmentSelector: { visible: true },
             shareContact: { visible: true },
             localSearch: { visible: true },
@@ -831,7 +879,9 @@
         }
         this.updateComposeToolbar({ atPerson: { visible: false } });
       } else {
-        this.updateComposeToolbar({ messageMode: { visible: true } });
+        this.updateComposeToolbar({
+          messageMode: { visible: this.model.isConfidentialModeAvaliable() },
+        });
       }
 
       // non-directory user or leaved group
@@ -890,12 +940,8 @@
     getPropsForFriendRequestBar() {
       return {
         i18n,
-        findyouDescribe: this.model.get('findyouDescribe'),
-        isBlocked: this.model.isBlocked(),
-        setBlockStatus: blocked => this.setBlockStatus(blocked),
         acceptFriendRequest: async () => this.model.acceptFriendRequest(),
-        reportAbnormalUser: async (type, reason, block) =>
-          this.model.reportAbnormalUser(type, reason, block),
+        ignoreFriendRequest: () => this.unload('ignore friend request'),
       };
     },
     updateFriendRequestBar() {
@@ -904,6 +950,7 @@
           this.friendRequestBar.update(this.getPropsForFriendRequestBar());
         } else {
           this.friendRequestBar = new Whisper.ReactWrapperView({
+            enableAntdConfigProvider: true,
             className: 'friend-request-option',
             Component: window.Signal.Components.FriendRequestOption,
             elCallback: el => this.$('.friend-request-option').append(el),
@@ -1034,6 +1081,9 @@
       this.showToast(
         i18n('exceedingMaxNumberOfSelection', MAX_SELECTION_COUNT)
       );
+    },
+    showDangerousFileTypeToast() {
+      this.showToast(i18n('dangerousFileType'));
     },
     onChooseAttachment(e) {
       if (!this.model.isMeCanSpeak()) {
@@ -1184,6 +1234,7 @@
             phoneNumber: item.getNumber(),
             name: item.getName(),
             profileName: item.getProfileName(),
+            accountName: item.getAccountName(),
             verified: false,
             email: item.getEmail(),
             isMe: item.id === this.model.ourNumber,
@@ -1255,6 +1306,7 @@
         id: this.model.id,
         name: this.model.getName(),
         profileName: this.model.getProfileName(),
+        accountName: this.model.getAccountName(),
         color: this.model.getColor(),
         avatarPath: this.model.getAvatarPath(),
         i18n,
@@ -1303,7 +1355,9 @@
             };
             await conversation.updateGroup(groupUpdate);
             return true;
-          } catch (error) {}
+          } catch (error) {
+            window.log.error('failed to rename group name', error);
+          }
           return false;
         },
         onForwardTo: (conversationIds, inviteMessage) => {
@@ -1337,7 +1391,9 @@
             };
             await conversation.updateGroup(groupUpdate);
             return true;
-          } catch (error) {}
+          } catch (error) {
+            window.log.error('failed to transfer group owner', error);
+          }
           alert('Transfer group ownership failed, try again later.');
           return false;
         },
@@ -1466,7 +1522,9 @@
     },
     async onRequestFriend() {
       try {
-        await this.model.sendFriendRequest();
+        await this.model.sendFriendRequest(
+          this.model.isFriendRequesting() ? null : this.conversationFrom
+        );
         window.noticeSuccess(i18n('friendRequestSent'));
 
         this.model.forceSendMessageAuto(
@@ -1574,7 +1632,7 @@
       this.model.syncedBlock = false;
 
       const objectCleanup = (objectName, cleanup) => {
-        if (!this.hasOwnProperty(objectName)) {
+        if (!Object.hasOwn(this, objectName)) {
           // log.warn('there is no ', objectName, this.model.idForLogging());
           return;
         }
@@ -1692,7 +1750,7 @@
       this.$('.send-message').prop('disabled', true);
     },
     checkCallOrMeetingAlreadyExist() {
-      const store = inboxStore.getState();
+      const store = window.inboxStore.getState();
       const { calls } = store.conversations;
 
       if (_.isEmpty(calls)) {
@@ -1939,10 +1997,17 @@
         this.loadingView = null;
       }
     },
-    onOpened(messageId) {
+    onOpened(options) {
       this.openStart = Date.now();
       this.lastActivity = Date.now();
 
+      const { messageId, conversationFrom } = options || {};
+
+      if (conversationFrom) {
+        this.conversationFrom = conversationFrom;
+      }
+
+      this.model.setVoicePlaybackSpeed(window.Events.getVoicePlaybackSpeed());
       window.log.info(
         'Conversation onOpened:',
         this.model.idForLogging(),
@@ -1973,7 +2038,10 @@
           await this.model.apiGetSharedConfig();
           this.model.syncedShared = true;
         } catch (error) {
-          window.log.error('apiGetSharedConfig failed when open conversation');
+          window.log.error(
+            'apiGetSharedConfig failed when open conversation',
+            error
+          );
         }
       }, 0);
 
@@ -2453,6 +2521,8 @@
                   caption: '',
                   fileName: fileData.attachment.fileName,
                   contentType: fileData.contentType,
+                  messageId: fileData.message.id,
+                  path: fileData.attachment.path,
                 };
               });
 
@@ -2796,6 +2866,7 @@
               // ) {
               //   this.prependArchiveIndicatorIfNeeded(count);
               // }
+              this.updateUnknowUserIndicator();
             }, 0);
           }
 
@@ -3058,9 +3129,7 @@
 
     downloadAttachment({ attachment, message, isDangerous }) {
       if (isDangerous) {
-        const toast = new Whisper.DangerousFileTypeToast();
-        toast.$el.appendTo(this.$el);
-        toast.render();
+        this.showDangerousFileTypeToast();
         return;
       }
 
@@ -3079,13 +3148,10 @@
         resolve: () => {
           window.log.info('manully remove message', message.idForLogging());
 
-          window.Signal.Data.removeMessage(message.id, {
-            Message: Whisper.Message,
-          });
-
-          // using 'destroy' will unload all related views
           message.trigger('destroy');
+          window.Signal.Data.removeMessage(message);
           this.model.messageCollection.remove(message.id);
+
           this.resetPanel();
           this.updateHeader({
             showGroupEditButton: false,
@@ -3125,9 +3191,7 @@
       try {
         await this.model.recallMessage(message);
         //删除消息
-        await window.Signal.Data.removeMessage(message.id, {
-          Message: Whisper.Message,
-        });
+        await window.Signal.Data.removeMessage(message);
       } catch (error) {
         log.error('recall message failed, ', error);
       }
@@ -3343,6 +3407,13 @@
       if (!forwards || forwards.length < 1) {
         return;
       }
+
+      window.showMessageInSeparateView({
+        messageId: message.get('id'),
+        title,
+        mode: 'forward',
+      });
+      return;
 
       const collection = new Backbone.Collection(
         forwards.map(forward => {
@@ -4809,11 +4880,22 @@
             isMerged,
           });
         },
+        onBatchRecall: () => {
+          if (!this.selectedMessages) {
+            return;
+          }
+          this.selectedMessages.forEach(m => {
+            this.onRecallMessage(m);
+          });
+        },
         onCancel: () => this.multiSelectingModeChange(false),
         open: this.isSelecting,
         ourNumber: this.model.ourNumber,
         isDisabled: options.isDisabled,
         selectedCount: this.selectedMessages.length,
+        recallableCount: this.selectedMessages.filter(
+          m => m.isForwardable() && !m.isIncoming()
+        ).length,
         maxSelectionCount: MAX_SELECTION_COUNT,
       };
 
@@ -5403,6 +5485,15 @@
     },
     showMessageInSeparateView(data) {
       window.showMessageInSeparateView(data);
+    },
+    showMessageInEnlargeView(messageId) {
+      window.showMessageInSeparateView({ messageId, mode: 'text' });
+    },
+    updateUnknowUserIndicator() {
+      if (this.model.isPrivate()) {
+        const isDirectoryUser = this.model.isDirectoryUser();
+        this.view?.prependUnknowUserIndicatorIfNeeded?.(isDirectoryUser);
+      }
     },
   });
 })();

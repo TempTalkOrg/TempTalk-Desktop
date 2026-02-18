@@ -9,7 +9,6 @@ const {
   isFunction,
   isObject,
   map,
-  merge,
   set,
 } = require('lodash');
 
@@ -113,10 +112,9 @@ module.exports = {
   getMessageCount,
   saveMessage,
   saveMessages,
-  // saveMessagesLimit,
   saveMessagesWithBatcher,
   removeMessage,
-  _removeMessages,
+  removeMessages,
   waitForRemoveMessagesBatcherIdle,
   // getUnreadByConversation,
   // getUnreadByConversationAndMarkRead,
@@ -129,6 +127,8 @@ module.exports = {
   getAllMessageIds,
   getMessagesBySentAt,
   getExpiredMessages,
+  getClearableMessages,
+
   getOutgoingWithoutExpiresAt,
   getNextExpiringMessage,
   getMessagesByConversation,
@@ -193,9 +193,6 @@ module.exports = {
   getMentionsYouMessageCount,
   getMentionsAtYouMessage,
   getMentionsAtAllMessage,
-
-  rebuildMessagesIndexesIfNotExists,
-  rebuildMessagesTriggersIfNotExists,
 
   // get group member last active list except me
   getGroupMemberLastActiveList,
@@ -786,12 +783,19 @@ async function getMessageCount() {
 const removeMessagesBatcher = createBatcher({
   name: 'removeMessagesBatcher',
   wait: 300,
-  maxSize: 5,
-  processBatch: async ids => {
+  maxSize: 25,
+  processBatch: async messages => {
+    const ids = messages.map(message => message.id);
     window.log.info(`batch remove messages count: ${ids.length}`);
+
     if (ids.length) {
       try {
         await channels.removeMessage(ids);
+
+        // Note: It's very important that these models are fully hydrated because
+        //   we need to delete all associated on-disk files along with the database delete.
+        // eslint-disable-next-line no-await-in-loop
+        await Promise.all(messages.map(message => message.cleanup()));
       } catch (error) {
         const errorInfo =
           error && error.stack ? error.stack : JSON.stringify(error);
@@ -897,7 +901,7 @@ const saveMessagesBatcherOptions = {
 const saveMessagesBatcher = createBatcher(saveMessagesBatcherOptions);
 
 function saveMessagesWithBatcher(data) {
-  const models = data instanceof Array ? data : [data];
+  const models = Array.isArray(data) ? data : [data];
   models.forEach(m => saveMessagesBatcher.add(m));
 }
 
@@ -911,38 +915,14 @@ async function saveMessages(arrayOfMessages, { forceSave } = {}) {
   await channels.saveMessages(_cleanData(arrayOfMessages), { forceSave });
 }
 
-async function saveMessagesLimit(arrayOfMessages, { forceSave } = {}) {
-  const messageLen = arrayOfMessages.length;
-  const maxCount = 50;
-
-  let progress = 0;
-  for (let i = 0; i < arrayOfMessages.length / maxCount; i++) {
-    const start = i * maxCount;
-    const end = start + maxCount;
-    const updatedMessages = arrayOfMessages.slice(start, end);
-
-    progress += updatedMessages.length;
-    log.info(`saveMessagesLimit progress: ${progress}, total: ${messageLen}`);
-    await channels.saveMessages(_cleanData(updatedMessages), { forceSave });
-    await new Promise(r => setTimeout(r, 500));
-  }
+async function removeMessage(message) {
+  removeMessagesBatcher.add(message);
+  await removeMessagesBatcher.onIdle();
 }
 
-async function removeMessage(id, { Message }) {
-  // const message = await getMessageById(id, { Message });
-
-  // // Note: It's important to have a fully database-hydrated model to delete here because
-  // //   it needs to delete all associated on-disk files along with the database delete.
-  // if (message) {
-  //   await channels.removeMessage(id);
-  //   await message.cleanup();
-  // }
-  removeMessagesBatcher.add(id);
-}
-
-// Note: this method will not clean up external files, just delete from SQL
-async function _removeMessages(ids) {
-  ids.forEach(id => removeMessagesBatcher.add(id));
+async function removeMessages(messages) {
+  messages.forEach(m => removeMessagesBatcher.add(m));
+  await removeMessagesBatcher.onIdle();
 }
 
 async function waitForRemoveMessagesBatcherIdle() {
@@ -1066,6 +1046,16 @@ async function getMessagesBySentAt(sentAt, { MessageCollection }) {
 async function getExpiredMessages({ MessageCollection }) {
   const messages = await channels.getExpiredMessages();
   return new MessageCollection(messages);
+}
+
+async function getClearableMessages({ defaultMessageExpiry, Message }) {
+  const { messages, done } =
+    await channels.getClearableMessages(defaultMessageExpiry);
+
+  return {
+    messages: messages?.map(message => new Message(message)) || [],
+    done,
+  };
 }
 
 async function getOutgoingWithoutExpiresAt({ MessageCollection }) {
@@ -1432,14 +1422,6 @@ async function getMentionsAtAllMessage(
   });
 }
 
-async function rebuildMessagesIndexesIfNotExists() {
-  return await channels.rebuildMessagesIndexesIfNotExists();
-}
-
-async function rebuildMessagesTriggersIfNotExists() {
-  return await channels.rebuildMessagesTriggersIfNotExists();
-}
-
 // return [{number, lastActive}]
 async function getGroupMemberLastActiveList(conversationId) {
   return await channels.getGroupMemberLastActiveList(conversationId);
@@ -1458,10 +1440,7 @@ async function getUnhandledRecalls({ Message }) {
   return messages.filter(m => m).map(m => new Message(m));
 }
 
-async function getNextMessagesToCorrectTimer(ourNumber, { Message, limit }) {
-  const messages = await channels.getNextMessagesToCorrectTimer(
-    ourNumber,
-    limit
-  );
+async function getNextMessagesToCorrectTimer({ Message, limit }) {
+  const messages = await channels.getNextMessagesToCorrectTimer(limit);
   return messages.filter(m => m).map(m => new Message(m));
 }

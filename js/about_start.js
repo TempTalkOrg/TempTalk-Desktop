@@ -20,7 +20,6 @@ const setTheme = async theme => {
     color: themeEl.css('backgroundColor'),
     symbolColor: themeEl.css('color'),
   };
-
   window.changeTitleBarOverlay(overlay);
 };
 

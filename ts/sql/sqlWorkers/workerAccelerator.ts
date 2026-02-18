@@ -1,6 +1,6 @@
 import { expose } from 'threads/worker';
 import { Observable, Subject } from 'threads/observable';
-import { LoggerType, LogLevel } from '../../logger/types';
+import type { LoggerType, LogLevel } from '../../logger/types';
 import { DBAccelerator } from '../sqlDatabases/dbAccelerator';
 import { parentPort } from 'worker_threads';
 import { logSeqId, shouldTrace } from '../../logger/utils';

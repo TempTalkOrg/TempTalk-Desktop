@@ -1,9 +1,11 @@
 import { Participant } from '@cc-livekit/livekit-client';
 import { MenuProps } from 'antd';
 import * as React from 'react';
+import { LocalizerType } from '../../../../../types/Util';
 
 /** @internal */
 export interface FeatureFlags {
+  i18n: LocalizerType;
   autoSubscription?: boolean;
   nameFormatter?: (participant: Participant) => string;
   renderParticipantPlaceholder?: (
@@ -40,6 +42,7 @@ export interface FeatureFlags {
   isSupportSystemMode: boolean;
   screenShareMode: 'default' | 'system';
   onScreenShareModeChange: (mode: 'default' | 'system') => void;
+  onSendBubbleMessage?: (text: string) => void;
 }
 
 type FeatureContext<T extends boolean = false> = T extends true

@@ -3,6 +3,7 @@ import { ContactListItem } from './ContactListItem';
 import { AutoSizer, List, ScrollParams } from 'react-virtualized';
 import { LocalizerType } from '../types/Util';
 import { ConversationType } from '../state/ducks/conversations';
+import { IconClearCircle, IconSearch } from './shared/icons';
 
 type PropsType = {
   i18n: LocalizerType;
@@ -35,7 +36,7 @@ export class ContactCollect extends React.Component<PropsType, StateType> {
 
     this.state = { searchText: '', selectedId: -1, scrollTop: 0 };
 
-    this.externItems = 2;
+    this.externItems = 3;
 
     // this.menuTriggerRef = React.createRef();
     // this.showMenuBound = this.showMenu.bind(this);
@@ -68,6 +69,24 @@ export class ContactCollect extends React.Component<PropsType, StateType> {
       if (index === 0) {
         return (
           <ContactListItem
+            key={'add_contact'}
+            style={style}
+            phoneNumber={''}
+            name={i18n('main_header_add_contact')}
+            description={i18n('main_header_add_contact_description')}
+            color={'group-white'}
+            avatarPath={''}
+            i18n={i18n}
+            onClick={() => {
+              clickItem('add_contact');
+            }}
+            addContact={true}
+            isContactNewPane={isContactNewPane}
+          />
+        );
+      } else if (index === 1) {
+        return (
+          <ContactListItem
             key={'group_chats'}
             style={style}
             phoneNumber={''}
@@ -78,36 +97,15 @@ export class ContactCollect extends React.Component<PropsType, StateType> {
             onClick={() => {
               clickItem('group_chats');
               this.setState({
-                selectedId: 0,
+                selectedId: 1,
               });
             }}
             groupChats={true}
             isContactNewPane={isContactNewPane}
-            isSelected={selectedId === 0}
+            isSelected={selectedId === 1}
           />
         );
-      } else if (index === 1) {
-        //   return (
-        //     <ContactListItem
-        //       key={'all_bots'}
-        //       style={style}
-        //       phoneNumber={''}
-        //       name={i18n('allBotsTitle')}
-        //       color={'group-white'}
-        //
-        //       avatarPath={''}
-        //       i18n={i18n}
-        //       onClick={() => {
-        //         clickItem('all_bots');
-        //         this.setState({ selectedId: 1 });
-        //       }}
-        //       groupChats={false}
-        //       allBots={true}
-        //       isContactNewPane={isContactNewPane}
-        //       isSelected={selectedId === 1 ? true : false}
-        //     />
-        //   );
-        // } else if (index === 2) {
+      } else if (index === 2) {
         return (
           <div
             key={'contacts-title'}
@@ -119,7 +117,7 @@ export class ContactCollect extends React.Component<PropsType, StateType> {
         index = index - this.externItems;
       }
     }
-    const c = contacts[index];
+    const c: any = contacts[index];
 
     return (
       <ContactListItem
@@ -129,9 +127,10 @@ export class ContactCollect extends React.Component<PropsType, StateType> {
         phoneNumber={c.id}
         isMe={false}
         name={c.name}
-        color={(c as any).color}
-        profileName={(c as any).profileName}
-        avatarPath={(c as any).avatarPath}
+        color={c.color}
+        profileName={c.profileName}
+        avatarPath={c.avatarPath}
+        accountName={c.accountName}
         i18n={i18n}
         onClick={() => {
           clickItem(c.id);
@@ -140,7 +139,7 @@ export class ContactCollect extends React.Component<PropsType, StateType> {
           });
         }}
         useDefaultAvatarClick={true}
-        email={(c as any).email}
+        email={c.email}
         signature={c.signature}
         protectedConfigs={c.protectedConfigs}
         firstMatch={c.firstMatch}
@@ -157,7 +156,7 @@ export class ContactCollect extends React.Component<PropsType, StateType> {
    * change list key to force rerender, fix dynamic height error
    */
   public rowHeight = ({ index }: any) => {
-    if (!this.searching && index === 1) {
+    if (!this.searching && index === this.externItems - 1) {
       return 2;
     } else {
       return this.searching ? 76 : 56;
@@ -186,7 +185,7 @@ export class ContactCollect extends React.Component<PropsType, StateType> {
 
     this.searching = Boolean(searchText && searchText.length > 0);
 
-    const externItems = 2;
+    const externItems = this.externItems;
     let contactLen = contacts ? contacts.length + externItems : externItems;
     if (this.searching) {
       contactLen = contactLen - externItems;
@@ -196,7 +195,7 @@ export class ContactCollect extends React.Component<PropsType, StateType> {
       <div style={topStyle}>
         <div className="module-main-header">
           <div className="module-main-header__search">
-            <div role="button" className="module-main-header__search__icon" />
+            <IconSearch className="module-search-icon" />
             <input
               // style={ }
               type="text"
@@ -210,8 +209,7 @@ export class ContactCollect extends React.Component<PropsType, StateType> {
               spellCheck={false}
             />
             {searchText ? (
-              <div
-                role="button"
+              <IconClearCircle
                 className="module-main-header__search__cancel-icon"
                 onClick={this.clearSearch}
               />

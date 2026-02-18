@@ -6,7 +6,7 @@ import {
   currentCall,
 } from '../initCall';
 import { Room } from '@cc-livekit/livekit-client';
-import { roomAtom } from '../atoms/roomAtom';
+import { inviteMembersAtom, roomAtom } from '../atoms/roomAtom';
 import { useMemoizedFn } from 'ahooks';
 import { message } from 'antd';
 import { getLogger, makeMessageCollapseId } from '../utils';
@@ -15,6 +15,7 @@ import { formatInstantCallName } from '../../../util/formatInstantCallName';
 import { CallRoomCipher } from '../types';
 import { useGlobalConfig } from './useGlobalConfig';
 import { useParticipants } from '../modules/react';
+import playAudio from '../PlayAudio';
 
 interface IProps {
   room: Room;
@@ -33,6 +34,7 @@ export const useAddMember = ({
 }: IProps) => {
   const setRoomInfo = useSetAtom(roomAtom);
   const { createCallMsg } = useGlobalConfig();
+  const setInviteMembers = useSetAtom(inviteMembersAtom);
 
   const participants = useParticipants({ room });
   const currentMembers = useMemo(() => {
@@ -58,6 +60,8 @@ export const useAddMember = ({
         : currentCall.number,
     });
     onFinishAddMember?.();
+
+    playAudio('');
   };
 
   const handleInviteCallMembers = useMemoizedFn(
@@ -110,6 +114,14 @@ export const useAddMember = ({
         if (currentCall.type === '1on1') {
           convertToInstantCall();
         }
+
+        members.forEach(member => {
+          setInviteMembers(prev => {
+            const newSet = new Set(prev);
+            newSet.add(member);
+            return newSet;
+          });
+        });
       } catch (e: any) {
         message.error(e?.response?.reason);
       }

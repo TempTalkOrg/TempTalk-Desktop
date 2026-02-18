@@ -18,11 +18,10 @@ type ControlBarTooltipData = {
   tooltipProps: TooltipProps;
 };
 
-const i18n = (window as any).i18n;
-
 export const useControlBarTooltip = (): ControlBarTooltipData => {
   const { localParticipant } = useLocalParticipant();
-  const featureFlags = useFeatureContext();
+  const featureFlags = useFeatureContext(true);
+  const i18n = featureFlags.i18n;
 
   const videoText = useMemo(() => {
     return i18n(

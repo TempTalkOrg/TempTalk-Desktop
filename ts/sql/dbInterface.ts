@@ -1,5 +1,5 @@
-import { LoggerType } from '../logger/types';
-import {
+import type { LoggerType } from '../logger/types';
+import type {
   AttachmentDownloadJobDBType,
   ConversationDBType,
   IdentityKeyDBType,
@@ -30,7 +30,8 @@ export interface ILocalDatabase {
   removeDB(): void;
   rekey(newKey: string): void;
   backup(backupDir: string): void;
-  getFilesSize(): void;
+  getFilesSize(): number;
+  getReport(): Record<string, unknown>;
 }
 
 export interface ILocalDBDatabase extends ILocalDatabase {
@@ -156,6 +157,10 @@ export interface ILocalDBDatabase extends ILocalDatabase {
   getExpiredMessages(): MessageDBType[];
   getOutgoingWithoutExpiresAt(): MessageDBType[];
   getNextExpiringMessage(): MessageDBType[];
+  getClearableMessages(defaultMessageExpiry: number): {
+    messages: MessageDBType[];
+    done: boolean;
+  };
 
   // unprocessed
   // only keep get all and remove all for migration
@@ -178,7 +183,10 @@ export interface ILocalDBDatabase extends ILocalDatabase {
     conversationId: string,
     { limit }: { limit: number }
   ): MessageDBType[];
-  removeKnownAttachments(allAttachments: string[]): string[];
+  removeKnownAttachments(
+    allAttachments: string[],
+    requireDoubleCheck: boolean
+  ): string[];
 
   //
   getThreadMessagesUnreplied(
@@ -263,18 +271,15 @@ export interface ILocalDBDatabase extends ILocalDatabase {
     limit: number
   ): MessageDBType[];
 
-  rebuildMessagesIndexesIfNotExists(): void;
-  rebuildMessagesTriggersIfNotExists(): void;
+  rebuildIndexesIfNotExists(): void;
+  rebuildTriggersIfNotExists(): void;
   getGroupMemberLastActiveList(
     conversationId: string
   ): { number: string; lastActive: number }[];
   listThreadsWithNewestMessage(conversationId: string): MessageDBType[];
   getUnhandledRecalls(): MessageDBType[];
 
-  getNextMessagesToCorrectTimer(
-    ourNumber: string,
-    limit: number
-  ): MessageDBType[];
+  getNextMessagesToCorrectTimer(limit: number): MessageDBType[];
 }
 
 export interface ILocalDBAccelerator extends ILocalDatabase {

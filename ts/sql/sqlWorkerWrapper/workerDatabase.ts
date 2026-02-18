@@ -1,13 +1,13 @@
 import { Worker } from 'worker_threads';
 
 import { join } from 'path';
-import { LoggerType } from '../../logger/types';
+import type { LoggerType } from '../../logger/types';
 import { consoleLogger } from '../../logger/consoleLogger';
 import { WorkerData, WrappedCallResult } from './types';
 import { CallRequest, CallResponse, WorkerResponse } from '../sqlWorkers/types';
 import { logSeqId } from '../../logger/utils';
 import { handleLog } from './logger';
-import { CloseDBOption, InitDBOption } from '../dbInterface';
+import type { CloseDBOption, InitDBOption } from '../dbInterface';
 
 // type of worker
 type WorkerJob = {

@@ -35,6 +35,7 @@ window.getConversationId = () => config.conversationId;
 window.getTitle = () => config.title;
 window.getIsPrivate = () => config.isPrivate === 'true';
 window.getFrom = () => config.from;
+window.getRoomId = () => config.roomId;
 
 window.i18n = i18n.setup(locale, localeMessages);
 
@@ -60,8 +61,8 @@ window.getCriticalAlertView = () => {
   return CriticalAlert;
 };
 
-window.connectConversation = conversationId => {
-  ipcRenderer.send('fast-join-call', { conversationId });
+window.fastJoinCall = ({ conversationId, roomId }) => {
+  ipcRenderer.send('fast-join-call', { conversationId, roomId });
   ipcRenderer.send('want-close-self');
 };
 

@@ -160,42 +160,6 @@
   margin-right: 6px;
 }
 
-.module-message__buttons__recall {
-  height: 16px;
-  width: 16px;
-  display: inline-block;
-  cursor: pointer;
-  @include color-svg('../images/message-recall.svg', $color-light-45);
-  &:hover {
-    @include color-svg('../images/message-recall.svg', $color-gray-90);
-  }
-}
-
-.module-message__buttons__recall--incoming {
-  margin-left: 12px;
-}
-.module-message__buttons__recall--outgoing {
-  margin-right: 12px;
-}
-
-.module-message__buttons__jump {
-  height: 16px;
-  width: 16px;
-  display: inline-block;
-  cursor: pointer;
-  @include color-svg('../images/message-jump.svg', $color-light-45);
-  &:hover {
-    @include color-svg('../images/message-jump.svg', $color-gray-90);
-  }
-}
-
-.module-message__buttons__jump--incoming {
-  margin-left: 12px;
-}
-.module-message__buttons__jump--outgoing {
-  margin-right: 12px;
-}
-
 .module-message__buttons__translate {
   height: 16px;
   width: 16px;
@@ -636,6 +600,7 @@
   display: flex;
   flex-flow: wrap;
   justify-content: start;
+  gap: 6px 6px;
 }
 
 .module-message__reaction-list-popover {
@@ -687,8 +652,6 @@
   border: 1px solid transparent;
   height: 24px;
   outline: none;
-  margin: 3px;
-  //width: fit-content;
   user-select: none;
   max-width: 9em;
   overflow: hidden;
@@ -953,6 +916,7 @@
 .module-message__transcribe-text {
   word-break: break-word;
   display: inline;
+  line-height: 18px;
 }
 
 .module-message__transcribe-text-by {
@@ -1457,6 +1421,25 @@
   background-color: var(--dst-color-background);
   .card-message-metadata-wrapper {
     position: absolute;
+    z-index: 3;
+  }
+  &.is-confidential-message {
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: var(--dst-color-text-disable);
+      z-index: 2;
+      border-radius: 8px;
+    }
+    &.is-mouse-over {
+      &::before {
+        display: none;
+      }
+    }
   }
 }
 
@@ -1880,7 +1863,15 @@
   font-size: 14px;
   line-height: 20px;
   display: flex;
-  align-items: center;
+  flex-flow: column;
+  align-items: flex-start;
+  .module-contact-list-item__text__name__description {
+    color: var(--dst-color-text-third);
+
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 16px;
+  }
 }
 .module-contact-list-item__text__name__standard-create-group {
   display: block;
@@ -2196,16 +2187,6 @@
   min-width: 20px;
   -webkit-app-region: no-drag;
   // cursor: pointer;
-}
-
-.module-conversation-header__history-icon {
-  @include color-svg('../images/search.svg', $color-gray-60);
-  -webkit-mask-size: 85%;
-  height: 20px;
-  width: 20px;
-  margin-left: 10px;
-  -webkit-app-region: no-drag;
-  cursor: pointer;
 }
 
 // Module: Message Detail
@@ -3099,7 +3080,7 @@
 .module-avatar__icon--search {
   width: 60%;
   height: 60%;
-  @include color-svg('../images/search.svg', $color-white);
+  color: var(--dst-color-text-white);
 }
 
 .module-avatar--no-image {
@@ -3151,6 +3132,12 @@
 
 .module-avatar--archive-yellow {
   background-color: #f6a14a;
+}
+
+.module-avatar-system-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .module-avatar__context-menu-item {
@@ -3235,16 +3222,16 @@
   border-radius: 4px;
   // border: solid 1px $color-gray-15;
   border: solid 1px transparent;
-  background-color: $app-color-background-2-light;
+  background-color: var(--dst-color-background-secondary);
 
   padding-left: 30px;
   padding-right: 30px;
 
-  color: $color-gray-90;
+  color: var(--dst-color-text-primary);
   font-size: 14px;
 
   &::placeholder {
-    color: $color-gray-45;
+    color: var(--dst-color-text-third);
   }
 
   &:focus {
@@ -3254,21 +3241,21 @@
   }
 }
 .module-main-header__search__input_contact {
-  height: 28px;
+  height: 32px;
   width: 100%;
 
   border-radius: 5px;
   border: solid 1px transparent;
-  background-color: $app-color-background-2-light;
+  background-color: var(--dst-color-background-secondary);
 
   padding-left: 30px;
   padding-right: 30px;
 
-  color: $color-gray-90;
+  color: var(--dst-color-text-primary);
   font-size: 14px;
 
   &::placeholder {
-    color: $color-gray-45;
+    color: var(--dst-color-text-third);
   }
 
   &:focus {
@@ -3277,15 +3264,14 @@
   }
 }
 
-.module-main-header__search__icon {
+.module-search-icon {
   position: absolute;
   left: 8px;
   top: 6px;
   height: 20px;
   width: 20px;
-
   cursor: text;
-  @include color-svg('../images/search.svg', $color-gray-60);
+  color: var(--dst-color-text-third);
 }
 
 .module-main-header__search__cancel-icon {
@@ -3295,7 +3281,7 @@
   height: 14px;
   width: 14px;
   cursor: pointer;
-  @include color-svg('../images/x-16.svg', $color-gray-60);
+  color: var(--dst-color-text-third);
 }
 
 .module-main-header__entry__plus-icon {
@@ -3614,7 +3600,7 @@
   height: 20px;
 
   z-index: 2;
-  @include color-svg('../images/x-16.svg', $color-black);
+  color: var(--dst-color-text-third);
 }
 
 .module-attachments__rail {
@@ -3650,7 +3636,6 @@
   width: 16px;
   height: 16px;
   z-index: 2;
-  @include color-svg('../images/x-16.svg', $color-black);
 }
 
 .module-staged-generic-attachment__icon {
@@ -3732,7 +3717,7 @@
   width: 30px;
   height: 30px;
   z-index: 2;
-  @include color-svg('../images/x-16.svg', $color-white);
+  color: var(--dst-color-text-third);
 }
 
 .module-caption-editor__media-container {
@@ -4283,7 +4268,7 @@
   cursor: pointer;
 
   &:hover {
-    background-color: $color-gray-05;
+    background-color: var(--dst-color-background-third);
   }
 
   .forward-icon {
@@ -4372,12 +4357,6 @@
 .module-message__buttons__forward {
   display: none;
 }
-.module-message__buttons__recall {
-  display: none;
-}
-.module-message__buttons__jump {
-  display: none;
-}
 .module-message__buttons__translate {
   display: none;
 }
@@ -4414,12 +4393,6 @@
     display: inline-block;
   }
   .module-message__buttons__forward {
-    display: inline-block;
-  }
-  .module-message__buttons__recall {
-    display: inline-block;
-  }
-  .module-message__buttons__jump {
     display: inline-block;
   }
   .module-message__buttons__translate {
@@ -4504,12 +4477,6 @@
     display: inline-block;
   }
   .module-message__buttons__forward {
-    display: inline-block;
-  }
-  .module-message__buttons__recall {
-    display: inline-block;
-  }
-  .module-message__buttons__jump {
     display: inline-block;
   }
   .module-message__buttons__translate {
@@ -4618,18 +4585,16 @@
 }
 
 .module-common-header__search__input {
-  height: 28px;
+  height: 32px;
   width: 100%;
 
   border-radius: 8px;
-  border: solid 1px #fafafa;
+  border: 0;
 
   padding-left: 30px;
   padding-right: 30px;
 
-  color: $color-gray-90;
   font-size: 14px;
-  background: #fafafa;
 
   &::placeholder {
     color: $color-gray-45;
@@ -4641,25 +4606,14 @@
   }
 }
 
-.module-common-header__search__icon {
-  position: absolute;
-  left: 8px;
-  top: 6px;
-  height: 16px;
-  width: 16px;
-
-  cursor: text;
-  @include color-svg('../images/search.svg', $color-gray-60);
-}
-
 .module-common-header__search__cancel-icon {
   position: absolute;
   right: 8px;
-  top: 7px;
+  top: 9px;
   height: 14px;
   width: 14px;
   cursor: pointer;
-  @include color-svg('../images/x-16.svg', $color-gray-60);
+  color: var(--dst-color-text-third);
 }
 
 .module-remind-cycle-notification {
@@ -4806,7 +4760,7 @@
 }
 
 .date-separator {
-  padding-top: 2px;
+  padding-top: 8px;
   padding-bottom: 12px;
   pointer-events: none;
   &-inner {
@@ -4826,7 +4780,7 @@
 
 .sticky-date {
   position: sticky;
-  top: 2px;
+  top: 0;
   z-index: 100;
   pointer-events: none;
   .date-separator {
@@ -4911,16 +4865,12 @@
 }
 
 .message-body-expand-button {
-  position: absolute;
-
   color: var(--dst-color-text-info);
 
   font-size: 14px;
   font-weight: 400;
   line-height: 20px;
   cursor: pointer;
-  left: 12px;
-  bottom: 10px;
 
   &.expanded {
     position: sticky;
@@ -4983,4 +4933,52 @@
 
 .center-toast {
   margin-top: 50vh;
+}
+
+.module-message__context-menu-content-wrapper {
+  width: 200px;
+}
+
+.individual-window-info-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  .divider {
+    width: 24px;
+    height: 1px;
+    background-color: var(--dst-color-text-third);
+    margin: 24px 0;
+  }
+
+  .individual-window-list {
+    app-region: no-drag;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: space-between;
+    gap: 24px;
+
+    &-item {
+      line-height: 0;
+      cursor: pointer;
+      border-radius: 8px;
+      .list-item-icon {
+        height: 32px;
+        width: 32px;
+        border-radius: 8px;
+      }
+    }
+  }
+}
+
+.module-system-notification-message,
+.module-conversation-indicator {
+  color: var(--dst-color-text-third);
+  font-size: 12px;
+  line-height: 20px;
+  letter-spacing: 0.3px;
+  text-align: center;
+}
+
+.with-confidential-mask {
+  background-color: var(--dst-color-text-disable);
 }

@@ -60,12 +60,12 @@ const BUILD_WIN_ACCOUNT_NAME =
 
 // -------
 
-function checkValue(object, objectPath, expected) {
-  const actual = _.get(object, objectPath);
-  if (actual !== expected) {
-    throw new Error(`${objectPath} was ${actual}; expected ${expected}`);
-  }
-}
+// function checkValue(object, objectPath, expected) {
+//   const actual = _.get(object, objectPath);
+//   if (actual !== expected) {
+//     throw new Error(`${objectPath} was ${actual}; expected ${expected}`);
+//   }
+// }
 
 function setPackageJsonValue(path, value) {
   return _.set(packageJson, path, value);

@@ -6,7 +6,8 @@
     // Specify library files to be included in the compilation.
     "lib": [
       "dom", // Required to access `window`
-      "es2022"
+      "es2022",
+      "esnext.promise"
     ],
     // "allowJs": true,                       // Allow javascript files to be compiled.
     // "checkJs": true,                       // Report errors in .js files.

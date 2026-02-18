@@ -2,7 +2,6 @@ import React from 'react';
 import { Avatar } from './../Avatar';
 import { LocalizerType } from '../../types/Util';
 import { CommonSettingItem } from './CommonSettingComponents';
-import { Profile } from './Profile';
 import { Drawer } from 'antd';
 import { ThemeSetting } from './ThemeSetting';
 import { NotificationSetting } from './NotificationSetting';
@@ -16,6 +15,8 @@ import { FriendCode } from './FriendCode';
 import { getConversationModel } from '../../shims/Whisper';
 import { getBase58Id } from '../../util';
 import { AutoSizeInput } from '../shared/AutoSizeInput';
+import { ProfileCard } from './ProfileCard';
+import { ChatSetting } from './ChatSetting';
 
 export interface Props {
   closeSetting: () => void;
@@ -48,6 +49,9 @@ interface State {
   emailMasked?: string;
   phoneMasked?: string;
   profileLoading: boolean;
+  showChatSetting: boolean;
+  searchByCustomUid: boolean;
+  customUid?: string;
 }
 
 const signLengthMax = 80;
@@ -81,6 +85,9 @@ export class CommonSetting extends React.Component<Props, State> {
       emailMasked: '',
       phoneMasked: '',
       profileLoading: false,
+      showChatSetting: false,
+      searchByCustomUid: false,
+      customUid: undefined,
     };
 
     this.inputRefImageSelect = React.createRef();
@@ -396,7 +403,6 @@ export class CommonSetting extends React.Component<Props, State> {
     return (
       <div>
         <div className="setting-device-line common-setting-line"></div>
-
         <CommonSettingItem
           title={i18n('account')}
           showArrow={true}
@@ -404,20 +410,11 @@ export class CommonSetting extends React.Component<Props, State> {
             this.setState({ showAccountSetting: true });
           }}
         />
-
         <CommonSettingItem
-          title={i18n('theme')}
+          title={i18n('addFriend.entry')}
           showArrow={true}
           clickAction={() => {
-            this.setState({ showThemeSetting: true });
-          }}
-        />
-
-        <CommonSettingItem
-          title={i18n('notifications')}
-          showArrow={true}
-          clickAction={() => {
-            this.setState({ showNotificationSetting: true });
+            this.setState({ showFriendCode: true });
           }}
         />
         <CommonSettingItem
@@ -427,29 +424,27 @@ export class CommonSetting extends React.Component<Props, State> {
             this.setState({ showGeneralSetting: true });
           }}
         />
-        {/* <Popover
-          overlayClassName={'avatar-context-popover'}
-          placement="rightTop"
-          open={this.state.showProfileDialog}
-          content={this.renderProfile()}
-          onOpenChange={visible =>
-            this.setState({ showProfileDialog: visible })
-          }
-          destroyTooltipOnHide={true}
-          trigger="click"
-        >
-          <div>
-            <CommonSettingItem title={i18n('profile')} />
-          </div>
-        </Popover> */}
         <CommonSettingItem
-          title={i18n('addFriend.entry')}
+          title={i18n('chat')}
           showArrow={true}
           clickAction={() => {
-            this.setState({ showFriendCode: true });
+            this.setState({ showChatSetting: true });
           }}
         />
-
+        <CommonSettingItem
+          title={i18n('notifications')}
+          showArrow={true}
+          clickAction={() => {
+            this.setState({ showNotificationSetting: true });
+          }}
+        />
+        <CommonSettingItem
+          title={i18n('theme')}
+          showArrow={true}
+          clickAction={() => {
+            this.setState({ showThemeSetting: true });
+          }}
+        />
         <CommonSettingItem
           title={i18n('language')}
           showArrow={true}
@@ -457,7 +452,6 @@ export class CommonSetting extends React.Component<Props, State> {
             this.setState({ showLanguageSetting: true });
           }}
         />
-
         <CommonSettingItem
           title={i18n('helfAndFeedback')}
           clickAction={() => {
@@ -467,20 +461,12 @@ export class CommonSetting extends React.Component<Props, State> {
             a.remove();
           }}
         />
-
         <CommonSettingItem
           title={i18n('aboutDesktop')}
           clickAction={() => {
             this.openAbout();
           }}
         />
-
-        {/*<CommonSettingItem*/}
-        {/*  title={i18n('appMenuCheckForUpdates')}*/}
-        {/*  clickAction={() => {*/}
-        {/*    this.checkUpdates();*/}
-        {/*  }}*/}
-        {/*/>*/}
       </div>
     );
   }
@@ -501,16 +487,13 @@ export class CommonSetting extends React.Component<Props, State> {
     }
 
     return (
-      <Profile
+      <ProfileCard
         id={id}
         i18n={i18n}
         onClose={() => {
           this.setState({ showProfileDialog: false });
         }}
-        x={0}
-        y={0}
         avatarPath={avatarPath}
-        allowUpload={false}
       />
     );
   }
@@ -529,6 +512,8 @@ export class CommonSetting extends React.Component<Props, State> {
         emailMasked: data.emailMasked,
         phoneMasked: data.phoneMasked,
         profileLoading: false,
+        searchByCustomUid: data.searchByCustomUid,
+        customUid: data.customUid,
       });
     } catch (error) {
       console.log('get directory profile error', error);
@@ -536,6 +521,8 @@ export class CommonSetting extends React.Component<Props, State> {
         emailMasked: undefined,
         phoneMasked: undefined,
         profileLoading: false,
+        searchByCustomUid: false,
+        customUid: undefined,
       });
     }
   }
@@ -548,6 +535,8 @@ export class CommonSetting extends React.Component<Props, State> {
       phoneMasked,
       profileLoading,
       showAccountSetting,
+      searchByCustomUid,
+      customUid,
     } = this.state;
 
     const uid = userInfo?.uid || getBase58Id(id);
@@ -577,12 +566,14 @@ export class CommonSetting extends React.Component<Props, State> {
         <AccountSetting
           i18n={i18n}
           id={uid}
+          customUid={customUid}
           deviceName={getDeviceName()}
           email={emailMasked}
           phoneNumber={phoneMasked}
           onClose={() => this.setState({ showAccountSetting: false })}
           onRefreshProfile={() => this.loadDirectoryProfile()}
           profileLoading={profileLoading}
+          searchByCustomUid={searchByCustomUid}
         />
       </Drawer>
     );
@@ -765,6 +756,34 @@ export class CommonSetting extends React.Component<Props, State> {
     );
   }
 
+  public renderChatSetting() {
+    const { showChatSetting } = this.state;
+    const { leftPaneWidth, i18n } = this.props;
+
+    return (
+      <Drawer
+        placement="left"
+        open={showChatSetting}
+        width={leftPaneWidth}
+        rootStyle={{ left: 68 }}
+        styles={{
+          wrapper: {
+            boxShadow: 'none',
+          },
+        }}
+        closable={false}
+        mask={false}
+        destroyOnClose={true}
+        zIndex={1000}
+      >
+        <ChatSetting
+          i18n={i18n}
+          closeSetting={() => this.setState({ showChatSetting: false })}
+        />
+      </Drawer>
+    );
+  }
+
   render() {
     return (
       <div id="common-setting" className="common-setting">
@@ -807,6 +826,7 @@ export class CommonSetting extends React.Component<Props, State> {
           {this.renderGeneralSetting()}
           {this.renderLanguageSetting()}
           {this.renderMyCode()}
+          {this.renderChatSetting()}
         </div>
       </div>
     );

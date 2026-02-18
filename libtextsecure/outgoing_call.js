@@ -387,6 +387,15 @@ class OutgoingCall {
       });
     } catch (error) {
       const { name, code, response } = error || {};
+      console.log(
+        'start call inner error',
+        'code:',
+        code,
+        'name: ',
+        name,
+        'response.status:',
+        response?.status
+      );
 
       if (name === 'HTTPError' && code === 400 && response) {
         const { API_STATUS } = window.Signal.Types.APIStatus;
@@ -445,7 +454,8 @@ class OutgoingCall {
 
       return result;
     } catch (error) {
-      throw error;
+      window.log.error('failed to join call', error);
+      throw new Error('failed to join call');
     }
   }
 

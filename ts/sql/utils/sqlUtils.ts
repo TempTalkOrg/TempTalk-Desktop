@@ -1,12 +1,19 @@
-import type { Database, Statement } from '@signalapp/better-sqlite3';
-import { isNumber, groupBy, Dictionary } from 'lodash';
-import { EmptyQuery, Query, SQLType, TableType } from '../sqlTypes';
+import type { Database, Statement } from '@opensource-lib/better-sqlite3';
+import { isNumber, groupBy, Dictionary, last } from 'lodash';
+import type {
+  EmptyQuery,
+  ExtendedTableType,
+  JSONRows,
+  Query,
+  SQLType,
+  TableType,
+} from '../sqlTypes';
 import { v4 as uuidv4 } from 'uuid';
 import * as fs from 'fs';
 import mkdirp from 'mkdirp';
 import path from 'path';
 
-import { LoggerType } from '../../logger/types';
+import type { LoggerType } from '../../logger/types';
 import { calcFileSize } from './fileUtils';
 
 const INVALID_KEY_REGEX = /[^0-9A-Fa-f]/;
@@ -24,6 +31,30 @@ export function jsonToObject<T>(json: string): T {
 
 export function mapWithJsonToObject<T>(jsons: Array<string>): Array<T> {
   return jsons.map(json => jsonToObject(json));
+}
+
+export function traverseJsonObject(
+  key: string,
+  obj: any,
+  callback: (key: string, value: any, ancestors: any[]) => boolean,
+  ancestors: any[] = []
+) {
+  if (obj && typeof obj === 'object') {
+    const nextAncesters = ancestors.concat([{ [key]: obj }]);
+
+    for (const subKey in obj) {
+      const subValue = obj[subKey];
+      const stop = callback(subKey, subValue, nextAncesters);
+      if (stop) {
+        return true;
+      }
+
+      if (traverseJsonObject(subKey, subValue, callback, nextAncesters)) {
+        return true;
+      }
+    }
+  }
+  return false;
 }
 
 export function pragmaGet(db: Database, pragmaKey: string) {
@@ -79,7 +110,7 @@ export function getUserVersion(db: Database): number {
   return pragmaGet(db, 'user_version');
 }
 
-export function countTableRows(db: Database, table: TableType): number {
+export function countTableRows(db: Database, table: ExtendedTableType): number {
   const result: null | number = db
     .prepare<EmptyQuery>(`SELECT COUNT(*) FROM ${table};`)
     .pluck()
@@ -233,5 +264,65 @@ export class StatementCache {
     }
 
     return statement;
+  }
+}
+
+export class TableIterator<ObjectType extends { id: string }> {
+  constructor(
+    private readonly db: Database,
+    private readonly table: TableType,
+    private readonly pageSize = 100
+  ) {}
+
+  *[Symbol.iterator](): Iterator<ObjectType> {
+    const minIdRow: { id: string; json: string } = this.db
+      .prepare(`SELECT MIN(id) AS id, json FROM ${this.table};`)
+      .get();
+
+    if (minIdRow === undefined) {
+      // there is no records in the table
+      return;
+    }
+
+    const minIdObject = jsonToObject<ObjectType>(minIdRow.json);
+    let id = minIdObject.id;
+    let pageSize = this.pageSize - 1;
+    const objects: ObjectType[] = [minIdObject];
+
+    const fetchStmt = this.db.prepare(
+      `
+      SELECT
+        json
+      FROM
+        ${this.table}
+      WHERE
+        id > $id
+      ORDER BY id ASC
+      LIMIT $pageSize;
+      `
+    );
+
+    while (true) {
+      const rows: JSONRows = fetchStmt.all({ id, pageSize });
+
+      rows.forEach(row => objects.push(jsonToObject(row.json)));
+
+      const lastObject: ObjectType | undefined = last(objects);
+      if (!lastObject) {
+        break;
+      }
+
+      ({ id } = lastObject);
+
+      yield* objects;
+
+      if (objects.length < pageSize) {
+        // iterate to the end
+        break;
+      }
+
+      objects.length = 0;
+      pageSize = this.pageSize;
+    }
   }
 }

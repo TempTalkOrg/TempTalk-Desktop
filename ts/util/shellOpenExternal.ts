@@ -7,6 +7,6 @@ export function shellOpenExternal(url: string) {
   ) {
     return shell.openExternal(url);
   }
-  console.log('shellOpenExternal bad param:' + url);
+  console.log('shellOpenExternal bad param');
   return;
 }

@@ -1,8 +1,9 @@
-import React, { Component } from 'react';
+import React, { useEffect, useState } from 'react';
 import { LocalizerType } from '../../types/Util';
 import { SettingChooseItem } from './CommonSettingComponents';
 import { Modal } from 'antd';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
+import { useMemoizedFn } from 'ahooks';
 
 interface GeneralProps {
   i18n: LocalizerType;
@@ -13,145 +14,101 @@ interface GeneralProps {
 interface GeneralState {
   disableHardWareAcceleration: boolean;
   originalDisableHardWareAcceleration: boolean;
-  spellCheck: boolean;
   mediaPermissions: boolean;
-  quitTopicSetting: boolean;
 }
 
 const mainWindow = window as any;
 
-const getInitialData = async () => ({
-  spellCheck: await mainWindow.getSpellCheck(),
+const getInitialData = async (): Promise<GeneralState> => ({
   mediaPermissions: await mainWindow.getMediaPermissions(),
-  disableHardwareAcceleration:
+  disableHardWareAcceleration:
     await mainWindow.getDisableHardwareAcceleration(),
   originalDisableHardWareAcceleration:
     await mainWindow.getOriginalDisableHardwareAcceleration(),
-  quitTopicSetting: await mainWindow.getQuitTopicSetting(),
 });
 
-export class GeneralSetting extends Component<GeneralProps, GeneralState> {
-  constructor(props: Readonly<GeneralProps>) {
-    super(props);
+export const GeneralSetting = (props: GeneralProps) => {
+  const { title, closeSetting, i18n } = props;
 
-    this.state = {
-      disableHardWareAcceleration: false,
-      originalDisableHardWareAcceleration: false,
-      spellCheck: false,
-      mediaPermissions: false,
-      quitTopicSetting: true,
-    };
+  const [setting, setSetting] = useState<GeneralState>({
+    disableHardWareAcceleration: false,
+    originalDisableHardWareAcceleration: false,
+    mediaPermissions: false,
+  });
 
-    getInitialData().then(
-      data => {
-        'use strict';
+  const initData = useMemoizedFn(async () => {
+    try {
+      const data = await getInitialData();
+      setSetting(data);
+    } catch (error: any) {
+      mainWindow.log.error(
+        'settings.initialRequest error:',
+        error && error.stack ? error.stack : error
+      );
+    }
+  });
 
-        this.setState({
-          disableHardWareAcceleration: data.disableHardwareAcceleration,
-          originalDisableHardWareAcceleration:
-            data.originalDisableHardWareAcceleration,
-          spellCheck: data.spellCheck,
-          mediaPermissions: data.mediaPermissions,
-          quitTopicSetting: data.quitTopicSetting,
-        });
-      },
-      error => {
-        'use strict';
+  useEffect(() => {
+    initData();
+  }, []);
 
-        mainWindow.log.error(
-          'settings.initialRequest error:',
-          error && error.stack ? error.stack : error
-        );
+  const onDisableHardwareAccelerationChange = useMemoizedFn(
+    async (value: boolean) => {
+      setSetting(prev => ({
+        ...prev,
+        disableHardWareAcceleration: value,
+      }));
+      await mainWindow.setDisableHardwareAcceleration(value);
+      if (setting.originalDisableHardWareAcceleration === value) {
+        return;
       }
-    );
-  }
+      Modal.confirm({
+        title: i18n('restartRequired'),
+        icon: <ExclamationCircleOutlined />,
+        content: i18n('restartToApplyChange'),
+        okText: i18n('restart'),
+        cancelText: i18n('later'),
+        onOk: () => {
+          mainWindow.restart();
+        },
+        onCancel: () => {},
+      });
+    }
+  );
 
-  renderGeneralItems() {
-    const { i18n } = this.props;
-    const {
-      disableHardWareAcceleration,
-      originalDisableHardWareAcceleration,
-      spellCheck,
-      mediaPermissions,
-      // quitTopicSetting,
-    } = this.state;
+  const onMediaPermissionsChange = useMemoizedFn(async (value: boolean) => {
+    mainWindow.setMediaPermissions(value);
+    setSetting(prev => ({
+      ...prev,
+      mediaPermissions: value,
+    }));
+  });
 
-    return (
-      <div>
-        <SettingChooseItem
-          title={i18n('hardwareAccelerationDescription')}
-          checked={disableHardWareAcceleration}
-          mutliCheck={true}
-          onChange={async value => {
-            this.setState({ disableHardWareAcceleration: value });
-            await mainWindow.setDisableHardwareAcceleration(value);
-            if (originalDisableHardWareAcceleration === value) {
-              return;
-            }
-            Modal.confirm({
-              title: i18n('restartRequired'),
-              icon: <ExclamationCircleOutlined />,
-              content: i18n('restartToApplyChange'),
-              okText: i18n('restart'),
-              cancelText: i18n('later'),
-              onOk: () => {
-                mainWindow.restart();
-              },
-              onCancel: () => {
-                // this.setState({ disableHardWareAcceleration: !value });
-              },
-            });
-          }}
-        />
-
-        <SettingChooseItem
-          title={i18n('spellCheckDescription')}
-          checked={spellCheck}
-          mutliCheck={true}
-          onChange={value => {
-            mainWindow.Events.setSpellCheck(value);
-            this.setState({ spellCheck: value });
-          }}
-        />
-
-        <SettingChooseItem
-          title={i18n('mediaPermissionsDescription')}
-          checked={mediaPermissions}
-          mutliCheck={true}
-          onChange={value => {
-            mainWindow.setMediaPermissions(value);
-            this.setState({ mediaPermissions: value });
-          }}
-        />
-
-        {/* <SettingChooseItem
-          title={i18n('quitTopicDescription')}
-          checked={quitTopicSetting}
-          mutliCheck={true}
-          onChange={value => {
-            mainWindow.setQuitTopicSetting(value);
-            this.setState({ quitTopicSetting: value });
-          }}
-        /> */}
+  return (
+    <div id="common-setting" className="common-setting">
+      <div className="common-setting header-bg"></div>
+      <div className="common-setting bottom-bg"></div>
+      <div className="common-setting page-title"> {title} </div>
+      <div className="common-setting close-button" onClick={closeSetting}>
+        <div className="close-button-inner"></div>
       </div>
-    );
-  }
+      <div className="setting-list-content sub-setting-content">
+        <div>
+          <SettingChooseItem
+            title={i18n('hardwareAccelerationDescription')}
+            checked={setting.disableHardWareAcceleration}
+            mutliCheck={true}
+            onChange={onDisableHardwareAccelerationChange}
+          />
 
-  render() {
-    const { closeSetting, title } = this.props;
-
-    return (
-      <div id="common-setting" className="common-setting">
-        <div className="common-setting header-bg"></div>
-        <div className="common-setting bottom-bg"></div>
-        <div className="common-setting page-title"> {title} </div>
-        <div className="common-setting close-button" onClick={closeSetting}>
-          <div className="close-button-inner"></div>
-        </div>
-        <div className="setting-list-content sub-setting-content">
-          {this.renderGeneralItems()}
+          <SettingChooseItem
+            title={i18n('mediaPermissionsDescription')}
+            checked={setting.mediaPermissions}
+            mutliCheck={true}
+            onChange={onMediaPermissionsChange}
+          />
         </div>
       </div>
-    );
-  }
-}
+    </div>
+  );
+};

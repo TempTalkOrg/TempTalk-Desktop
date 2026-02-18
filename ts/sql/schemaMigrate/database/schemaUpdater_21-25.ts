@@ -1,6 +1,6 @@
-import { Database } from '@signalapp/better-sqlite3';
-import { LoggerType } from '../../../logger/types';
-import { EmptyQuery, TableType } from '../../sqlTypes';
+import type { Database } from '@opensource-lib/better-sqlite3';
+import type { LoggerType } from '../../../logger/types';
+import type { EmptyQuery, TableType } from '../../sqlTypes';
 import { getAllCreateSQLs, StatementCache } from '../../utils/sqlUtils';
 
 export function getUnprocessedDuplicatedCountInner(db: Database) {
@@ -175,26 +175,6 @@ export function updateToSchemaVersion21(
         sent_at,
         pin
       );
-
-      -- #3 index on vote_messages
-      -- vote_messages_messageId
-      DROP INDEX IF EXISTS vote_messages_messageId;
-      CREATE INDEX vote_messages_messageId ON vote_messages(messageId);
-
-      -- #4 index on tasks
-      -- tasks_taskId_version_readAtVersion
-      DROP INDEX IF EXISTS tasks_taskId_version_readAtVersion;
-      CREATE INDEX tasks_taskId_version_readAtVersion ON tasks (
-        taskId,
-        readAtVersion,
-        version
-      );
-
-      -- tasks_remove
-      DROP INDEX IF EXISTS tasks_remove;
-      CREATE INDEX tasks_remove ON tasks (
-        timestamp DESC
-      ) WHERE remove IS NOT 1;
       `
     );
 
@@ -632,7 +612,6 @@ export function updateToSchemaVersion25(
     const now = Date.now();
 
     migrateMessagesTable(db, logger, 'messages', now);
-    migrateMessagesTable(db, logger, 'messages_expired', now);
 
     db.exec(
       `

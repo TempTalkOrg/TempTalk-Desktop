@@ -19,7 +19,9 @@ export interface ICurrentCall {
   endingCall: boolean;
   callWindowId: number | null;
   serviceUrls: string[];
+  serviceUrl: string;
   criticalAlert: boolean;
+  quicEnabled: boolean;
 }
 
 export type CallInfoType = Omit<ICurrentCall, 'caller'> & {
@@ -40,6 +42,11 @@ export const getSourceId = (sourceId = '') => {
 export const generateCurrentCall = (info: CallInfoType): ICurrentCall => {
   const ourNumber = info.username.split('.')[0];
 
+  // Normalize serviceUrls to array format (url.parse returns a string for single-item array)
+  const serviceUrls = Array.isArray(info.serviceUrls)
+    ? info.serviceUrls
+    : [info.serviceUrls];
+
   return {
     roomName: info.roomName,
     roomId: info.roomId,
@@ -58,8 +65,10 @@ export const generateCurrentCall = (info: CallInfoType): ICurrentCall => {
     username: info.username,
     endingCall: false,
     callWindowId: getSourceId(info.callWindowId),
-    serviceUrls: info.serviceUrls,
+    serviceUrls,
+    serviceUrl: serviceUrls[0],
     criticalAlert: info.criticalAlert,
+    quicEnabled: info.quicEnabled,
   };
 };
 
@@ -96,3 +105,10 @@ export const callControlType: CallControlType = (window as any).textsecure
   .CallControlType;
 
 (window as any)._debug_current_call = currentCall;
+
+export const switchServiceUrl = () => {
+  const currentIndex = currentCall.serviceUrls.indexOf(currentCall.serviceUrl);
+  const nextIndex = (currentIndex + 1) % currentCall.serviceUrls.length;
+  currentCall.serviceUrl = currentCall.serviceUrls[nextIndex];
+  console.log('switch service url to', currentCall.serviceUrl);
+};

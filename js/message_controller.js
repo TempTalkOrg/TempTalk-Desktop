@@ -10,7 +10,7 @@
     const leftExpiresAt = left.expirationTimestamp;
     const rightExpiresAt = right.expirationTimestamp;
 
-    if (leftExpiresAt && leftExpiresAt) {
+    if (leftExpiresAt && rightExpiresAt) {
       return leftExpiresAt - rightExpiresAt;
     } else if (leftExpiresAt) {
       return -1;

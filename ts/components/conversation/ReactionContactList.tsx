@@ -21,6 +21,7 @@ export interface Contact {
   color: string;
   // email?: string;
   isMe?: boolean;
+  accountName?: string;
 }
 
 interface Props {
@@ -41,13 +42,14 @@ export class ReactionContactList extends React.Component<Props> {
     }
 
     const contact = contacts[index];
-    const { id, name, color, avatarPath } = contact;
+    const { id, name, color, avatarPath, accountName } = contact;
     return (
       <ContactListItem
         key={id}
         id={id}
         style={style}
         phoneNumber={id}
+        accountName={accountName}
         name={name}
         email={' '}
         color={color}

@@ -36,11 +36,9 @@
   padding: 4.5px 0;
 }
 
-@mixin common-menu-item($status: 'default') {
+@mixin common-menu-item($status: 'default', $level: 'root') {
   cursor: pointer;
   padding: 0;
-  padding-left: 12px;
-  padding-right: 8px;
   margin: 2px 4px;
   height: 32px;
   line-height: 32px;
@@ -67,6 +65,15 @@
       color: var(--dst-color-text-error);
     } @else {
       color: var(--dst-color-text-primary);
+    }
+  }
+
+  @if $level == 'root' {
+    & > *:first-child {
+      padding-left: 12px;
+    }
+    & > *:last-child {
+      padding-right: 8px;
     }
   }
 }
@@ -108,10 +115,32 @@
   user-select: none;
 }
 
+@mixin hover-color($base-color) {
+  color: color-mix(
+    in srgb,
+    #{$base-color} 88%,
+    var(--dst-color-hover-mixin) 12%
+  );
+}
+
 @mixin hover-background($base-color) {
   background-color: color-mix(
     in srgb,
     #{$base-color} 88%,
     var(--dst-color-hover-mixin) 12%
   );
+}
+
+@mixin ellipsis($lines: 1) {
+  @if $lines > 1 {
+    display: -webkit-box;
+    -webkit-line-clamp: $lines;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    word-break: break-all;
+  } @else {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
 }

@@ -5,6 +5,7 @@ import { ConfigProvider, Progress, QRCode } from 'antd';
 import { useMemoizedFn } from 'ahooks';
 import { AddFriendModal } from '../AddFriendModal';
 import { getConversationModel } from '../../shims/Whisper';
+import { IconAddMember } from '../shared/icons';
 
 interface IFriendCodeProps {
   avatarPath?: string;
@@ -170,13 +171,13 @@ export const FriendCode = (props: IFriendCodeProps) => {
           </div>
         )}
         <div className="friend-code-operation">
-          <div className="enter-code" onClick={handleAddFriend}>
-            <div className="enter-code-icon"></div>
-            <span>{i18n('addFriend.drawer.enterCode')}</span>
-          </div>
           <div className="copy-link" onClick={handleCopyLink}>
             <div className="copy-link-icon"></div>
             <span>{i18n('addFriend.drawer.copyLink')}</span>
+          </div>
+          <div className="enter-code" onClick={handleAddFriend}>
+            <IconAddMember className="enter-code-icon" />
+            <span>{i18n('addFriend.drawer.addContact')}</span>
           </div>
         </div>
       </div>

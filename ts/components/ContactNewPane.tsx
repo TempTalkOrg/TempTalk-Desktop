@@ -5,6 +5,11 @@ import { ConversationType } from '../state/ducks/conversations';
 import { LocalizerType } from '../types/Util';
 import { trigger } from '../shims/events';
 import { DockType } from '../state/ducks/dock';
+import { AddFriendModal } from './AddFriendModal';
+
+type StateType = {
+  addContactModalVisible: boolean;
+};
 
 type PropsType = {
   i18n: LocalizerType;
@@ -14,9 +19,12 @@ type PropsType = {
   dock: DockType;
 };
 
-export class ContactNewPane extends React.Component<PropsType> {
+export class ContactNewPane extends React.Component<PropsType, StateType> {
   constructor(props: any) {
     super(props);
+    this.state = {
+      addContactModalVisible: false,
+    };
   }
 
   public render() {
@@ -31,7 +39,17 @@ export class ContactNewPane extends React.Component<PropsType> {
       isShown: dock.current === 'contact',
     };
 
-    return <ContactCollect {...childProps} />;
+    return (
+      <>
+        <ContactCollect {...childProps} />
+        <AddFriendModal
+          i18n={i18n}
+          open={this.state.addContactModalVisible}
+          onCancel={() => this.setState({ addContactModalVisible: false })}
+          onComplete={() => this.setState({ addContactModalVisible: false })}
+        />
+      </>
+    );
   }
 
   private setSearchText = (query: string) => {
@@ -43,6 +61,10 @@ export class ContactNewPane extends React.Component<PropsType> {
       trigger('showGroupChats');
     } else if (id === 'all_bots') {
       trigger('showAllBots');
+    } else if (id === 'add_contact') {
+      this.setState({
+        addContactModalVisible: true,
+      });
     } else {
       this.props.openConversationInternal(id);
       const myEvent = new Event('event-toggle-switch-chat');

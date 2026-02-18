@@ -1,12 +1,10 @@
-import React from 'react';
-import { debounce } from 'lodash';
-// import { Avatar } from './Avatar';
+import React, { useEffect, useRef, useState } from 'react';
 
 import { LocalizerType } from '../types/Util';
 import { IconWrapper } from './shared/IconWrapper';
-import { ConfigProvider } from 'antd';
-import { ContextMenu } from './shared/ContextMenu';
-import { AddFriendModal } from './AddFriendModal';
+import { IconClearCircle, IconSearch } from './shared/icons';
+import { useDebounceFn, useMemoizedFn } from 'ahooks';
+import { QuickEntry } from './QuickEntry';
 
 export interface Props {
   searchTerm: string;
@@ -36,311 +34,198 @@ export interface Props {
   clearSearch: () => void;
 }
 
-type State = {
-  goForwardEnabled: boolean;
-  goBackEnabled: boolean;
-  isFocusSearch: boolean;
-  addFriendModalOpen: boolean;
-};
-
 const EmptyMagicString = '{3F29C7A4-E6C8-0FFF-3D56-6283CFD58EB6}';
-export class MainHeader extends React.Component<Props, State> {
-  private readonly doUpdateSearchBound: (
-    event: React.FormEvent<HTMLInputElement>
-  ) => void;
-  private readonly doClearSearchBound: () => void;
-  private readonly handleKeyUpBound: (
-    event: React.KeyboardEvent<HTMLInputElement>
-  ) => void;
-  private readonly setFocusBound: () => void;
-  private readonly getFocusBound: () => void;
-  private readonly inputRef: React.RefObject<HTMLInputElement>;
-  private readonly debouncedSearch: (searchTerm: string) => void;
-  private readonly clearSearchNextTickBound: () => void;
 
-  constructor(props: Props) {
-    super(props);
-    this.clearSearchNextTickBound = this.clearSearchNextTick.bind(this);
-    this.doUpdateSearchBound = this.doUpdateSearch.bind(this);
-    this.doClearSearchBound = this.doClearSearch.bind(this);
-    this.handleKeyUpBound = this.handleKeyUp.bind(this);
-    this.setFocusBound = this.setFocus.bind(this);
-    this.getFocusBound = this.getFocus.bind(this);
-    this.inputRef = React.createRef();
-    this.debouncedSearch = debounce(this.search.bind(this), 20);
-    this.showAddFriendModal = this.showAddFriendModal.bind(this);
-    this.state = {
-      goForwardEnabled: false,
-      goBackEnabled: false,
-      isFocusSearch: false,
-      addFriendModalOpen: false,
-    };
-  }
+export const MainHeader = (props: Props) => {
+  const {
+    i18n,
+    clearSearch,
+    searchTerm,
+    updateSearchTerm,
+    search,
+    ourNumber,
+    regionCode,
+  } = props;
 
-  public search() {
-    const { searchTerm, search, i18n, ourNumber, regionCode } = this.props;
-    if (search) {
-      search(searchTerm, {
-        noteToSelf: i18n('noteToSelf'),
-        ourNumber,
-        regionCode,
-      });
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [isFocusSearch, setIsFocusSearch] = useState(false);
+  const [navStatus, setNavStatus] = useState({
+    goBackEnabled: false,
+    goForwardEnabled: false,
+  });
+
+  const setFocus = useMemoizedFn(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+      setIsFocusSearch(true);
     }
-  }
+  });
 
-  public doUpdateSearch(event: React.FormEvent<HTMLInputElement>) {
-    const { updateSearchTerm } = this.props;
-    const searchTerm = event.currentTarget.value;
-    if (!searchTerm) {
-      this.doClearSearch();
-      this.setState({ isFocusSearch: true });
-      return;
-    }
-
-    if (updateSearchTerm) {
-      updateSearchTerm(searchTerm);
-    }
-
-    if (searchTerm.length < 1) {
-      return;
-    }
-
-    this.debouncedSearch(searchTerm);
-  }
-
-  public doClearSearch() {
-    const { clearSearch } = this.props;
-
+  const doClearSearch = useMemoizedFn(() => {
     clearSearch();
-    this.setState({ isFocusSearch: false });
-  }
+    setIsFocusSearch(false);
+  });
 
-  public handleKeyUp(event: React.KeyboardEvent<HTMLInputElement>) {
-    if (event.key === 'Escape') {
-      this.doClearSearch();
+  const handleKeyUp = useMemoizedFn(
+    (event: React.KeyboardEvent<HTMLInputElement>) => {
+      if (event.key === 'Escape') {
+        doClearSearch();
+      }
     }
-  }
+  );
 
-  public clearSearchNextTick() {
-    const { searchTerm } = this.props;
+  const { run: debouncedSearch } = useDebounceFn(
+    (searchTerm: string) => {
+      if (search) {
+        search(searchTerm, {
+          noteToSelf: i18n('noteToSelf'),
+          ourNumber,
+          regionCode,
+        });
+      }
+    },
+    { wait: 20 }
+  );
+
+  const doUpdateSearch = useMemoizedFn(
+    (event: React.FormEvent<HTMLInputElement>) => {
+      const searchTerm = event.currentTarget.value;
+      if (!searchTerm) {
+        doClearSearch();
+        setIsFocusSearch(true);
+        return;
+      }
+
+      if (updateSearchTerm) {
+        updateSearchTerm(searchTerm);
+      }
+
+      if (searchTerm.length < 1) {
+        return;
+      }
+
+      debouncedSearch(searchTerm);
+    }
+  );
+
+  const clearSearchNextTick = useMemoizedFn(() => {
     //搜索文字不为空，则不会重置搜索结果
     if (searchTerm !== '' && searchTerm !== EmptyMagicString) {
       return;
     }
 
-    // 不好看，但好用，后期优化
     setTimeout(() => {
-      this.doClearSearch();
+      doClearSearch();
     }, 10);
-  }
+  });
 
-  public setFocus() {
-    if (this.inputRef.current) {
-      // @ts-ignore
-      this.inputRef.current.focus();
-      this.setState({ isFocusSearch: true });
-    }
-  }
-
-  public getFocus() {
-    this.setState({ isFocusSearch: true });
-    const { searchTerm } = this.props;
+  const getFocus = useMemoizedFn(() => {
+    setIsFocusSearch(true);
     //搜索文字不为空，则不会重置搜索结果
     if (searchTerm !== '' && searchTerm !== EmptyMagicString) {
       return;
     }
 
-    const { updateSearchTerm } = this.props;
+    updateSearchTerm?.(EmptyMagicString);
+    debouncedSearch(EmptyMagicString);
+  });
 
-    if (updateSearchTerm) {
-      updateSearchTerm(EmptyMagicString);
-    }
-    this.debouncedSearch(EmptyMagicString);
-  }
+  const handleOpenConversation = useMemoizedFn(() => {
+    setIsFocusSearch(false);
+  });
 
-  public newGroup() {
-    (window as any).showNewGroupWindow();
-  }
-
-  public showAddFriendModal() {
-    this.setState({ addFriendModalOpen: true });
-  }
-
-  public handleOpenConversation = () => {
-    this.setState({ isFocusSearch: false });
-  };
-
-  public handleConversationSwitchEnabled = (event: any) => {
+  const handleConversationSwitchEnabled = useMemoizedFn((event: any) => {
     const { goBackEnabled, goForwardEnabled } = event?.detail || {};
-    this.setState({
+    setNavStatus({
       goBackEnabled,
       goForwardEnabled,
     });
-  };
+  });
 
-  componentDidMount() {
-    window.addEventListener('open-conversation', this.handleOpenConversation);
+  useEffect(() => {
+    window.addEventListener('open-conversation', handleOpenConversation);
     window.addEventListener(
       'conversation-switch-enabled',
-      this.handleConversationSwitchEnabled
+      handleConversationSwitchEnabled
     );
+
+    return () => {
+      window.removeEventListener('open-conversation', handleOpenConversation);
+      window.removeEventListener(
+        'conversation-switch-enabled',
+        handleConversationSwitchEnabled
+      );
+    };
+  }, []);
+
+  useEffect(() => {
     const { goBackEnabled, goForwardEnabled } =
       (window as any).getConversationSwitchStatus() || {};
-    this.setState({
+    setNavStatus({
       goBackEnabled,
       goForwardEnabled,
     });
-  }
-  componentWillUnmount() {
-    window.removeEventListener(
-      'open-conversation',
-      this.handleOpenConversation
-    );
-    window.removeEventListener(
-      'conversation-switch-enabled',
-      this.handleConversationSwitchEnabled
-    );
-  }
+  }, []);
 
-  public getDropdownMenuItems() {
-    const { i18n } = this.props;
-
-    const items = [
-      {
-        key: 'create_group',
-        label: (
-          <div className="menu-item" onMouseDown={this.newGroup}>
-            <div className={'operation'}>
-              {i18n('main_header_create_group')}
-            </div>
-          </div>
-        ),
-      },
-      {
-        key: 'invite-friend',
-        label: (
-          <div className="menu-item" onMouseDown={this.showAddFriendModal}>
-            <div className={'operation'}>{i18n('main_header_add_friend')}</div>
-          </div>
-        ),
-      },
-    ];
-
-    return items;
-  }
-
-  public render() {
-    const {
-      searchTerm,
-      // avatarPath,
-      i18n,
-      // ourNumber,
-      // color,
-      // name,
-      // phoneNumber,
-      // profileName,
-    } = this.props;
-    const { goBackEnabled, goForwardEnabled, isFocusSearch } = this.state;
-    const items = this.getDropdownMenuItems();
-
-    return (
-      <div className="module-main-header">
-        {/*<Avatar*/}
-        {/*  avatarPath={avatarPath}*/}
-        {/*  color={color}*/}
-        {/*  conversationType="direct"*/}
-        {/*  i18n={i18n}*/}
-        {/*  name={name}*/}
-        {/*  phoneNumber={phoneNumber}*/}
-        {/*  profileName={profileName}*/}
-        {/*  size={28}*/}
-        {/*/>*/}
-        <div className="module-main-header__search">
-          <div
-            role="button"
-            className="module-main-header__search__icon"
-            onClick={this.setFocusBound}
+  return (
+    <div className="module-main-header">
+      <div className="module-main-header__search">
+        <IconSearch className="module-search-icon" onClick={setFocus} />
+        <input
+          type="text"
+          ref={inputRef}
+          className="module-main-header__search__input"
+          placeholder={i18n('search')}
+          dir="auto"
+          onKeyUp={handleKeyUp}
+          value={searchTerm === EmptyMagicString ? '' : searchTerm}
+          onChange={doUpdateSearch}
+          onBlur={clearSearchNextTick}
+          onFocus={getFocus}
+          spellCheck={false}
+        />
+        {searchTerm && searchTerm !== EmptyMagicString ? (
+          <IconClearCircle
+            className="module-main-header__search__cancel-icon"
+            onClick={doClearSearch}
           />
-          <input
-            type="text"
-            ref={this.inputRef}
-            className="module-main-header__search__input"
-            placeholder={i18n('search')}
-            dir="auto"
-            onKeyUp={this.handleKeyUpBound}
-            value={searchTerm === EmptyMagicString ? '' : searchTerm}
-            onChange={this.doUpdateSearchBound}
-            onBlur={this.clearSearchNextTickBound}
-            onFocus={this.getFocusBound}
-            spellCheck={false}
-          />
-          {searchTerm && searchTerm !== EmptyMagicString ? (
-            <div
-              role="button"
-              className="module-main-header__search__cancel-icon"
-              onClick={this.doClearSearchBound}
-            />
-          ) : null}
-        </div>
-        {!isFocusSearch && (
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-around',
-            }}
-          >
-            <IconWrapper>
-              <div
-                className={
-                  goBackEnabled
-                    ? 'conversation-back'
-                    : 'conversation-back-disable'
-                }
-                onClick={() => {
-                  (window as any).conversationGoBack();
-                }}
-              />
-            </IconWrapper>
-            <IconWrapper>
-              <div
-                className={
-                  goForwardEnabled
-                    ? 'conversation-forward'
-                    : 'conversation-forward-disable'
-                }
-                onClick={() => {
-                  (window as any).conversationGoForward();
-                }}
-              />
-            </IconWrapper>
-            <ConfigProvider
-              theme={{
-                token: {
-                  motionDurationMid: '0s',
-                },
-              }}
-            >
-              <ContextMenu
-                menu={{ items }}
-                trigger={['click']}
-                overlayClassName="main-header-operation-menu"
-                align={{ offset: [-84, 8] }}
-              >
-                <IconWrapper>
-                  <div className="module-main-header__entry__plus-icon" />
-                </IconWrapper>
-              </ContextMenu>
-            </ConfigProvider>
-          </div>
-        )}
-        <AddFriendModal
-          i18n={i18n}
-          open={this.state.addFriendModalOpen}
-          onCancel={() => this.setState({ addFriendModalOpen: false })}
-          onComplete={() => this.setState({ addFriendModalOpen: false })}
-        ></AddFriendModal>
+        ) : null}
       </div>
-    );
-  }
-}
+      {!isFocusSearch && (
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-around',
+          }}
+        >
+          <IconWrapper>
+            <div
+              className={
+                navStatus.goBackEnabled
+                  ? 'conversation-back'
+                  : 'conversation-back-disable'
+              }
+              onClick={() => {
+                (window as any).conversationGoBack();
+              }}
+            />
+          </IconWrapper>
+          <IconWrapper>
+            <div
+              className={
+                navStatus.goForwardEnabled
+                  ? 'conversation-forward'
+                  : 'conversation-forward-disable'
+              }
+              onClick={() => {
+                (window as any).conversationGoForward();
+              }}
+            />
+          </IconWrapper>
+          <QuickEntry i18n={i18n} />
+        </div>
+      )}
+    </div>
+  );
+};

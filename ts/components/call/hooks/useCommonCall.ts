@@ -9,10 +9,9 @@ import {
   ConnectionError,
   Room,
 } from '@cc-livekit/livekit-client';
-import { callActionType, currentCall } from '../initCall';
+import { callActionType, currentCall, switchServiceUrl } from '../initCall';
 import { roomAtom, roomDurationAtom } from '../atoms/roomAtom';
-import { useAtom, useAtomValue } from 'jotai';
-import { isArray, isEmpty, union } from 'lodash';
+import { useAtomValue, useSetAtom } from 'jotai';
 import playAudio from '../PlayAudio';
 import { ICallError } from '../CallRoom';
 import { useGlobalConfig } from './useGlobalConfig';
@@ -25,22 +24,8 @@ interface IProps {
   room: Room;
 }
 
-const getFinalUrls = (urlsFromMain: string[], availableUrls: string[]) => {
-  // urlsFromMain not ready
-  if (!urlsFromMain.length) {
-    return availableUrls;
-  } else {
-    const filteredUrls = urlsFromMain.filter(url =>
-      availableUrls.includes(url)
-    );
-    return filteredUrls.length
-      ? union(filteredUrls, availableUrls)
-      : availableUrls;
-  }
-};
-
 export const useCommonCall = ({ i18n, room }: IProps) => {
-  const [roomInfo, setRoomInfo] = useAtom(roomAtom);
+  const setRoomInfo = useSetAtom(roomAtom);
   const { createCallMsg } = useGlobalConfig();
   const closingWindowRef = useRef(false);
   const roomDuration = useAtomValue(roomDurationAtom);
@@ -142,22 +127,10 @@ export const useCommonCall = ({ i18n, room }: IProps) => {
       currentCall.mk = res.key;
       currentCall.isPassive = currentCall.ourNumber !== res.caller.uid;
 
-      const urlsFromMain = currentCall.serviceUrls || [];
-
-      const { serviceUrl, serviceUrls } = res;
-      const availableUrls =
-        isEmpty(serviceUrls) || !isArray(serviceUrls)
-          ? [serviceUrl]
-          : serviceUrls;
-
-      const finalUrls = getFinalUrls(urlsFromMain, availableUrls);
-
       setRoomInfo({
         key: res.key,
         token: res.token,
-
-        serviceUrl: finalUrls[0],
-        serviceUrls: finalUrls,
+        serviceUrl: currentCall.serviceUrl,
         type: currentCall.type,
         roomName: currentCall.roomName,
       });
@@ -236,27 +209,18 @@ export const useCommonCall = ({ i18n, room }: IProps) => {
     return () => cleanup();
   }, []);
 
-  const switchServiceUrl = useMemoizedFn(() => {
-    const { serviceUrl, serviceUrls } = roomInfo;
-    if (!serviceUrls?.length) return;
-
-    let nextIndex = 0;
-    const currentIndex = serviceUrls.indexOf(serviceUrl);
-
-    if (currentIndex !== -1) {
-      nextIndex = (currentIndex + 1) % serviceUrls.length;
-    }
-
+  const onConnectionError = useMemoizedFn(() => {
+    switchServiceUrl();
     setRoomInfo(prev => ({
       ...prev,
-      serviceUrl: serviceUrls[nextIndex],
+      serviceUrl: currentCall.serviceUrl,
     }));
   });
 
   const onError = useMemoizedFn((e: any) => {
     logger.info('livekit components-js error:', e);
     if (e instanceof ConnectionError) {
-      switchServiceUrl();
+      onConnectionError();
     }
   });
 

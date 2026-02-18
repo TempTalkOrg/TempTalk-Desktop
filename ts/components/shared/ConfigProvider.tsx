@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { ConfigProvider as AntdConfigProvider, ThemeConfig } from 'antd';
 
 export const ConfigProvider = (
-  props: React.PropsWithChildren<{ theme: ThemeConfig }>
+  props: React.PropsWithChildren<{ theme?: ThemeConfig }>
 ) => {
   const theme = useMemo(() => {
     return {
@@ -14,7 +14,12 @@ export const ConfigProvider = (
           defaultActiveBg: 'var(--dst-color-background-third)',
           defaultActiveBorderColor: 'var(--dst-color-line)',
           defaultActiveColor: 'var(--dst-color-text-primary)',
+          defaultBg: 'transparent',
+          defaultBorderColor: 'var(--dst-color-line)',
         },
+      },
+      token: {
+        colorText: 'var(--dst-color-text-primary)',
       },
     };
   }, []);

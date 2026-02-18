@@ -4,14 +4,20 @@ import { v4 as uuidv4 } from 'uuid';
 import { getInitials } from '../util/getInitials';
 import { LocalizerType } from '../types/Util';
 import { trigger } from '../shims/events';
-import { Profile } from './commonSettings/Profile';
+// import { Profile } from './commonSettings/Profile';
 
 import Modal from 'antd/lib/modal';
 import Popover from 'antd/lib/popover';
 import type { MenuProps } from 'antd/lib/menu';
 
 import { ContextMenu } from './shared/ContextMenu';
-import { IconSaveToNote } from './shared/icons';
+import {
+  IconAddContact,
+  IconGroupChats,
+  IconSaveToNote,
+  IconSearch,
+} from './shared/icons';
+import { ProfileCard } from './commonSettings/ProfileCard';
 // import AntDraggableModal from './AntDraggableModal';
 
 interface Props {
@@ -27,6 +33,7 @@ interface Props {
   id?: string;
   groupChats?: boolean;
   allBots?: boolean;
+  addContact?: boolean;
   onClickAvatar?: (e: MouseEvent) => void; // 只有群ConversationHeader才有，优先级最高
   onDoubleClickAvatar?: (e: MouseEvent) => void;
   withMenu?: boolean;
@@ -44,6 +51,7 @@ interface Props {
   conversationId?: any;
   fromMainTab?: boolean;
   leftGroup?: any;
+  className?: string;
 }
 
 interface State {
@@ -63,7 +71,7 @@ interface State {
 }
 
 export class Avatar extends React.Component<Props, State> {
-  public handleImageErrorBound: () => void;
+  public handleImageErrorBound: (e: any) => void;
   public avatarClickTimer: NodeJS.Timeout | undefined;
   public avatarRef: React.RefObject<HTMLDivElement>;
   public positionChecker: NodeJS.Timeout | undefined;
@@ -144,11 +152,13 @@ export class Avatar extends React.Component<Props, State> {
       conversationType,
       archiveButton,
       nonImageType,
+      addContact,
     } = this.props;
     if (
       !nonImageType &&
       !groupChats &&
       !allBots &&
+      !addContact &&
       conversationType === 'direct' &&
       !archiveButton
     ) {
@@ -231,8 +241,10 @@ export class Avatar extends React.Component<Props, State> {
     }, 5000);
   }
 
-  public handleImageError() {
+  public handleImageError(e: any) {
     console.log('Avatar: Image failed to load; failing over to placeholder');
+    console.log('[avatar load error]', 'prop path', this.props.avatarPath);
+    console.log('[avatar load error]', 'load src', e.target.src);
     this.setState({
       imageBroken: true,
     });
@@ -259,7 +271,7 @@ export class Avatar extends React.Component<Props, State> {
     const menuItems: MenuProps['items'] = [
       {
         key: 'send-message',
-        label: i18n('sendMessageToContact'),
+        label: <span>{i18n('sendMessageToContact')}</span>,
         onClick: this.openChat,
       },
     ];
@@ -309,17 +321,18 @@ export class Avatar extends React.Component<Props, State> {
   public renderNoImage() {
     const {
       conversationType,
-      name,
       noteToSelf,
       size,
       id,
       groupChats,
       allBots,
+      addContact,
       archiveButton,
       nonImageType,
+      accountName,
     } = this.props;
 
-    const initials = id === 'MENTIONS_ALL' ? '@' : getInitials(name);
+    const initials = id === 'MENTIONS_ALL' ? '@' : getInitials(accountName);
     const isGroup = conversationType === 'group';
 
     // 重新设置头像大小，有圈和没圈一样大
@@ -342,10 +355,12 @@ export class Avatar extends React.Component<Props, State> {
         <div
           className={classNames(
             'module-avatar__icon',
-            'module-avatar__icon--group-chats',
+            'module-avatar-system-icon',
             `module-avatar__icon--${size}`
           )}
-        />
+        >
+          <IconGroupChats height={20} width={20} />
+        </div>
       );
     }
     if (allBots) {
@@ -357,6 +372,19 @@ export class Avatar extends React.Component<Props, State> {
             `module-avatar__icon--${size}`
           )}
         />
+      );
+    }
+    if (addContact) {
+      return (
+        <div
+          className={classNames(
+            'module-avatar__icon',
+            'module-avatar-system-icon',
+            `module-avatar__icon--${size}`
+          )}
+        >
+          <IconAddContact height={20} width={20} />
+        </div>
       );
     }
 
@@ -375,7 +403,7 @@ export class Avatar extends React.Component<Props, State> {
     switch (nonImageType) {
       case 'search':
         return (
-          <div
+          <IconSearch
             className={classNames(
               'module-avatar__icon',
               'module-avatar__icon--search',
@@ -623,6 +651,7 @@ export class Avatar extends React.Component<Props, State> {
     const hasImage = !noteToSelf && avatarPath && !imageBroken;
 
     if (
+      size !== 16 &&
       size !== 20 &&
       size !== 24 &&
       size !== 28 &&
@@ -762,7 +791,7 @@ export class Avatar extends React.Component<Props, State> {
   }
 
   public renderProfile() {
-    const { i18n, avatarPath, isCanUpload } = this.props;
+    const { i18n, avatarPath, isCanUpload, conversationId } = this.props;
 
     const id = this.getPrivateUserId();
     if (!id) {
@@ -774,14 +803,13 @@ export class Avatar extends React.Component<Props, State> {
         onMouseEnter={() => this.clearProfileCardCloseTimer()}
         // onMouseLeave={() => this.setupProfileCardCloseTimer()}
       >
-        <Profile
+        <ProfileCard
           id={id}
+          conversationId={conversationId}
           i18n={i18n}
           onClose={() => {
             this.setState({ showProfileDialog: false });
           }}
-          x={0}
-          y={0}
           avatarPath={avatarPath}
           allowUpload={isCanUpload ? true : false}
         />
@@ -870,7 +898,7 @@ export class Avatar extends React.Component<Props, State> {
   }
 
   public render() {
-    const { fromMainTab, onClickAvatar } = this.props;
+    const { fromMainTab, onClickAvatar, className } = this.props;
 
     return (
       <Popover
@@ -891,7 +919,7 @@ export class Avatar extends React.Component<Props, State> {
         transitionName=""
       >
         <div
-          className={'only-for-before-join-meeting'}
+          className={classNames(['only-for-before-join-meeting', className])}
           style={{
             borderRadius: '50%',
             position: 'relative',

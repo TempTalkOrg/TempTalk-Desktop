@@ -27,6 +27,7 @@ interface Contact {
   avatarPath?: string;
   color: string;
   isOutgoingKeyError: boolean;
+  accountName?: string;
 
   errors?: Array<Error>;
 
@@ -50,7 +51,7 @@ interface Props {
 export class MessageDetail extends React.Component<Props> {
   public renderAvatar(contact: Contact) {
     const { i18n } = this.props;
-    const { avatarPath, color, id, name, profileName } = contact;
+    const { avatarPath, color, id, name, profileName, accountName } = contact;
 
     return (
       <Avatar
@@ -62,6 +63,7 @@ export class MessageDetail extends React.Component<Props> {
         id={id}
         profileName={profileName}
         size={36}
+        accountName={accountName}
       />
     );
   }

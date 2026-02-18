@@ -530,7 +530,11 @@
         recordFoundView(this.$('li').first(), true);
 
         // add to top
-        this.$messages.prepend(view.el);
+        if (this.unknowUserIndicatorView) {
+          view.$el.insertAfter(this.unknowUserIndicatorView.el);
+        } else {
+          this.$messages.prepend(view.el);
+        }
       } else {
         const tryToInsert = (tryIndex, isBefore) => {
           const found = this.collection.at(tryIndex);
@@ -674,6 +678,22 @@
       if (this.stickyDateView) {
         this.stickyDateView.remove();
         this.stickyDateView = null;
+      }
+    },
+    prependUnknowUserIndicatorIfNeeded(isDirectoryUser) {
+      if (isDirectoryUser) {
+        if (this.unknowUserIndicatorView) {
+          this.unknowUserIndicatorView.remove();
+          this.unknowUserIndicatorView = null;
+        }
+      } else {
+        if (!this.unknowUserIndicatorView) {
+          this.unknowUserIndicatorView = new Whisper.ReactWrapperView({
+            className: 'unknow-user-indicator-view',
+            Component: window.Signal.Components.UnknowUserIndicator,
+          });
+          this.$messages.prepend(this.unknowUserIndicatorView.el);
+        }
       }
     },
 

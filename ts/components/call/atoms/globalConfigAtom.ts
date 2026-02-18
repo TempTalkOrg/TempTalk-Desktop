@@ -13,6 +13,16 @@ export type GlobalConfigType = {
       excludedNameRegex: string;
     };
   };
+  bubbleMessage: {
+    emojiPresets: string[];
+    textPresets: string[];
+    columns: number[];
+    baseSpeed: number;
+    deltaSpeed: number;
+  };
+  chatMessage: {
+    maxLength: number;
+  };
 };
 
 export const globalConfigAtom = atom<GlobalConfigType>({
@@ -27,5 +37,15 @@ export const globalConfigAtom = atom<GlobalConfigType>({
     bluetooth: {
       excludedNameRegex: '',
     },
+  },
+  bubbleMessage: {
+    emojiPresets: ['👍', '👏', '🎉', '🚀', '❤️', '😂'],
+    textPresets: ['Agree ✅', 'Disagree ⛔️', 'Bye 👋', "Can't hear 🙉"],
+    columns: [10, 40, 70],
+    baseSpeed: 4600,
+    deltaSpeed: 400,
+  },
+  chatMessage: {
+    maxLength: 30,
   },
 });

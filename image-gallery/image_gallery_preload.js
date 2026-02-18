@@ -39,14 +39,20 @@ const apis = {
   React: require('react'),
   ReactDOM: require('react-dom'),
   copyImageFile: copyImageFile,
-  openFileDefault: (absPath, fileName, contentType, attachmentId) => {
-    ipcRenderer.send(
-      'open-file-default',
+  openFileDefault: ({
+    url: absPath,
+    fileName,
+    contentType,
+    path,
+    messageId,
+  }) => {
+    ipcRenderer.send('open-file-default', {
       absPath,
       fileName,
       contentType,
-      attachmentId
-    );
+      path,
+      messageId,
+    });
   },
   readFileBuffer: window.readFileBuffer,
   getImageGalleryView: () => {

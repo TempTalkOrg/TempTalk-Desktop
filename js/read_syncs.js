@@ -169,10 +169,10 @@
         }
 
         // handle confidential message
-        // remove message
-        window.Signal.Data._removeMessages([target.id]);
-
         target.getConversation()?.trigger('expired', target);
+
+        // remove message
+        window.Signal.Data.removeMessage(target);
       }
     },
 

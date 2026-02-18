@@ -31,7 +31,7 @@ const callPassivePrivate = new Sound({
 });
 
 const criticalAlertAudio = new Sound({
-  loop: true,
+  loop: false,
   src: '../audio/CriticalAlert.mp3',
   volume: 0.3,
 });

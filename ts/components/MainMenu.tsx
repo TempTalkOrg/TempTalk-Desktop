@@ -5,13 +5,58 @@ import { ForwardDialog } from './ForwardDialog';
 import { Tooltip, Drawer, Popover } from 'antd';
 import Load from './globalComponents/Load';
 import { CommonSetting } from './commonSettings/CommonSetting';
-import ProfileModal from './commonSettings/ProfileModal';
-import { Profile } from './commonSettings/Profile';
 import {
   CurrentDockItemChangedActionType,
   DockItemType,
 } from '../state/ducks/dock';
 import { getConversationModel } from '../shims/Whisper';
+import { SidebarItemType } from '../state/ducks/sidebar';
+import {
+  IconSidebarImageGallery,
+  IconSidebarCall,
+  IconSidebarLocalSearch,
+  IconSidebarCombineForward,
+  IconSidebarEnlarge,
+} from './shared/icons';
+
+const IndividualWindowIconMap = {
+  call: <IconSidebarCall />,
+  'local-search': <IconSidebarLocalSearch />,
+  'image-gallery': <IconSidebarImageGallery />,
+  forward: <IconSidebarCombineForward />,
+  enlarge: <IconSidebarEnlarge />,
+};
+
+const IndividualWindowInfo = ({ items }: { items: SidebarItemType[] }) => {
+  const onClick = (category: SidebarItemType['category']) => {
+    (window as any).showIndividualWindow(category);
+  };
+
+  if (items.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="individual-window-info-container">
+      <div className="divider"></div>
+      <div className="individual-window-list">
+        {items.map(item => {
+          return (
+            <div
+              key={item.category}
+              className="individual-window-list-item"
+              onClick={() => onClick(item.category)}
+            >
+              {React.cloneElement(IndividualWindowIconMap[item.category], {
+                className: 'list-item-icon',
+              })}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
 
 export interface Props {
   // To be used as an ID
@@ -31,6 +76,7 @@ export interface Props {
     current: DockItemType
   ) => CurrentDockItemChangedActionType;
   leftPaneWidth: number;
+  sidebarItemList: SidebarItemType[];
 }
 
 type UpdateDetailEx = {
@@ -54,12 +100,10 @@ interface State {
   conversations: any;
   user: string;
   showCommonSetting?: boolean;
-  showProfileDialog?: boolean;
   updateButton?: boolean;
   updateDetail?: UpdateDetailEx;
   profileUid: string;
   pos: any;
-  allowUpload: boolean;
 
   reverseShareDirection?: boolean;
   forwardDialogTitle?: string;
@@ -78,9 +122,7 @@ export class MainMenu extends React.Component<Props, State> {
       user: '',
       profileUid: '',
       pos: undefined,
-      allowUpload: true,
       showCommonSetting: false,
-      showProfileDialog: false,
       updateButton: false,
       updateDetail: undefined,
     };
@@ -112,23 +154,26 @@ export class MainMenu extends React.Component<Props, State> {
         const item = lookup[info];
         (window as any).sendSearchUser({
           id: info,
-          name: item.name || item.id,
+          name: item.name,
+          accountName: item.accountName,
           avatar: item.avatarPath,
           isMac,
           extern,
         });
       } else {
-        (window as any).sendSearchUser({ id: info, name: info, isMac, extern });
+        (window as any).sendSearchUser({
+          id: info,
+          name: '',
+          accountName: '',
+          isMac,
+          extern,
+        });
       }
     });
 
     // show forward profile
     window.addEventListener('event-share-user-contact', this.showUserContact);
 
-    window.addEventListener(
-      'open-profile-with-position',
-      this.openProfileCenter
-    );
     window.addEventListener('event-open-user-setting', this.openCommonSetting);
     window.addEventListener('event-show-update-button', this.ShowUpdateButton);
   };
@@ -148,10 +193,6 @@ export class MainMenu extends React.Component<Props, State> {
       this.showUserContact
     );
 
-    window.removeEventListener(
-      'open-profile-with-position',
-      this.openProfileCenter
-    );
     window.removeEventListener(
       'event-open-user-setting',
       this.openCommonSetting
@@ -384,11 +425,11 @@ export class MainMenu extends React.Component<Props, State> {
           {/*  title={i18n('settingsTooltip')}*/}
           {/*>*/}
           {/*</Tooltip>*/}
+          <IndividualWindowInfo items={this.props.sidebarItemList} />
           {this.renderUpdateButton()}
         </div>
         {this.renderForwardDialog()}
         {this.renderCommonSetting()}
-        {this.renderProfileDialog()}
       </div>
     );
   }
@@ -454,17 +495,6 @@ export class MainMenu extends React.Component<Props, State> {
 
   public closeForwardDialog = () => {
     this.setState({ showForwardDialog: false });
-  };
-
-  public openProfileCenter = (ev: any) => {
-    if (ev && ev.detail && ev.detail.uid) {
-      const pos = ev.detail.pos || { x: 200, y: 200 };
-      this.setState({
-        showProfileDialog: true,
-        profileUid: ev.detail.uid,
-        pos,
-      });
-    }
   };
 
   public onForwardToContact = async (
@@ -573,31 +603,4 @@ export class MainMenu extends React.Component<Props, State> {
       return null;
     }
   }
-
-  public renderProfileDialog = () => {
-    const { i18n } = this.props;
-    const { showProfileDialog, profileUid, pos } = this.state;
-    if (!showProfileDialog || !profileUid) {
-      return;
-    }
-
-    return (
-      <ProfileModal
-        onClose={() => {
-          this.setState({ showProfileDialog: false });
-        }}
-      >
-        <Profile
-          id={profileUid}
-          i18n={i18n}
-          onClose={() => {
-            this.setState({ showProfileDialog: false });
-          }}
-          x={pos.x}
-          y={pos.y}
-          avatarPath={''}
-        />
-      </ProfileModal>
-    );
-  };
 }

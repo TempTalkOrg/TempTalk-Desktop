@@ -1,4 +1,4 @@
-import { LoggerType } from './types';
+import type { LoggerType } from './types';
 
 export const consoleLogger: LoggerType = {
   fatal(...args: Array<unknown>) {

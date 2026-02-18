@@ -1163,7 +1163,7 @@
     "message": "该设置将在app重启后生效"
   },
   "spellCheckDescription": {
-    "message": "启用输入框拼写检查",
+    "message": "输入消息时启用拼写检查",
     "description": "Description of the media permission description"
   },
   "hardwareAccelerationDescription": {
@@ -1804,8 +1804,8 @@
   "common_groups": {
     "message": "共同群"
   },
-  "uid_name": {
-    "message": "账号"
+  "customUid": {
+    "message": "联系人ID"
   },
   "group_call_voice_join_group": {
     "message": "加入语音群聊"
@@ -1954,8 +1954,11 @@
   "main_header_create_group": {
     "message": "创建群组"
   },
-  "main_header_add_friend": {
-    "message": "添加好友"
+  "main_header_add_contact": {
+    "message": "添加联系人"
+  },
+  "main_header_add_contact_description": {
+    "message": "通过邀请码或联系人ID"
   },
   "editButtonTitle" : {
     "message": "编辑"
@@ -2848,8 +2851,8 @@
   "imageEditorOkButton": {
     "message": "完成并复制"
   },
-  "setting.account.id": {
-    "message": "ID"
+  "setting.account.customUid": {
+    "message": "联系人ID"
   },
   "setting.account.deviceName": {
     "message": "设备名称"
@@ -2923,11 +2926,50 @@
   "setting.account.linkModal.verifyOTP.error": {
     "message": "验证码不正确，请重新输入后再试"
   },
+  "setting.account.customUidModal.title": {
+    "message": "编辑你的联系人ID"
+  },
+  "setting.account.customUidModal.error.customUidAlreadyExists": {
+    "message": "该 ID 已被占用"
+  },
+  "setting.account.customUidModal.error.setCustomUidRateLimit": {
+    "message": "该 ID 每 3 个月只能修改一次"
+  },
+  "setting.account.customUidModal.error.invalidParameter": {
+    "message": "ID 格式不正确"
+  },
+  "setting.account.customUidModal.rules.length": {
+    "message": "长度为 6-20 个字符"
+  },
+  "setting.account.customUidModal.rules.start": {
+    "message": "必须以字母或“_”开头"
+  },
+  "setting.account.customUidModal.rules.content": {
+    "message": "仅可使用字母、数字、“_”或“-”"
+  },
+  "setting.account.customUidModal.rules.duration": {
+    "message": "每 3 个月可修改一次"
+  },
+  "setting.account.customUidModal.placeholder": {
+    "message": "请输入联系人ID"
+  },
+  "setting.account.customUidModal.error.recommendPrefix": {
+    "message": "，请尝试其他，或使用"
+  },
+  "setting.account.customUidModal.validateError.length": {
+    "message": "长度需为 6–20 个字符。请换一个再试。"
+  },
+  "setting.account.customUidModal.validateError.start": {
+    "message": "联系人名称需以字母或“_”开头。请换一个再试。"
+  },
+  "setting.account.customUidModal.validateError.content": {
+    "message": "仅支持字母、数字、“_”或“-”。请换一个再试。"
+  },
   "addFriend.entry": {
     "message": "My Code"
   },
-  "addFriend.drawer.enterCode": {
-    "message": "输入邀请码"
+  "addFriend.drawer.addContact": {
+    "message": "添加联系人"
   },
   "addFriend.drawer.copyLink": {
     "message": "复制邀请链接"
@@ -2936,16 +2978,22 @@
     "message": "加入"
   },
   "addFriend.modal.title": {
-    "message": "添加新朋友"
+    "message": "添加联系人"
   },
-  "addFriend.modal.subtitle": {
-    "message": "输入 code 添加新朋友"
+  "addFriend.modal.placeholder": {
+    "message": "输入 4 位邀请码或联系人ID"
   },
   "addFriend.modal.errorFriendCode": {
-    "message": "code 错误, 请重试"
+    "message": "邀请码不正确, 请重试"
+  },
+  "addFriend.modal.errorUid": {
+    "message": "联系人ID不正确, 请重试"
   },
   "addFriend.profileEntry": {
     "message": "添加好友"
+  },
+  "add": {
+    "message": "添加"
   },
   "shareContact": {
     "message": "分享联系人"
@@ -3168,22 +3216,22 @@
     "message": "通话突然结束"
   },
   "sendCriticalAlert": {
-    "message": "重要提醒"
+    "message": "紧急联络"
   },
   "sendCriticalAlert.success": {
-    "message": "发送重要提醒成功"
+    "message": "发起紧急联络成功"
   },
   "sendCriticalAlert.fail": {
-    "message": "发送重要提醒失败，请重试"
+    "message": "发起紧急联络失败，请重试"
   },
   "sendCriticalAlert.rateLimitExceeded": {
-    "message": "发送过于频繁，请稍后重试"
+    "message": "发起过于频繁，请稍后重试"
   },
   "sendCriticalAlert.toastPrefix": {
     "message": "没有回应？"
   },
   "sendCriticalAlert.toastSuffix": {
-    "message": "发送重要提醒。"
+    "message": "发起紧急联络。"
   },
   "controlBar.microphone": {
     "message": "按空格开启/关闭麦克风"
@@ -3222,7 +3270,10 @@
     "message": "更多"
   },
   "settings.criticalAlert": {
-    "message": "重要提醒"
+    "message": "紧急联络"
+  },
+  "settings.criticalAlert.tooltip": {
+    "message": "开启后，紧急联络可突破静音和勿扰模式。"
   },
   "urgentCall": {
     "message": "紧急通话"
@@ -3237,15 +3288,99 @@
     "message": "收起内容"
   },
   "criticalAlert.privateContent": {
-    "message": "重要提醒。"
+    "message": "紧急联络。"
   },
   "criticalAlert.nonPrivateContent": {
-    "message": "来自 $from$ 的重要提醒。"
+    "message": "来自 $from$ 的紧急联络。"
   },
   "criticalAlert": {
-    "message": "[🚨 重要提醒]"
+    "message": "[🚨 紧急联络]"
   },
   "networkErrAndRetry": {
     "message": "网络错误，将在 $seconds$ 秒后重试..."
+  },
+  "enlarged": {
+    "message": "放大查看"
+  },
+  "chatSetting.typing": {
+    "message": "输入"
+  },
+  "setting.account.searchByCustomUid": {
+    "message": "允许被搜索"
+  },
+  "chatSetting.playbackSpeed": {
+    "message": "语音播放速度"
+  },
+  "chatSetting.playbackSpeedDescription": {
+    "message": "设置语音消息的默认播放速度。"
+  },
+  "speedHint.slower": {
+    "message": "请放慢速度"
+  },
+  "speedHint.faster": {
+    "message": "请加快速度"
+  },
+  "micOnLineUpPrefix": {
+    "message": "等待发言: "
+  },
+  "screenShare.waitingForApproval": {
+    "message": "请求屏幕共享中"
+  },
+  "screenShare.requestDeclined": {
+    "message": "屏幕共享请求被拒绝"
+  },
+  "screenShare.approvalModal.title.singleRequest": {
+    "message": "即将接管屏幕共享"
+  },
+  "screenShare.approvalModal.title.miltiRequest": {
+    "message": "屏幕共享即将被接管"
+  },
+  "approveNow": {
+    "message": "立即同意"
+  },
+  "reject": {
+    "message": "拒绝"
+  },
+  "checkEndCall.title": {
+    "message": "有人正在发言"
+  },
+  "checkEndCall.content": {
+    "message": "确定要立即结束吗？"
+  },
+  "confidential-mode-placeholder": {
+    "message": "机密消息（查看后，消息将消失）"
+  },
+  "criticalAlert.sendConfirm.desc": {
+    "message": "可突破静音和勿扰模式，仅用于紧急情况。"
+  },
+  "criticalAlert.sendConfirm.inviteSuffix": {
+    "message": "和其他$count$人"
+  },
+  "criticalAlert.sendConfirm.contentPrefix.instant": {
+    "message": "发送给"
+  },
+  "criticalAlert.sendConfirm.contentPrefix.group": {
+    "message": "发送给未入会的群成员"
+  },
+  "criticalAlert.sendConfirm.contentPrefix.groupWithInviteUsers": {
+    "message": "发送给未入会的群成员和邀请的人"
+  },
+  "callActionText.criticalAlert": {
+    "message": "🚨 紧急联络"
+  },
+  "confidentialMessage.readByOthers": {
+    "message": "机密消息已被查看"
+  },
+  "ignore": {
+    "message": "忽略"
+  },
+  "warningPrefix": {
+    "message": "请勿"
+  },
+  "addFriendWarningContent": {
+    "message": "轻信陌生人。"
+  },
+  "unknowUserIndicator": {
+    "message": "🔒 隐私优先 · 全程匿名 · 端到端消息加密。请勿轻信陌生人。"
   }
 }

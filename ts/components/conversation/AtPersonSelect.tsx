@@ -218,9 +218,10 @@ export class AtPersonSelect extends React.Component<PropsType, StateType> {
             ? i18n('mentionsAllTitle')
             : c.name || c.id) + (willTakeStar ? '*' : '')
         }
-        color={(c as any).color}
-        profileName={(c as any).profileName}
-        avatarPath={(c as any).avatarPath}
+        color={c.color}
+        profileName={c.profileName}
+        accountName={c.accountName}
+        avatarPath={c.avatarPath}
         email={' '}
         i18n={i18n}
         notShowStatus={true}

@@ -13,6 +13,7 @@ const readLastLines = require('read-last-lines').read;
 const rimraf = require('rimraf');
 
 const { redactAll } = require('../js/modules/privacy');
+const { safeFormat } = require('../ts/logger/format');
 
 const { app, ipcMain: ipc } = electron;
 const LEVELS = ['fatal', 'error', 'warn', 'info', 'debug', 'trace'];
@@ -57,22 +58,9 @@ function initialize() {
       ],
     });
 
-    LEVELS.forEach(level => {
-      ipc.on(`log-${level}`, (first, ...rest) => {
-        logger[level](...rest);
-      });
-    });
-
-    ipc.on('fetch-log', event => {
-      fetch(logPath).then(
-        data => {
-          event.sender.send('fetched-log', data);
-        },
-        error => {
-          logger.error(`Problem loading log from disk: ${error.stack}`);
-        }
-      );
-    });
+    LEVELS.forEach(level =>
+      ipc.on(`log-${level}`, (_, ...rest) => logAtLevel(level, ...rest))
+    );
 
     ipc.on('delete-all-logs', async event => {
       try {
@@ -193,12 +181,23 @@ function eliminateOldEntries(files, date) {
   );
 }
 
+let safeLogger;
+
 function getLogger() {
   if (!logger) {
     throw new Error("Logger hasn't been initialized yet!");
   }
 
-  return logger;
+  if (safeLogger) {
+    return safeLogger;
+  }
+
+  safeLogger = LEVELS.reduce((acc, level) => {
+    acc[level] = (...args) => logAtLevel(level, ...args);
+    return acc;
+  }, {});
+
+  return safeLogger;
 }
 
 function fetchLog(logFile) {
@@ -247,19 +246,7 @@ function fetch(logPath) {
 
 function logAtLevel(level, ...args) {
   if (logger) {
-    // To avoid [Object object] in our log since console.log handles non-strings smoothly
-    const str = args.map(item => {
-      if (typeof item !== 'string') {
-        try {
-          return JSON.stringify(item);
-        } catch (e) {
-          return item;
-        }
-      }
-
-      return item;
-    });
-    logger[level](redactAll(str.join(' ')));
+    logger[level](redactAll(safeFormat(...args)));
   } else {
     console._log(...args);
   }

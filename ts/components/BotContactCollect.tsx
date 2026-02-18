@@ -4,6 +4,7 @@ import { AutoSizer, List } from 'react-virtualized';
 import { LocalizerType } from '../types/Util';
 import { ConversationType } from '../state/ducks/conversations';
 import { trigger } from '../shims/events';
+import { IconClearCircle, IconSearch } from './shared/icons';
 
 interface Props {
   i18n: LocalizerType;
@@ -125,7 +126,7 @@ export class BotContactCollect extends React.Component<Props, State> {
       <div style={topStyle}>
         <div className="module-common-header">
           <div className="module-common-header__search">
-            <div role="button" className="module-common-header__search__icon" />
+            <IconSearch className="module-search-icon" />
             <input
               style={{ width: '100%' }}
               type="text"
@@ -138,8 +139,7 @@ export class BotContactCollect extends React.Component<Props, State> {
               spellCheck={false}
             />
             {searchText ? (
-              <div
-                role="button"
+              <IconClearCircle
                 className="module-common-header__search__cancel-icon"
                 onClick={this.clearSearch}
               />

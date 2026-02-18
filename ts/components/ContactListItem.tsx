@@ -22,6 +22,7 @@ interface Props {
   style?: object;
   groupChats?: boolean;
   allBots?: boolean;
+  addContact?: boolean;
   email?: string;
   signature?: string;
   archiveButton?: boolean;
@@ -40,6 +41,8 @@ interface Props {
   isCreateGroup?: any;
   smallAvatar?: boolean;
   useDefaultAvatarClick?: boolean;
+  description?: string;
+  accountName?: string;
 }
 
 export class ContactListItem extends React.Component<Props> {
@@ -50,6 +53,7 @@ export class ContactListItem extends React.Component<Props> {
       color,
       name,
       profileName,
+      accountName,
       groupChats,
       allBots,
       id,
@@ -58,6 +62,7 @@ export class ContactListItem extends React.Component<Props> {
       notShowStatus,
       smallAvatar,
       useDefaultAvatarClick,
+      addContact,
     } = this.props;
 
     return (
@@ -69,10 +74,12 @@ export class ContactListItem extends React.Component<Props> {
         i18n={i18n}
         name={name}
         profileName={profileName}
+        accountName={accountName}
         size={smallAvatar ? 28 : 36}
         noteToSelf={isMe}
         groupChats={groupChats}
         allBots={allBots}
+        addContact={addContact}
         noClickEvent={!useDefaultAvatarClick}
         archiveButton={archiveButton}
         notShowStatus={notShowStatus}
@@ -232,9 +239,10 @@ export class ContactListItem extends React.Component<Props> {
       isContactNewPane,
       isShowTopicFlag,
       isCreateGroup,
+      description,
     } = this.props;
 
-    const title = name ? name : id;
+    const title = name;
     const displayName = isMe ? i18n('noteToSelf') : title;
 
     let titleElements = [
@@ -248,6 +256,11 @@ export class ContactListItem extends React.Component<Props> {
           )}
         >
           {displayName}
+          {description && (
+            <p className="module-contact-list-item__text__name__description">
+              {description}
+            </p>
+          )}
         </div>
       ) : null,
     ];

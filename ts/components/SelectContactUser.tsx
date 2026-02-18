@@ -3,6 +3,7 @@ import { ContactListItem } from './ContactListItem';
 import { AutoSizer, List } from 'react-virtualized';
 import { LocalizerType } from '../types/Util';
 import { ConversationType } from '../state/ducks/conversations';
+import { IconClearCircle, IconSearch } from './shared/icons';
 
 type PropsType = {
   i18n: LocalizerType;
@@ -28,7 +29,7 @@ export class SelectContactUser extends React.Component<PropsType, StateType> {
 
   public renderRow = ({ index, style }: any): JSX.Element => {
     const { contacts, clickItem } = this.props;
-    const c = contacts[index];
+    const c: any = contacts[index];
 
     return (
       <ContactListItem
@@ -38,10 +39,11 @@ export class SelectContactUser extends React.Component<PropsType, StateType> {
         phoneNumber={c.id}
         isMe={c.isMe}
         name={c.name}
-        color={(c as any).color}
-        profileName={(c as any).profileName}
-        avatarPath={(c as any).avatarPath}
-        email={(c as any).email}
+        color={c.color}
+        profileName={c.profileName}
+        accountName={c.accountName}
+        avatarPath={c.avatarPath}
+        email={c.email}
         i18n={this.props.i18n}
         onClick={() => clickItem(c.id)}
       />
@@ -64,7 +66,8 @@ export class SelectContactUser extends React.Component<PropsType, StateType> {
       <div style={topStyle}>
         <div className="module-main-header">
           <div className="module-main-header__search">
-            <div role="button" className="module-main-header__search__icon" />
+            <IconSearch className="module-search-icon" />
+
             <input
               style={{ width: '270px' }}
               type="text"
@@ -78,8 +81,7 @@ export class SelectContactUser extends React.Component<PropsType, StateType> {
               spellCheck={false}
             />
             {searchText ? (
-              <div
-                role="button"
+              <IconClearCircle
                 className="module-main-header__search__cancel-icon"
                 onClick={this.clearSearch}
               />

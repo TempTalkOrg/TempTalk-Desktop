@@ -1,7 +1,8 @@
-import { Database } from '@signalapp/better-sqlite3';
-import { LoggerType } from '../../../logger/types';
+import type { Database } from '@opensource-lib/better-sqlite3';
+import type { LoggerType } from '../../../logger/types';
+import type { EmptyQuery } from '../../sqlTypes';
+
 import { getCreateSQL } from '../../utils/sqlUtils';
-import { EmptyQuery } from '../../sqlTypes';
 
 export function updateToSchemaVersion36(
   currentVersion: number,
@@ -153,4 +154,38 @@ export function updateToSchemaVersion38(
   })();
 
   logger.info('updateToSchemaVersion38: success!');
+}
+
+export function updateToSchemaVersion39(
+  currentVersion: number,
+  db: Database,
+  logger: LoggerType
+) {
+  if (currentVersion >= 39) {
+    return;
+  }
+
+  logger.info('updateToSchemaVersion39: starting...');
+
+  db.transaction(() => {
+    db.exec(
+      `
+      DROP TABLE IF EXISTS votes;
+      DROP TABLE IF EXISTS vote_messages;
+
+      DROP TABLE IF EXISTS tasks;
+      DROP TABLE IF EXISTS task_messages;
+      DROP TABLE IF EXISTS task_roles;
+      DROP TABLE IF EXISTS task_conversations;
+
+      DROP TABLE IF EXISTS url_risk;
+      DROP TABLE IF EXISTS file_risk;
+
+      DROP TABLE IF EXISTS messages_expired;
+      `
+    );
+    db.pragma('user_version = 39');
+  })();
+
+  logger.info('updateToSchemaVersion39: success!');
 }

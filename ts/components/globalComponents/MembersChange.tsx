@@ -5,6 +5,7 @@ import { LocalizerType } from '../../types/Util';
 import { ContactListItem } from '../ContactListItem';
 import Dialog from '../Dialog';
 import { getConversationModel } from '../../shims/Whisper';
+import { IconClearCircle, IconSearch } from '../shared/icons';
 
 export interface IMembersChangeProps {
   i18n: LocalizerType;
@@ -279,9 +280,8 @@ export default function MembersChange(props: IMembersChangeProps) {
             className="module-main-header__search"
             style={{ margin: '16px' }}
           >
-            <div
-              role="button"
-              className="module-main-header__search__icon"
+            <IconSearch
+              className="module-search-icon"
               onClick={setInputFocus}
             />
             <input
@@ -295,8 +295,7 @@ export default function MembersChange(props: IMembersChangeProps) {
               spellCheck={false}
             />
             {searchText ? (
-              <div
-                role="button"
+              <IconClearCircle
                 className="module-main-header__search__cancel-icon"
                 onClick={() => {
                   setSearchText('');

@@ -1,6 +1,10 @@
-import { Database } from '@signalapp/better-sqlite3';
+import type { Database } from '@opensource-lib/better-sqlite3';
 import { CommonTable } from './sqlCommonTable';
-import { AttachmentDownloadJobDBType, EmptyQuery, Query } from '../sqlTypes';
+import type {
+  AttachmentDownloadJobDBType,
+  EmptyQuery,
+  Query,
+} from '../sqlTypes';
 import {
   mapWithJsonToObject,
   objectToJSON,

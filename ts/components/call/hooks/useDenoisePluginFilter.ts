@@ -3,7 +3,7 @@ import { LocalAudioTrack, Room, RoomEvent } from '@cc-livekit/livekit-client';
 import {
   DenoiseTrackProcessor,
   type DenoiseFilterOptions,
-} from '@cc-livekit/denoise-plugin/dist/index.js';
+} from '@cc-livekit/denoise-plugin';
 import type { TrackReferenceOrPlaceholder } from '../modules/core';
 import { useMemoizedFn } from 'ahooks';
 import { useLocalParticipant } from '../modules/react';

@@ -77,6 +77,10 @@ window.registerHideWindowHandler = handler => {
   };
 };
 
+window.sendRequireScreenShareAction = data => {
+  ipcRenderer.send('require-screen-share-action', data);
+};
+
 window.getFloatingBarView = () => {
   const { FloatingBar } = require('../ts/components/call/FloatingBar');
   return FloatingBar;

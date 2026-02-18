@@ -64,7 +64,8 @@ function OutgoingMessage(
   message,
   silent,
   callback,
-  extension
+  extension,
+  syncMessage
 ) {
   if (message instanceof textsecure.protobuf.DataMessage) {
     const content = new textsecure.protobuf.Content();
@@ -72,6 +73,13 @@ function OutgoingMessage(
     // eslint-disable-next-line no-param-reassign
     message = content;
   }
+
+  if (syncMessage instanceof textsecure.protobuf.SyncMessage) {
+    const content = new textsecure.protobuf.Content();
+    content.syncMessage = syncMessage;
+    this.syncMessage = content;
+  }
+
   this.server = server;
   this.timestamp = timestamp;
   this.numbers = numbers;
@@ -168,6 +176,17 @@ OutgoingMessage.prototype = {
       this.plaintext[messageBuffer.byteLength] = 0x80;
     }
     return this.plaintext;
+  },
+  getSyncMessagePlaintext() {
+    if (!this.syncMessagePlaintext) {
+      const syncMessageBuffer = this.syncMessage.toArrayBuffer();
+      this.syncMessagePlaintext = new Uint8Array(
+        this.getPaddedMessageLength(syncMessageBuffer.byteLength + 1) - 1
+      );
+      this.syncMessagePlaintext.set(new Uint8Array(syncMessageBuffer));
+      this.syncMessagePlaintext[syncMessageBuffer.byteLength] = 0x80;
+    }
+    return this.syncMessagePlaintext;
   },
 
   getDetailMessageType() {
@@ -580,7 +599,7 @@ OutgoingMessage.prototype = {
 
     const MessageType = textsecure.protobuf.Envelope.MsgType;
     if (jsonData.msgType === MessageType.MSG_RECALL) {
-      const { realSource } = this.message.dataMessage?.recall;
+      const { realSource } = this.message.dataMessage?.recall || {};
       if (realSource) {
         jsonData.realSource = {
           ...realSource,
@@ -601,7 +620,7 @@ OutgoingMessage.prototype = {
 
     // we just reuse notification.args.gid, as this is the groupV2Id
     this.server
-      .sendMessageV3ToGroup(
+      .sendMessageV4ToGroup(
         notification.args.gid,
         jsonData,
         this.timestamp,
@@ -610,7 +629,7 @@ OutgoingMessage.prototype = {
       .then(async response => {
         const { status, data } = response || {};
         if (status !== 0) {
-          window.log.info('sendMessageV3ToGroup response status:', status);
+          window.log.info('sendMessageV4ToGroup response status:', status);
         }
 
         // server must response data
@@ -675,7 +694,7 @@ OutgoingMessage.prototype = {
           }
         } else if (status === API_STATUS.UnsupportedEncLevel) {
           // unsuppported encryption level
-          window.log.warn('sendMessageV3ToGroup unsupported encryption level');
+          window.log.warn('sendMessageV4ToGroup unsupported encryption level');
         }
 
         const { unavailableUsers } = data;
@@ -736,10 +755,13 @@ OutgoingMessage.prototype = {
     const notification = this.getNotificationForNumber();
 
     let sessionCipher;
+    let ourSessionCipher;
+
+    const ourNumber = textsecure.storage.user.getNumber();
 
     try {
       const { ciphers, errorMap } = await UserSessionCipher.batchLoadCiphers(
-        [number],
+        [number, ourNumber],
         uids => this.server.getKeysV3ForUids(uids).then(data => data?.keys)
       );
 
@@ -749,18 +771,30 @@ OutgoingMessage.prototype = {
       }
 
       sessionCipher = ciphers[0];
+      ourSessionCipher = ciphers[1];
     } catch (error) {
       this.registerError(number, 'load and update session error', error);
       return;
     }
 
     let content;
+    let syncContent;
     const recipients = [];
 
     try {
       const plaintext = this.getPlaintext();
       const { cipherObject, receipt } = await sessionCipher.encrypt(plaintext);
       content = textsecure.EncryptedContent.encode(cipherObject);
+
+      if (this.syncMessage) {
+        const syncContentPlaintext = this.getSyncMessagePlaintext();
+        const { cipherObject: syncContentCipherObject } =
+          await ourSessionCipher.encrypt(syncContentPlaintext);
+        syncContent = textsecure.EncryptedContent.encode(
+          syncContentCipherObject
+        );
+      }
+
       recipients.push(receipt);
     } catch (error) {
       this.registerError(number, 'Can not construct content', error);
@@ -771,6 +805,7 @@ OutgoingMessage.prototype = {
     const jsonData = {
       type: textsecure.protobuf.Envelope.Type.ENCRYPTEDTEXT,
       content,
+      syncContent,
       legacyContent: withLegacy ? this.message.toBase64() : null,
       notification,
       readReceipt: receiptMessage instanceof textsecure.protobuf.ReceiptMessage,
@@ -791,7 +826,7 @@ OutgoingMessage.prototype = {
         };
       });
     } else if (jsonData.msgType === MessageType.MSG_RECALL) {
-      const { realSource } = this.message.dataMessage?.recall;
+      const { realSource } = this.message.dataMessage?.recall || {};
       if (realSource) {
         jsonData.realSource = {
           ...realSource,
@@ -821,11 +856,11 @@ OutgoingMessage.prototype = {
     }
 
     this.server
-      .sendMessageV3ToNumber(number, jsonData, this.timestamp, this.silent)
+      .sendMessageV4ToNumber(number, jsonData, this.timestamp, this.silent)
       .then(async response => {
         const { status, data } = response || {};
         if (status !== 0) {
-          window.log.info('sendMessageV3ToNumber response status:', status);
+          window.log.info('sendMessageV4ToNumber response status:', status);
         }
 
         if (!data) {
@@ -855,7 +890,7 @@ OutgoingMessage.prototype = {
           return;
         } else if (status === API_STATUS.UnsupportedEncLevel) {
           //
-          window.log.warn('sendMessageV3ToNumber unsupported encryption level');
+          window.log.warn('sendMessageV4ToNumber unsupported encryption level');
         }
 
         this.sequenceIdMap[number] = data.sequenceId;

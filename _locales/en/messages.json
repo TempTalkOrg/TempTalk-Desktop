@@ -713,7 +713,7 @@
     "description": "Shown in triple-dot menu next to message to allow user to show forward dialog"
   },
   "forwardMessageToMe": {
-    "message": "Save",
+    "message": "Add to Saved",
     "description": "Shown in triple-dot menu next to message to allow user to forward message to Note(myself)"
   },
   "selectMessages": {
@@ -729,7 +729,7 @@
     "description": "Title for one by one forward button"
   },
   "saveToNoteForward": {
-    "message": "Save",
+    "message": "Add to Saved",
     "description": "Title for save to note forward button"
   },
   "forwardedPairPrivateMessageTitle": {
@@ -1138,7 +1138,7 @@
     "message": "The change will take effect after you restart the app"
   },
   "spellCheckDescription": {
-    "message": "Enable spell check of text entered in message composition box",
+    "message": "Enable spell check while typing messages",
     "description": "Description of the media permission description"
   },
   "hardwareAccelerationDescription": {
@@ -1777,8 +1777,8 @@
   "common_groups": {
     "message": "Groups"
   },
-  "uid_name": {
-    "message": "UID"
+  "customUid": {
+    "message": "Contact ID"
   },
   "group_call_voice_join_group": {
     "message": "Join voice group"
@@ -1921,8 +1921,11 @@
   "main_header_create_group": {
     "message": "Create Group"
   },
-  "main_header_add_friend": {
-    "message": "Add Friends"
+  "main_header_add_contact": {
+    "message": "Add Contact"
+  },
+  "main_header_add_contact_description": {
+    "message": "By code or contact ID"
   },
   "editButtonTitle": {
     "message": "Edit"
@@ -2812,8 +2815,8 @@
   "imageEditorOkButton": {
     "message": "Finish and Copy to Clipboard"
   },
-  "setting.account.id": {
-    "message": "ID"
+  "setting.account.customUid": {
+    "message": "Contact ID"
   },
   "setting.account.deviceName": {
     "message": "Device Name"
@@ -2887,11 +2890,50 @@
   "setting.account.linkModal.verifyOTP.error": {
     "message": "OTP is not correct, please try again"
   },
+  "setting.account.customUidModal.title": {
+    "message": "Edit your Contact ID"
+  },
+  "setting.account.customUidModal.error.customUidAlreadyExists": {
+    "message": "This ID is taken"
+  },
+  "setting.account.customUidModal.error.setCustomUidRateLimit": {
+    "message": "This ID can only be changed once every 3 months."
+  },
+  "setting.account.customUidModal.error.invalidParameter": {
+    "message": "invalid ID format"
+  },
+  "setting.account.customUidModal.rules.length": {
+    "message": "6-20 characters."
+  },
+  "setting.account.customUidModal.rules.start": {
+    "message": "Starts with letter or \"_\"."
+  },
+  "setting.account.customUidModal.rules.content": {
+    "message": "Letters, numbers, and \"_\" or \"-\" only."
+  },
+  "setting.account.customUidModal.rules.duration": {
+    "message": "Changeable every 3 months."
+  },
+  "setting.account.customUidModal.placeholder": {
+    "message": "Enter your Contact ID"
+  },
+  "setting.account.customUidModal.error.recommendPrefix": {
+    "message": ". Try another or use"
+  },
+  "setting.account.customUidModal.validateError.length": {
+    "message": "Must be 6–20 characters long. Please try another one."
+  },
+  "setting.account.customUidModal.validateError.start": {
+    "message": "Must start with letter or \"_\".Please try another one."
+  },
+  "setting.account.customUidModal.validateError.content": {
+    "message": "Use only letters, numbers, \"_\" or \"-\". Please try another one."
+  },
   "addFriend.entry": {
     "message": "My Code"
   },
-  "addFriend.drawer.enterCode": {
-    "message": "Enter Code"
+  "addFriend.drawer.addContact": {
+    "message": "Add Contact"
   },
   "addFriend.drawer.copyLink": {
     "message": "Copy Link"
@@ -2900,13 +2942,19 @@
     "message": "joined"
   },
   "addFriend.modal.title": {
-    "message": "Add new friend"
+    "message": "Add Contact"
   },
-  "addFriend.modal.subtitle": {
-    "message": "Enter a code to add a new friend"
+  "addFriend.modal.placeholder": {
+    "message": "Enter a 4-digit code or contact ID"
   },
   "addFriend.modal.errorFriendCode": {
     "message": "The code is not correct, please try again"
+  },
+  "addFriend.modal.errorUid": {
+    "message": "The contact id is not correct, please try again"
+  },
+  "add": {
+    "message": "Add"
   },
   "addFriend.profileEntry": {
     "message": "Add friend"
@@ -2948,10 +2996,10 @@
     "message": "joined"
   },
   "floatingMessage.micOn": {
-    "message": "turned ON mic 🙋🙋🙋"
+    "message": "mic ON 🙋🙋🙋"
   },
   "floatingMessage.micOff": {
-    "message": "turned OFF mic 🔕"
+    "message": "mic OFF 🔕"
   },
   "floatingMessage.startScreen": {
     "message": "starts sharing 🖥"
@@ -3132,13 +3180,13 @@
     "message": "Call suddenly ended"
   },
   "sendCriticalAlert": {
-    "message": "Critical alert"
+    "message": "Critical Alert"
   },
   "sendCriticalAlert.success": {
-    "message": "sent a critical alert"
+    "message": "sent a Critical Alert"
   },
   "sendCriticalAlert.fail": {
-    "message": "failed to send a critical alert. Please try again."
+    "message": "failed to send a Critical Alert. Please try again."
   },
   "sendCriticalAlert.rateLimitExceeded": {
     "message": "Send too frequently, please try again later"
@@ -3147,7 +3195,7 @@
     "message": "No answer?"
   },
   "sendCriticalAlert.toastSuffix": {
-    "message": "Send a critical alert."
+    "message": "Send a Critical Alert."
   },
   "controlBar.microphone": {
     "message": "Press spacebar to mute/unmute"
@@ -3188,6 +3236,9 @@
   "settings.criticalAlert": {
     "message": "Critical Alert"
   },
+  "settings.criticalAlert.tooltip": {
+    "message": "When enabled, Critical Alerts break through Silent Mode and Do Not Disturb."
+  },
   "urgentCall": {
     "message": "Urgent Call"
   },
@@ -3211,5 +3262,89 @@
   },
   "networkErrAndRetry": {
     "message": "Network error, will retry connecting in $seconds$s ..."
+  },
+  "enlarged": {
+    "message": "Enlarge"
+  },
+  "chatSetting.typing": {
+    "message": "Typing"
+  },
+  "setting.account.searchByCustomUid": {
+    "message": "Allow Search"
+  },
+  "chatSetting.playbackSpeed": {
+    "message": "Voice Playback Speed"
+  },
+  "chatSetting.playbackSpeedDescription": {
+    "message": "Set the default playback speed for voice messages."
+  },
+  "speedHint.slower": {
+    "message": "Slow down"
+  },
+  "speedHint.faster": {
+    "message": "Speed up"
+  },
+  "micOnLineUpPrefix": {
+    "message": "Waiting: "
+  },
+  "screenShare.waitingForApproval": {
+    "message": "Waiting for screen sharing approval"
+  },
+  "screenShare.requestDeclined": {
+    "message": "Screen sharing was declined"
+  },
+  "screenShare.approvalModal.title.singleRequest": {
+    "message": "will take over screen sharing"
+  },
+  "screenShare.approvalModal.title.miltiRequest": {
+    "message": "Screen will be taken over"
+  },
+  "approveNow": {
+    "message": "Approve now"
+  },
+  "reject": {
+    "message": "Reject"
+  },
+  "checkEndCall.title": {
+    "message": "Someone is still speaking"
+  },
+  "checkEndCall.content": {
+    "message": "Are you sure you want to end now?"
+  },
+  "confidential-mode-placeholder": {
+    "message": "Confidential Message (Read once, then gone)"
+  },
+  "criticalAlert.sendConfirm.desc": {
+    "message": "Breaks through Silent Mode and Do Not Disturb. Use only for urgent situations."
+  },
+  "criticalAlert.sendConfirm.inviteSuffix": {
+    "message": "and $count$ more"
+  },
+  "criticalAlert.sendConfirm.contentPrefix.instant": {
+    "message": "Send to"
+  },
+  "criticalAlert.sendConfirm.contentPrefix.group": {
+    "message": "Send to group members who have not joined"
+  },
+  "criticalAlert.sendConfirm.contentPrefix.groupWithInviteUsers": {
+    "message": "Send to group members who have not joined and invited users"
+  },
+  "callActionText.criticalAlert": {
+    "message": "🚨 Critical Alert."
+  },
+  "confidentialMessage.readByOthers": {
+    "message": "Confidential message has been viewed"
+  },
+  "ignore": {
+    "message": "Ignore"
+  },
+  "warningPrefix": {
+    "message": "DO NOT"
+  },
+  "addFriendWarningContent": {
+    "message": "trust unknown users."
+  },
+  "unknowUserIndicator": {
+    "message": "🔒 Privacy first. Fully anonymous and end-to-end encrypted. DO NOT trust unknown users. "
   }
 }

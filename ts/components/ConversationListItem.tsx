@@ -24,6 +24,7 @@ export type PropsData = {
   color?: string;
   profileName?: string;
   name?: string;
+  accountName?: string;
   type: 'group' | 'direct';
   avatarPath?: string;
   isMe: boolean;
@@ -122,6 +123,7 @@ export class ConversationListItem extends React.Component<Props> {
       name,
       profileName,
       isGroupOwnerSelect,
+      accountName,
     } = this.props;
 
     let groupMembersCount;
@@ -144,6 +146,7 @@ export class ConversationListItem extends React.Component<Props> {
           conversationType={type}
           i18n={i18n}
           name={name}
+          accountName={accountName}
           profileName={profileName}
           size={36}
           noClickEvent={true}

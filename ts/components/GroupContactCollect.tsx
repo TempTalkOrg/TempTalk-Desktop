@@ -4,6 +4,7 @@ import { AutoSizer, List } from 'react-virtualized';
 import { LocalizerType } from '../types/Util';
 import { ConversationType } from '../state/ducks/conversations';
 import { trigger } from '../shims/events';
+import { IconClearCircle, IconSearch } from './shared/icons';
 
 type PropsType = {
   i18n: LocalizerType;
@@ -72,12 +73,12 @@ export class GroupContactCollect extends React.Component<PropsType, StateType> {
       <div style={topStyle}>
         <div className="module-common-header">
           <div className="module-common-header__search">
-            <div role="button" className="module-common-header__search__icon" />
+            <IconSearch className="module-search-icon" />
             <input
               style={{ width: '100%' }}
               type="text"
               ref={this.inputRef}
-              className="module-common-header__search__input"
+              className="universal-input universal-input-secondary module-common-header__search__input"
               placeholder={this.props.i18n('search')}
               dir="auto"
               value={searchText}
@@ -85,8 +86,7 @@ export class GroupContactCollect extends React.Component<PropsType, StateType> {
               spellCheck={false}
             />
             {searchText ? (
-              <div
-                role="button"
+              <IconClearCircle
                 className="module-common-header__search__cancel-icon"
                 onClick={this.clearSearch}
               />

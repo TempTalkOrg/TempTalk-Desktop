@@ -1531,11 +1531,10 @@ MessageReceiver.prototype.extend({
           ev.data.rapidFiles = rapidFiles;
         }
 
-        if (serverTimestamp) {
-          ev.data.serverTimestamp = serverTimestamp.toNumber();
-        } else {
-          ev.data.serverTimestamp = ev.data.timestamp;
-        }
+        ev.data.serverTimestamp =
+          serverTimestamp?.toNumber() ||
+          envelope.systemShowTimestamp?.toNumber() ||
+          ev.data.timestamp;
 
         if (sequenceId) {
           ev.data.sequenceId = sequenceId.toNumber();

@@ -1,5 +1,5 @@
-import { Database } from '@signalapp/better-sqlite3';
-import { LoggerType } from '../../../logger/types';
+import type { Database } from '@opensource-lib/better-sqlite3';
+import type { LoggerType } from '../../../logger/types';
 
 export function updateToSchemaVersion17(
   currentVersion: number,
@@ -16,9 +16,6 @@ export function updateToSchemaVersion17(
     db.exec(
       `
       ALTER TABLE messages
-        ADD COLUMN pin STRING;
-
-      ALTER TABLE messages_expired
         ADD COLUMN pin STRING;
       `
     );
@@ -69,13 +66,6 @@ export function updateToSchemaVersion19(
   logger.info('updateToSchemaVersion19: starting...');
 
   db.transaction(() => {
-    db.exec(
-      `
-      ALTER TABLE votes
-        ADD COLUMN anonymous INTEGER;
-      `
-    );
-
     db.pragma('user_version = 19');
   })();
 

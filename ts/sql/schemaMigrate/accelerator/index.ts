@@ -1,5 +1,5 @@
-import type { Database } from '@signalapp/better-sqlite3';
-import { LoggerType } from '../../../logger/types';
+import type { Database } from '@opensource-lib/better-sqlite3';
+import type { LoggerType } from '../../../logger/types';
 import {
   getSQLCipherVersion,
   getSQLiteVersion,

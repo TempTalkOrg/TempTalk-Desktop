@@ -6,6 +6,7 @@ import { ICallError } from '../CallRoom';
 import { currentCall, callingAPI, callControlType } from '../initCall';
 import { useGlobalConfig } from './useGlobalConfig';
 import { OverrideRequestType } from './useOverrideCallRequest';
+import { pick } from 'lodash';
 
 const logger = getLogger();
 
@@ -26,7 +27,10 @@ export const usePrivateCall = ({
 
   const startPrivateCall = useMemoizedFn(async () => {
     try {
-      logger.warn('start private call currentCall', currentCall);
+      logger.debug(
+        'start private call currentCall',
+        pick(currentCall, ['roomId', 'type', 'number', 'isPrivate'])
+      );
 
       const timestamp = Date.now();
 

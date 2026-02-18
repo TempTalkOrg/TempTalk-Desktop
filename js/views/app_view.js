@@ -51,8 +51,6 @@
       this.el.innerHTML = '';
       this.el.append(view.el);
       this.delegateEvents();
-
-      window.setupWaterMark();
     },
     openInstaller(options = {}) {
       window.addSetupMenuItems();
@@ -148,7 +146,7 @@
         view.onProgress(count);
       }
     },
-    openConversation(id, messageId, recentConversationSwitch, type) {
+    openConversation(id, messageId, recentConversationSwitch, type, options) {
       if (id) {
         this.openInbox().then(() => {
           setTimeout(() => {
@@ -156,7 +154,8 @@
               id,
               messageId,
               recentConversationSwitch,
-              type
+              type,
+              options
             );
           }, 0);
         });

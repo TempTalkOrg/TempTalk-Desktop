@@ -164,16 +164,21 @@
           Component: Components.IdentityKeyResetNotification,
           props: this.model.propsForIdentityKeyResetNotification,
         };
+      } else if (this.model.propsForConfidentialMessageReadNotification) {
+        return {
+          Component: Components.ConfidentialMessageReadNotification,
+          props: this.model.propsForConfidentialMessageReadNotification,
+        };
+      } else {
+        return {
+          Component: Components.Message,
+          props: {
+            ...this.model.propsForMessage,
+            virtualIndex: this.model.virtualIndex,
+            dateSeparator: this.model.dateSeparator,
+          },
+        };
       }
-
-      return {
-        Component: Components.Message,
-        props: {
-          ...this.model.propsForMessage,
-          virtualIndex: this.model.virtualIndex,
-          dateSeparator: this.model.dateSeparator,
-        },
-      };
     },
     render() {
       this.addId();
@@ -231,23 +236,28 @@
           return;
         }
 
-        if (this.childView) {
-          const info = this.getRenderInfo();
-          this.childView.update({
-            ...info.props,
-            showThreadBar: isInMainList,
-          });
-        } else {
-          const { Component, props } = this.getRenderInfo();
+        const { Component: currentComponent, props } = this.getRenderInfo();
 
+        if (
+          this.childView &&
+          this.currentComponent &&
+          this.currentComponent !== currentComponent
+        ) {
+          this.childView.remove();
+          this.childView = null;
+        }
+        this.currentComponent = currentComponent;
+
+        const currentProps = { ...props, showThreadBar: isInMainList };
+
+        if (this.childView) {
+          this.childView.update(currentProps);
+        } else {
           try {
             this.childView = new Whisper.ReactWrapperView({
               className: 'message-wrapper-outer',
-              Component,
-              props: {
-                ...props,
-                showThreadBar: isInMainList,
-              },
+              Component: currentComponent,
+              props: currentProps,
             });
             this.$el.append(this.childView.el);
           } catch (error) {

@@ -108,6 +108,7 @@
       this.on('change:expireTimer', this.setToExpire);
       this.on('unload', this.unload);
       this.on('expired', this.onExpired);
+      this.on('recalled', this.onRecalled);
       this.on('change:threadId', () =>
         this.getConversation()?.trigger('messageThreadIdChanged', this)
       );
@@ -156,6 +157,12 @@
         } else if (this.isIdentityKeyResetNotification()) {
           this.propsForIdentityKeyResetNotification =
             this.getPropsForIdentityKeyResetNotification();
+        } else if (this.isConfidentialMessageReadNotification()) {
+          this.propsForConfidentialMessageReadNotification = {
+            onVisible: () => {
+              this.readConfidentialMessageByLocal();
+            },
+          };
         } else {
           // comment this, because it's not used for now.
           // this.propsForSearchResult = this.getPropsForSearchResult();
@@ -304,7 +311,8 @@
         this.isReminderNotifyUpdate() ||
         this.isVerifiedChange() ||
         this.isRecallMessage() ||
-        this.isIdentityKeyResetNotification()
+        this.isIdentityKeyResetNotification() ||
+        this.isConfidentialMessageReadNotification()
       );
     },
     isEndSession() {
@@ -419,6 +427,9 @@
     },
     isIdentityKeyResetNotification() {
       return !!this.get('identityKeyReset');
+    },
+    isConfidentialMessageReadNotification() {
+      return (this.get('confidential_read_by') || []).length > 0;
     },
     // Important to allow for this.unset('unread'), save to db, then fetch()
     // to propagate. We don't want the unset key in the db so our unread index
@@ -862,6 +873,7 @@
       MessageController.unregister(this.id);
       this.unload();
       await deleteExternalMessageFiles(this.attributes);
+      this.markReleaseable();
     },
     unload() {
       // if (this.quotedMessage) {
@@ -873,6 +885,9 @@
         log.info('message has expired', this.idForLogging());
         this.hasExpired = true;
       }
+    },
+    onRecalled() {
+      this.onDestroy();
     },
 
     getPropsForTimerNotification() {
@@ -1237,6 +1252,9 @@
         joinOperator,
       };
     },
+    getRecipients() {
+      return _.without(this.get('recipients') || [], this.OUR_NUMBER);
+    },
     getMessagePropStatus() {
       if (this.hasErrors()) {
         return 'error';
@@ -1266,14 +1284,15 @@
           return null;
         }
 
-        const intendedRecipients = found.get('recipients') || [];
+        const intendedRecipients = found.getRecipients();
         const successfulRecipients = found.get('sent_to') || [];
         const unreachableRecipients = found.getUnreachableRecipients();
 
         const recipients = _.without(
           intendedRecipients,
           ...successfulRecipients,
-          ...unreachableRecipients
+          ...unreachableRecipients,
+          this.OUR_NUMBER
         );
 
         if (recipients.length > 0) {
@@ -1492,6 +1511,8 @@
             window.showImageGallery({
               mediaFiles: JSON.stringify([
                 {
+                  path: attachment.path,
+                  messageId: this.get('id'),
                   url: attachment.url,
                   fileName: attachment.fileName || '',
                   contentType: attachment.contentType,
@@ -1549,6 +1570,8 @@
                   caption: '',
                   fileName: fileData.attachment.fileName,
                   contentType: fileData.contentType,
+                  messageId: fileData.message.id,
+                  path: fileData.attachment.path,
                 };
               })
               .reverse();
@@ -1589,10 +1612,12 @@
           this.onChangeSpeechToText(attachment);
         },
         onOpenFile: () => {
-          window.openFileDefault(
-            getAbsoluteAttachmentPath(firstAttachment.path),
-            firstAttachment.fileName
-          );
+          window.openFileDefault({
+            messageId: this.id,
+            path: firstAttachment.path,
+            absPath: getAbsoluteAttachmentPath(firstAttachment.path),
+            fileName: firstAttachment.fileName,
+          });
         },
         onDoubleClickAvatar: e => {
           e.stopPropagation();
@@ -1667,12 +1692,21 @@
 
         isConfidentialMessage: this.isConfidentialMessage(),
         onMouseOverMessage: () => {
-          if (this.isConfidentialMessage()) {
+          const isAudioMessage = window.Signal.Types.MIME.isAudio(
+            firstAttachment?.contentType
+          );
+
+          if (this.isConfidentialMessage() && !isAudioMessage) {
             this.seeConfidentialMessage();
             // const attachments = this.get('attachments') || [];
             // if (attachments.length) {
             //   this.seeConfidentialMessage();
             // }
+          }
+        },
+        onAudioPlay: () => {
+          if (this.isConfidentialMessage()) {
+            this.seeConfidentialMessage();
           }
         },
         showInSeparateView: event => {
@@ -1685,6 +1719,9 @@
               mentions: this.get('mentions'),
             });
           }
+        },
+        showInEnlargeView: () => {
+          this.trigger('show-message-in-enlarge-view', this.id);
         },
         getAttachmentObjectUrl: async attachment => {
           try {
@@ -1703,6 +1740,19 @@
         transcribing: this.transcribing,
         transcribingError: this.transcribingError,
         transcribedText: this.get('transcribedText'),
+        getVoicePlaybackSpeed: () => {
+          const conversation = this.getConversation();
+          return (
+            conversation?.getVoicePlaybackSpeed() ||
+            window.Events.getVoicePlaybackSpeed()
+          );
+        },
+        setVoicePlaybackSpeed: playbackSpeed => {
+          const conversation = this.getConversation();
+          if (conversation) {
+            conversation.setVoicePlaybackSpeed(playbackSpeed);
+          }
+        },
       };
     },
     getPropsForThread() {
@@ -1839,14 +1889,15 @@
       let { recallFinished } = recall;
       if (this.isOutgoing()) {
         if (recallFinished === undefined) {
-          const intendedRecipients = this.get('recipients') || [];
+          const intendedRecipients = this.getRecipients();
           const successfulRecipients = this.get('sent_to') || [];
           const unreachableRecipients = this.getUnreachableRecipients();
 
           const recipients = _.without(
             intendedRecipients,
             ...successfulRecipients,
-            ...unreachableRecipients
+            ...unreachableRecipients,
+            this.OUR_NUMBER
           );
           recallFinished = recipients.length === 0;
         }
@@ -2111,7 +2162,7 @@
         ? [this.get('source')]
         : _.union(
             this.get('sent_to') || [],
-            this.get('recipients') || this.getConversation().getRecipients()
+            this.getRecipients() || this.getConversation().getRecipients()
           );
 
       // This will make the error message for outgoing key errors a bit nicer
@@ -2157,6 +2208,8 @@
         contact => `${contact.errors ? '0' : '1'}${contact.title}`
       );
 
+      const filteredContacts = sortedContacts.filter(contact => !contact.isMe);
+
       return {
         noNeedReceipts: this.get('noNeedReceipts'),
         sentAt: this.get('sent_at'),
@@ -2171,7 +2224,7 @@
           virtualIndex: 0,
         },
         errors,
-        contacts: sortedContacts,
+        contacts: filteredContacts,
       };
     },
 
@@ -2258,9 +2311,11 @@
           window.showImageGallery({
             mediaFiles: JSON.stringify([
               {
+                messageId: this.get('id'),
                 url: attachment.url,
                 fileName: attachment.fileName || '',
                 contentType: attachment.contentType,
+                path: attachment.path,
               },
             ]),
             selectedIndex: 0,
@@ -2275,10 +2330,12 @@
         },
         onOpenFile: () => {
           if (firstAttachment) {
-            window.openFileDefault(
-              getAbsoluteAttachmentPath(firstAttachment.path),
-              firstAttachment.fileName
-            );
+            window.openFileDefault({
+              messageId: this.id,
+              path: firstAttachment.path,
+              absPath: getAbsoluteAttachmentPath(firstAttachment.path),
+              fileName: firstAttachment.fileName,
+            });
           }
         },
         onDownload: isDangerous =>
@@ -2367,11 +2424,11 @@
 
       // reset recipients when retry sending
       // this will makesure attachments authorities correctly
-      if (!_.isEqual(this.get('recipients'), currentRecipients)) {
+      if (!_.isEqual(this.getRecipients(), currentRecipients)) {
         this.set({ recipients: currentRecipients });
       }
 
-      const intendedRecipients = this.get('recipients') || [];
+      const intendedRecipients = this.getRecipients();
       const successfulRecipients = this.get('sent_to') || [];
 
       const profileKey = conversation.get('profileSharing')
@@ -4212,7 +4269,7 @@
                 try {
                   await conversation.apiLoadGroupV2();
                 } catch (error) {
-                  log.error('reload group info from server failed.');
+                  log.error('reload group info from server failed.', error);
                 }
               }
             } else {
@@ -4459,7 +4516,7 @@
       }
 
       const readBy = this.get('read_by') || [];
-      const recipients = this.get('recipients') || [];
+      const recipients = this.getRecipients();
       const readByAt = conversation.get('read_by_at') || {};
 
       recipients.forEach(recipient => {
@@ -4969,7 +5026,12 @@
             destination,
             sentAt,
             reaction,
-            extension
+            {
+              ...extension,
+              syncOptions: {
+                expirationStartTimestamp: Date.now(),
+              },
+            }
           );
         } else {
           const groupNumbers = conversation.getRecipients();
@@ -5301,17 +5363,15 @@
         readers.push(number);
       }
 
-      const recipients = this.get('recipients') || [];
+      this.set({ confidential_read_by: readers });
 
-      if (readers.length === recipients.length) {
-        window.Signal.Data._removeMessages([this.id]);
-        this.getConversation()?.trigger('expired', this);
-      } else {
-        this.set({ confidential_read_by: readers });
-        await window.Signal.Data.saveMessage(this.attributes, {
-          Message: Whisper.Message,
-        });
-      }
+      await window.Signal.Data.saveMessage(this.attributes, {
+        Message: Whisper.Message,
+      });
+    },
+    async readConfidentialMessageByLocal() {
+      this.getConversation()?.markConfidentialMessageRead(this);
+      await window.Signal.Data.removeMessage(this);
     },
 
     async seeConfidentialMessage() {
@@ -5324,12 +5384,23 @@
         return;
       }
 
-      // delete message
-      await window.Signal.Data.removeMessage(this.id, {
-        Message: Whisper.Message,
-      });
-
       await conversation.markReadConfidentialMessage(this);
+
+      // delete message
+      await window.Signal.Data.removeMessage(this);
+    },
+
+    markReleaseable() {
+      // mark current message as releaseable,
+      // and should be handled at future garbage collection
+      // should clear some listeners or other references
+
+      // do not clear listened events here
+      // cause of some clean steps need these events
+      // this.off();
+
+      // clear all listenings
+      this.stopListening();
     },
 
     correctExpireTimer() {
@@ -5391,6 +5462,20 @@
 
   Whisper.Message.refreshExpirationTimer = () =>
     Whisper.ExpiringMessagesListener.update();
+
+  Whisper.Message.markAllReleaseable = models => {
+    if (!models) {
+      return;
+    }
+
+    if (Array.isArray(models) || models instanceof Backbone.Collection) {
+      models.forEach(model => {
+        if (model instanceof Whisper.Message) {
+          model.markReleaseable?.();
+        }
+      });
+    }
+  };
 
   Whisper.MessageCollection = Backbone.Collection.extend({
     model: Whisper.Message,
@@ -5549,13 +5634,7 @@
       return 0;
     },
     async destroyAll() {
-      await Promise.all(
-        this.models.map(message =>
-          window.Signal.Data.removeMessage(message.id, {
-            Message: Whisper.Message,
-          })
-        )
-      );
+      await window.Signal.Data.removeMessages(this.models);
       this.reset([]);
     },
 
@@ -5973,7 +6052,7 @@
         try {
           await this.trimPromise;
         } catch (error) {
-          log.error('await trim promise failed.');
+          log.error('await trim promise failed.', error);
         }
       }
 

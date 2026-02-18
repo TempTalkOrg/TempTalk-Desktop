@@ -5,6 +5,7 @@ import { LocalizerType } from '../../../types/Util';
 import { trigger } from '../../../shims/events';
 import { isLinux } from '../../../OS';
 import { ConversationListItem } from '../../ConversationListItem';
+import { IconClearCircle, IconSearch } from '../../shared/icons';
 
 type PropsType = {
   i18n: LocalizerType;
@@ -128,6 +129,7 @@ export default function GroupMemberList(props: PropsType) {
         name={c.name}
         color={(c as any).color}
         profileName={(c as any).profileName}
+        accountName={c.accountName}
         avatarPath={(c as any).avatarPath}
         email={(c as any).email}
         i18n={props.i18n}
@@ -241,13 +243,13 @@ export default function GroupMemberList(props: PropsType) {
       <div style={{ width: '100%', height: '100%', float: 'left' }}>
         <div className="module-main-header" style={{ width: '100%' }}>
           <div className="module-main-header__search" style={{ width: '100%' }}>
-            <div role="button" className="module-main-header__search__icon" />
+            <IconSearch className="module-search-icon" />
             <input
               style={{ width: '100%' }}
               type="text"
               ref={inputRef}
               className={
-                'module-main-header__search__input select-contact-smaller-input input-background'
+                'universal-input universal-input-secondary module-main-header__search__input select-contact-smaller-input'
               }
               placeholder={props.i18n('search')}
               dir="auto"
@@ -257,8 +259,7 @@ export default function GroupMemberList(props: PropsType) {
               spellCheck={false}
             />
             {searchText ? (
-              <div
-                role="button"
+              <IconClearCircle
                 className="module-main-header__search__cancel-icon"
                 onClick={clearSearch}
               />

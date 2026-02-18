@@ -976,10 +976,16 @@ MessageSender.prototype = {
     return new Promise((resolve, reject) => {
       const silent = false;
 
+      const messageProto = message.toProto();
+
+      if (extension?.syncOptions) {
+        extension.syncOptions.rapidFiles = message.rapidFiles;
+      }
+
       this.sendMessageProto(
         message.timestamp,
         message.recipients,
-        message.toProto(),
+        messageProto,
         res => {
           res.rapidFiles = message.rapidFiles;
           res.dataMessage = message.toArrayBuffer();
@@ -996,6 +1002,15 @@ MessageSender.prototype = {
   },
 
   sendMessageProto(timestamp, numbers, message, callback, silent, extension) {
+    let syncMessageProto;
+
+    if (extension?.syncOptions) {
+      syncMessageProto = this.getSyncMessageProto({
+        dataMessage: message,
+        extension,
+      });
+    }
+
     const outgoing = new OutgoingMessage(
       this.server,
       timestamp,
@@ -1003,7 +1018,8 @@ MessageSender.prototype = {
       message,
       silent,
       callback,
-      extension
+      extension,
+      syncMessageProto
     );
 
     // deliveryScope
@@ -1063,6 +1079,42 @@ MessageSender.prototype = {
 
     // Generate a random padding buffer of the chosen size
     syncMessage.padding = libsignal.crypto.getRandomBytes(paddingLength);
+
+    return syncMessage;
+  },
+
+  getSyncMessageProto({ dataMessage, extension }) {
+    if (!extension.isPrivate) {
+      return undefined;
+    }
+
+    const destination = extension.conversationId;
+    const { expirationStartTimestamp, rapidFiles } = extension.syncOptions;
+
+    const sentMessage = new textsecure.protobuf.SyncMessage.Sent();
+    sentMessage.message = dataMessage;
+    sentMessage.timestamp = sentMessage.message.timestamp;
+    sentMessage.serverTimestamp = sentMessage.message.timestamp;
+
+    if (destination) {
+      sentMessage.destination = destination;
+    }
+    if (expirationStartTimestamp) {
+      sentMessage.expirationStartTimestamp = expirationStartTimestamp;
+    }
+
+    if (rapidFiles instanceof Array && rapidFiles.length > 0) {
+      const { RapidFile } = textsecure.protobuf;
+      sentMessage.rapidFiles = rapidFiles.map(r => {
+        const rapidFile = new RapidFile();
+        rapidFile.rapidHash = r.rapidHash;
+        rapidFile.authorizeId = r.authorizeId;
+        return rapidFile;
+      });
+    }
+
+    const syncMessage = this.createSyncMessage();
+    syncMessage.sent = sentMessage;
 
     return syncMessage;
   },
@@ -1324,38 +1376,6 @@ MessageSender.prototype = {
     );
   },
 
-  syncTaskRead(taskReads, extension) {
-    const myNumber = textsecure.storage.user.getNumber();
-    const myDevice = textsecure.storage.user.getDeviceId();
-    if (myDevice != 1) {
-      const syncMessage = this.createSyncMessage();
-      syncMessage.tasks = [];
-      for (let i = 0; i < taskReads.length; i += 1) {
-        const task = new textsecure.protobuf.SyncMessage.Task();
-
-        task.type = textsecure.protobuf.SyncMessage.Task.Type.READ;
-        task.taskId = taskReads[i].taskId;
-        task.version = taskReads[i].version;
-        task.timestamp = taskReads[i].timestamp;
-
-        syncMessage.tasks.push(task);
-      }
-      const contentMessage = new textsecure.protobuf.Content();
-      contentMessage.syncMessage = syncMessage;
-
-      const silent = true;
-      return this.sendIndividualProto(
-        myNumber,
-        contentMessage,
-        Date.now(),
-        silent,
-        extension
-      );
-    }
-
-    return Promise.resolve();
-  },
-
   syncNullMessage(extension) {
     const myNumber = textsecure.storage.user.getNumber();
     const now = Date.now();
@@ -1548,8 +1568,7 @@ MessageSender.prototype = {
     threadContext,
     messageMode
   ) {
-    const me = textsecure.storage.user.getNumber();
-    const numbers = groupNumbers.filter(number => number !== me);
+    const numbers = groupNumbers;
     const attrs = {
       recipients: numbers,
       body: messageText,

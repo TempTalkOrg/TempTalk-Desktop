@@ -4,6 +4,7 @@ import { LocalizerType } from '../types/Util';
 import { ConversationListItem } from './ConversationListItem';
 import { AutoSizer, List } from 'react-virtualized';
 import Dialog from './Dialog';
+import { IconClearCircle, IconSearch } from './shared/icons';
 
 export interface Props {
   conversations: Array<any>;
@@ -412,24 +413,21 @@ export class ForwardDialog extends React.Component<Props, State> {
             className="module-main-header__search"
             style={{ margin: '10px' }}
           >
-            <div
-              role="button"
-              className="module-main-header__search__icon"
+            <IconSearch
+              className="module-search-icon"
               onClick={this.setInputFocus}
             />
             <input
               type="text"
               ref={this.inputRef}
               className="module-main-header__search__input"
-              style={{ width: '256px' }}
               placeholder={i18n('search')}
               dir="auto"
               onChange={this.inputTextChanged}
               spellCheck={false}
             />
             {this.searchText ? (
-              <div
-                role="button"
+              <IconClearCircle
                 className="module-main-header__search__cancel-icon"
                 onClick={this.clearSearch}
               />

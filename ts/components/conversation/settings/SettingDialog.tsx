@@ -19,6 +19,7 @@ import { useMemoizedFn } from 'ahooks';
 import { AutoSizer, List } from 'react-virtualized';
 import { ContactListItem } from '../../ContactListItem';
 import { IconWrapper } from '../../shared/IconWrapper';
+import { CommonTooltip } from '../../shared/CommonTooltip';
 
 type TempShowInfo = {
   id: string;
@@ -29,6 +30,7 @@ interface Props {
   id: string;
   name?: string;
   profileName?: string;
+  accountName?: string;
   color: string;
   avatarPath?: string;
   ourNumber?: string;
@@ -445,7 +447,7 @@ export const SettingDialog = (props: Props) => {
                 style={{ color: 'var(--dst-color-text-third)' }}
               />
             }
-            className="search-member-input"
+            className="search-member-input universal-input"
           />
         </div>
         {searchText ? (
@@ -524,6 +526,7 @@ export const SettingDialog = (props: Props) => {
         name={c.name}
         color={(c as any).color}
         profileName={(c as any).profileName}
+        accountName={c.accountName}
         avatarPath={(c as any).avatarPath}
         email={(c as any).email}
         i18n={props.i18n}
@@ -595,7 +598,8 @@ export const SettingDialog = (props: Props) => {
   });
 
   const renderGroupAvatarHeader = () => {
-    const { id, name, profileName, color, avatarPath, isPrivate } = props;
+    const { id, name, profileName, color, avatarPath, isPrivate, accountName } =
+      props;
     if (isPrivate) {
       return null;
     }
@@ -621,6 +625,7 @@ export const SettingDialog = (props: Props) => {
             noteToSelf={false}
             name={name}
             profileName={profileName}
+            accountName={accountName}
             size={48}
           />
           {!editGroupNameVisible ? (
@@ -659,6 +664,7 @@ export const SettingDialog = (props: Props) => {
       name,
       profileName,
       avatarPath,
+      accountName,
       // isPrivate,
       isGroupV2Owner,
       isGroupV2Admin,
@@ -674,6 +680,7 @@ export const SettingDialog = (props: Props) => {
               id={id}
               avatarPath={avatarPath}
               profileName={profileName}
+              accountName={accountName}
               name={name}
               size={36}
             />
@@ -691,8 +698,10 @@ export const SettingDialog = (props: Props) => {
                 id={item.id}
                 avatarPath={item.avatarPath}
                 profileName={item.profileName}
+                accountName={item.accountName}
                 name={item.name}
                 size={36}
+                conversationId={id}
               />
               <div className="group-member-name" title={item.name}>
                 {item.name}
@@ -805,7 +814,9 @@ export const SettingDialog = (props: Props) => {
             avatarPath={item.avatarPath}
             profileName={item.profileName}
             name={item.name}
+            accountName={item.accountName}
             size={36}
+            conversationId={id}
           />
         </div>
       );
@@ -979,7 +990,13 @@ export const SettingDialog = (props: Props) => {
           setCriticalAlert(!criticalAlert);
         }}
       >
-        <div style={{ display: 'flex' }}>{i18n('settings.criticalAlert')}</div>
+        <div style={{ display: 'flex' }}>
+          {i18n('settings.criticalAlert')}
+          <CommonTooltip
+            title={i18n('settings.criticalAlert.tooltip')}
+            placement="bottom"
+          ></CommonTooltip>
+        </div>
         <input
           className="checkbox-item"
           type="checkbox"

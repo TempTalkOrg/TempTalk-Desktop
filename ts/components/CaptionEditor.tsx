@@ -4,6 +4,7 @@ import * as GoogleChrome from '../util/GoogleChrome';
 import { AttachmentType } from '../types/Attachment';
 
 import { LocalizerType } from '../types/Util';
+import { IconClearCircle } from './shared/icons';
 
 interface Props {
   attachment: AttachmentType;
@@ -126,10 +127,9 @@ export class CaptionEditor extends React.Component<Props, State> {
         onClick={this.setFocusBound}
         className="module-caption-editor"
       >
-        <div
-          role="button"
-          onClick={close}
+        <IconClearCircle
           className="module-caption-editor__close-button"
+          onClick={close}
         />
         <div className="module-caption-editor__media-container">
           {this.renderObject()}

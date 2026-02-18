@@ -71,6 +71,7 @@
     'publicConfigs',
     'remarkName',
     'sourceDescribe',
+    'customUid',
   ];
 
   const GROUP_FIXED_ATTRS = [
@@ -463,6 +464,8 @@
       this.on('expired', this.onExpired);
       this.on('recalled', this.onRecalled);
       this.on('check-archive', this.onCheckArchive);
+      this.on('check-active-conversation', this.onCheckActiveConversation);
+      this.on('change:lastMessage', this.onLastMessageChange);
 
       this.on('change:members change:membersV2', () =>
         this.fetchContacts(true)
@@ -633,20 +636,18 @@
       const removeMessage = async () => {
         const { id } = message;
         const existing = this.messageCollection.get(id);
-        if (!existing) {
-          return;
+        if (existing) {
+          window.log.info('Remove recalled message from collection', {
+            sentAt: existing.get('sent_at'),
+          });
+
+          this.messageCollection.remove(id);
         }
 
-        window.log.info('Remove recalled message from collection', {
-          sentAt: existing.get('sent_at'),
-        });
+        const model = MessageController.register(id, message);
+        model.trigger('recalled');
 
-        this.messageCollection.remove(id);
-        //删除message
-        await window.Signal.Data.removeMessage(id, {
-          Message: Whisper.Message,
-        });
-        existing.trigger('recalled');
+        window.Signal.Data.removeMessage(message);
       };
 
       // If a fetch is in progress, then we need to wait until that's complete to
@@ -821,6 +822,7 @@
         isAliveGroup: this.isAliveGroup(),
         expireTimer: this.getConversationMessageExpiry(),
         latestCriticalAlert: this.get('latestCriticalAlert'),
+        customUid: this.get('customUid'),
       };
 
       return result;
@@ -954,9 +956,8 @@
         return [this.id];
       }
 
-      const me = textsecure.storage.user.getNumber();
       const members = Array.from(new Set(this.get('members')));
-      return _.without(members, me);
+      return members;
     },
 
     async getQuoteAttachment(attachments) {
@@ -1196,7 +1197,9 @@
 
       // convert confidentialMode to messageMode
       const messageMode =
-        this.get('confidentialMode') && !freeConfidential
+        this.get('confidentialMode') &&
+        !freeConfidential &&
+        this.isConfidentialModeAvaliable()
           ? window.textsecure.protobuf.Mode.CONFIDENTIAL
           : window.textsecure.protobuf.Mode.NORMAL;
 
@@ -1290,6 +1293,11 @@
           isPrivate: this.isPrivate(),
           conversationId: this.isPrivate() ? this.id : this.getGroupV2Id(),
           sessionV2: this.userSessionV2, // 如果是空的，发消息时需先请求server
+          syncOptions: this.isPrivate()
+            ? {
+                expirationStartTimestamp: Date.now(),
+              }
+            : undefined,
         },
       });
 
@@ -1450,10 +1458,19 @@
           return message.sendSyncMessageOnly(dataMessage);
         } else {
           return message.send(
-            textsecure.messaging.sendMessageProtoNoSilent(
-              dataMessage,
-              message.get('extension')
-            )
+            (async () => {
+              try {
+                const result =
+                  await textsecure.messaging.sendMessageProtoNoSilent(
+                    dataMessage,
+                    message.get('extension')
+                  );
+                message.set({ synced: true });
+                return result;
+              } catch (error) {
+                throw error;
+              }
+            })()
           );
         }
       });
@@ -3579,7 +3596,8 @@
         this.trigger('unload', 'delete messages');
       } catch (error) {
         console.log(
-          'Failed to successfully delete conversation after delete contact'
+          'Failed to successfully delete conversation after delete contact',
+          error
         );
       }
     },
@@ -4077,7 +4095,7 @@
             return true;
           }
         } else {
-          log.warn('Unsupported email:', email, ' for number:', this.id);
+          log.warn('Unsupported email for number:', this.id);
         }
 
         return false;
@@ -4455,6 +4473,58 @@
         }
 
         return;
+      }
+    },
+
+    onLastMessageChange() {
+      const lastMessage = this.get('lastMessage');
+
+      if (lastMessage) {
+        if (this.get('no_messages_since')) {
+          this.set({
+            no_messages_since: null,
+          });
+        }
+      } else {
+        this.set({
+          no_messages_since: Date.now(),
+        });
+      }
+    },
+
+    shouldBeInactive() {
+      if (this.isMe()) {
+        return false;
+      }
+
+      if (this.get('isStick')) {
+        return false;
+      }
+
+      const lastMessage = this.get('lastMessage');
+      if (lastMessage) {
+        return false;
+      }
+
+      const globalConfig = window.getGlobalConfig();
+      const activeConversation = globalConfig.disappearanceTimeInterval
+        .activeConversation || {
+        group: 604800,
+        other: 604800,
+      };
+
+      let disappearDuration =
+        activeConversation[this.isPrivate() ? 'other' : 'group'] * 1000;
+      return (
+        (this.get('no_messages_since') || 0) + disappearDuration < Date.now()
+      );
+    },
+
+    onCheckActiveConversation() {
+      if (this.shouldBeInactive()) {
+        this.set({
+          active_at: null,
+        });
       }
     },
 
@@ -5264,7 +5334,7 @@
           }
         }
       } catch (e) {
-        log.error('set conversation Unblock: blockStatus failed.', error);
+        log.error('set conversation Unblock: blockStatus failed.', e);
       }
     },
     hasDraft() {
@@ -5819,7 +5889,7 @@
       }
     },
 
-    async sendFriendRequest() {
+    async sendFriendRequest(source) {
       if (!this.isPrivate()) {
         throw new Error('can not call sendFriendRequest on group');
       }
@@ -5828,15 +5898,8 @@
         return;
       }
 
-      const friendSource = window.conversationFrom?.isSend
-        ? {
-            type: window.conversationFrom.type,
-            groupID: window.conversationFrom.id,
-          }
-        : null;
-
       try {
-        await textsecure.messaging.sendFriendRequest(this.id, friendSource);
+        await textsecure.messaging.sendFriendRequest(this.id, source);
       } catch (error) {
         log.error('failed to send friend request', this.idForLogging(), error);
         throw error;
@@ -5926,7 +5989,7 @@
       } catch (error) {
         log.error(
           'send/sync ConfidentialReadReceipt failed',
-          Errors.toLogFormat(err),
+          Errors.toLogFormat(error),
           message.idForLogging(),
           this.idForLogging()
         );
@@ -5942,11 +6005,16 @@
       return this.readConfidentiaMessageList.includes(message);
     },
 
+    markConfidentialMessageRead(message) {
+      this.readConfidentiaMessageList.push(message);
+    },
+
     clearReadConfidentialMessages() {
       const list = this.readConfidentiaMessageList;
       if (list?.length) {
         // message had been deleted when it was seen
         list.forEach(message => this.trigger('expired', message));
+        window.Signal.Data.removeMessages(list);
       }
 
       this.readConfidentiaMessageList = [];
@@ -6003,6 +6071,25 @@
           alert: false,
         });
       }
+    },
+    getVoicePlaybackSpeed() {
+      return this.voicePlaybackSpeed || window.Events.getVoicePlaybackSpeed();
+    },
+    setVoicePlaybackSpeed(playbackSpeed) {
+      this.voicePlaybackSpeed = playbackSpeed;
+    },
+    isConfidentialModeAvaliable() {
+      if (this.isPrivate()) {
+        return this.isDirectoryUser() && !this.isBot();
+      }
+
+      const globalConfig = window.getGlobalConfig();
+      const confidentialModeThreshold =
+        globalConfig.group.confidentialModeThreshold || 20;
+
+      const groupMembersCount = (this.get('members') || []).length;
+
+      return groupMembersCount < confidentialModeThreshold;
     },
   });
 

@@ -3,6 +3,7 @@ import React from 'react';
 import { AttachmentType, getExtensionForDisplay } from '../../types/Attachment';
 import { LocalizerType } from '../../types/Util';
 import MessageAttachmentFileShow from './MessageAttachmentFileShow';
+import { IconClearCircle } from '../shared/icons';
 
 interface Props {
   attachment: AttachmentType;
@@ -30,9 +31,8 @@ export class StagedGenericAttachment extends React.Component<Props> {
 
     return (
       <div className="module-staged-generic-attachment">
-        <div
+        <IconClearCircle
           className="module-staged-generic-attachment__close-button"
-          role="button"
           onClick={() => {
             if (onClose) {
               onClose(attachment);

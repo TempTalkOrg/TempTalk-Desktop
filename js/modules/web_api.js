@@ -241,8 +241,14 @@ const CERT_ERRORS = [
 function _promiseAjax(providedUrl, options) {
   return new Promise((resolve, reject) => {
     const url = providedUrl || `${options.host}/${options.path}`;
+
+    let urlForLog = url;
+    if (options?.serverType === SERVICE_LIST.OUTER) {
+      urlForLog = url.split('?')[0];
+    }
+
     log.info(
-      `${options.type} ${url}${options.unauthenticated ? ' (unauth)' : ''}`
+      `${options.type} ${urlForLog}${options.unauthenticated ? ' (unauth)' : ''}`
     );
     const timeout =
       typeof options.timeout !== 'undefined' ? options.timeout : 30000;
@@ -365,7 +371,7 @@ function _promiseAjax(providedUrl, options) {
           if (options.responseType === 'json') {
             if (options.validateResponse) {
               if (!_validateResponse(result, options.validateResponse)) {
-                log.error(options.type, url, response.status, 'Error');
+                log.error(options.type, urlForLog, response.status, 'Error');
                 return reject(
                   HTTPError(
                     'promiseAjax: invalid response',
@@ -383,7 +389,7 @@ function _promiseAjax(providedUrl, options) {
               if (result.status != 0) {
                 log.error(
                   options.type,
-                  url,
+                  urlForLog,
                   response.status,
                   'NewAPI Error:',
                   JSON.stringify(result)
@@ -419,10 +425,10 @@ function _promiseAjax(providedUrl, options) {
             }
           }
           if (response.status >= 0 && response.status < 400) {
-            log.info(options.type, url, response.status, 'Success');
+            log.info(options.type, urlForLog, response.status, 'Success');
             return resolve(result, response.status);
           } else {
-            log.error(options.type, url, response.status, 'Error');
+            log.error(options.type, urlForLog, response.status, 'Error');
             return reject(
               HTTPError(
                 'promiseAjax: error response',
@@ -498,6 +504,7 @@ const URL_CALLS = {
   identity: 'v3/keys/identity/bulk',
   messages: 'v1/messages',
   messagesV3: 'v3/messages',
+  messagesV4: 'v4/messages',
   attachment: 'v1/attachments',
   profile: 'v1/profile',
   avatarAttachment: 'v1/profile/avatar/attachment',
@@ -677,6 +684,9 @@ function initialize({
       sendMessageV3ToGroup,
       sendMessageV3ToNumber,
 
+      sendMessageV4ToGroup,
+      sendMessageV4ToNumber,
+
       // conversation to front
       conversationToFront,
 
@@ -706,6 +716,8 @@ function initialize({
       // directory v3
       // profile
       getDirectoryProfile,
+      setDirectoryProfile,
+      searchUserByUid,
 
       // bind third accounts
       requestBindVerificationEmail,
@@ -726,6 +738,7 @@ function initialize({
       speechToText,
       checkGrayRules,
       sendCriticalAlert,
+      sendCriticalAlertNew,
     };
 
     function _ajax(param) {
@@ -935,7 +948,6 @@ function initialize({
       const path = 'v3/friend/ask';
       const jsonData = {
         uid: uid,
-        //source:source
       };
       if (source) {
         jsonData.source = source;
@@ -1501,7 +1513,9 @@ function initialize({
             // 冗余10分钟吧
             tokenValidityPeriod = (obj.exp - obj.iat - 10 * 60) * 1000;
           }
-        } catch (e) {}
+        } catch (e) {
+          log.error('server response token is invalid.', e);
+        }
       }
 
       if (refreshTokenTimer) {
@@ -1914,6 +1928,23 @@ function initialize({
       });
     }
 
+    function sendMessageV4ToNumber(destination, message, timestamp, silent) {
+      const jsonData = { ...message };
+      if (silent) {
+        jsonData.silent = true;
+      }
+      if (timestamp) {
+        jsonData.timestamp = timestamp;
+      }
+      return _ajax({
+        call: 'messagesV4',
+        httpType: 'PUT',
+        urlParameters: `/${destination}`,
+        jsonData,
+        responseType: 'json',
+      });
+    }
+
     function sendMessageV3ToGroup(destination, message, timestamp, silent) {
       const jsonData = { ...message };
       if (silent) {
@@ -1924,6 +1955,23 @@ function initialize({
       }
       return _ajax({
         call: 'messagesV3',
+        httpType: 'PUT',
+        urlParameters: `/group/${destination}`,
+        jsonData,
+        responseType: 'json',
+      });
+    }
+
+    function sendMessageV4ToGroup(destination, message, timestamp, silent) {
+      const jsonData = { ...message };
+      if (silent) {
+        jsonData.silent = true;
+      }
+      if (timestamp) {
+        jsonData.timestamp = timestamp;
+      }
+      return _ajax({
+        call: 'messagesV4',
         httpType: 'PUT',
         urlParameters: `/group/${destination}`,
         jsonData,
@@ -2221,6 +2269,54 @@ function initialize({
         serverType: SERVICE_LIST.CHAT,
         type: 'GET',
       });
+    }
+
+    function setDirectoryProfile(data = {}) {
+      const path = URL_CALLS['directoryV3'] + '/profile';
+
+      const jsonData = {};
+      const assignJsonData = newObj => Object.assign(jsonData, newObj);
+
+      const optionalMap = {
+        customUid: isString,
+        searchByCustomUid: isNumber,
+      };
+
+      const optionalWrapper = (key, validator) => {
+        const value = data[key];
+        if (validator(value)) {
+          assignJsonData({ [key]: value });
+        }
+      };
+
+      validateMap(optionalMap, optionalWrapper);
+
+      const options = {
+        serverType: SERVICE_LIST.CHAT,
+        type: 'PUT',
+      };
+
+      return _request(path, jsonData, options, false);
+    }
+
+    function searchUserByUid(uid) {
+      if (!uid) {
+        throw new Error('uid must be a valid string');
+      }
+
+      const path = URL_CALLS['directoryV3'] + '/search';
+
+      const options = {
+        serverType: SERVICE_LIST.CHAT,
+        type: 'POST',
+      };
+
+      const jsonData = {
+        ver: 1,
+        condition: uid,
+      };
+
+      return _request(path, jsonData, options);
     }
 
     function requestBindVerificationEmail(email, nonce) {
@@ -2571,6 +2667,48 @@ function initialize({
         call: 'messagesV3',
         httpType: 'POST',
         urlParameters: `/criticalAlert`,
+        jsonData,
+        responseType: 'json',
+      });
+    }
+
+    async function sendCriticalAlertNew(data) {
+      const jsonData = {};
+      const assignJsonData = newObj => Object.assign(jsonData, newObj);
+
+      const criticalMap = {
+        roomId: isNonEmptyString,
+      };
+
+      const criticalWrapper = (key, validator) => {
+        const value = data[key];
+        if (!validator(value)) {
+          throw new Error(`invalid field ${key}`);
+        }
+
+        assignJsonData({ [key]: value });
+      };
+
+      validateMap(criticalMap, criticalWrapper);
+
+      const optionalMap = {
+        destinations: isArray,
+        group: isObject,
+      };
+
+      const optionalWrapper = (key, validator) => {
+        const value = data[key];
+        if (validator(value)) {
+          assignJsonData({ [key]: value });
+        }
+      };
+
+      validateMap(optionalMap, optionalWrapper);
+
+      return _ajax({
+        call: 'messagesV3',
+        httpType: 'POST',
+        urlParameters: `/criticalAlertNew`,
         jsonData,
         responseType: 'json',
       });

@@ -13,6 +13,7 @@ const { shellOpenExternal } = require('./ts/util/shellOpenExternal');
 const { initAppEnv } = require('./ts/util/appEnvironment');
 const { setup: setupCrashReporter } = require('./ts/crashReports/reporter');
 const OS = require('./ts/OS');
+const { isFileDangerous } = require('./ts/util/isFileDangerous');
 
 // initial config firstly, cause initAppEnv will use config
 const config = require('./app/config');
@@ -37,9 +38,6 @@ contextMenu({
         (params.linkURL || params.selectionText)
     ),
 });
-
-const remoteMain = require('@electron/remote/main');
-remoteMain.initialize();
 
 const packageJson = require('./package.json');
 const GlobalErrors = require('./app/global_errors');
@@ -105,7 +103,6 @@ ipc.on('copy', () => {
 const ASSOCIATED_PROTOCOLS = ['chative:', 'temptalk:'];
 
 async function handleUrl(event, params) {
-  console.log('main.js handleUrl params', params);
   const { target } = params || {};
 
   if (event) {
@@ -118,6 +115,8 @@ async function handleUrl(event, params) {
   }
 
   try {
+    console.log('main.js handleUrl target', target.split('?')[0]);
+
     if (target.startsWith('x-apple.systempreferences:')) {
       return shellOpenExternal(target);
     }
@@ -181,7 +180,37 @@ const usingTrayIcon =
 const userConfig = require('./app/user_config');
 const sqlConfig = require('./app/sql_config');
 
-const KEY_ALREADY_UPGRADED = '__KEY_ALREADY_UPGRADED__TRY_THE_LATEST_APP__';
+let tempDataPath;
+
+try {
+  const tempDataSubPath = userConfig.get('tempDataSubPath');
+  if (!tempDataSubPath) {
+    tempDataPath = fse.mkdtempSync(path.join(app.getPath('temp'), 'tt-'));
+    userConfig.set(
+      'tempDataSubPath',
+      path.relative(app.getPath('temp'), tempDataPath)
+    );
+  } else {
+    tempDataPath = path.join(app.getPath('temp'), tempDataSubPath);
+    fse.ensureDirSync(tempDataPath);
+  }
+} catch (error) {
+  console.error('error creating temp folder', error);
+}
+
+async function cleanupOldTempFolder() {
+  try {
+    const oldTempFolder = path.join(app.getPath('userData'), 'tempFiles/');
+    const exists = await fse.exists(oldTempFolder);
+    if (exists) {
+      await fse.remove(oldTempFolder);
+    }
+  } catch (error) {
+    console.error('error cleaning up old temp folder', error);
+  }
+}
+
+cleanupOldTempFolder();
 
 // 默认开启硬件加速
 // 禁用当前应用程序的硬件加速。这个方法只能在应用程序准备就绪（ready）之前调用。
@@ -209,9 +238,14 @@ const { installPermissionsHandler } = require('./app/permissions');
 const {
   generateNewDBKey,
   AsymmetricKeyManager,
-  xorAuxiliary,
-  updateAuxiliraies,
 } = require('./ts/sql/keyManager/secretCrypto');
+
+const {
+  LegacyDBKey,
+  SecretAuxiliary,
+  updateAuxiliraies,
+  upgradeBackupSqls,
+} = require('./ts/sql/keyManager/config');
 
 const { SqlManagement } = require('./ts/sql/sqlManagement');
 const sql = new SqlManagement();
@@ -324,6 +358,9 @@ function prepareURL(pathSegments, moreKeys) {
       runningUnderArch: updater.getRunningUnderArch(),
       insiderUpdateEnabled: updater.isInsiderUpdate(),
       flavorId: config.get('flavorId'),
+      tempDataPath,
+      locale: app.getLocale(),
+      userDataPath,
       ...moreKeys,
     },
   });
@@ -385,7 +422,7 @@ async function createWindow() {
         nodeIntegrationInWorker: false,
         contextIsolation: false,
         preload: path.join(__dirname, 'preload.js'),
-        enableRemoteModule: true,
+        enableRemoteModule: false,
         sandbox: false,
       },
       icon: path.join(__dirname, 'images', 'icon_256.png'),
@@ -446,7 +483,6 @@ async function createWindow() {
 
   // Create the browser window.
   mainWindow = new BrowserWindow(windowOptions);
-  remoteMain.enable(mainWindow.webContents);
 
   function captureAndSaveWindowStats() {
     if (!mainWindow) {
@@ -502,7 +538,7 @@ async function createWindow() {
   } else {
     mainWindow.loadURL(
       prepareURL([__dirname, 'background.html'], {
-        dbInitilized: sql.isInitialized(),
+        dbInitialized: sql.isInitialized(),
       })
     );
   }
@@ -698,6 +734,13 @@ async function createWindow() {
       mainWindow.readyForShutdown = true;
     }
     await sql.close(true);
+
+    try {
+      fse.emptyDirSync(tempDataPath);
+    } catch (error) {
+      console.error('error emptying temp folder', error);
+    }
+
     app.quit();
   });
 
@@ -768,7 +811,7 @@ async function showAbout() {
       nodeIntegrationInWorker: false,
       contextIsolation: false,
       preload: path.join(__dirname, 'about_preload.js'),
-      enableRemoteModule: true,
+      enableRemoteModule: false,
       sandbox: false,
     },
     acceptFirstMouse: true,
@@ -789,7 +832,6 @@ async function showAbout() {
   };
 
   aboutWindow = new BrowserWindow(options);
-  remoteMain.enable(aboutWindow.webContents);
 
   // hide menu bar
   aboutWindow.setMenuBarVisibility(false);
@@ -860,7 +902,7 @@ function preloadCallWindow() {
       contextIsolation: false,
       preload: path.join(__dirname, 'livekit/livekit_preload.js'),
       nativeWindowOpen: true,
-      enableRemoteModule: true,
+      enableRemoteModule: false,
       sandbox: false,
     },
     acceptFirstMouse: true,
@@ -888,6 +930,10 @@ function preloadCallWindow() {
   callWindow.on('closed', () => {
     callWindow = null;
     callWindowReady = null;
+    if (mainWindow) {
+      mainWindow.webContents.send('call-window-closed');
+    }
+    removeSidebarItem('call');
     if (!windowState.shouldQuit()) {
       preloadCallWindow();
     }
@@ -923,6 +969,8 @@ async function showLivekitCallWindow(info) {
   } else {
     callWindow.show();
   }
+
+  addSidebarItem('call', callWindow);
 
   // 通过 IPC 发送会议信息
   callWindow.isCalling = true;
@@ -966,7 +1014,7 @@ async function showPermissionsPopupWindow() {
       nodeIntegrationInWorker: false,
       contextIsolation: false,
       preload: path.join(__dirname, 'permissions_popup_preload.js'),
-      enableRemoteModule: true,
+      enableRemoteModule: false,
       sandbox: false,
     },
     acceptFirstMouse: true,
@@ -1073,29 +1121,42 @@ app.on('ready', async () => {
 
   GlobalErrors.updateLocale(locale.messages);
 
+  upgradeBackupSqls(logger);
+
   let dbKey = undefined;
 
   if (
     sqlConfig.get('secretPublicKey') &&
     sqlConfig.get('secretPrivateKey') &&
-    userConfig.get('secretAuxiliary')
+    (userConfig.get('secretAuxiliary') || sqlConfig.get('secretAuxiliary'))
   ) {
     logger.info('key/initialize: already upgraded');
   } else {
     logger.info('key/initialize: not-be-upgraded OR incomplete upgrade');
 
-    dbKey = userConfig.get('key');
-    if (dbKey === KEY_ALREADY_UPGRADED) {
-      logger.info('key/initialize: incomplete upgrade, something went wrong');
-    } else if (dbKey) {
-      logger.info('key/initialize: found legacy key');
-    } else {
-      logger.info(
-        'key/initialize: Generating new encryption key, since we did not find it on disk'
-      );
+    try {
+      const legacyDBKey = new LegacyDBKey(logger, userConfig);
+      dbKey = legacyDBKey.read();
 
-      dbKey = generateNewDBKey();
-      userConfig.set('key', dbKey);
+      if (dbKey) {
+        logger.info('key/initialize: found legacy key');
+      } else {
+        logger.info(
+          'key/initialize: Generating new encryption key, since we did not find it on disk'
+        );
+
+        dbKey = generateNewDBKey();
+        try {
+          legacyDBKey.save(dbKey);
+        } catch (error) {
+          logger.warn('save leagcy key error', formatError(error));
+        }
+      }
+    } catch (error) {
+      logger.warn(
+        'key/initialize: failed to read legacy db key',
+        formatError(error)
+      );
     }
   }
 
@@ -1104,7 +1165,7 @@ app.on('ready', async () => {
     try {
       await sql.initialize({ configDir: userDataPath, key: dbKey, logger });
     } catch (error) {
-      logger.error('sql initilize db with key failed', error);
+      logger.error('sql initialize db with key failed', error);
       sql.onDatabaseError(error, locale.messages);
       return;
     }
@@ -1135,8 +1196,8 @@ function installIpcHandler(name, fn) {
 
     try {
       result = await fn(params);
-    } catch (error) {
-      error = `call ${name} error`;
+    } catch (e) {
+      error = `call ${name} error ` + e.name;
     }
 
     contents.send(`ipc-call-success-${name}`, error, result);
@@ -1149,7 +1210,7 @@ let dbSecret;
 
 installIpcHandler('signParams', async params => {
   if (!dbSecret) {
-    throw new Error('db secret manager was not initilized.');
+    throw new Error('db secret manager was not initialized.');
   }
 
   return dbSecret.privateSign(params);
@@ -1161,7 +1222,7 @@ installIpcHandler('signParams', async params => {
 //   2.2 upload new dbKey when user re-login
 installIpcHandler('initDBWithSecret', async secretDBKey => {
   if (!dbSecret) {
-    throw new Error('db secret manager was not initilized.');
+    throw new Error('db secret manager was not initialized.');
   }
 
   if (sql.isInitialized()) {
@@ -1184,15 +1245,14 @@ installIpcHandler('initDBWithSecret', async secretDBKey => {
       logger,
     });
   } catch (error) {
-    logger.error('sql initilize db with key failed', error);
+    logger.error('sql initialize db with key failed', error);
     sql.onDatabaseError(error, locale.messages);
     throw error;
   }
 
-  if (userConfig.get('key') !== KEY_ALREADY_UPGRADED) {
-    // reset old key to constant string
-    userConfig.set('key', KEY_ALREADY_UPGRADED);
-  }
+  // reset old key to constant string
+  const legacyDBKey = new LegacyDBKey(logger, userConfig);
+  legacyDBKey.markUpgraded();
 
   return true;
 });
@@ -1212,15 +1272,16 @@ installIpcHandler('getSecretPublicKey', async () => {
 
   const publicKey = sqlConfig.get('secretPublicKey');
   const privateKey = sqlConfig.get('secretPrivateKey');
-  const auxiliary = userConfig.get('secretAuxiliary');
 
   if (publicKey && privateKey) {
     try {
-      const decrypted = xorAuxiliary(Buffer.from(auxiliary, 'base64'));
+      const secAux = new SecretAuxiliary(logger, userConfig, sqlConfig);
+      const passphrase = secAux.read();
+
       dbSecret = new AsymmetricKeyManager({
         publicKey,
         privateKey,
-        passphrase: decrypted,
+        passphrase,
       });
 
       if (!dbSecret.isPrivateKeyEncrypted()) {
@@ -1258,21 +1319,24 @@ installIpcHandler('confirmSecrets', async publicKey => {
     throw new Error('provided public key is not matched with db secret.');
   }
 
+  let backupDir;
+
   // backup db before confirm new key
   try {
-    await sql.backup();
+    backupDir = await sql.backup();
   } catch (error) {
-    throw new Error('failed to backup database', error);
+    logger.warn('back up sql error', formatError(error));
+    throw new Error('failed to backup database');
   }
 
   const pass = dbSecret.getPassphrase();
   updateAuxiliraies(logger, userConfig, [dbNewKey, pass]);
 
-  const secretAuxiliary = xorAuxiliary(Buffer.from(pass, 'base64'));
+  const secAux = new SecretAuxiliary(logger, userConfig, sqlConfig);
+  secAux.save(pass);
 
   sqlConfig.set('secretPublicKey', secretPublicKey);
   sqlConfig.set('secretPrivateKey', dbSecret.getPrivateKeyPem());
-  userConfig.set('secretAuxiliary', secretAuxiliary);
 
   try {
     if (sql.isInitialized()) {
@@ -1281,12 +1345,23 @@ installIpcHandler('confirmSecrets', async publicKey => {
       await sql.initialize({ configDir: userDataPath, key: dbNewKey, logger });
     }
   } catch (error) {
-    throw new Error('confirm db before save secret error', error);
+    logger.warn('confirm db before save secret error', formatError(error));
+    throw new Error('failed to confirm db key');
   }
 
   // reset old key to constant string
-  userConfig.set('key', KEY_ALREADY_UPGRADED);
+  const legacyDBKey = new LegacyDBKey(logger, userConfig);
+  legacyDBKey.markUpgraded();
+
+  // clear backup folder
+  try {
+    await fse.remove(backupDir);
+  } catch (error) {
+    logger.warn('failed to remove backup folder');
+  }
 });
+
+installIpcHandler('ensureDatabaseAuxObjects', () => sql.ensureAuxObjects());
 
 // 手动检查更新
 async function manualCheckForUpdates() {
@@ -1562,6 +1637,9 @@ installSettingsSetter('audio-notification');
 installSettingsGetter('spell-check');
 installSettingsSetter('spell-check');
 
+installSettingsGetter('voice-playback-speed');
+installSettingsSetter('voice-playback-speed');
+
 installSettingsGetter('quit-topic-setting');
 installSettingsSetter('quit-topic-setting');
 
@@ -1697,15 +1775,18 @@ function changeTheme(name, value) {
   if (imageGalleryWindow) {
     imageGalleryWindow.webContents.send(`set-${name}`, value);
   }
-  if (separateMessageViewerWindow) {
-    separateMessageViewerWindow.webContents.send(`set-${name}`, value);
-  }
+
+  Object.values(separateMessageViewerWindows).forEach(windowInfo => {
+    const { win } = windowInfo;
+    win?.webContents.send(`set-${name}`, value);
+  });
+
   incomingCallWindows.forEach(win => {
     win.webContents.send(`set-${name}`, value);
   });
-  criticalAlertWindows.forEach(win => {
-    win.webContents.send(`set-${name}`, value);
-  });
+  if (criticalAlertWindow) {
+    criticalAlertWindow.webContents.send(`set-${name}`, value);
+  }
 }
 
 function installSettingsSetter(name) {
@@ -1732,11 +1813,36 @@ ipc.on('storage-ready-notify', async (_, theme) => {
   globalTheme = theme;
 
   createFloatingBarWindow();
+  createSeparateMessageViewerWindowByMode({ mode: 'forward' });
+  createSeparateMessageViewerWindowByMode({ mode: 'text' });
 });
 
 function isCallingExist() {
   return callWindow && callWindow.isCalling && !callWindow.isClosing;
 }
+
+ipc.handle('show-message-box', async (event, options, parent) => {
+  let parentWindow;
+
+  if (parent === 'main') {
+    parentWindow = mainWindow;
+  } else if (parent === 'source') {
+    const win = BrowserWindow.fromWebContents(event.sender);
+    if (!win?.isDestroyed?.()) {
+      parentWindow = win;
+    }
+  }
+
+  if (parentWindow) {
+    return dialog.showMessageBox(parentWindow, options);
+  } else {
+    return dialog.showMessageBox(options);
+  }
+});
+
+ipc.handle('show-error-box', (_, title, content) => {
+  dialog.showErrorBox(title, content);
+});
 
 ipc.handle('is-calling-exist', async () => {
   return isCallingExist();
@@ -1921,6 +2027,7 @@ ipc.on('show-image-gallery', async (event, { mediaFiles, selectedIndex }) => {
       mediaFiles,
       selectedIndex,
     });
+    addSidebarItem('image-gallery', imageGalleryWindow);
     return;
   }
 
@@ -1940,7 +2047,7 @@ ipc.on('show-image-gallery', async (event, { mediaFiles, selectedIndex }) => {
       nodeIntegrationInWorker: false,
       // contextIsolation: false,
       preload: path.join(__dirname, 'image-gallery/image_gallery_preload.js'),
-      enableRemoteModule: true,
+      enableRemoteModule: false,
       sandbox: false,
     },
     // parent: mainWindow,
@@ -1961,7 +2068,6 @@ ipc.on('show-image-gallery', async (event, { mediaFiles, selectedIndex }) => {
     // parent: mainWindow,
   };
   imageGalleryWindow = new BrowserWindow(options);
-  remoteMain.enable(imageGalleryWindow.webContents);
 
   // hide menu bar
   imageGalleryWindow.setMenuBarVisibility(false);
@@ -1970,6 +2076,8 @@ ipc.on('show-image-gallery', async (event, { mediaFiles, selectedIndex }) => {
     prepareURL([__dirname, '/image-gallery/image_gallery.html'], { theme })
   );
   imageGalleryWindow.show();
+  addSidebarItem('image-gallery', imageGalleryWindow);
+
   imageGalleryWindow.webContents.send('receive-images', {
     mediaFiles,
     selectedIndex,
@@ -1977,6 +2085,7 @@ ipc.on('show-image-gallery', async (event, { mediaFiles, selectedIndex }) => {
 
   imageGalleryWindow.on('closed', () => {
     imageGalleryWindow = null;
+    removeSidebarItem('image-gallery');
   });
 
   // Set a variable when the app is quitting.
@@ -1990,17 +2099,13 @@ ipc.on('show-image-gallery', async (event, { mediaFiles, selectedIndex }) => {
       evt.preventDefault();
       imageGalleryWindow.webContents.send('close-image-window');
       imageGalleryWindow.hide();
+      removeSidebarItem('image-gallery');
     }
   });
 });
-ipc.on('open-file-default', (e, absPath, fileName, contentType) => {
+ipc.on('open-file-default', (e, data) => {
   if (mainWindow) {
-    mainWindow.webContents.send(
-      'open-file-default',
-      absPath,
-      fileName,
-      contentType
-    );
+    mainWindow.webContents.send('open-file-default', data);
   }
 });
 
@@ -2029,7 +2134,7 @@ ipc.on('show-local-search', async (event, keywords, conversationId) => {
       nodeIntegrationInWorker: false,
       contextIsolation: false,
       preload: path.join(__dirname, 'local_search_preload.js'),
-      enableRemoteModule: true,
+      enableRemoteModule: false,
       sandbox: false,
     },
     // parent: mainWindow,
@@ -2050,7 +2155,6 @@ ipc.on('show-local-search', async (event, keywords, conversationId) => {
     acceptFirstMouse: true,
   };
   localSearchWindow = new BrowserWindow(options);
-  remoteMain.enable(localSearchWindow.webContents);
 
   // hide menu bar
   localSearchWindow.setMenuBarVisibility(false);
@@ -2065,9 +2169,12 @@ ipc.on('show-local-search', async (event, keywords, conversationId) => {
       keywords,
       conversationId
     );
+    addSidebarItem('local-search', localSearchWindow);
   });
+
   localSearchWindow.on('closed', () => {
     localSearchWindow = null;
+    removeSidebarItem('local-search');
   });
 
   if (development) {
@@ -2151,12 +2258,21 @@ ipc.on('reply-meeting-get-all-contacts', (_, info) => {
   }
 });
 
+const checkFileSafety = fullPath => {
+  const fileName = path.basename(fullPath);
+  return !isFileDangerous(fileName);
+};
+
 ipc.on('ipc_showItemInFolder', function (_, fullPath) {
-  shell.showItemInFolder(fullPath);
+  if (checkFileSafety(fullPath)) {
+    shell.showItemInFolder(fullPath);
+  }
 });
 
 ipc.on('ipc_openPath', function (_, fullPath) {
-  shell.openPath(fullPath);
+  if (checkFileSafety(fullPath)) {
+    shell.openPath(fullPath);
+  }
 });
 
 function startCall(callInfo) {
@@ -2173,7 +2289,7 @@ function startCall(callInfo) {
   showLivekitCallWindow(callInfo);
 }
 
-const criticalAlertWindows = new Map();
+let criticalAlertWindow = null;
 const criticalAlertWindowWidth = 280;
 const criticalAlertWindowHeight = 236;
 
@@ -2202,7 +2318,7 @@ function handleCriticalAlert(info) {
       nodeIntegrationInWorker: false,
       contextIsolation: false,
       preload: path.join(__dirname, 'critical-alert/preload.js'),
-      enableRemoteModule: true,
+      enableRemoteModule: false,
       sandbox: false,
     },
     acceptFirstMouse: true,
@@ -2215,50 +2331,31 @@ function handleCriticalAlert(info) {
     fullscreenable: false,
   };
 
-  let w = new BrowserWindow(options);
-  criticalAlertWindows.set(info.conversationId, w);
-  w.loadURL(
+  criticalAlertWindow = new BrowserWindow(options);
+  criticalAlertWindow.id = info.roomId || info.conversationId;
+
+  criticalAlertWindow.loadURL(
     prepareURL([__dirname, 'critical-alert/index.html'], { ...info, theme })
   );
 
-  w.setAlwaysOnTop(true, 'screen-saver');
-  w.setVisibleOnAllWorkspaces(true);
-  w.setMenuBarVisibility(false);
+  criticalAlertWindow.setAlwaysOnTop(true, 'screen-saver');
+  criticalAlertWindow.setVisibleOnAllWorkspaces(true);
+  criticalAlertWindow.setMenuBarVisibility(false);
 
-  w.on('closed', () => {
+  criticalAlertWindow.on('closed', () => {
     // remove from map
-    if (criticalAlertWindows.has(info.conversationId)) {
-      criticalAlertWindows.delete(info.conversationId);
-    }
-
-    // reset position
-    let index = 0;
-    // eslint-disable-next-line no-restricted-syntax
-    for (const item of criticalAlertWindows.values()) {
-      const offset =
-        index * (criticalAlertWindowHeight + criticalAlertWindowPadding);
-      const [x] = item.getPosition();
-      item.setPosition(
-        x,
-        screen.getPrimaryDisplay().workAreaSize.height -
-          criticalAlertWindowHeight -
-          offset,
-        true
-      );
-      index += 1;
-    }
-    w = null;
+    criticalAlertWindow = null;
   });
 
-  w.once('ready-to-show', () => {
-    if (!w) {
+  criticalAlertWindow.once('ready-to-show', () => {
+    if (!criticalAlertWindow) {
       return;
     }
-    w.showInactive();
+    criticalAlertWindow.showInactive();
   });
 
   // if (development) {
-  //   w.webContents.openDevTools();
+  //   criticalAlertWindow.webContents.openDevTools();
   // }
 }
 
@@ -2294,7 +2391,7 @@ function handleIncomingCall(info) {
       nodeIntegrationInWorker: false,
       contextIsolation: false,
       preload: path.join(__dirname, 'livekit/incoming_call_preload.js'),
-      enableRemoteModule: true,
+      enableRemoteModule: false,
       sandbox: false,
     },
     acceptFirstMouse: true,
@@ -2361,8 +2458,11 @@ ipc.on('dispatch-call-message', async (event, type, payload) => {
       break;
     }
     case 'incomingCall': {
-      const { groupId, number } = payload;
-      if (criticalAlertWindows.has(groupId || number)) {
+      const { groupId, number, roomId } = payload;
+      if (
+        criticalAlertWindow &&
+        [groupId, number, roomId].includes(criticalAlertWindow.id)
+      ) {
         console.log(
           'ignore incoming call since corresponding critical alert exist'
         );
@@ -2387,7 +2487,7 @@ ipc.on('close-call-window', async event => {
 });
 
 ipc.on('open-call-feedback', async (event, data) => {
-  mainWindow.webContents.send('open-call-feedback', data);
+  mainWindow?.webContents.send('open-call-feedback', data);
 });
 
 ipc.on('rtc-call-method', (_, info) => {
@@ -2539,22 +2639,30 @@ ipc.on('reject-call-by-callee', (_, roomId) => {
 });
 
 async function hideIncomingCallWindow(roomId) {
+  const { promise, resolve } = Promise.withResolvers();
   if (incomingCallWindows.has(roomId)) {
-    incomingCallWindows.get(roomId)?.close();
-    incomingCallWindows.delete(roomId);
+    const win = incomingCallWindows.get(roomId);
+    win.once('closed', () => {
+      incomingCallWindows.delete(roomId);
+      resolve();
+    });
+    win.close();
+  } else {
+    resolve();
   }
+  return promise;
 }
 
-function hideCriticalAlertWindow(conversationId) {
-  if (criticalAlertWindows.has(conversationId)) {
-    criticalAlertWindows.get(conversationId)?.close();
-    criticalAlertWindows.delete(conversationId);
+function hideCriticalAlertWindow() {
+  if (criticalAlertWindow) {
+    criticalAlertWindow.close();
+    criticalAlertWindow = null;
   }
 }
 
 ipc.on('finish-join-call', (event, roomId, conversationId, timestamp) => {
   hideIncomingCallWindow(roomId);
-  hideCriticalAlertWindow(conversationId);
+  hideCriticalAlertWindow();
   if (mainWindow) {
     mainWindow.webContents.send('finish-join-call', conversationId, timestamp);
   }
@@ -2604,7 +2712,7 @@ function createFloatingBarWindow() {
       nodeIntegrationInWorker: false,
       contextIsolation: false,
       preload: path.join(__dirname, 'livekit/floating_bar_preload.js'),
-      enableRemoteModule: true,
+      enableRemoteModule: false,
       sandbox: false,
     },
     resizable: development,
@@ -2617,7 +2725,6 @@ function createFloatingBarWindow() {
     frame: false,
   };
   floatingBarWindow = new BrowserWindow(options);
-  remoteMain.enable(floatingBarWindow.webContents);
   floatingBarWindow.loadURL(
     prepareURL([__dirname, 'livekit/floating_bar.html'])
   );
@@ -2681,20 +2788,76 @@ ipc.on('update-floating-bar', (event, data) => {
   }
 });
 
-let separateMessageViewerWindow = null;
-let separateMessageViewerWindowPromise = null;
+const separateMessageViewerWindows = {
+  forward: {
+    win: null,
+    promise: null,
+    options: {
+      width: 550,
+      height: 580,
+      mode: 'forward',
+    },
+  },
+  text: {
+    win: null,
+    promise: null,
+    options: {
+      width: 640,
+      height: 568,
+      mode: 'text',
+    },
+  },
+};
 
-async function createSeparateMessageViewerWindow() {
-  if (separateMessageViewerWindow) {
-    return separateMessageViewerWindowPromise;
+const individualWindowMap = {
+  call: null,
+  'local-search': null,
+  'image-gallery': null,
+  forward: null,
+  enlarge: null,
+};
+
+function getSeparateMessageViewerCategory(mode) {
+  if (mode === 'text') {
+    return 'enlarge';
+  } else if (mode === 'forward') {
+    return 'forward';
+  }
+}
+
+function addSidebarItem(category, win) {
+  individualWindowMap[category] = win;
+  mainWindow?.webContents.send('add-sidebar-item', { category });
+}
+
+function removeSidebarItem(category) {
+  individualWindowMap[category] = null;
+  mainWindow?.webContents.send('remove-sidebar-item', { category });
+}
+
+function createSeparateMessageViewerWindowByMode({ mode, messageId }) {
+  const viewer = separateMessageViewerWindows[mode];
+  if (!viewer) {
+    throw new Error('unknow mode');
   }
 
+  if (!viewer.win) {
+    const { win, promise } = createSeparateMessageViewerWindow(viewer.options);
+    viewer.win = win;
+    viewer.promise = promise;
+  }
+
+  viewer.messageId = messageId;
+
+  return viewer;
+}
+
+function createSeparateMessageViewerWindow({ height, width, mode }) {
   const { promise, resolve } = Promise.withResolvers();
-  separateMessageViewerWindowPromise = promise;
 
   const options = {
-    width: 480,
-    height: 590,
+    width,
+    height,
     backgroundColor: '#1e2329',
     webPreferences: {
       nodeIntegration: false,
@@ -2702,28 +2865,26 @@ async function createSeparateMessageViewerWindow() {
       contextIsolation: false,
       preload: path.join(__dirname, 'separate-message-viewer/preload.js'),
       nativeWindowOpen: true,
-      enableRemoteModule: true,
+      enableRemoteModule: false,
       sandbox: false,
     },
     acceptFirstMouse: true,
-    // mac: only has the STANDARD window controls("traffic lights")
-    // linux & windows: has the STANDARD title bar
-    titleBarStyle: OS.isMacOS() ? 'hidden' : 'default',
+    frame: false,
 
     // has NO overlay
     titleBarOverlay: false,
-    resizable: false, // Changed to allow window resizing
+    resizable: true, // Changed to allow window resizing
     show: false,
   };
 
-  separateMessageViewerWindow = new BrowserWindow(options);
-  separateMessageViewerWindow.setMenuBarVisibility(false);
+  const win = new BrowserWindow(options);
+  win.setMenuBarVisibility(false);
 
-  captureClicks(separateMessageViewerWindow);
+  captureClicks(win);
 
   const theme = globalTheme;
   const systemTheme = nativeTheme.shouldUseDarkColors ? 'dark' : 'light';
-  separateMessageViewerWindow.loadURL(
+  win.loadURL(
     prepareURL([__dirname, 'separate-message-viewer/index.html'], {
       theme,
       systemTheme,
@@ -2732,37 +2893,53 @@ async function createSeparateMessageViewerWindow() {
 
   const mainWindowPosition = mainWindow.getPosition();
   const mainWindowSize = mainWindow.getSize();
-  const previewWindowPosition = [
-    Math.floor(mainWindowPosition[0] + (mainWindowSize[0] - options.width) / 2),
-    Math.floor(
-      mainWindowPosition[1] + (mainWindowSize[1] - options.height) / 2
-    ),
+  const position = [
+    Math.floor(mainWindowPosition[0] + (mainWindowSize[0] - width) / 2),
+    Math.floor(mainWindowPosition[1] + (mainWindowSize[1] - height) / 2),
   ];
-  separateMessageViewerWindow.setPosition(...previewWindowPosition);
+  win.setPosition(...position);
 
-  separateMessageViewerWindow.webContents.on('did-finish-load', () => {
-    separateMessageViewerWindow.show();
+  win.webContents.on('did-finish-load', () => {
     resolve();
   });
 
-  separateMessageViewerWindow.on('closed', () => {
-    separateMessageViewerWindow = null;
+  win.on('close', e => {
+    if (windowState.shouldQuit()) {
+      return;
+    }
+    e.preventDefault();
+    win.hide();
+    const category = getSeparateMessageViewerCategory(mode);
+    if (category) {
+      removeSidebarItem(category);
+    }
   });
 
-  return separateMessageViewerWindowPromise;
+  // win.webContents.openDevTools();
+  // separateMessageViewerWindows[mode].window = win;
+  // return separateMessageViewerWindows[mode].promise;
+  return { promise, win };
 }
 
-ipc.on('update-separate-view-data', async (event, data) => {
-  if (!separateMessageViewerWindow) {
-    await createSeparateMessageViewerWindow();
-  }
+ipc.on('show-separate-view', async (event, data) => {
+  const { promise, win } = createSeparateMessageViewerWindowByMode(data);
+  await promise;
 
-  separateMessageViewerWindow.webContents.send('update-view-data', data);
-  if (separateMessageViewerWindow.isVisible()) {
-    separateMessageViewerWindow.focus();
-  } else {
-    separateMessageViewerWindow.show();
+  win.webContents.send('update-view-data', data);
+  win.show();
+  if (mainWindow) {
+    const category = getSeparateMessageViewerCategory(data.mode);
+    if (category) {
+      addSidebarItem(category, win);
+    }
   }
+  console.log(
+    'show separate view',
+    'messageId',
+    data.messageId,
+    'mode',
+    data.mode
+  );
 });
 
 ipc.on('read-confidential-message', (event, id) => {
@@ -2784,7 +2961,7 @@ ipc.on('sned-frame-to-floating-bar', (event, frameInfo) => {
 });
 
 ipc.on('show-critical-alert', (event, info) => {
-  if (criticalAlertWindows.size > 0) {
+  if (criticalAlertWindow) {
     return;
   }
   handleCriticalAlert(info);
@@ -2802,6 +2979,64 @@ ipc.on('fast-join-call', (event, info) => {
   }
 });
 
-ipc.on('hide-critical-alert-window', (event, conversationId) => {
-  hideCriticalAlertWindow(conversationId);
+ipc.on('hide-critical-alert-window', (event, id) => {
+  hideCriticalAlertWindow(id);
+});
+
+ipc.handle('get-message-props', async (event, messageId) => {
+  const { resolve, promise } = Promise.withResolvers();
+
+  ipc.once(`get-message-${messageId}-props-success`, (event, data) => {
+    resolve(data);
+  });
+
+  mainWindow.webContents.send('get-message-props', messageId);
+
+  return promise;
+});
+
+ipc.on('require-screen-share-action', (event, data) => {
+  if (callWindow) {
+    callWindow.webContents.send('require-screen-share-action', data);
+  }
+});
+
+ipc.on('set-title-bar-overlay', (event, overlay) => {
+  try {
+    const webContents = event.sender;
+    const win = BrowserWindow.fromWebContents(webContents);
+    win.setTitleBarOverlay(overlay);
+  } catch (error) {
+    console.log('set-title-bar-overlay error', error);
+  }
+});
+
+ipc.on('force-update-alert', async event => {
+  try {
+    const options = {
+      type: 'error',
+      buttons: [locale.messages['downloadTooltip'].message],
+      message: locale.messages['forceUpdateLatestVersion'].message,
+      detail: '',
+    };
+
+    const webContents = event.sender;
+    const win = BrowserWindow.fromWebContents(webContents);
+
+    await dialog.showMessageBox(win, options);
+
+    handleUrl(null, { target: 'https://yelling.pro' });
+
+    console.log('want quit!');
+    app.quit();
+  } catch (error) {
+    console.log('force-update-alert error', error);
+  }
+});
+
+ipc.on('show-individual-window', (event, category) => {
+  const win = individualWindowMap[category];
+  if (win) {
+    win.show();
+  }
 });

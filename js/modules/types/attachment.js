@@ -101,10 +101,7 @@ exports.replaceUnicodeV2 = async attachment => {
 
 exports.removeSchemaVersion = ({ attachment, logger }) => {
   if (!exports.isValid(attachment)) {
-    logger.error(
-      'Attachment.removeSchemaVersion: Invalid input attachment:',
-      attachment
-    );
+    logger.error('Attachment.removeSchemaVersion: Invalid input attachment');
     return attachment;
   }
 
