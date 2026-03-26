@@ -161,6 +161,7 @@ export default function AccountSetting(props: SettingProps) {
   const logout = useMemoizedFn(() => deleteAllData());
   const onUpdateEmail = useMemoizedFn(
     async (newEmail: string, verifyCode: string, nonce?: string) => {
+      // eslint-disable-next-line no-useless-catch
       try {
         await getAccountManager().bindEmail(newEmail, verifyCode, nonce);
       } catch (error) {
@@ -171,6 +172,7 @@ export default function AccountSetting(props: SettingProps) {
 
   const onUpdatePhoneNumber = useMemoizedFn(
     async (newPhoneNumber: string, verifyCode: string, nonce?: string) => {
+      // eslint-disable-next-line no-useless-catch
       try {
         await getAccountManager().bindPhone(newPhoneNumber, verifyCode, nonce);
       } catch (error) {
@@ -181,6 +183,7 @@ export default function AccountSetting(props: SettingProps) {
 
   const onRequestEmailCode = useMemoizedFn(
     async (newEmail: string, nonce?: string) => {
+      // eslint-disable-next-line no-useless-catch
       try {
         await getAccountManager().requestBindVerificationEmail(newEmail, nonce);
       } catch (error) {
@@ -190,6 +193,7 @@ export default function AccountSetting(props: SettingProps) {
   );
   const onRequestPhoneCode = useMemoizedFn(
     async (newPhoneNumber: string, nonce?: string) => {
+      // eslint-disable-next-line no-useless-catch
       try {
         await getAccountManager().requestBindVerificationSMS(
           newPhoneNumber,

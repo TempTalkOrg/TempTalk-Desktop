@@ -12,6 +12,11 @@ Remember, you can preview this before saving it.
 * [ ] My changes are ready to be shipped to users
 
 ### Description
+This pull request adds/resolves xxx
+
+1.
+2.
+3.
 
 <!--
 Describe briefly what your pull request changes. Focus on the value provided to users.
@@ -19,3 +24,7 @@ Describe briefly what your pull request changes. Focus on the value provided to 
 This pull request resolves the problem that xxx.
 This pull request adds a new feature that xxx.
 -->
+
+### Workflow commands and options
+You can trigger workflow actions by commenting on this PR:
+- `/ci-check` will run eslint and tsc checking on this PR

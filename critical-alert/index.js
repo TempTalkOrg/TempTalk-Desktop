@@ -1,3 +1,8 @@
+/* global
+  document,
+  window,
+*/
+
 window.setImmediate = window.nodeSetImmediate;
 
 const CriticalAlertView = window.getCriticalAlertView();

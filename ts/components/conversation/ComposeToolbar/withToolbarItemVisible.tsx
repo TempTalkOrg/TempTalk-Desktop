@@ -1,14 +1,11 @@
 import React from 'react';
 import { LocalizerType } from '../../../types/Util';
 
-export interface ToolbarItemWrapperProps {
+export type ToolbarItemWrapperProps<T> = Omit<T, 'visible'> & {
   visible: boolean;
-  i18n: LocalizerType;
-}
+};
 
-export const withToolbarItemVisible = <
-  T extends { i18n?: LocalizerType; [key: string]: any },
->(
+export const withToolbarItemVisible = <T extends { i18n?: LocalizerType }>(
   Component: React.ComponentType<T>
 ) => {
   return (

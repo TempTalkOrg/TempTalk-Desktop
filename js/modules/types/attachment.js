@@ -2,7 +2,7 @@ const { isString, isFunction } = require('lodash');
 
 const AttachmentTS = require('../../../ts/types/Attachment');
 const GoogleChrome = require('../../../ts/util/GoogleChrome');
-const MIME = require('../../../ts/types/MIME');
+// const MIME = require('../../../ts/types/MIME');
 const { toLogFormat } = require('./errors');
 const { blobToArrayBuffer } = require('blob-util');
 const {

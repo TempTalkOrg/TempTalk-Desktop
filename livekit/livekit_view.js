@@ -4,7 +4,6 @@
   document,
   Whisper,
   $,
-  Sound,
 */
 
 (() => {

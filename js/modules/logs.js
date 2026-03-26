@@ -1,7 +1,5 @@
 const { ipcRenderer } = require('electron');
 
-/* eslint-env node */
-
 module.exports = {
   deleteAll,
 };

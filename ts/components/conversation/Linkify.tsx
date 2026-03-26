@@ -99,7 +99,6 @@ export class Linkify extends React.Component<Props, { countStr: string }> {
         <span
           style={{ fontSize: '26px', lineHeight: '32px' }}
           key={countStr + count++}
-          className="bigger-emoji"
         >
           {text}
         </span>

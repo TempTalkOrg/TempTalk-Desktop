@@ -1,11 +1,11 @@
-import type { TrackReferenceOrPlaceholder, WidgetState } from '../../core';
-import { isEqualTrackRef, isTrackReference, isWeb, log } from '../../core';
+import type { TrackReferenceOrPlaceholder } from '../../core';
+import { isEqualTrackRef, isTrackReference, log } from '../../core';
 import {
   RemoteParticipant,
   RoomEvent,
   Track,
 } from '@cc-livekit/livekit-client';
-import * as React from 'react';
+import React, { HTMLAttributes, useEffect, useRef, useState } from 'react';
 import {
   CarouselLayout,
   ConnectionStateToast,
@@ -28,17 +28,13 @@ import { ParticipantAsideList } from '../components/ParticipantAsideList';
 import classNames from 'classnames';
 import { RaiseHandIndicator } from '../components/RaiseHandIndicator';
 import { useMemoizedFn } from 'ahooks';
+import { MessageSender } from '../components/MessageSender';
+// import { ActiveInfoIndicator } from '../components/ActiveInfoIndicator';
 
-/**
- * @public
- */
-export interface VideoConferenceProps
-  extends React.HTMLAttributes<HTMLDivElement> {
+export interface VideoConferenceProps extends HTMLAttributes<HTMLDivElement> {
   onScreenShareClick?: (
     evt: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => void;
-  /** @alpha */
-  SettingsComponent?: React.ComponentType;
   controls?: ControlBarProps['controls'];
   onAddMember?: () => void;
   onMemberList?: () => void;
@@ -46,26 +42,7 @@ export interface VideoConferenceProps
   onDeviceError?: (error: { source: Track.Source; error: Error }) => void;
 }
 
-/**
- * The `VideoConference` ready-made component is your drop-in solution for a classic video conferencing application.
- * It provides functionality such as focusing on one participant, grid view with pagination to handle large numbers
- * of participants, basic non-persistent chat, screen sharing, and more.
- *
- * @remarks
- * The component is implemented with other LiveKit components like `FocusContextProvider`,
- * `GridLayout`, `ControlBar`, `FocusLayoutContainer` and `FocusLayout`.
- * You can use these components as a starting point for your own custom video conferencing application.
- *
- * @example
- * ```tsx
- * <LiveKitRoom>
- *   <VideoConference />
- * <LiveKitRoom>
- * ```
- * @public
- */
 export function VideoConference({
-  SettingsComponent,
   onScreenShareClick,
   onAddMember,
   onMemberList,
@@ -74,17 +51,12 @@ export function VideoConference({
   onDeviceError,
   ...props
 }: VideoConferenceProps) {
-  const [widgetState, setWidgetState] = React.useState<WidgetState>({
-    showChat: false,
-    unreadMessages: 0,
-    showSettings: false,
-  });
   const room = useRoomContext();
   const lastAutoFocusedScreenShareTrack =
-    React.useRef<TrackReferenceOrPlaceholder | null>(null);
+    useRef<TrackReferenceOrPlaceholder | null>(null);
 
-  const [asideListOpen, setAsideListOpen] = React.useState(false);
-  const [handsUpIndicatorOpen, setHandsUpIndicatorOpen] = React.useState(true);
+  const [asideListOpen, setAsideListOpen] = useState(false);
+  const [handsUpIndicatorOpen, setHandsUpIndicatorOpen] = useState(true);
 
   const tracks = useTracks(
     [
@@ -106,11 +78,6 @@ export function VideoConference({
     track => track.source === Track.Source.ScreenShare
   );
 
-  const widgetUpdate = (state: WidgetState) => {
-    // log.debug('updating widget state', state);
-    setWidgetState(state);
-  };
-
   const layoutContext = useCreateLayoutContext();
 
   const screenShareTracks = tracks
@@ -122,10 +89,10 @@ export function VideoConference({
     track => !isEqualTrackRef(track, focusTrack)
   );
 
-  const featureFlags = useFeatureContext();
+  const featureFlags = useFeatureContext(true);
 
   // auto pin remote participant when 1on1
-  React.useEffect(() => {
+  useEffect(() => {
     if (featureFlags?.type === 'instant') {
       const participants = [
         ...Array.from(room.remoteParticipants.values()),
@@ -149,7 +116,7 @@ export function VideoConference({
       if (participants.size > 1) {
         return;
       }
-      for (let [_, participant] of participants) {
+      for (const [_, participant] of participants) {
         layoutContext.pin.dispatch?.({
           msg: 'set_pin',
           trackReference: {
@@ -189,7 +156,7 @@ export function VideoConference({
     };
   }, [room, featureFlags?.type, screenShareTrack]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (featureFlags?.type === '1on1' && !screenShareTrack) {
       const remoteP = room.remoteParticipants.values().next().value;
       if (remoteP) {
@@ -207,7 +174,7 @@ export function VideoConference({
     }
   }, [featureFlags?.type, screenShareTrack]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     // If screen share tracks are published, and no pin is set explicitly, auto set the screen share.
     if (
       screenShareTracks.some(track => track.publication.isSubscribed) &&
@@ -263,72 +230,61 @@ export function VideoConference({
     setAsideListOpen(true);
   });
 
+  const onSendMessage = featureFlags.onSendMessage || undefined;
+  const onSendBubbleMessage = featureFlags.onSendBubbleMessage || undefined;
+
   return (
-    <div
-      className={classNames('lk-video-conference', {
-        'lk-show-aside-list': asideListOpen,
-        'lk-has-screen-share': screenShareTracks.length,
-      })}
-      {...props}
-    >
-      {isWeb() && (
-        <LayoutContextProvider
-          value={layoutContext}
-          // onPinChange={handleFocusStateChange}
-          onWidgetChange={widgetUpdate}
-        >
-          <div className="lk-video-conference-inner">
-            {!focusTrack ? (
-              <div className="lk-grid-layout-wrapper">
-                <GridLayout
-                  tracks={tracks}
-                  onRestPlaceholderClick={() => setAsideListOpen(prev => !prev)}
-                ></GridLayout>
-              </div>
-            ) : (
-              <div className="lk-focus-layout-wrapper">
-                <FocusLayoutContainer>
-                  {focusTrack && <FocusLayout trackRef={focusTrack} />}
-                  <DraggableWrapper>
-                    <CarouselLayout
-                      tracks={carouselTracks}
-                      focusTrack={focusTrack}
-                      orientation="vertical"
-                    >
+    <div className={classNames('video-conference')} {...props}>
+      <LayoutContextProvider value={layoutContext}>
+        <div className="video-conference-inner">
+          {!focusTrack ? (
+            <div className="grid-layout-wrapper">
+              <GridLayout
+                tracks={tracks}
+                onRestPlaceholderClick={() => setAsideListOpen(prev => !prev)}
+              ></GridLayout>
+            </div>
+          ) : (
+            <div className="focus-layout-wrapper">
+              <FocusLayoutContainer>
+                {focusTrack && <FocusLayout trackRef={focusTrack} />}
+                <DraggableWrapper>
+                  <CarouselLayout
+                    tracks={carouselTracks}
+                    focusTrack={focusTrack}
+                  >
+                    <div className="carousel-list-item">
                       <ParticipantTile
                         renderPlaceholderExtraProps={{ size: 64 }}
                       />
-                    </CarouselLayout>
-                  </DraggableWrapper>
-                </FocusLayoutContainer>
-              </div>
-            )}
-            <ControlBar
-              variation="minimal"
-              onAddMember={onAddMember}
-              onMemberList={(...args) => {
-                setAsideListOpen(prev => !prev);
-                onMemberList?.(...args);
-              }}
-              controls={{
-                chat: true,
-                settings: !!SettingsComponent,
-                ...controls,
-              }}
-              onScreenShareClick={onScreenShareClick}
-              onDeviceError={onDeviceError}
-            />
-          </div>
-          {SettingsComponent && (
-            <div
-              className="lk-settings-menu-modal"
-              style={{ display: widgetState.showSettings ? 'block' : 'none' }}
-            >
-              <SettingsComponent />
+                    </div>
+                  </CarouselLayout>
+                </DraggableWrapper>
+              </FocusLayoutContainer>
             </div>
           )}
-        </LayoutContextProvider>
-      )}
+          <MessageSender
+            onSendMessage={onSendMessage}
+            presetTexts={featureFlags?.chatPresets}
+            onSendBubbleMessage={onSendBubbleMessage}
+          />
+          <ControlBar
+            variation="minimal"
+            onAddMember={onAddMember}
+            onMemberList={(...args) => {
+              setAsideListOpen(prev => !prev);
+              onMemberList?.(...args);
+            }}
+            controls={{
+              chat: true,
+              ...controls,
+            }}
+            onScreenShareClick={onScreenShareClick}
+            onDeviceError={onDeviceError}
+          />
+        </div>
+        {/* <ActiveInfoIndicator /> */}
+      </LayoutContextProvider>
       <RoomAudioRenderer filterLocalTracks={filterLocalTracks} />
       <ConnectionStateToast />
       <ParticipantAsideList

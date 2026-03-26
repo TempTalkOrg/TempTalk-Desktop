@@ -1,8 +1,12 @@
 import React from 'react';
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
+
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const i18n_zh = require('@emoji-mart/data/i18n/zh.json');
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const i18n_en = require('@emoji-mart/data/i18n/en.json');
+
 import { LocalizerType } from '../../types/Util';
 
 type Props = {
@@ -11,8 +15,7 @@ type Props = {
   i18n: LocalizerType;
 };
 
-type State = {};
-export class EmojiSelect extends React.Component<Props, State> {
+export class EmojiSelect extends React.Component<Props> {
   public wrapperRef: React.RefObject<HTMLDivElement>;
   constructor(props: Props) {
     super(props);

@@ -1,6 +1,11 @@
-/* global Whisper, Signal, setTimeout, clearTimeout, MessageController */
+/* global
+  Whisper,
+  Signal,
+  MessageController,
+  log,
+*/
 
-const { isFunction, isNumber, omit } = require('lodash');
+const { isFunction, isNumber } = require('lodash');
 const { v4: getGuid } = require('uuid');
 const {
   getMessageById,
@@ -23,7 +28,7 @@ const MAX_ATTACHMENT_JOB_PARALLELISM = 15;
 
 const SECOND = 1000;
 const MINUTE = 60 * SECOND;
-const HOUR = 60 * MINUTE;
+// const HOUR = 60 * MINUTE;
 const TICK_INTERVAL = MINUTE;
 
 const RETRY_BACKOFF = {
@@ -376,7 +381,7 @@ async function _addAttachmentToMessage(
           bodyPending: false,
         });
       }
-    } catch (error) {
+    } catch (_error) {
       // because long-message attachment was removed from message
       // here we re-saved it
       const attachments = forward
@@ -481,6 +486,5 @@ function _replaceAttachment(object, key, newAttachment, logPrefix) {
     return;
   }
 
-  // eslint-disable-next-line no-param-reassign
   object[key] = newAttachment;
 }

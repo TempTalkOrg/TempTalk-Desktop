@@ -60,7 +60,7 @@ export class Sqlite3Database implements ILocalDatabase {
     }
 
     if (options) {
-      const logPerf = (func: Function, description: string) => {
+      const logPerf = (func: () => void, description: string) => {
         const start = performance.now();
         func();
         const end = performance.now();

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { ContextMenu } from '../../../../shared/ContextMenu';
 import { useMemoizedFn } from 'ahooks';
-import { IconMediaDeviceCheck } from '../../../../shared/icons';
+import { IconArrowUp, IconMediaDeviceCheck } from '../../../../shared/icons';
 import { useFeatureContext } from '../context/feature-context';
 
 export function ScreenShareModeMenu(
@@ -55,7 +55,10 @@ export function ScreenShareModeMenu(
       placement="top"
       dropdownRender={renderDropdown}
     >
-      <button className="lk-button lk-button-menu">{props.children}</button>
+      <button className="button button-menu">
+        <IconArrowUp />
+        {props.children}
+      </button>
     </ContextMenu>
   );
 }

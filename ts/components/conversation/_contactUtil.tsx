@@ -47,7 +47,6 @@ export function renderAvatar({
       accountName={contact.name}
       size={size}
       id={contact.number}
-      notShowStatus={true}
       noClickEvent={noClickEvent}
     />
   );

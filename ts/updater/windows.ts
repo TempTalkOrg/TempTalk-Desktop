@@ -160,7 +160,10 @@ async function deletePreviousInstallers(logger: LoggerType) {
       try {
         await unlink(fullPath);
       } catch (error) {
-        logger.error(`deletePreviousInstallers: couldn't delete file ${file}`);
+        logger.error(
+          `deletePreviousInstallers: couldn't delete file ${file}`,
+          error
+        );
       }
     })
   );
@@ -187,7 +190,7 @@ async function install(filePath: string, logger: LoggerType): Promise<void> {
   const args = ['--updated'];
   const options = {
     detached: true,
-    stdio: 'ignore' as 'ignore', // TypeScript considers this a plain string without help
+    stdio: 'ignore' as const, // TypeScript considers this a plain string without help
   };
 
   try {

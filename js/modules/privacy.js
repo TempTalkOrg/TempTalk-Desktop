@@ -1,5 +1,3 @@
-/* eslint-env node */
-
 const path = require('path');
 
 const { compose } = require('lodash/fp');
@@ -48,7 +46,7 @@ exports._pathToRegExp = filePath => {
       .map(escapeRegExp)
       .join('|');
     return new RegExp(patternString, 'g');
-  } catch (error) {
+  } catch (_error) {
     return null;
   }
 };

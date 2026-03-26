@@ -1,18 +1,18 @@
 import * as React from 'react';
-import { useRaiseHandButton } from '../../hooks/useRaiseHandButton';
 import { useFeatureContext } from '../../context';
 import { useMemoizedFn } from 'ahooks';
 import { useLocalParticipant } from '../../hooks';
-import { useMemo } from 'react';
+import { forwardRef, useMemo } from 'react';
 import classNames from 'classnames';
+
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface RaiseHandButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {}
 
-export const RaiseHandButton = /* @__PURE__ */ React.forwardRef<
+export const RaiseHandButton = forwardRef<
   HTMLButtonElement,
   RaiseHandButtonProps
 >(function RaiseHandButton(props: RaiseHandButtonProps, ref) {
-  const { buttonProps } = useRaiseHandButton(props);
   const featureFlags = useFeatureContext();
   const { localParticipant } = useLocalParticipant();
 
@@ -38,11 +38,10 @@ export const RaiseHandButton = /* @__PURE__ */ React.forwardRef<
   return (
     <button
       ref={ref}
-      {...buttonProps}
       className={classNames([
-        buttonProps.className,
+        'raise-hand-button',
         {
-          'lk-is-raised': isRaised,
+          'is-raised': isRaised,
         },
       ])}
       onClick={onClick}

@@ -1,5 +1,11 @@
 import { ConnectionState, Track } from '@cc-livekit/livekit-client';
-import * as React from 'react';
+import React, {
+  useCallback,
+  useMemo,
+  useState,
+  type HTMLAttributes,
+  type MouseEvent as ReactMouseEvent,
+} from 'react';
 import { MediaDeviceMenu } from './MediaDeviceMenu';
 import { DisconnectButton } from '../components/controls/DisconnectButton';
 import { TrackToggle } from '../components/controls/TrackToggle';
@@ -14,15 +20,14 @@ import { supportsScreenSharing } from '../../core';
 import { mergeProps } from '../utils';
 import { AddMemberButton } from '../components/controls/AddMemberButton';
 import { MemberListButton } from '../components/controls/MemberListButton';
-import { MessageSender } from '../components/MessageSender';
-import { Tooltip } from 'antd';
+import { MenuProps, Tooltip } from 'antd';
 import { BackToMainButton } from '../components/controls/BackToMainButton';
 import { RaiseHandButton } from '../components/controls/RaiseHandButton';
 import { ContextMenu } from '../../../../shared/ContextMenu';
 import { useConnectionState } from '../hooks/useConnectionStatus';
-import { useMemo } from 'react';
 import {
   IconAddMember,
+  IconArrowUp,
   IconBackToMain,
   IconEndCall,
   IconLeaveCall,
@@ -33,9 +38,12 @@ import {
 import { useControlBarTooltip } from '../hooks/useControlBarTooltip';
 import { ScreenShareModeMenu } from './ScreenShareModeMenu';
 import { screenShareAtom } from '../../../atoms/screenShareAtom';
-import { useAtomValue } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
+import { SpeedHint } from '../../../../SpeedHint';
+import classNames from 'classnames';
+import { pinnedControlsAtom } from '../../../atoms/roomAtom';
+import { PushpinOutlined } from '@ant-design/icons';
 
-/** @public */
 export type ControlBarControls = {
   microphone?: boolean;
   camera?: boolean;
@@ -49,41 +57,18 @@ export type ControlBarControls = {
   raiseHand?: boolean;
 };
 
-/** @public */
-export interface ControlBarProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface ControlBarProps extends HTMLAttributes<HTMLDivElement> {
   onDeviceError?: (error: { source: Track.Source; error: Error }) => void;
   variation?: 'minimal' | 'verbose' | 'textOnly';
   controls?: ControlBarControls;
-  /**
-   * If `true`, the user's device choices will be persisted.
-   * This will enable the user to have the same device choices when they rejoin the room.
-   * @defaultValue true
-   * @alpha
-   */
   saveUserChoices?: boolean;
   onScreenShareClick?: (
-    evt: React.MouseEvent<HTMLButtonElement, MouseEvent>
+    evt: ReactMouseEvent<HTMLButtonElement, MouseEvent>
   ) => void;
   onAddMember?: () => void;
   onMemberList?: () => void;
 }
 
-/**
- * The `ControlBar` prefab gives the user the basic user interface to control their
- * media devices (camera, microphone and screen share), open the `Chat` and leave the room.
- *
- * @remarks
- * This component is build with other LiveKit components like `TrackToggle`,
- * `DeviceSelectorButton`, `DisconnectButton` and `StartAudio`.
- *
- * @example
- * ```tsx
- * <LiveKitRoom>
- *   <ControlBar />
- * </LiveKitRoom>
- * ```
- * @public
- */
 export function ControlBar({
   variation,
   controls,
@@ -120,27 +105,27 @@ export function ControlBar({
     visibleControls.chat ??= localPermissions.canPublishData && controls?.chat;
   }
 
-  const showIcon = React.useMemo(
+  const showIcon = useMemo(
     () => variation === 'minimal' || variation === 'verbose',
     [variation]
   );
-  const showText = React.useMemo(
+  const showText = useMemo(
     () => variation === 'textOnly' || variation === 'verbose',
     [variation]
   );
 
   const browserSupportsScreenSharing = supportsScreenSharing();
 
-  const [isScreenShareEnabled, setIsScreenShareEnabled] = React.useState(false);
+  const [isScreenShareEnabled, setIsScreenShareEnabled] = useState(false);
 
-  const onScreenShareChange = React.useCallback(
+  const onScreenShareChange = useCallback(
     (enabled: boolean) => {
       setIsScreenShareEnabled(enabled);
     },
     [setIsScreenShareEnabled]
   );
 
-  const htmlProps = mergeProps({ className: 'lk-control-bar' }, props);
+  const htmlProps = mergeProps({ className: 'control-bar-container' }, props);
 
   const {
     saveAudioInputEnabled,
@@ -149,21 +134,20 @@ export function ControlBar({
     saveVideoInputDeviceId,
   } = usePersistentUserChoices({ preventSave: !saveUserChoices });
 
-  const microphoneOnChange = React.useCallback(
+  const microphoneOnChange = useCallback(
     (enabled: boolean, isUserInitiated: boolean) =>
       isUserInitiated ? saveAudioInputEnabled(enabled) : null,
     [saveAudioInputEnabled]
   );
 
-  const cameraOnChange = React.useCallback(
+  const cameraOnChange = useCallback(
     (enabled: boolean, isUserInitiated: boolean) =>
       isUserInitiated ? saveVideoInputEnabled(enabled) : null,
     [saveVideoInputEnabled]
   );
 
-  const featureFlags = useFeatureContext();
-  const onSendMessage = featureFlags?.onSendMessage || undefined;
-  const onSendBubbleMessage = featureFlags?.onSendBubbleMessage || undefined;
+  const featureFlags = useFeatureContext(true);
+  const { i18n } = featureFlags;
 
   const onEndCall = () => {
     featureFlags?.onEndCall?.();
@@ -179,21 +163,44 @@ export function ControlBar({
 
   const isSupportSystemMode = featureFlags?.isSupportSystemMode;
 
+  const [pinnedControls, setPinnedControls] = useAtom(pinnedControlsAtom);
+
+  const defaultMenuItems = [
+    {
+      key: 'pin',
+      label: (
+        <div className="more-action-menu-item">
+          <PushpinOutlined />
+          {pinnedControls ? i18n('unpin') : i18n('pin')}
+        </div>
+      ),
+      onClick: () => {
+        setPinnedControls(!pinnedControls);
+      },
+    },
+  ];
+
+  const menuItems: MenuProps['items'] = [
+    ...defaultMenuItems,
+    ...(criticalAlert?.visible ? (criticalAlert?.menuItems ?? []) : []),
+  ];
+
   return (
     <div {...htmlProps}>
-      {visibleControls.backToMain && (
-        <BackToMainButton onClick={onBackToMain}>
-          <IconBackToMain />
-        </BackToMainButton>
-      )}
-      {visibleControls.chat && (
-        <MessageSender
-          onSendMessage={onSendMessage}
-          presetTexts={featureFlags?.chatPresets}
-          onSendBubbleMessage={onSendBubbleMessage}
-        />
-      )}
-      <div className="lk-control-area">
+      {featureFlags.type !== '1on1' ? (
+        <div className="controlbar-left-content">
+          {visibleControls.backToMain && (
+            <BackToMainButton onClick={onBackToMain}>
+              <IconBackToMain />
+            </BackToMainButton>
+          )}
+          <SpeedHint
+            i18n={featureFlags.i18n}
+            onSendSpeedHint={featureFlags.onSendSpeedHint}
+          />
+        </div>
+      ) : null}
+      <div className="control-area">
         {visibleControls.raiseHand && connected && (
           <Tooltip {...tooltipProps} title={tooltipText.raiseHand}>
             <RaiseHandButton>
@@ -202,7 +209,7 @@ export function ControlBar({
           </Tooltip>
         )}
         {visibleControls.microphone && (
-          <div className="lk-button-group">
+          <div className="button-group">
             <Tooltip {...tooltipProps} title={tooltipText.microphone}>
               <TrackToggle
                 source={Track.Source.Microphone}
@@ -216,7 +223,7 @@ export function ControlBar({
               </TrackToggle>
             </Tooltip>
 
-            <div className="lk-button-group-menu">
+            <div className="button-group-menu">
               <MediaDeviceMenu
                 kind="audioinput"
                 onActiveDeviceChange={(_kind, deviceId) =>
@@ -227,7 +234,7 @@ export function ControlBar({
           </div>
         )}
         {visibleControls.camera && (
-          <div className="lk-button-group">
+          <div className="button-group">
             <Tooltip {...tooltipProps} title={tooltipText.video}>
               <TrackToggle
                 source={Track.Source.Camera}
@@ -241,7 +248,7 @@ export function ControlBar({
               </TrackToggle>
             </Tooltip>
 
-            <div className="lk-button-group-menu">
+            <div className="button-group-menu">
               <MediaDeviceMenu
                 kind="videoinput"
                 onActiveDeviceChange={(_kind, deviceId) =>
@@ -268,11 +275,7 @@ export function ControlBar({
                   onDeviceError={error =>
                     onDeviceError?.({ source: Track.Source.ScreenShare, error })
                   }
-                  className={
-                    isScreenShareEnabled
-                      ? 'system-mode-stop-sharing-button'
-                      : ''
-                  }
+                  className={isScreenShareEnabled ? 'stop-sharing-button' : ''}
                 >
                   {showText &&
                     (isScreenShareEnabled
@@ -280,7 +283,7 @@ export function ControlBar({
                       : 'Share screen')}
                 </TrackToggle>
               ) : (
-                <div className="lk-button-group">
+                <div className="button-group">
                   <TrackToggle
                     disabled={requestingScreenShare}
                     source={Track.Source.ScreenShare}
@@ -303,7 +306,7 @@ export function ControlBar({
                         ? 'Stop screen share'
                         : 'Share screen')}
                   </TrackToggle>
-                  <div className="lk-button-group-menu">
+                  <div className="button-group-menu">
                     <ScreenShareModeMenu />
                   </div>
                 </div>
@@ -340,7 +343,7 @@ export function ControlBar({
           </Tooltip>
         )}
         {visibleControls.memberList && (
-          <div className="lk-button-group lk-member-list-button-group">
+          <div className="button-group member-list-button-group">
             <Tooltip {...tooltipProps} title={tooltipText.memberList}>
               <MemberListButton onClick={onMemberList}>
                 {showIcon && (
@@ -352,7 +355,7 @@ export function ControlBar({
                 </span>
               </MemberListButton>
             </Tooltip>
-            <div className="lk-button-group-menu">
+            <div className="button-group-menu">
               <ContextMenu
                 trigger={['click']}
                 placement="top"
@@ -365,7 +368,7 @@ export function ControlBar({
                       key: 'invite',
                       label: (
                         <div
-                          className="lk-invite-member-item"
+                          className="invite-member-item"
                           onClick={() => {
                             onAddMember?.();
                           }}
@@ -381,7 +384,9 @@ export function ControlBar({
                   ],
                 }}
               >
-                <button className="lk-button lk-button-menu"></button>
+                <button className="button button-menu">
+                  <IconArrowUp />
+                </button>
               </ContextMenu>
             </div>
           </div>
@@ -395,36 +400,43 @@ export function ControlBar({
           </DisconnectButton>
         )}
         {visibleControls.leave && featureFlags?.type !== '1on1' && (
-          <div className="lk-leave-button-group">
+          <div className="leave-button-group">
             <DisconnectButton title={tooltipText.leaveCall}>
               {showIcon && (
                 <IconLeaveCall className="call-icon control-bar-icon leave-call-icon" />
               )}
             </DisconnectButton>
             <button
-              className="lk-button lk-button-menu lk-end-call-menu-button"
+              className="button button-menu end-call-menu-button"
               onClick={onEndCall}
-            ></button>
+            >
+              <IconArrowUp />
+            </button>
           </div>
         )}
       </div>
-      {criticalAlert?.visible && (
-        <Tooltip
-          {...tooltipProps}
-          title={tooltipText.moreAction}
+      <Tooltip
+        {...tooltipProps}
+        title={tooltipText.moreAction}
+        placement="topRight"
+      >
+        <ContextMenu
+          menu={{ items: menuItems }}
           placement="topRight"
+          trigger={['click']}
         >
-          <ContextMenu
-            menu={{ items: criticalAlert.menuItems }}
-            placement="topRight"
-            trigger={['click']}
+          <div
+            className={classNames([
+              'more-action-button',
+              {
+                'is-visible': menuItems.length > 0,
+              },
+            ])}
           >
-            <div className="more-action-button">
-              <IconMoreAction className="call-icon control-bar-icon more-action-icon" />
-            </div>
-          </ContextMenu>
-        </Tooltip>
-      )}
+            <IconMoreAction className="call-icon control-bar-icon more-action-icon" />
+          </div>
+        </ContextMenu>
+      </Tooltip>
     </div>
   );
 }

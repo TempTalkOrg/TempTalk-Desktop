@@ -138,7 +138,7 @@ exports.deleteAll = async ({ userDataPath, attachments }) => {
 
   for (let index = 0, max = attachments.length; index < max; index += 1) {
     const file = attachments[index];
-    // eslint-disable-next-line no-await-in-loop
+
     await deleteFromDisk(file);
   }
 

@@ -1,11 +1,11 @@
-import * as React from 'react';
 import { mergeProps } from '../../utils';
 import { useIsSpeaking, useTrackMutedIndicator } from '../../hooks';
 import type { TrackReferenceOrPlaceholder } from '../../../core';
 import { Track } from '@cc-livekit/livekit-client';
 import { getSourceIcon } from '../util';
+import { forwardRef, useEffect, useMemo } from 'react';
+import React from 'react';
 
-/** @public */
 export interface TrackMutedIndicatorProps
   extends React.HTMLAttributes<HTMLDivElement> {
   trackRef: TrackReferenceOrPlaceholder;
@@ -14,19 +14,7 @@ export interface TrackMutedIndicatorProps
   onShowChange?: (show: boolean) => void;
 }
 
-/**
- * The `TrackMutedIndicator` shows whether the participant's camera or microphone is muted or not.
- * By default, a muted/unmuted icon is displayed for a camera, microphone, and screen sharing track.
- *
- * @example
- * ```tsx
- * <TrackMutedIndicator trackRef={trackRef} />
- * ```
- * @public
- */
-export const TrackMutedIndicator: (
-  props: TrackMutedIndicatorProps & React.RefAttributes<HTMLDivElement>
-) => any = /* @__PURE__ */ React.forwardRef<
+export const TrackMutedIndicator = forwardRef<
   HTMLDivElement,
   TrackMutedIndicatorProps
 >(function TrackMutedIndicator(
@@ -47,7 +35,7 @@ export const TrackMutedIndicator: (
     (show === 'muted' && isMuted) ||
     (show === 'unmuted' && !isMuted);
 
-  const htmlProps = React.useMemo(
+  const htmlProps = useMemo(
     () =>
       mergeProps(props, {
         className,
@@ -55,7 +43,7 @@ export const TrackMutedIndicator: (
     [className, props]
   );
 
-  React.useEffect(() => {
+  useEffect(() => {
     onShowChange?.(showIndicator);
   }, [showIndicator]);
 
@@ -64,13 +52,7 @@ export const TrackMutedIndicator: (
   }
 
   return (
-    <div
-      ref={ref}
-      {...htmlProps}
-      data-lk-muted={isMuted}
-      data-lk-speaking={isSpeaking}
-    >
-      {/* {props.children ?? getSourceIcon(trackRef.source, !isMuted)} */}
+    <div ref={ref} {...htmlProps}>
       {trackRef.source === Track.Source.Microphone ? (
         <ParticipantStatus
           isMuted={isMuted}
@@ -102,10 +84,10 @@ function ParticipantStatus(props: IParticipantStatusProps) {
   }
   if (isSpeaking) {
     return (
-      <div className="lk-speaking-bars">
-        <div className="lk-bar-item"></div>
-        <div className="lk-bar-item"></div>
-        <div className="lk-bar-item"></div>
+      <div className="speaking-bars">
+        <div className="bar-item"></div>
+        <div className="bar-item"></div>
+        <div className="bar-item"></div>
       </div>
     );
   }

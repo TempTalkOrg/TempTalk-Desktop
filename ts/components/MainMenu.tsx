@@ -18,6 +18,8 @@ import {
   IconSidebarCombineForward,
   IconSidebarEnlarge,
 } from './shared/icons';
+import classNames from 'classnames';
+import { ToggleCommonSettingActionType } from '../state/ducks/layout';
 
 const IndividualWindowIconMap = {
   call: <IconSidebarCall />,
@@ -77,6 +79,9 @@ export interface Props {
   ) => CurrentDockItemChangedActionType;
   leftPaneWidth: number;
   sidebarItemList: SidebarItemType[];
+  sidebarStatus: 'expanded' | 'collapsed';
+  commonSettingOpen: boolean;
+  toggleCommonSetting: (open?: boolean) => ToggleCommonSettingActionType;
 }
 
 type UpdateDetailEx = {
@@ -99,7 +104,6 @@ interface State {
   showForwardDialog: boolean;
   conversations: any;
   user: string;
-  showCommonSetting?: boolean;
   updateButton?: boolean;
   updateDetail?: UpdateDetailEx;
   profileUid: string;
@@ -122,7 +126,6 @@ export class MainMenu extends React.Component<Props, State> {
       user: '',
       profileUid: '',
       pos: undefined,
-      showCommonSetting: false,
       updateButton: false,
       updateDetail: undefined,
     };
@@ -150,7 +153,7 @@ export class MainMenu extends React.Component<Props, State> {
         conversations,
         'id'
       );
-      if (lookup.hasOwnProperty(info)) {
+      if (Object.hasOwn(lookup, info)) {
         const item = lookup[info];
         (window as any).sendSearchUser({
           id: info,
@@ -325,15 +328,23 @@ export class MainMenu extends React.Component<Props, State> {
   };
 
   public render() {
-    const { avatarPath, i18n, color, name, profileName, id, ourNumber } =
-      this.props;
-    const { showCommonSetting } = this.state;
+    const {
+      avatarPath,
+      i18n,
+      color,
+      name,
+      profileName,
+      id,
+      ourNumber,
+      sidebarStatus,
+      toggleCommonSetting,
+    } = this.props;
     // 切换账号时，可能出现id=undefined, 需要过滤掉这种情况
     if (!id) {
       return null;
     }
 
-    let buttons = (
+    const buttons = (
       <div>
         {/* 解决切换的时候会闪烁 */}
         <div
@@ -390,7 +401,9 @@ export class MainMenu extends React.Component<Props, State> {
       </div>
     );
     return (
-      <div className="module-main-menu">
+      <div
+        className={classNames('module-main-menu', `sidebar-${sidebarStatus}`)}
+      >
         <Load i18n={i18n} ourNumber={ourNumber} />
         <div style={{ width: 'fit-content', margin: 'auto' }}>
           <Avatar
@@ -406,13 +419,7 @@ export class MainMenu extends React.Component<Props, State> {
             noClickEvent={true}
             fromMainTab={true}
             onClickAvatar={() => {
-              if (showCommonSetting) {
-                this.setState({
-                  showCommonSetting: false,
-                });
-              } else {
-                this.setState({ showCommonSetting: true });
-              }
+              toggleCommonSetting();
             }}
           />
         </div>
@@ -435,17 +442,21 @@ export class MainMenu extends React.Component<Props, State> {
   }
 
   private readonly toggleButtonState = (index: number) => {
-    const { clearSearch, currentDockItemChanged } = this.props;
-    const { showCommonSetting } = this.state;
-    if (showCommonSetting) {
-      this.setState({ showCommonSetting: false });
+    const {
+      clearSearch,
+      currentDockItemChanged,
+      commonSettingOpen,
+      toggleCommonSetting,
+    } = this.props;
+    if (commonSettingOpen) {
+      toggleCommonSetting?.(false);
     }
     if (clearSearch) {
       clearSearch();
     }
-    if (this.state.barState === index) {
-      return;
-    }
+    // if (this.state.barState === index) {
+    //   return;
+    // }
 
     // chat
     const gutter = document.getElementsByClassName('gutter')[0] as any;
@@ -506,7 +517,7 @@ export class MainMenu extends React.Component<Props, State> {
     }
     const { reverseShareDirection } = this.state;
 
-    let userConversation = getConversationModel(user.number);
+    const userConversation = getConversationModel(user.number);
     if (reverseShareDirection && !userConversation) {
       return;
     }
@@ -562,22 +573,33 @@ export class MainMenu extends React.Component<Props, State> {
   };
 
   public openCommonSetting = () => {
-    this.setState({ showCommonSetting: true });
+    const { toggleCommonSetting } = this.props;
+    toggleCommonSetting?.(true);
   };
 
   public renderCommonSetting() {
-    const { showCommonSetting } = this.state;
-    const { avatarPath, i18n, name, id, leftPaneWidth } = this.props;
+    const {
+      avatarPath,
+      i18n,
+      name,
+      id,
+      leftPaneWidth,
+      commonSettingOpen,
+      toggleCommonSetting,
+      sidebarStatus,
+    } = this.props;
 
     const closeSetting = () => {
-      this.setState({ showCommonSetting: false });
+      toggleCommonSetting(false);
     };
 
-    if (showCommonSetting) {
+    if (commonSettingOpen) {
+      const leftPaneOffset = sidebarStatus === 'expanded' ? 72 : 0;
+      const topOffset = sidebarStatus === 'collapsed' ? 57 : 0;
       return (
         <Drawer
+          open
           placement="left"
-          open={this.state.showCommonSetting}
           width={leftPaneWidth}
           closable={false}
           styles={{
@@ -585,7 +607,11 @@ export class MainMenu extends React.Component<Props, State> {
               boxShadow: 'none',
             },
           }}
-          rootStyle={{ marginLeft: 68, padding: 0 }}
+          rootStyle={{
+            marginLeft: leftPaneOffset,
+            padding: 0,
+            marginTop: topOffset,
+          }}
           mask={false}
           push={{ distance: '0' }}
         >
@@ -596,6 +622,8 @@ export class MainMenu extends React.Component<Props, State> {
             i18n={i18n}
             closeSetting={closeSetting}
             leftPaneWidth={leftPaneWidth}
+            leftPaneOffset={leftPaneOffset}
+            closeIcon={sidebarStatus === 'expanded'}
           />
         </Drawer>
       );

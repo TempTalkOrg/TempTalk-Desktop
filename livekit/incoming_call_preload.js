@@ -1,5 +1,3 @@
-/* global window */
-
 const url = require('url');
 const config = url.parse(window.location.toString(), true).query;
 const { locale } = config;

@@ -2,8 +2,10 @@ import { Participant } from '@cc-livekit/livekit-client';
 import { MenuProps } from 'antd';
 import * as React from 'react';
 import { LocalizerType } from '../../../../../types/Util';
+import { GlobalConfigType } from '../../../atoms/globalConfigAtom';
 
-/** @internal */
+export type DenoiseMode = GlobalConfigType['denoise']['mode'];
+
 export interface FeatureFlags {
   i18n: LocalizerType;
   autoSubscription?: boolean;
@@ -34,7 +36,8 @@ export interface FeatureFlags {
   cancelHand: (identities: string[]) => Promise<void>;
   denoiseEnable?: boolean;
   onDenoiseEnableChange?: (enable: boolean) => void;
-  locale?: string;
+  denoiseMode?: DenoiseMode;
+  onDenoiseModeChange?: (mode: DenoiseMode) => void;
   criticalAlert?: {
     visible: boolean;
     menuItems: MenuProps['items'];
@@ -43,6 +46,7 @@ export interface FeatureFlags {
   screenShareMode: 'default' | 'system';
   onScreenShareModeChange: (mode: 'default' | 'system') => void;
   onSendBubbleMessage?: (text: string) => void;
+  onSendSpeedHint: (speed: 'slower' | 'faster') => void;
 }
 
 type FeatureContext<T extends boolean = false> = T extends true

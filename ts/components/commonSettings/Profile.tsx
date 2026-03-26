@@ -9,15 +9,18 @@ import Tooltip from 'antd/lib/tooltip';
 
 import { ContextMenu } from '../shared/ContextMenu';
 import { IconWrapper } from '../shared/IconWrapper';
-import { IconCall } from '../shared/icons';
+import { IconCall, IconOfficialAccount } from '../shared/icons';
 import { AutoSizeInput } from '../shared/AutoSizeInput';
 import { useMemoizedFn } from 'ahooks';
+
+const OFFICIAL_WEBSITE = 'https://yelling.pro';
 
 type ActionKeyType =
   | 'shareContact'
   | 'startCall'
   | 'addFriend'
-  | 'deleteContact';
+  | 'deleteContact'
+  | 'editRemark';
 
 type ActionsConfig = Partial<Record<ActionKeyType, boolean>>;
 
@@ -53,6 +56,7 @@ interface ProfileItemProps {
   isShowArrowimg?: boolean;
   onClickArrowimg?: (event: any) => void;
   getContent?: (data: any) => string;
+  renderContent?: () => React.ReactNode;
 }
 
 const BottomActions = (props: {
@@ -153,19 +157,28 @@ const ProfileInfoList = (props: ProfileInfoListType) => {
       });
     }
 
-    contactItems.push({
-      field: 'commonGroupNumber',
-      title: i18n('common_groups'),
-      isShowCopy: false,
-      isRole: commonGroupNumber > 0 ? true : false,
-      isShowTip: commonGroupNumber > 0 ? true : false,
-      isShowArrowimg: commonGroupNumber > 0 ? true : false,
-      onClickArrowimg: onClickCommonGroups,
-    });
+    if (userInfo?.isOfficialAccount) {
+      contactItems.push({
+        field: 'website',
+        title: i18n('website'),
+        isShowCopy: false,
+        renderContent: () => <a href={OFFICIAL_WEBSITE}>{OFFICIAL_WEBSITE}</a>,
+      });
+    } else {
+      contactItems.push({
+        field: 'commonGroupNumber',
+        title: i18n('common_groups'),
+        isShowCopy: false,
+        isRole: commonGroupNumber > 0 ? true : false,
+        isShowTip: commonGroupNumber > 0 ? true : false,
+        isShowArrowimg: commonGroupNumber > 0 ? true : false,
+        onClickArrowimg: onClickCommonGroups,
+      });
+    }
   }
 
   const profileInfo = useMemo(() => {
-    return { ...userInfo, commonGroupNumber };
+    return { ...userInfo, commonGroupNumber, website: OFFICIAL_WEBSITE };
   }, [userInfo, commonGroupNumber]);
 
   return (
@@ -188,6 +201,7 @@ const ProfileInfoList = (props: ProfileInfoListType) => {
               isRole={!!item.isRole}
               onClick={item.onClick}
               onClickArrowimg={item.onClickArrowimg}
+              renderContent={item.renderContent}
             />
           );
         }
@@ -245,7 +259,7 @@ export const Profile = (props: Props) => {
 
   const remarkNameEditComplete = useMemoizedFn(
     async (textComplete: string | undefined) => {
-      let text = textComplete;
+      const text = textComplete;
       if (
         remarkName === text ||
         (!remarkName && text === userInfo?.accountName)
@@ -295,16 +309,16 @@ export const Profile = (props: Props) => {
   });
 
   const getProfileOperations = useMemoizedFn(() => {
-    const operations: MenuProps['items'] = [
-      {
+    const operations: MenuProps['items'] = [];
+    if (actions.editRemark) {
+      operations.push({
         label: <span>{i18n('editContact')}</span>,
         key: 'edit-contact',
         onClick: () => {
           setEditingRemarkName(true);
         },
-      },
-    ];
-
+      });
+    }
     if (actions.deleteContact) {
       operations.push({
         label: (
@@ -354,8 +368,11 @@ export const Profile = (props: Props) => {
               <div className="profile-name">
                 <span className={'profile-name-text'}>
                   {remarkName || userInfo?.accountName}
+                  {userInfo?.isOfficialAccount && (
+                    <IconOfficialAccount className="profile-official-account-badge" />
+                  )}
                 </span>
-                {!isMe ? (
+                {!isMe && (
                   <ContextMenu
                     menu={{ items: getProfileOperations() }}
                     trigger={['click']}
@@ -367,8 +384,13 @@ export const Profile = (props: Props) => {
                       <div className="module-gear-icon"></div>
                     </IconWrapper>
                   </ContextMenu>
-                ) : null}
+                )}
               </div>
+              {userInfo?.isOfficialAccount && (
+                <div className="official-account-desc">
+                  {i18n('officialAccountDesc')}
+                </div>
+              )}
               {remarkName ? (
                 <span
                   className={'profile-account-name'}

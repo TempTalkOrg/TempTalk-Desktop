@@ -1,8 +1,3 @@
-/* global
-  window,
-  $,
-*/
-
 const { ipcRenderer } = require('electron');
 
 const url = require('url');

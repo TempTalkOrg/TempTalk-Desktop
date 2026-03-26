@@ -19,6 +19,7 @@ export class DBAccelerator
   extends Sqlite3Database
   implements ILocalDBAccelerator
 {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
   private _methods: Function[];
   private _tableUnprocessed = new TableUnprocessed();
   private _tableAttachmentDownloads = new TableAttachmentDownloads();
@@ -214,7 +215,7 @@ export class DBAccelerator
           countTableRows(db, 'attachment_downloads'),
         ],
       });
-    } catch (error) {
+    } catch (_error) {
       Object.assign(report, { error: 'database is not initialized.' });
     }
 

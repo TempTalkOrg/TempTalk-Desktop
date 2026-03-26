@@ -3,10 +3,14 @@ import classNames from 'classnames';
 
 import { LocalizerType } from '../../../types/Util';
 import {
+  MessageMode,
   MessageModeButton,
   PropsType as MessageModeButtonProps,
 } from '../MessageModeButton';
-import { withToolbarItemVisible } from './withToolbarItemVisible';
+import {
+  ToolbarItemWrapperProps,
+  withToolbarItemVisible,
+} from './withToolbarItemVisible';
 import {
   PropsType as ComposeButtonPropsType,
   EmojiPanelButton,
@@ -30,7 +34,7 @@ interface ComposeToolbarProps extends ICommonProps {
     active: boolean;
     visible: boolean;
   };
-  messageMode: MessageModeButtonProps;
+  messageMode: ToolbarItemWrapperProps<MessageModeButtonProps>;
   emojiPanel: ComposeButtonPropsType;
   attachmentSelector: ComposeButtonPropsType;
   atPerson: ComposeButtonPropsType;
@@ -68,6 +72,8 @@ export const ComposeToolbar = (props: ComposeToolbarProps) => {
       className={classNames('compose-toolbar', {
         active: toolbar.active,
         hidden: !toolbar.visible,
+        'is-confidential-mode':
+          messageMode.visible && messageMode.mode === MessageMode.CONFIDENTIAL,
       })}
     >
       <div className="compose-toolbar-left">

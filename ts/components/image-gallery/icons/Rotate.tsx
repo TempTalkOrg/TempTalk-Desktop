@@ -16,12 +16,12 @@ export function Rotate(props: IconProps) {
     size = 20,
     width,
     height,
-    spin,
-    rtl,
+    // spin,
+    // rtl,
     color,
     fill,
     stroke,
-    className,
+    // className,
     ...rest
   } = props;
   const _width = width || size;

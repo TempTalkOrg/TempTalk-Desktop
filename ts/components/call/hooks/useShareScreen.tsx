@@ -17,6 +17,7 @@ import { message, Spin } from 'antd';
 import { ExclamationCircleOutlined, LoadingOutlined } from '@ant-design/icons';
 import { UpdateRequireScreenMessageType } from './useRTMMessage';
 import { LocalizerType } from '../../../types/Util';
+import { useImmersiveMode } from './useImmersiveMode';
 
 type ShareScreenSource = {
   id: string;
@@ -281,6 +282,8 @@ export const useShareScreen = ({
       : 'default'
   );
 
+  const { exitImmersiveMode, enterImmersiveMode } = useImmersiveMode();
+
   const onScreenShareModeChange = useMemoizedFn((mode: ScreenShareMode) => {
     setScreenShareMode(mode);
     localStorage.setItem('screenShareMode', mode);
@@ -474,6 +477,21 @@ export const useShareScreen = ({
           participant.isLocal,
           trackPublication
         );
+        exitImmersiveMode();
+      }
+    }
+  );
+
+  const onTrackPublished = useMemoizedFn(
+    (trackPublication: TrackPublication, participant: Participant) => {
+      if (trackPublication.source === Track.Source.ScreenShare) {
+        console.log(
+          'share screen published',
+          'isLocal:',
+          participant.isLocal,
+          trackPublication
+        );
+        enterImmersiveMode();
       }
     }
   );
@@ -482,9 +500,14 @@ export const useShareScreen = ({
     room.on(RoomEvent.LocalTrackUnpublished, onTrackUnpublished);
     room.on(RoomEvent.TrackUnpublished, onTrackUnpublished);
 
+    room.on(RoomEvent.LocalTrackPublished, onTrackPublished);
+    room.on(RoomEvent.TrackPublished, onTrackPublished);
+
     return () => {
       room.off(RoomEvent.LocalTrackUnpublished, onTrackUnpublished);
       room.off(RoomEvent.TrackUnpublished, onTrackUnpublished);
+      room.off(RoomEvent.LocalTrackPublished, onTrackPublished);
+      room.off(RoomEvent.TrackPublished, onTrackPublished);
     };
   }, []);
 
@@ -635,5 +658,6 @@ export const useShareScreen = ({
     onUpdateRequireScreen,
     onApproveScreenShareRequest,
     onRejectScreenShareRequest,
+    screenShareStatus,
   };
 };

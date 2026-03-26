@@ -266,35 +266,35 @@ export const FloatingBar = (props: PropsType) => {
 
   const buttonListRef = useRef<HTMLDivElement>(null);
 
-  const updateButtonListVisibility = useMemoizedFn((visibility: string) => {
-    if (buttonListRef.current) {
-      buttonListRef.current.style.visibility = visibility;
-    }
-  });
+  // const updateButtonListVisibility = useMemoizedFn((visibility: string) => {
+  //   if (buttonListRef.current) {
+  //     buttonListRef.current.style.visibility = visibility;
+  //   }
+  // });
 
-  const onHideWindow = useMemoizedFn(() => {
-    updateButtonListVisibility('hidden');
-  });
-  const onMouseOver = useMemoizedFn(() => {
-    updateButtonListVisibility('visible');
-  });
-  const onMouseOut = useMemoizedFn(() => {
-    updateButtonListVisibility('hidden');
-  });
+  // const onHideWindow = useMemoizedFn(() => {
+  //   updateButtonListVisibility('hidden');
+  // });
+  // const onMouseOver = useMemoizedFn(() => {
+  //   updateButtonListVisibility('visible');
+  // });
+  // const onMouseOut = useMemoizedFn(() => {
+  //   updateButtonListVisibility('hidden');
+  // });
 
   useEffect(() => {
     const cleanup = (window as any).registerSendFrameHandler(onFrame);
-    const cleanupHideWindowHandler = (window as any).registerHideWindowHandler(
-      onHideWindow
-    );
-    document.addEventListener('mouseover', onMouseOver);
-    document.addEventListener('mouseout', onMouseOut);
+    // const cleanupHideWindowHandler = (window as any).registerHideWindowHandler(
+    //   onHideWindow
+    // );
+    // document.addEventListener('mouseover', onMouseOver);
+    // document.addEventListener('mouseout', onMouseOut);
 
     return () => {
       cleanup();
-      cleanupHideWindowHandler();
-      document.removeEventListener('mouseover', onMouseOver);
-      document.removeEventListener('mouseout', onMouseOut);
+      // cleanupHideWindowHandler();
+      // document.removeEventListener('mouseover', onMouseOver);
+      // document.removeEventListener('mouseout', onMouseOut);
     };
   }, []);
 
@@ -337,7 +337,6 @@ export const FloatingBar = (props: PropsType) => {
             name={activeInfo?.name}
             accountName={activeInfo?.accountName}
             avatarPath={activeInfo?.avatarPath}
-            notShowStatus={true}
             noClickEvent={true}
           />
         </div>

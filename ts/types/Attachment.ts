@@ -49,6 +49,11 @@ export interface AttachmentType {
   error?: boolean | API_STATUS;
   sha256?: string;
   encryptionKey?: string;
+
+  isVoiceNote?: boolean;
+  file?: File;
+  videoUrl?: string;
+  getFile?: () => Promise<AttachmentType | void>;
 }
 
 // UI-focused functions

@@ -7,6 +7,7 @@ import { actions as contactSearch } from './ducks/contactSearch';
 import { actions as dock } from './ducks/dock';
 import { actions as preferences } from './ducks/preferences';
 import { actions as sidebar } from './ducks/sidebar';
+import { actions as layout } from './ducks/layout';
 
 const actions = {
   ...search,
@@ -16,8 +17,9 @@ const actions = {
   ...dock,
   ...preferences,
   ...sidebar,
+  ...layout,
 };
 
-export function mapDispatchToProps(dispatch: Dispatch): Object {
+export function mapDispatchToProps(dispatch: Dispatch): object {
   return bindActionCreators(actions, dispatch);
 }

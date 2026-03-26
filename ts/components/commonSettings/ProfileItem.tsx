@@ -12,6 +12,7 @@ type Props = {
   isRole: boolean;
   isShowTip: boolean;
   onClick?: (event: any) => void;
+  renderContent?: () => React.ReactNode;
 };
 
 const ProfileItem = (props: Props) => {
@@ -55,8 +56,8 @@ const ProfileItem = (props: Props) => {
 
   // 文字长度显示限制128字符
   let content = props.content;
-  let isRole = props.isRole;
-  let isShowTip = props.isShowTip;
+  const isRole = props.isRole;
+  const isShowTip = props.isShowTip;
   let str = '';
   let content1 = '';
   if (content && content.length > 128) {
@@ -91,47 +92,53 @@ const ProfileItem = (props: Props) => {
         className={'profile-item-sub'}
         onClick={props.isShowArrowimg ? props.onClickArrowimg : undefined}
       >
-        {isRole && !props.onClick ? (
-          <Tooltip
-            placement="top"
-            align={{ offset: [0, 5] }}
-            autoAdjustOverflow={true}
-            title={content}
-            mouseEnterDelay={1.5}
-            overlayClassName={'antd-tooltip-cover'}
-          >
-            <span style={{ maxWidth: '100%' }}>{content}</span>
-          </Tooltip>
-        ) : null}
+        {props.renderContent ? (
+          props.renderContent()
+        ) : (
+          <>
+            {isRole && !props.onClick ? (
+              <Tooltip
+                placement="top"
+                align={{ offset: [0, 5] }}
+                autoAdjustOverflow={true}
+                title={content}
+                mouseEnterDelay={1.5}
+                overlayClassName={'antd-tooltip-cover'}
+              >
+                <span style={{ maxWidth: '100%' }}>{content}</span>
+              </Tooltip>
+            ) : null}
 
-        {!isRole &&
-        props.content instanceof Array &&
-        isShowTip &&
-        !props.onClick ? (
-          <Tooltip
-            placement="top"
-            align={{ offset: [0, 5] }}
-            autoAdjustOverflow={true}
-            title={content}
-            mouseEnterDelay={1.5}
-            overlayClassName={'antd-tooltip-cover'}
-          >
-            <span style={{ maxWidth: '100%' }}>{content1}</span>
-          </Tooltip>
-        ) : null}
+            {!isRole &&
+            props.content instanceof Array &&
+            isShowTip &&
+            !props.onClick ? (
+              <Tooltip
+                placement="top"
+                align={{ offset: [0, 5] }}
+                autoAdjustOverflow={true}
+                title={content}
+                mouseEnterDelay={1.5}
+                overlayClassName={'antd-tooltip-cover'}
+              >
+                <span style={{ maxWidth: '100%' }}>{content1}</span>
+              </Tooltip>
+            ) : null}
 
-        {!isRole && !(props.content instanceof Array) && !isShowTip ? (
-          <div
-            style={{ cursor: props.onClick ? 'pointer' : 'default' }}
-            onClick={event => {
-              if (props.onClick) {
-                props.onClick(event);
-              }
-            }}
-          >
-            {content}
-          </div>
-        ) : null}
+            {!isRole && !(props.content instanceof Array) && !isShowTip ? (
+              <div
+                style={{ cursor: props.onClick ? 'pointer' : 'default' }}
+                onClick={event => {
+                  if (props.onClick) {
+                    props.onClick(event);
+                  }
+                }}
+              >
+                {content}
+              </div>
+            ) : null}
+          </>
+        )}
         {renderArrowimg()}
       </div>
 

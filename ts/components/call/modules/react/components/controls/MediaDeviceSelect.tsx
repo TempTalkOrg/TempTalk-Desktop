@@ -132,7 +132,7 @@ export const MediaDeviceSelect = /* @__PURE__ */ React.forwardRef<
         <li
           key={device.deviceId}
           id={device.deviceId}
-          data-lk-active={isActive(device.deviceId, activeDeviceId, index)}
+          data-active={isActive(device.deviceId, activeDeviceId, index)}
           aria-selected={isActive(device.deviceId, activeDeviceId, index)}
           role="option"
         >

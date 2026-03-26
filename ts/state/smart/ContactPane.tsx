@@ -3,13 +3,17 @@ import { mapDispatchToProps } from '../actions';
 import { ContactNewPane } from '../../components/ContactNewPane';
 import { StateType } from '../reducer';
 import { getIntl } from '../selectors/user';
-import { getSortedContacts } from '../selectors/conversations';
+import { getMe, getSortedContacts } from '../selectors/conversations';
+import { getSidebarStatus } from '../selectors/sidebar';
+import { getCurrentDockItem } from '../selectors/dock';
 
 const mapStateToProps = (state: StateType) => {
   return {
     i18n: getIntl(state),
     contacts: getSortedContacts(state),
-    dock: state.dock,
+    sidebarStatus: getSidebarStatus(state),
+    currentDockItem: getCurrentDockItem(state),
+    ...getMe(state),
   };
 };
 

@@ -17,7 +17,7 @@ export const BubbleMessageList = ({
       emojiContent: string;
       name: string;
     },
-    {}
+    object
   >(messages, {
     from: item => ({
       top: '100%',

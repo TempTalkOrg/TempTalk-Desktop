@@ -53,6 +53,7 @@ export class GroupContactCollect extends React.Component<PropsType, StateType> {
         style={{ ...style, maxWidth: '100%' }}
         i18n={i18n}
         isMyGroup={true}
+        isOfficialAccount={false}
       />
     );
   };

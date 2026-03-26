@@ -1,5 +1,3 @@
-/* global window */
-
 const { ipcRenderer } = require('electron');
 const url = require('url');
 const i18n = require('./js/modules/i18n');

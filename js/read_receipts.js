@@ -4,12 +4,11 @@
   _,
   ConversationController,
   MessageController,
-  window
+  textsecure,
+  log,
+  Signal,
 */
 
-/* eslint-disable more/no-then */
-
-// eslint-disable-next-line func-names
 (function () {
   'use strict';
 
@@ -81,6 +80,7 @@
           item =>
             item.isOutgoing() && _.contains(gids, item.get('conversationId'))
         );
+        // eslint-disable-next-line no-constant-condition
       } while (false);
 
       if (found) {

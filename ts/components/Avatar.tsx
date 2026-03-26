@@ -1,10 +1,8 @@
 import React, { MouseEvent } from 'react';
 import classNames from 'classnames';
-import { v4 as uuidv4 } from 'uuid';
 import { getInitials } from '../util/getInitials';
 import { LocalizerType } from '../types/Util';
 import { trigger } from '../shims/events';
-// import { Profile } from './commonSettings/Profile';
 
 import Modal from 'antd/lib/modal';
 import Popover from 'antd/lib/popover';
@@ -18,7 +16,6 @@ import {
   IconSearch,
 } from './shared/icons';
 import { ProfileCard } from './commonSettings/ProfileCard';
-// import AntDraggableModal from './AntDraggableModal';
 
 interface Props {
   avatarPath?: string;
@@ -40,31 +37,22 @@ interface Props {
   addAtPerson?: (id: string) => void;
   canUpload?: () => void;
   canPreviewAvatar?: boolean;
-  notShowStatus?: boolean;
   noClickEvent?: boolean; // 不注册单击双击事件，比如会话列表，搜索结果列表
   archiveButton?: boolean;
   nonImageType?: 'search' | 'instant-call';
   isCanUpload?: boolean;
   groupMembersCount?: any;
   direction?: any;
-  authorPhoneNumber?: any;
   conversationId?: any;
   fromMainTab?: boolean;
-  leftGroup?: any;
   className?: string;
 }
 
 interface State {
   imageBroken: boolean;
   showProfileDialog?: boolean;
-  x: number;
-  y: number;
-  randomTriggerId: string;
   showUploadCamera: boolean;
-  showViewAvatar: boolean;
   popoverPlacement: string;
-  isMe?: boolean;
-  showAvatarPreviewIcon: boolean;
   showAvatarPreivewModal: boolean;
   styleTop: number;
   styleLeft: number;
@@ -85,13 +73,8 @@ export class Avatar extends React.Component<Props, State> {
 
     this.state = {
       imageBroken: false,
-      x: 0,
-      y: 0,
-      randomTriggerId: props.withMenu ? uuidv4() : '',
       showUploadCamera: false,
-      showViewAvatar: false,
       popoverPlacement: 'rightTop',
-      showAvatarPreviewIcon: false,
       showAvatarPreivewModal: false,
       styleTop: 100,
       styleLeft: 0,
@@ -170,26 +153,10 @@ export class Avatar extends React.Component<Props, State> {
     return undefined;
   };
 
-  public isBot = () => {
-    const userId = this.getPrivateUserId();
-    return userId && userId.length <= 6;
-  };
-
   public componentDidMount = () => {
     const { id } = this.props;
     if (id) {
       this.updateAvatar(id);
-
-      if ((window as any).ConversationController) {
-        try {
-          const conversation = (window as any).ConversationController.get(id);
-          if (conversation) {
-            this.setState({ isMe: conversation.isMe() });
-          }
-        } catch (error) {
-          console.log('ConversationController is not ready:', error);
-        }
-      }
     }
   };
 
@@ -215,18 +182,13 @@ export class Avatar extends React.Component<Props, State> {
       return;
     }
 
+    if (prevProps.avatarPath !== this.props.avatarPath) {
+      this.setState({ imageBroken: false });
+    }
+
     const { id } = this.props;
     if (id) {
       this.updateAvatar(id);
-
-      try {
-        const conversation = (window as any).conversationController?.get(id);
-        if (conversation) {
-          this.setState({ isMe: conversation.isMe() });
-        }
-      } catch (error) {
-        console.log('ConversationController is not ready:', error);
-      }
     }
   }
 
@@ -241,10 +203,8 @@ export class Avatar extends React.Component<Props, State> {
     }, 5000);
   }
 
-  public handleImageError(e: any) {
+  public handleImageError() {
     console.log('Avatar: Image failed to load; failing over to placeholder');
-    console.log('[avatar load error]', 'prop path', this.props.avatarPath);
-    console.log('[avatar load error]', 'load src', e.target.src);
     this.setState({
       imageBroken: true,
     });
@@ -307,7 +267,7 @@ export class Avatar extends React.Component<Props, State> {
     }`;
 
     // 重新设置头像大小，有圈和没圈一样大
-    let resetSize = `${size}px`;
+    const resetSize = `${size}px`;
 
     return (
       <img
@@ -667,7 +627,7 @@ export class Avatar extends React.Component<Props, State> {
     }
 
     // 重新设置头像大小，有圈和没圈一样大
-    let resetSize = `${size}px`;
+    const resetSize = `${size}px`;
 
     const backgroundColors = [
       'rgb(255,69,58)',
@@ -694,16 +654,6 @@ export class Avatar extends React.Component<Props, State> {
         backgroundColor = backgroundColors[sub.charCodeAt(0) % 10];
       }
     }
-
-    // 群先不设置颜色
-    // if (id && id.length > 1 && isGroup) {
-    //   const sub = id.substr(id.length - 2, 2);
-    //   const index = parseInt(sub, 16) % 4;
-    //   backgroundColor = backgroundColors[index];
-    //   if (!backgroundColor) {
-    //     backgroundColor = backgroundColors[1];
-    //   }
-    // }
 
     if (hasImage || noteToSelf || groupChats || nonImageType) {
       backgroundColor = undefined;
@@ -769,7 +719,6 @@ export class Avatar extends React.Component<Props, State> {
         onMouseLeave={() => {
           this.setState({
             showUploadCamera: false,
-            showAvatarPreviewIcon: false,
           });
         }}
       >
@@ -781,8 +730,7 @@ export class Avatar extends React.Component<Props, State> {
 
   public renderGroupMembersCount() {
     const { conversationType, groupMembersCount } = this.props;
-    if (conversationType !== 'group' || !Boolean(groupMembersCount))
-      return null;
+    if (conversationType !== 'group' || !groupMembersCount) return null;
     return (
       <div className="module-avatar-group-members-count">
         {groupMembersCount}
@@ -799,10 +747,7 @@ export class Avatar extends React.Component<Props, State> {
     }
 
     return (
-      <div
-        onMouseEnter={() => this.clearProfileCardCloseTimer()}
-        // onMouseLeave={() => this.setupProfileCardCloseTimer()}
-      >
+      <div onMouseEnter={() => this.clearProfileCardCloseTimer()}>
         <ProfileCard
           id={id}
           conversationId={conversationId}
@@ -875,21 +820,6 @@ export class Avatar extends React.Component<Props, State> {
     }
   }
 
-  public setupProfileCardCloseTimer() {
-    this.clearProfileCardCloseTimer();
-
-    if (this.state.isMe) {
-      return;
-    }
-
-    if (this.state.showProfileDialog) {
-      this.profileCardCloseTimer = setTimeout(() => {
-        this.clearProfileCardCloseTimer();
-        this.setState({ showProfileDialog: false });
-      }, 100);
-    }
-  }
-
   public clearProfileCardCloseTimer() {
     if (this.profileCardCloseTimer) {
       clearTimeout(this.profileCardCloseTimer);
@@ -919,7 +849,7 @@ export class Avatar extends React.Component<Props, State> {
         transitionName=""
       >
         <div
-          className={classNames(['only-for-before-join-meeting', className])}
+          className={classNames([className])}
           style={{
             borderRadius: '50%',
             position: 'relative',
@@ -927,7 +857,6 @@ export class Avatar extends React.Component<Props, State> {
           }}
           ref={this.avatarRef}
           onMouseEnter={() => this.clearProfileCardCloseTimer()}
-          // onMouseLeave={() => this.setupProfileCardCloseTimer()}
         >
           {this.renderGroupMembersCount()}
           {this.renderMainAvatar()}

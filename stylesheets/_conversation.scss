@@ -283,6 +283,11 @@
     & > button {
       height: 40px;
     }
+
+    .add-contact-button {
+      width: 120px;
+      margin: 0 auto;
+    }
   }
 }
 
@@ -791,12 +796,23 @@
   }
 
   .profile-account-name {
-    color: #1e2329;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: pre;
     display: inline-block;
     max-width: 160px;
+
+    color: var(--dst-color-text-third);
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 16px;
+  }
+
+  .official-account-desc {
+    color: var(--dst-color-text-third);
+    font-size: 12px;
+    line-height: 20px;
+    font-weight: 400;
   }
 
   .profile-signature {
@@ -1225,6 +1241,23 @@
   }
 }
 
+.compose {
+  position: relative;
+  &:has(.compose-toolbar.is-confidential-mode) {
+    &:after {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      right: 0;
+      background: rgba(0, 51, 102, 0.2);
+      z-index: 200;
+      pointer-events: none;
+    }
+  }
+}
+
 .compose-toolbar {
   height: 37px;
   display: flex;
@@ -1234,14 +1267,21 @@
   flex-flow: row nowrap;
   justify-content: space-between;
   position: relative;
-  border-top: 1px solid var(--dst-color-line);
+  border-top-width: 1px;
+  border-top-style: solid;
+  border-top-color: var(--dst-color-line);
 
   &.active {
-    border-top: 1px solid $color-signal-blue !important;
+    border-top-color: $color-signal-blue;
   }
 
   &.hidden {
     display: none;
+  }
+
+  &.is-confidential-mode {
+    border-style: dashed;
+    border-top-color: $color-signal-blue;
   }
 
   .call-btn {
@@ -1346,4 +1386,9 @@
 
 .unknow-user-indicator-view {
   margin: 0 auto;
+}
+
+.profile-official-account-badge {
+  margin-left: 4px;
+  vertical-align: middle;
 }

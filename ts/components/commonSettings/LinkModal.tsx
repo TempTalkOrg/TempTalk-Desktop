@@ -97,7 +97,9 @@ export default function LinkModal(props: LinkProps) {
         setRequestError(false);
         break;
       } catch (error: any) {
-        let errorMessage = i18n('setting.account.linkModal.requestCode.error');
+        const errorMessage = i18n(
+          'setting.account.linkModal.requestCode.error'
+        );
         if (error?.name === 'HTTPError' && error.code === 400) {
           const { status, data } = error.response || {};
           switch (status) {
@@ -108,7 +110,7 @@ export default function LinkModal(props: LinkProps) {
               (window as any).noticeSuccess('Success');
               break;
             case API_STATUS.EmailAlreadyLinkedToAnother:
-            case API_STATUS.PhoneAlreadyLinkedToAnother:
+            case API_STATUS.PhoneAlreadyLinkedToAnother: {
               const fieldText = i18n(`setting.account.${field}`);
               setNonce(data?.nonce);
               setConfirmProps({
@@ -126,7 +128,7 @@ export default function LinkModal(props: LinkProps) {
                   setHasConfirmed(true);
                   try {
                     await onRequestCode();
-                  } catch (error) {
+                  } catch (_error) {
                     //
                   }
 
@@ -146,6 +148,7 @@ export default function LinkModal(props: LinkProps) {
                 width: '384px',
               });
               break;
+            }
             case API_STATUS.InvalidNonce:
               tempNonce = data?.nonce;
               retry += 1;
@@ -161,6 +164,7 @@ export default function LinkModal(props: LinkProps) {
         setRequestError(errorMessage);
         throw error;
       }
+      // eslint-disable-next-line no-constant-condition
     } while (true);
   });
 
@@ -200,7 +204,7 @@ export default function LinkModal(props: LinkProps) {
 
     try {
       await onRequest();
-    } catch (error: any) {
+    } catch (_error) {
       setLoading(false);
       return;
     }

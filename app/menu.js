@@ -20,7 +20,7 @@ exports.createTemplate = (options, messages) => {
     includeSetup,
     platform,
     setupAsNewDevice,
-    setupAsStandalone,
+    // setupAsStandalone,
     showAbout,
     showSettings,
   } = options;
@@ -223,7 +223,7 @@ function updateForMac(template, messages, options) {
   const {
     includeSetup,
     setupAsNewDevice,
-    setupAsStandalone,
+    // setupAsStandalone,
     showAbout,
     showSettings,
     showWindow,
@@ -336,7 +336,7 @@ function updateForMac(template, messages, options) {
 
   // Replace Window menu
   const windowMenuTemplateIndex = includeSetup ? 4 : 3;
-  // eslint-disable-next-line no-param-reassign
+
   template[windowMenuTemplateIndex].submenu = [
     {
       label: messages.windowMenuClose.message,

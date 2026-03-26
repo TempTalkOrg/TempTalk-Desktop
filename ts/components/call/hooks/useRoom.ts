@@ -38,6 +38,12 @@ export const useRoom = ({ key }: { key: ArrayBuffer }) => {
           frameRate: 30,
         },
       },
+      webAudioMix: {
+        audioContext: new AudioContext({
+          latencyHint: 'interactive',
+          sampleRate: 48000,
+        }),
+      },
     };
 
     return new Room(roomOptions);

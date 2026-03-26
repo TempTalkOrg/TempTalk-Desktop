@@ -2,7 +2,6 @@ import type {
   ParticipantClickEvent,
   TrackReferenceOrPlaceholder,
 } from '../../core';
-import { setupParticipantTile } from '../../core';
 import * as React from 'react';
 import { useEnsureTrackRef } from '../context';
 import { mergeProps } from '../mergeProps';
@@ -11,7 +10,6 @@ import { useIsMuted } from './useIsMuted';
 import { useIsSpeaking } from './useIsSpeaking';
 import { Track } from '@cc-livekit/livekit-client';
 
-/** @public */
 export interface UseParticipantTileProps<T extends HTMLElement>
   extends React.HTMLAttributes<T> {
   /** The track reference to display. */
@@ -21,14 +19,6 @@ export interface UseParticipantTileProps<T extends HTMLElement>
   htmlProps: React.HTMLAttributes<T>;
 }
 
-/**
- * The `useParticipantTile` hook is used to implement the `ParticipantTile` and returns the props needed to render the tile.
- * @remarks
- * The returned props include many data attributes that are useful for CSS styling purposes because they
- * indicate the state of the participant and the track.
- * For example: `data-lk-audio-muted`, `data-lk-video-muted`, `data-lk-speaking`, `data-lk-local-participant`, `data-lk-source`, `data-lk-facing-mode`.
- * @public
- */
 export function useParticipantTile<T extends HTMLElement>({
   trackRef,
   onParticipantClick,
@@ -38,7 +28,7 @@ export function useParticipantTile<T extends HTMLElement>({
   const trackReference = useEnsureTrackRef(trackRef);
 
   const mergedProps = React.useMemo(() => {
-    const { className } = setupParticipantTile();
+    const className = 'participant-tile';
     return mergeProps(htmlProps, {
       className,
       onClick: (event: React.MouseEvent<T, MouseEvent>) => {
@@ -80,13 +70,12 @@ export function useParticipantTile<T extends HTMLElement>({
   const facingMode = useFacingMode(trackReference);
   return {
     elementProps: {
-      'data-lk-audio-muted': isAudioMuted,
-      'data-lk-video-muted': isVideoMuted,
-      'data-lk-speaking':
-        disableSpeakingIndicator === true ? false : isSpeaking,
-      'data-lk-local-participant': trackReference.participant.isLocal,
-      'data-lk-source': trackReference.source,
-      'data-lk-facing-mode': facingMode,
+      'data-audio-muted': isAudioMuted,
+      'data-video-muted': isVideoMuted,
+      'data-speaking': disableSpeakingIndicator === true ? false : isSpeaking,
+      'data-local-participant': trackReference.participant.isLocal,
+      'data-source': trackReference.source,
+      'data-facing-mode': facingMode,
       ...mergedProps,
     } as React.HTMLAttributes<T>,
   };

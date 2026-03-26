@@ -47,6 +47,7 @@ import ReactDOM from 'react-dom';
 import { getConversationModel } from '../../shims/Whisper';
 import { API_STATUS } from '../../types/APIStatus';
 import { union } from 'lodash';
+import { isOnlyOneEmoji } from '../../util/emoji';
 
 interface Trigger {
   handleContextClick: (event: React.MouseEvent<HTMLDivElement>) => void;
@@ -631,7 +632,12 @@ export class Message extends React.PureComponent<Props, State> {
     }
 
     return (
-      <div className={`module-message__bottom-bar--${direction}`}>
+      <div
+        className={classNames([
+          `module-message__bottom-bar--${direction}`,
+          'module-message__bottom-bar',
+        ])}
+      >
         {/*接受的消息暂时用上面这个渲染*/}
         {direction === 'incoming' ? this.renderReplyThreadButton() : null}
         {/* 发送到topic消息以及发送到topic回复，reply按钮在这里面渲染*/}
@@ -665,6 +671,7 @@ export class Message extends React.PureComponent<Props, State> {
 
     const canDisplayAttachment = canDisplayImage(attachments);
     const withImageNoCaption = Boolean(
+      // eslint-disable-next-line no-constant-binary-expression
       false &&
         canDisplayAttachment &&
         !imageBroken &&
@@ -877,6 +884,7 @@ export class Message extends React.PureComponent<Props, State> {
           className={classNames({
             'with-confidential-mask': shouldHide,
           })}
+          data-mask-tips={i18n('confidentialMessageMaskTips')}
         >
           <div
             className={classNames(
@@ -913,6 +921,7 @@ export class Message extends React.PureComponent<Props, State> {
           className={classNames({
             'with-confidential-mask': shouldHide,
           })}
+          data-mask-tips={i18n('confidentialMessageMaskTips')}
         >
           {!firstAttachment.isVoiceMessage ? (
             <div className="module-message__audio-file-prefix">
@@ -953,6 +962,7 @@ export class Message extends React.PureComponent<Props, State> {
           className={classNames({
             'with-confidential-mask': shouldHide,
           })}
+          data-mask-tips={i18n('confidentialMessageMaskTips')}
         >
           <div
             className={classNames(
@@ -1223,6 +1233,7 @@ export class Message extends React.PureComponent<Props, State> {
             'is-mouse-over': isMouseOver,
           },
         ])}
+        data-mask-tips={i18n('confidentialMessageMaskTips')}
       >
         <EmbeddedContact
           //分享人id
@@ -1282,9 +1293,7 @@ export class Message extends React.PureComponent<Props, State> {
       withMenu,
       addAtPerson,
 
-      authorPhoneNumber,
       conversationId,
-      leftGroup,
       virtualIndex,
       authorNoClickEvent,
     } = this.props;
@@ -1331,9 +1340,7 @@ export class Message extends React.PureComponent<Props, State> {
           withMenu={withMenu}
           addAtPerson={addAtPerson}
           direction={direction}
-          authorPhoneNumber={authorPhoneNumber}
           conversationId={conversationId}
-          leftGroup={leftGroup}
         />
       </div>
     );
@@ -1927,7 +1934,7 @@ export class Message extends React.PureComponent<Props, State> {
     let shouldSkip = skipOff;
 
     const menuItems: MenuProps['items'] = [];
-    for (let item of supportedLanguages) {
+    for (const item of supportedLanguages) {
       if (shouldSkip) {
         shouldSkip = false;
         continue;
@@ -2531,6 +2538,7 @@ export class Message extends React.PureComponent<Props, State> {
       onMouseOverMessage,
       isConfidentialMessage,
       forwardedMessages,
+      text,
     } = this.props;
 
     const { imageBroken, expiring } = this.state;
@@ -2558,7 +2566,8 @@ export class Message extends React.PureComponent<Props, State> {
         className={classNames(
           'module-message',
           `module-message--${direction}`,
-          expiring ? 'module-message--expired' : null
+          expiring ? 'module-message--expired' : null,
+          isOnlyOneEmoji(text || '') ? 'bigger-emoji' : null
         )}
         style={{ width: showImage ? getGridDimensions()?.width : undefined }}
       >

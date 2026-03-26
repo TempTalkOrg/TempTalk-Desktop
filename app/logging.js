@@ -1,5 +1,4 @@
 // NOTE: Temporarily allow `then` until we convert the entire file to `async` / `await`:
-/* eslint-disable more/no-then */
 
 const path = require('path');
 const fs = require('fs');
@@ -212,7 +211,7 @@ function fetchLog(logFile) {
         lines.map(line => {
           try {
             return _.pick(JSON.parse(line), ['level', 'time', 'msg']);
-          } catch (e) {
+          } catch (_e) {
             return null;
           }
         })

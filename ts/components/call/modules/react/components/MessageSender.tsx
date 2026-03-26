@@ -1,4 +1,4 @@
-import { Input, Popover } from 'antd';
+import { Input, Popover, Tooltip } from 'antd';
 import React, { useRef, useState } from 'react';
 import { IconCallEmoji } from '../../../../shared/icons';
 import { useGlobalConfig } from '../../../hooks/useGlobalConfig';
@@ -142,15 +142,18 @@ export const MessageSender = (props: IProps) => {
   }, [triggerRef, popoverRef]);
 
   return (
-    <div className="lk-message-sender-container">
-      <div className="lk-message-sender-icon" ref={triggerRef}>
-        <IconCallEmoji
-          className="call-icon send-message-icon"
+    <div className="message-sender-container" ref={triggerRef}>
+      <Tooltip placement="top" title="Press R">
+        <div
+          className="message-sender-icon-wrapper"
           onClick={() => {
             setPresetArea(prev => !prev);
           }}
-        />
-      </div>
+        >
+          <IconCallEmoji className="send-message-icon" />
+        </div>
+      </Tooltip>
+
       <div ref={popoverRef}></div>
       <Popover
         getPopupContainer={() => popoverRef.current || document.body}
@@ -167,7 +170,7 @@ export const MessageSender = (props: IProps) => {
         }
         open={presetArea}
         align={{
-          offset: [-84, -28],
+          offset: [-18, -38],
         }}
         destroyTooltipOnHide={true}
         overlayClassName={'message-sender-popover'}

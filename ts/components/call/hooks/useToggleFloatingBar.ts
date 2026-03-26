@@ -143,7 +143,7 @@ const getTopWindow = () => {
       }
 
       wins.push(w);
-    } catch (e) {
+    } catch (_e) {
       continue;
     }
   }
@@ -170,7 +170,7 @@ const isWindowOccluded = (targetWindow: Window | null, wins: Window[]) => {
   const winsInSameScreen = wins.filter(w => {
     try {
       return w.currentMonitor().id() === targetWindow.currentMonitor().id();
-    } catch (e) {
+    } catch (_e) {
       return false;
     }
   });

@@ -5,16 +5,15 @@
   filesize,
   ConversationController,
   MessageController,
-  getAccountManager,
   i18n,
   Signal,
   textsecure,
-  Whisper
+  Whisper,
+  _lodash,
+  log,
+  dcodeIO,
 */
 
-/* eslint-disable more/no-then */
-
-// eslint-disable-next-line func-names
 (function () {
   'use strict';
 
@@ -22,8 +21,8 @@
 
   const {
     Message: TypedMessage,
-    Contact,
-    PhoneNumber,
+    // Contact,
+    // PhoneNumber,
     Errors,
     Mentions,
   } = Signal.Types;
@@ -65,7 +64,6 @@
 
     let job;
     if (textsecure.messaging) {
-      // eslint-disable-next-line more/no-then
       job = textsecure.messaging
         .getProfile(number)
         .then(() => {
@@ -317,13 +315,13 @@
     },
     isEndSession() {
       const flag = textsecure.protobuf.DataMessage.Flags.END_SESSION;
-      // eslint-disable-next-line no-bitwise
+
       return !!(this.get('flags') & flag);
     },
     isExpirationTimerUpdate() {
       const flag =
         textsecure.protobuf.DataMessage.Flags.EXPIRATION_TIMER_UPDATE;
-      // eslint-disable-next-line no-bitwise
+
       return !!(this.get('flags') & flag);
     },
     isGroupUpdate() {
@@ -739,8 +737,7 @@
       }
 
       if (this.isReminderNotifyUpdate()) {
-        const { description, creatorName, displayText } =
-          this.getPropsForReminderNotification();
+        const { displayText } = this.getPropsForReminderNotification();
         // return `${i18n('reminderBy')} @${creatorName}: ${description}`;
         return displayText;
       }
@@ -1523,7 +1520,7 @@
           };
 
           const fetchMedia = async () => {
-            if (this.isForwardMessage()) {
+            if (this.isForwardMessage() || this.isConfidentialMessage()) {
               showOneMedia();
               return;
             }
@@ -1537,8 +1534,13 @@
                 }
               );
 
+            const normalMedias = rawMedia.filter(
+              message =>
+                message.messageMode !== textsecure.protobuf.Mode.CONFIDENTIAL
+            );
+
             const media = _.flatten(
-              rawMedia.map(message => {
+              normalMedias.map(message => {
                 const { attachments } = message;
                 return (attachments || [])
                   .filter(
@@ -2133,7 +2135,6 @@
         fileSize: size ? filesize(size) : null,
         isVoiceMessage:
           flags &&
-          // eslint-disable-next-line no-bitwise
           flags & textsecure.protobuf.AttachmentPointer.Flags.VOICE_MESSAGE,
         pending,
         url: path ? getAbsoluteAttachmentPath(path) : null,
@@ -2169,7 +2170,6 @@
       const allErrors = (this.get('errors') || [])
         .map(error => {
           if (error.name === OUTGOING_KEY_ERROR) {
-            // eslint-disable-next-line no-param-reassign
             error.message = newIdentity;
           }
 
@@ -2547,7 +2547,13 @@
         );
       }
 
-      return this.send(promise);
+      return this.send(
+        (async () => {
+          const result = await promise;
+          this.set({ synced: true });
+          return result;
+        })()
+      );
     },
     isReplayableError(e) {
       return (
@@ -5370,8 +5376,11 @@
       });
     },
     async readConfidentialMessageByLocal() {
-      this.getConversation()?.markConfidentialMessageRead(this);
+      // this.getConversation()?.markConfidentialMessageRead(this);
       await window.Signal.Data.removeMessage(this);
+      setTimeout(() => {
+        this.getConversation()?.trigger?.('expired', this);
+      }, 3000);
     },
 
     async seeConfidentialMessage() {
@@ -5387,7 +5396,7 @@
       await conversation.markReadConfidentialMessage(this);
 
       // delete message
-      await window.Signal.Data.removeMessage(this);
+      // await window.Signal.Data.removeMessage(this);
     },
 
     markReleaseable() {
@@ -5403,11 +5412,26 @@
       this.stopListening();
     },
 
-    correctExpireTimer() {
+    correctMessage() {
+      let shouldUpdate = false;
+
+      const sequenceId = this.get('sequenceId');
+      const notifySequenceId = this.get('notifySequenceId');
+
+      if (sequenceId && sequenceId > Number.MAX_SAFE_INTEGER) {
+        this.unset('sequenceId');
+        shouldUpdate = true;
+      }
+
+      if (notifySequenceId && notifySequenceId > Number.MAX_SAFE_INTEGER) {
+        this.unset('notifySequenceId');
+        shouldUpdate = true;
+      }
+
       // some non-normal message maybe has 0 expireTimer
       // should correct to 7days
       if (this.propsForMessage) {
-        return false;
+        return shouldUpdate;
       }
 
       const expireTimer = this.get('expireTimer');
@@ -6009,7 +6033,7 @@
       // We need to iterate here because unseen non-messages do not contribute to
       //   the badge number, but should be reflected in the indicator's count.
       models.forEach(model => {
-        if (model.correctExpireTimer()) {
+        if (model.correctMessage()) {
           updateAttrs.push(model.attributes);
         }
 

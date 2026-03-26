@@ -1,8 +1,3 @@
-/* global window */
-
-/* eslint-disable more/no-then */
-
-// eslint-disable-next-line func-names
 (function () {
   window.textsecure = window.textsecure || {};
 
@@ -37,6 +32,7 @@
           } catch (error) {
             window.log.error(
               id || '',
+              error,
               'task ran into problem canceling timer. Calling stack:',
               errorForStack.stack
             );

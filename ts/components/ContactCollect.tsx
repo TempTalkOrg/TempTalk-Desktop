@@ -1,71 +1,92 @@
-import React, { CSSProperties } from 'react';
+import React, { CSSProperties, useEffect, useRef, useState } from 'react';
 import { ContactListItem } from './ContactListItem';
 import { AutoSizer, List, ScrollParams } from 'react-virtualized';
 import { LocalizerType } from '../types/Util';
 import { ConversationType } from '../state/ducks/conversations';
-import { IconClearCircle, IconSearch } from './shared/icons';
+import { IconClearCircle, IconSearch, IconSidebarLayout } from './shared/icons';
+import { useMemoizedFn } from 'ahooks';
+import type { SidebarStatusType } from '../state/ducks/sidebar';
+import { HorizontalNav } from './HorizontalNav';
+import {
+  CurrentDockItemChangedActionType,
+  DockItemType,
+} from '../state/ducks/dock';
+import { ToggleCommonSettingActionType } from '../state/ducks/layout';
+import { IconWrapper } from './shared/IconWrapper';
 
 type PropsType = {
   i18n: LocalizerType;
   contacts: Array<ConversationType>;
   setSearchText: (query: string) => void;
   clickItem: (id: string) => void;
-  isContactNewPane?: any;
+  isContactNewPane?: boolean;
   isShown: boolean;
+  sidebarStatus: SidebarStatusType;
+  updateSidebarStatus: (status: SidebarStatusType) => void;
+  currentDockItemChanged: (
+    current: DockItemType
+  ) => CurrentDockItemChangedActionType;
+  currentDockItem: DockItemType;
+  avatarPath: string;
+  toggleCommonSetting: (open?: boolean) => ToggleCommonSettingActionType;
+  color: string;
 };
 
-type StateType = {
-  searchText: string;
-  selectedId: number;
-  scrollTop: number;
-};
+export const ContactCollect = (props: PropsType) => {
+  const {
+    i18n,
+    clickItem,
+    isContactNewPane,
+    contacts,
+    sidebarStatus,
+    updateSidebarStatus,
+    currentDockItemChanged,
+    currentDockItem,
+    avatarPath,
+    color,
+    toggleCommonSetting,
+  } = props;
 
-export class ContactCollect extends React.Component<PropsType, StateType> {
-  private readonly inputRef: React.RefObject<HTMLInputElement>;
-  // private readonly showMenuBound: (
-  //   event: React.MouseEvent<HTMLDivElement>
-  // ) => void;
-  // private readonly menuTriggerRef: React.RefObject<any>;
-  private searching: boolean = false;
-  private readonly externItems: number;
-  private list: any;
+  const [searchText, setSearchText] = useState('');
+  const [scrollTop, setScrollTop] = useState(0);
+  const [externItems] = useState(3);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const listRef = useRef<List>(null);
 
-  constructor(props: any) {
-    super(props);
-    this.inputRef = React.createRef();
+  const searching = Boolean(searchText && searchText.length > 0);
 
-    this.state = { searchText: '', selectedId: -1, scrollTop: 0 };
+  const handleChange = useMemoizedFn(event => {
+    const { value: search } = event.target;
 
-    this.externItems = 3;
+    props.setSearchText?.(search);
+    setSearchText(search);
+  });
 
-    // this.menuTriggerRef = React.createRef();
-    // this.showMenuBound = this.showMenu.bind(this);
+  const onSearchTextChange = useMemoizedFn((search: string) => {
+    props.setSearchText?.(search);
+    setSearchText(search);
+  });
 
-    this.rowHeight = this.rowHeight.bind(this);
-    this.renderRow = this.renderRow.bind(this);
-    this.noRowsRender = this.noRowsRender.bind(this);
-  }
-
-  public componentDidUpdate() {
-    if (this.list) {
-      this.list.recomputeRowHeights(1);
+  const clearSearch = useMemoizedFn(() => {
+    props.setSearchText?.('');
+    setSearchText('');
+    if (inputRef.current) {
+      inputRef.current.focus();
     }
-  }
+  });
 
-  // public newGroup() {
-  //   (window as any).showNewGroupWindow();
-  // }
+  const getRowHeight = useMemoizedFn(({ index }) => {
+    if (!searching && index === externItems - 1) {
+      return 2;
+    } else {
+      return searching ? 76 : 56;
+    }
+  });
 
-  // public showMenu(event: React.MouseEvent<HTMLDivElement>) {
-  //   if (this.menuTriggerRef.current) {
-  //     this.menuTriggerRef.current.handleContextClick(event);
-  //   }
-  // }
+  const [selectedId, setSelectedId] = useState(-1);
 
-  public renderRow = ({ index, style }: any): JSX.Element => {
-    const { contacts, clickItem, i18n, isContactNewPane } = this.props;
-    const { selectedId } = this.state;
-    if (!this.searching) {
+  const renderRow = useMemoizedFn(({ index, style }) => {
+    if (!searching) {
       if (index === 0) {
         return (
           <ContactListItem
@@ -96,9 +117,7 @@ export class ContactCollect extends React.Component<PropsType, StateType> {
             i18n={i18n}
             onClick={() => {
               clickItem('group_chats');
-              this.setState({
-                selectedId: 1,
-              });
+              setSelectedId(1);
             }}
             groupChats={true}
             isContactNewPane={isContactNewPane}
@@ -114,7 +133,7 @@ export class ContactCollect extends React.Component<PropsType, StateType> {
           ></div>
         );
       } else {
-        index = index - this.externItems;
+        index = index - externItems;
       }
     }
     const c: any = contacts[index];
@@ -134,164 +153,139 @@ export class ContactCollect extends React.Component<PropsType, StateType> {
         i18n={i18n}
         onClick={() => {
           clickItem(c.id);
-          this.setState({
-            selectedId: -1,
-          });
+          setSelectedId(-1);
         }}
         useDefaultAvatarClick={true}
         email={c.email}
         signature={c.signature}
         protectedConfigs={c.protectedConfigs}
         firstMatch={c.firstMatch}
-        showExtraInfo={this.searching}
+        showExtraInfo={searching}
         timeZone={c.timeZone}
         isContactNewPane={isContactNewPane}
         isSelected={false}
+        isOfficialAccount={c.isOfficialAccount}
       />
     );
-  };
+  });
 
-  /**
-   * https://github.com/bvaughn/react-virtualized/issues/1262
-   * change list key to force rerender, fix dynamic height error
-   */
-  public rowHeight = ({ index }: any) => {
-    if (!this.searching && index === this.externItems - 1) {
-      return 2;
-    } else {
-      return this.searching ? 76 : 56;
-    }
-  };
-
-  public bindListRef = (ref: any) => {
-    this.list = ref;
-  };
-
-  public render() {
-    if (!this.props.isShown) {
-      return null;
-    }
-
-    const { searchText, scrollTop } = this.state;
-    // @ts-ignore
-    const { contacts, i18n } = this.props;
-
-    const topStyle = { height: '100%' };
-    const bodyStyle: CSSProperties = {
-      height: 'calc(100% - 58px)',
-      overflow: 'auto',
-      overflowX: 'hidden',
-    };
-
-    this.searching = Boolean(searchText && searchText.length > 0);
-
-    const externItems = this.externItems;
-    let contactLen = contacts ? contacts.length + externItems : externItems;
-    if (this.searching) {
-      contactLen = contactLen - externItems;
-    }
-
+  const noRowsRender = useMemoizedFn(() => {
     return (
-      <div style={topStyle}>
-        <div className="module-main-header">
-          <div className="module-main-header__search">
-            <IconSearch className="module-search-icon" />
-            <input
-              // style={ }
-              type="text"
-              ref={this.inputRef}
-              className="module-main-header__search__input_contact"
-              placeholder={this.props.i18n('search')}
-              dir="auto"
-              value={searchText}
-              onChange={this.handleChange}
-              onBlur={this.blurSearchInput}
-              spellCheck={false}
-            />
-            {searchText ? (
-              <IconClearCircle
-                className="module-main-header__search__cancel-icon"
-                onClick={this.clearSearch}
-              />
-            ) : null}
-          </div>
-          {/*
-          <ContextMenuTrigger
-            id={'contact-header-mutex-trigger-id'}
-            ref={this.menuTriggerRef}
-          >
-            <div
-              style={{ position: 'absolute', left: '340px', marginTop: '-9px' }}
-            >
-              <div
-                role="button"
-                onClick={this.showMenuBound}
-                className="module-main-header__entry__plus-icon"
-              />
-            </div>
-          </ContextMenuTrigger>
-          {this.renderMenu('contact-header-mutex-trigger-id')} */}
-        </div>
-        <div style={bodyStyle}>
-          <AutoSizer>
-            {({ height, width }) => (
-              <List
-                ref={this.bindListRef}
-                className="module-left-pane__virtual-list"
-                height={height}
-                rowCount={contactLen}
-                rowHeight={this.rowHeight}
-                rowRenderer={this.renderRow}
-                width={width}
-                noRowsRenderer={this.noRowsRender}
-                rerenderWhenChanged={contacts}
-                onScroll={({ scrollTop }: ScrollParams) =>
-                  this.setState({ scrollTop })
-                }
-                scrollTop={scrollTop}
-              />
-            )}
-          </AutoSizer>
-        </div>
-      </div>
-    );
-  }
-
-  private noRowsRender() {
-    const { searchText } = this.state;
-    const { i18n } = this.props;
-    return (
-      <div style={{ textAlign: 'center', marginTop: '5px' }}>
+      <div style={{ textAlign: 'center', marginTop: '16px' }}>
         {i18n('noSearchResults', [searchText])}
       </div>
     );
+  });
+
+  useEffect(() => {
+    if (listRef.current) {
+      listRef.current.recomputeRowHeights(1);
+    }
+  }, [searchText]);
+
+  useEffect(() => {
+    if (currentDockItem !== 'contact') {
+      onSearchTextChange('');
+    }
+  }, [currentDockItem]);
+
+  const [searchFocus, setSearchFocus] = useState(false);
+
+  const onSearchFocus = useMemoizedFn(() => {
+    setSearchFocus(true);
+  });
+
+  const onSearchBlur = useMemoizedFn(() => {
+    setSearchFocus(false);
+  });
+
+  if (!props.isShown) {
+    return null;
   }
 
-  private handleChange = (event: any) => {
-    const { setSearchText } = this.props;
-    const { value: search } = event.target;
-
-    setSearchText(search);
-    this.setState({ searchText: search });
+  const topStyle = { height: '100%' };
+  const bodyStyle: CSSProperties = {
+    height: 'calc(100% - 58px)',
+    overflow: 'auto',
+    overflowX: 'hidden',
   };
 
-  private clearSearch = () => {
-    const { setSearchText } = this.props;
-    setSearchText('');
-    this.setState({ searchText: '' });
-    if (this.inputRef.current) {
-      // @ts-ignore
-      this.inputRef.current.focus();
-    }
-  };
+  let contactLen = contacts ? contacts.length + externItems : externItems;
+  if (searching) {
+    contactLen = contactLen - externItems;
+  }
 
-  private blurSearchInput = () => {
-    return;
-    const { setSearchText } = this.props;
-    // 不好看，但好用，后期优化
-    setTimeout(() => {
-      setSearchText('');
-      this.setState({ searchText: '' });
-    }, 10);
-  };
-}
+  return (
+    <div style={topStyle}>
+      <div className="module-main-header">
+        {sidebarStatus === 'expanded' && (
+          <div className="module-main-header-container">
+            {!searchFocus && (
+              <IconWrapper
+                className="sidebar-layout-icon"
+                onClick={updateSidebarStatus}
+              >
+                <IconSidebarLayout />
+              </IconWrapper>
+            )}
+            <div className="module-main-header__search contact-collect-search">
+              <IconSearch className="module-search-icon" />
+              <input
+                type="text"
+                ref={inputRef}
+                className="module-main-header__search__input_contact"
+                placeholder={i18n('search')}
+                dir="auto"
+                value={searchText}
+                onChange={handleChange}
+                spellCheck={false}
+                onFocus={onSearchFocus}
+                onBlur={onSearchBlur}
+              />
+              {searchText ? (
+                <IconClearCircle
+                  className="module-main-header__search__cancel-icon"
+                  onClick={clearSearch}
+                />
+              ) : null}
+            </div>
+          </div>
+        )}
+        {sidebarStatus === 'collapsed' && (
+          <HorizontalNav
+            i18n={i18n}
+            updateSidebarStatus={updateSidebarStatus}
+            currentDockItemChanged={currentDockItemChanged}
+            currentDockItem={currentDockItem}
+            onSearchTextChange={onSearchTextChange}
+            onExitSearchMode={() => onSearchTextChange('')}
+            avatarPath={avatarPath}
+            toggleCommonSetting={toggleCommonSetting}
+            color={color}
+          />
+        )}
+      </div>
+      <div style={bodyStyle}>
+        <AutoSizer>
+          {({ height, width }) => (
+            <List
+              ref={listRef}
+              className="module-left-pane__virtual-list"
+              height={height}
+              rowCount={contactLen}
+              rowHeight={getRowHeight}
+              rowRenderer={renderRow}
+              width={width}
+              noRowsRenderer={noRowsRender}
+              rerenderWhenChanged={contacts}
+              onScroll={({ scrollTop }: ScrollParams) =>
+                setScrollTop(scrollTop)
+              }
+              scrollTop={scrollTop}
+            />
+          )}
+        </AutoSizer>
+      </div>
+    </div>
+  );
+};

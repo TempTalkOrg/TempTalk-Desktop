@@ -1,6 +1,5 @@
-/* global Whisper, Backbone, _, $ */
+/* global Whisper, Backbone, _, $, log, _lodash, */
 
-// eslint-disable-next-line func-names
 (function () {
   'use strict';
 
@@ -172,7 +171,7 @@
 
       // clear exists timers
       if (this.timeoutMap) {
-        for (const [targetId, timeoutId] of Object.entries(this.timeoutMap)) {
+        for (const [_targetId, timeoutId] of Object.entries(this.timeoutMap)) {
           // log.info(`clear timeout for ${targetId} ${timeoutId}`);
           if (timeoutId) {
             clearTimeout(timeoutId);
@@ -478,7 +477,6 @@
         window.log.info('added expired', model.idForLogging());
       }
 
-      // eslint-disable-next-line new-cap
       const view = new this.itemView({
         model,
         listMode: this.listMode,
@@ -723,7 +721,7 @@
 
       // clear exists timers
       if (this.timeoutMap) {
-        for (const [targetId, timeoutId] of Object.entries(this.timeoutMap)) {
+        for (const [_targetId, timeoutId] of Object.entries(this.timeoutMap)) {
           // log.info(`clear timeout for ${targetId} ${timeoutId}`);
           if (timeoutId) {
             clearTimeout(timeoutId);

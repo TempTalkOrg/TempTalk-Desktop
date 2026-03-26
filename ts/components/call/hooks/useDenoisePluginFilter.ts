@@ -1,34 +1,42 @@
-import { useEffect, useMemo, useState } from 'react';
-import { LocalAudioTrack, Room, RoomEvent } from '@cc-livekit/livekit-client';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  DenoiseTrackProcessor,
-  type DenoiseFilterOptions,
-} from '@cc-livekit/denoise-plugin';
+  AudioPipelineTrackProcessor,
+  type AudioPipelineOptions,
+  type DenoiseModuleId,
+} from '@cc-livekit/audio-pipeline-plugin';
+import { LocalAudioTrack, Room, RoomEvent } from '@cc-livekit/livekit-client';
 import type { TrackReferenceOrPlaceholder } from '../modules/core';
 import { useMemoizedFn } from 'ahooks';
 import { useLocalParticipant } from '../modules/react';
 import { useGlobalConfig } from './useGlobalConfig';
+import { GlobalConfigType } from '../atoms/globalConfigAtom';
 
-/**
- * @beta
- */
-export interface useDenoisePluginFilterOptions {
-  /**
-   * The track reference to use for the noise filter (defaults: local microphone track)
-   */
+const DEFAULT_ATTEN_LIM_DB = 100;
+const DEFAULT_POST_FILTER_BETA = 0;
+
+const WORKLET_URL = new URL(
+  '../node_modules/@cc-livekit/audio-pipeline-plugin/dist/AudioPipelineWorklet.js',
+  location.href
+).toString();
+
+type DenoiseMode = GlobalConfigType['denoise']['mode'];
+
+const MODE_TO_ENGINE: Record<DenoiseMode, DenoiseModuleId> = {
+  standard: 'rnnoise',
+  enhanced: 'deepfilternet',
+};
+
+export interface UseDenoisePluginFilterOptions {
   trackRef?: TrackReferenceOrPlaceholder;
-  /**
-   * @internal
-   */
-  filterOptions?: DenoiseFilterOptions;
-
+  filterOptions?: Omit<AudioPipelineOptions, 'workletUrl'>;
   room?: Room;
-
   defaultEnabled?: boolean;
 }
 
+const STORAGE_KEY = 'denoise-mode';
+
 export function useDenoisePluginFilter(
-  options: useDenoisePluginFilterOptions = {}
+  options: UseDenoisePluginFilterOptions = {}
 ) {
   const { room } = options;
 
@@ -36,48 +44,76 @@ export function useDenoisePluginFilter(
     options.defaultEnabled ?? false
   );
   const micPublication = useLocalParticipant(options).microphoneTrack;
-
-  const [denoiseProcessor] = useState<DenoiseTrackProcessor>(
-    new DenoiseTrackProcessor(options.filterOptions)
-  );
-
   const { denoise } = useGlobalConfig();
 
-  const excludedNameRegex = useMemo(() => {
-    if (!denoise?.bluetooth?.excludedNameRegex) {
-      return null;
-    } else {
-      return new RegExp(denoise.bluetooth.excludedNameRegex, 'i');
+  const operationQueueRef = useRef<Promise<void>>(Promise.resolve());
+
+  const userSelectedMode = useMemo<DenoiseMode>(() => {
+    let mode: DenoiseMode = localStorage.getItem(STORAGE_KEY) as DenoiseMode;
+    if (!mode) {
+      mode = denoise.mode;
     }
-  }, [denoise?.bluetooth?.excludedNameRegex]);
+    return mode;
+  }, []);
+
+  const [denoiseMode, setDenoiseMode] = useState<DenoiseMode>(userSelectedMode);
+
+  const [processor] = useState<AudioPipelineTrackProcessor>(
+    () =>
+      new AudioPipelineTrackProcessor({
+        workletUrl: WORKLET_URL,
+        debugLogs: options.filterOptions?.debugLogs,
+        stages: { denoise: MODE_TO_ENGINE[userSelectedMode] },
+        moduleConfigs: {
+          rnnoise: { ...options.filterOptions?.moduleConfigs?.rnnoise },
+          deepfilternet: {
+            attenLimDb: DEFAULT_ATTEN_LIM_DB,
+            postFilterBeta: DEFAULT_POST_FILTER_BETA,
+          },
+        },
+        batchFrames: options.filterOptions?.batchFrames,
+      })
+  );
+
+  const enqueueOperation = useMemoizedFn(
+    (operation: () => Promise<void>): Promise<void> => {
+      operationQueueRef.current = operationQueueRef.current
+        .then(operation)
+        .catch(error => {
+          console.log('[Denoise] processor operation failed', error);
+        });
+      return operationQueueRef.current;
+    }
+  );
+
+  const excludedNameRegex = useMemo(() => {
+    if (!denoise.bluetooth.excludedNameRegex) return null;
+    return new RegExp(denoise.bluetooth.excludedNameRegex, 'i');
+  }, [denoise.bluetooth.excludedNameRegex]);
 
   const processAudioTrack = useMemoizedFn(async () => {
-    if (
-      micPublication &&
-      micPublication.track instanceof LocalAudioTrack &&
-      denoiseProcessor
-    ) {
-      let currentProcessor =
-        micPublication.track.getProcessor() as DenoiseTrackProcessor;
+    if (!micPublication || !(micPublication.track instanceof LocalAudioTrack)) {
+      return;
+    }
 
-      try {
-        if (shouldEnable) {
-          if (!currentProcessor) {
-            await micPublication?.track?.setProcessor(denoiseProcessor);
-            // update currentProcessor value
-            currentProcessor =
-              micPublication.track.getProcessor() as DenoiseTrackProcessor;
-          }
+    const track = micPublication.track;
+    const currentProcessor = track.getProcessor();
 
-          await currentProcessor.setEnabled?.(shouldEnable);
-        } else {
-          if (currentProcessor && currentProcessor.name === 'denoise-filter') {
-            await currentProcessor.setEnabled?.(shouldEnable);
-          }
+    try {
+      if (shouldEnable) {
+        if (currentProcessor !== processor) {
+          await track.setProcessor(processor);
         }
-      } catch (e) {
-        console.log('update audio processor error:', e);
+        await processor.setEnabled(true);
+      } else if (
+        currentProcessor &&
+        (currentProcessor as AudioPipelineTrackProcessor).name ===
+          'audio-pipeline-filter'
+      ) {
+        await processor.setEnabled(false);
       }
+    } catch (e) {
+      console.log('update audio processor error:', e);
     }
   });
 
@@ -85,14 +121,24 @@ export function useDenoisePluginFilter(
     setShouldEnable(enabled);
   });
 
+  const onDenoiseModeChange = useMemoizedFn((mode: DenoiseMode) => {
+    setDenoiseMode(mode);
+    localStorage.setItem(STORAGE_KEY, mode);
+  });
+
   useEffect(() => {
     processAudioTrack();
-  }, [shouldEnable, micPublication, denoiseProcessor]);
+  }, [shouldEnable, micPublication]);
+
+  useEffect(() => {
+    enqueueOperation(async () => {
+      await processor.setStageModule('denoise', MODE_TO_ENGINE[denoiseMode]);
+    });
+  }, [denoiseMode]);
 
   const autoSwitchPluginEnable = useMemoizedFn(async () => {
-    if (!room || !excludedNameRegex) {
-      return;
-    }
+    if (!room || !excludedNameRegex) return;
+
     const currentDeviceId =
       room.localParticipant.activeDeviceMap.get('audioinput');
     const deviceInfo = (await Room.getLocalDevices('audioinput')).find(
@@ -101,16 +147,12 @@ export function useDenoisePluginFilter(
     );
 
     if (deviceInfo) {
-      const deviceName = deviceInfo.label;
-      const shouldExclude = excludedNameRegex.test(deviceName);
-      setShouldEnable(!shouldExclude);
+      setShouldEnable(!excludedNameRegex.test(deviceInfo.label));
     }
   });
 
   useEffect(() => {
-    if (!room) {
-      return;
-    }
+    if (!room) return;
 
     room.once(RoomEvent.Connected, autoSwitchPluginEnable);
     room.on(RoomEvent.ActiveDeviceChanged, autoSwitchPluginEnable);
@@ -118,10 +160,12 @@ export function useDenoisePluginFilter(
     return () => {
       room.off(RoomEvent.ActiveDeviceChanged, autoSwitchPluginEnable);
     };
-  }, []);
+  }, [room, autoSwitchPluginEnable]);
 
   return {
     denoiseEnable: shouldEnable,
     onDenoiseEnableChange,
+    denoiseMode,
+    onDenoiseModeChange,
   };
 }

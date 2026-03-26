@@ -1,8 +1,5 @@
-/* global Whisper, i18n, getAccountManager, $, textsecure */
+/* global Whisper, i18n, */
 
-/* eslint-disable more/no-then */
-
-// eslint-disable-next-line func-names
 (function () {
   'use strict';
 
@@ -12,7 +9,7 @@
     templateName: 'link-flow-template',
     className: 'main full-screen-flow',
     events: {},
-    initialize(options = {}) {
+    initialize(_options = {}) {
       window.readyForUpdates();
       this.showLoginPage();
 

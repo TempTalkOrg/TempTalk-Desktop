@@ -49,7 +49,6 @@ export class TextMessageListItem extends React.Component<Props> {
         size={36}
         noteToSelf={isMe}
         noClickEvent={true}
-        notShowStatus={true}
       />
     );
   }

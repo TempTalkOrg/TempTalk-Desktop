@@ -1,5 +1,3 @@
-/* eslint-env browser */
-
 /* global i18n: false */
 
 const DISPLAY_THRESHOLD = 3000; // milliseconds

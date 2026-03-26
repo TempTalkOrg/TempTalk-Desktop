@@ -8,6 +8,7 @@ import {
   SearchMacthInfoType,
   ProtectedConfigs,
 } from '../state/ducks/conversations';
+import { IconOfficialAccount } from './shared/icons';
 
 interface Props {
   phoneNumber: string;
@@ -43,6 +44,7 @@ interface Props {
   useDefaultAvatarClick?: boolean;
   description?: string;
   accountName?: string;
+  isOfficialAccount?: boolean;
 }
 
 export class ContactListItem extends React.Component<Props> {
@@ -59,7 +61,6 @@ export class ContactListItem extends React.Component<Props> {
       id,
       isMe,
       archiveButton,
-      notShowStatus,
       smallAvatar,
       useDefaultAvatarClick,
       addContact,
@@ -82,7 +83,6 @@ export class ContactListItem extends React.Component<Props> {
         addContact={addContact}
         noClickEvent={!useDefaultAvatarClick}
         archiveButton={archiveButton}
-        notShowStatus={notShowStatus}
       />
     );
   }
@@ -161,7 +161,7 @@ export class ContactListItem extends React.Component<Props> {
   }
 
   public getDisplayExtraInfo(items: Array<any>, limit: number) {
-    let result = Array<JSX.Element>();
+    const result = Array<JSX.Element>();
     items.forEach(element => {
       if (element && element.length > 0 && result.length < limit) {
         result.push(
@@ -200,7 +200,7 @@ export class ContactListItem extends React.Component<Props> {
     if (timeZone >= -12 && timeZone <= 14) {
       const date = new Date(Date.now() + timeZone * 60 * 60 * 1000);
 
-      let hours = date.getUTCHours();
+      const hours = date.getUTCHours();
       const minutes = fn(date.getUTCMinutes(), 2);
 
       if (hours === 12) {
@@ -240,6 +240,7 @@ export class ContactListItem extends React.Component<Props> {
       isShowTopicFlag,
       isCreateGroup,
       description,
+      isOfficialAccount,
     } = this.props;
 
     const title = name;
@@ -256,6 +257,7 @@ export class ContactListItem extends React.Component<Props> {
           )}
         >
           {displayName}
+          {isOfficialAccount && <IconOfficialAccount />}
           {description && (
             <p className="module-contact-list-item__text__name__description">
               {description}

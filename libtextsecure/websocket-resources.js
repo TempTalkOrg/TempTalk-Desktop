@@ -1,6 +1,5 @@
-/* global window, dcodeIO, Event, textsecure, FileReader, WebSocketResource */
+/* global dcodeIO, textsecure, WebSocketResource */
 
-// eslint-disable-next-line func-names
 (function () {
   /*
    * WebSocket-Resources
@@ -92,7 +91,6 @@
     }
     this.sendRequest = options => new OutgoingWebSocketRequest(options, socket);
 
-    // eslint-disable-next-line no-param-reassign
     socket.onmessage = socketMessage => {
       const blob = socketMessage.data;
       const handleArrayBuffer = buffer => {
@@ -179,7 +177,7 @@
       }
 
       socket.close(code, reason);
-      // eslint-disable-next-line no-param-reassign
+
       socket.onmessage = null;
 
       // On linux the socket can wait a long time to emit its close event if we've

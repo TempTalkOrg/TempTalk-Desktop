@@ -2,9 +2,16 @@ import React, { useEffect, useRef, useState } from 'react';
 
 import { LocalizerType } from '../types/Util';
 import { IconWrapper } from './shared/IconWrapper';
-import { IconClearCircle, IconSearch } from './shared/icons';
+import { IconClearCircle, IconSearch, IconSidebarLayout } from './shared/icons';
 import { useDebounceFn, useMemoizedFn } from 'ahooks';
+import classNames from 'classnames';
+import {
+  CurrentDockItemChangedActionType,
+  DockItemType,
+} from '../state/ducks/dock';
+import { HorizontalNav, HorizontalNavRef } from './HorizontalNav';
 import { QuickEntry } from './QuickEntry';
+import { ToggleCommonSettingActionType } from '../state/ducks/layout';
 
 export interface Props {
   searchTerm: string;
@@ -32,6 +39,14 @@ export interface Props {
     }
   ) => void;
   clearSearch: () => void;
+  updateSidebarStatus: (status: 'expanded' | 'collapsed') => void;
+  sidebarStatus: 'expanded' | 'collapsed';
+  id?: string;
+  currentDockItem: DockItemType;
+  currentDockItemChanged: (
+    current: DockItemType
+  ) => CurrentDockItemChangedActionType;
+  toggleCommonSetting: (open?: boolean) => ToggleCommonSettingActionType;
 }
 
 const EmptyMagicString = '{3F29C7A4-E6C8-0FFF-3D56-6283CFD58EB6}';
@@ -45,14 +60,14 @@ export const MainHeader = (props: Props) => {
     search,
     ourNumber,
     regionCode,
+    updateSidebarStatus,
+    sidebarStatus,
+    toggleCommonSetting,
   } = props;
 
   const inputRef = useRef<HTMLInputElement>(null);
   const [isFocusSearch, setIsFocusSearch] = useState(false);
-  const [navStatus, setNavStatus] = useState({
-    goBackEnabled: false,
-    goForwardEnabled: false,
-  });
+  const horizontalNavRef = useRef<HorizontalNavRef>(null);
 
   const setFocus = useMemoizedFn(() => {
     if (inputRef.current) {
@@ -132,65 +147,90 @@ export const MainHeader = (props: Props) => {
 
   const handleOpenConversation = useMemoizedFn(() => {
     setIsFocusSearch(false);
+    if (horizontalNavRef.current) {
+      horizontalNavRef.current.exitSearchMode();
+    }
   });
 
-  const handleConversationSwitchEnabled = useMemoizedFn((event: any) => {
-    const { goBackEnabled, goForwardEnabled } = event?.detail || {};
-    setNavStatus({
-      goBackEnabled,
-      goForwardEnabled,
-    });
+  const onSearchFocus = useMemoizedFn(() => {
+    updateSearchTerm?.(EmptyMagicString);
+    debouncedSearch(EmptyMagicString);
+  });
+
+  const onExitSearchMode = useMemoizedFn(() => {
+    doClearSearch();
+  });
+
+  const onSearchTextChange = useMemoizedFn((searchText: string) => {
+    updateSearchTerm?.(searchText);
+    debouncedSearch(searchText);
   });
 
   useEffect(() => {
     window.addEventListener('open-conversation', handleOpenConversation);
-    window.addEventListener(
-      'conversation-switch-enabled',
-      handleConversationSwitchEnabled
-    );
 
     return () => {
       window.removeEventListener('open-conversation', handleOpenConversation);
-      window.removeEventListener(
-        'conversation-switch-enabled',
-        handleConversationSwitchEnabled
-      );
     };
   }, []);
 
-  useEffect(() => {
-    const { goBackEnabled, goForwardEnabled } =
-      (window as any).getConversationSwitchStatus() || {};
-    setNavStatus({
-      goBackEnabled,
-      goForwardEnabled,
-    });
-  }, []);
+  if (sidebarStatus === 'collapsed') {
+    return (
+      <HorizontalNav
+        {...props}
+        onSearchFocus={onSearchFocus}
+        onExitSearchMode={onExitSearchMode}
+        onSearchTextChange={onSearchTextChange}
+        toggleCommonSetting={toggleCommonSetting}
+        ref={horizontalNavRef}
+      />
+    );
+  }
 
   return (
-    <div className="module-main-header">
-      <div className="module-main-header__search">
-        <IconSearch className="module-search-icon" onClick={setFocus} />
-        <input
-          type="text"
-          ref={inputRef}
-          className="module-main-header__search__input"
-          placeholder={i18n('search')}
-          dir="auto"
-          onKeyUp={handleKeyUp}
-          value={searchTerm === EmptyMagicString ? '' : searchTerm}
-          onChange={doUpdateSearch}
-          onBlur={clearSearchNextTick}
-          onFocus={getFocus}
-          spellCheck={false}
-        />
-        {searchTerm && searchTerm !== EmptyMagicString ? (
-          <IconClearCircle
-            className="module-main-header__search__cancel-icon"
-            onClick={doClearSearch}
+    <div
+      className={classNames([
+        'module-main-header',
+        'main-header-container',
+        `sidebar-${sidebarStatus}`,
+      ])}
+    >
+      {!isFocusSearch && (
+        <IconWrapper
+          className="sidebar-layout-icon"
+          onClick={updateSidebarStatus}
+        >
+          <IconSidebarLayout />
+        </IconWrapper>
+      )}
+      {sidebarStatus === 'expanded' ? (
+        <div className="module-main-header__search main-header-search">
+          <IconSearch className="module-search-icon" onClick={setFocus} />
+          <input
+            type="text"
+            ref={inputRef}
+            className="module-main-header__search__input"
+            placeholder={i18n('search')}
+            dir="auto"
+            onKeyUp={handleKeyUp}
+            value={searchTerm === EmptyMagicString ? '' : searchTerm}
+            onChange={doUpdateSearch}
+            onBlur={clearSearchNextTick}
+            onFocus={getFocus}
+            spellCheck={false}
           />
-        ) : null}
-      </div>
+          {searchTerm && searchTerm !== EmptyMagicString ? (
+            <IconClearCircle
+              className="module-main-header__search__cancel-icon"
+              onClick={doClearSearch}
+            />
+          ) : null}
+        </div>
+      ) : (
+        <IconWrapper className="main-search-entry">
+          <IconSearch onClick={setFocus} className="main-search-entry-icon" />
+        </IconWrapper>
+      )}
       {!isFocusSearch && (
         <div
           style={{
@@ -199,30 +239,6 @@ export const MainHeader = (props: Props) => {
             justifyContent: 'space-around',
           }}
         >
-          <IconWrapper>
-            <div
-              className={
-                navStatus.goBackEnabled
-                  ? 'conversation-back'
-                  : 'conversation-back-disable'
-              }
-              onClick={() => {
-                (window as any).conversationGoBack();
-              }}
-            />
-          </IconWrapper>
-          <IconWrapper>
-            <div
-              className={
-                navStatus.goForwardEnabled
-                  ? 'conversation-forward'
-                  : 'conversation-forward-disable'
-              }
-              onClick={() => {
-                (window as any).conversationGoForward();
-              }}
-            />
-          </IconWrapper>
           <QuickEntry i18n={i18n} />
         </div>
       )}

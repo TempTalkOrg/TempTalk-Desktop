@@ -27,7 +27,7 @@ function Thumbnail({ source }: { source: SourceType }) {
           ? await source.thumbnailDataURI()
           : source.thumbnailDataURI;
       setSrc(src);
-    } catch (e) {
+    } catch (_e) {
       // console.log(e);
     }
   });

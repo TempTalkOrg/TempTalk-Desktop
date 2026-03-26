@@ -20,11 +20,11 @@ export const ImageGallery = (props: ImageGalleryProps) => {
   useTheme(ImageGalleryApis.globalWindow);
 
   useEffect(() => {
-    let imageFiles = ImageGalleryApis.mediaFiles();
-    let selectedIndex = ImageGalleryApis.selectedIndex();
+    const imageFiles = ImageGalleryApis.mediaFiles();
+    const selectedIndex = ImageGalleryApis.selectedIndex();
 
     if (imageFiles) {
-      let parsedImageFiles: IImageFile[] = JSON.parse(imageFiles);
+      const parsedImageFiles: IImageFile[] = JSON.parse(imageFiles);
       setImageData({
         images: parsedImageFiles,
         index: selectedIndex,

@@ -1,3 +1,8 @@
+/* global
+  textsecure,
+  log,
+*/
+
 const { isFunction, isObject, isString, omit } = require('lodash');
 
 const Contact = require('./contact');
@@ -195,8 +200,8 @@ exports._mapShouldEncryptedAttachments =
 //      _mapContact :: (Contact -> Promise Contact) ->
 //                     (Message, Context) ->
 //                     Promise Message
-exports._mapContact = upgradeContact => async (message, context) => {
-  const contextWithMessage = Object.assign({}, context, { message });
+exports._mapContact = _upgradeContact => async (message, _context) => {
+  // const contextWithMessage = Object.assign({}, context, { message });
   // const upgradeWithContext = contact =>
   //   upgradeContact(contact, contextWithMessage);
   const upgradeWithContext = contact => contact;
@@ -432,7 +437,7 @@ exports.upgradeSchema = async (
   }
 
   let message = rawMessage;
-  // eslint-disable-next-line no-restricted-syntax
+
   for (let index = 0, max = VERSIONS.length; index < max; index += 1) {
     if (maxVersion < index) {
       break;
@@ -441,7 +446,7 @@ exports.upgradeSchema = async (
     const currentVersion = VERSIONS[index];
     // We really do want this intra-loop await because this is a chained async action,
     //   each step dependent on the previous
-    // eslint-disable-next-line no-await-in-loop
+
     message = await currentVersion(message, {
       writeNewAttachmentData,
       regionCode: getRegionCode(),

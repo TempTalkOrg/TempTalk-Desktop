@@ -28,7 +28,7 @@ export default function GroupMemberList(props: PropsType) {
       return;
     }
 
-    let result = [];
+    const result = [];
     let hasManagers = false;
     let hasUsers = false;
     for (let i = 0; i < members.length; i += 1) {

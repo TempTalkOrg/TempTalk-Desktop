@@ -1,8 +1,12 @@
-/* global _, Whisper, Backbone, storage */
+/* global
+  _,
+  Whisper,
+  Backbone,
+  storage,
+  _lodash,
+  log,
+*/
 
-/* eslint-disable more/no-then */
-
-// eslint-disable-next-line func-names
 (function () {
   'use strict';
 
@@ -644,7 +648,7 @@
 
           for (let i = 0; i < groupContactArray.length; i++) {
             const group = groupContactArray[i];
-            const { gid, name, avatar, status } = group;
+            const { gid, name, avatar } = group;
             if (typeof gid != 'string' || typeof name != 'string') {
               window.log.error('invalid group:', gid);
               continue;
@@ -719,6 +723,8 @@
                 conversation.attributes.latestAskedVersion = newAskedVersion;
                 conversation.attributes.friendRequesting = false;
               }
+
+            // falls through
             case DIRECTORY_ACTION.UPDATE:
               contact.commonAvatar = this.helperConv.parsePrivateAvatar(
                 contact.avatar
@@ -743,6 +749,7 @@
               break;
             case DIRECTORY_ACTION.DELETE:
             // deleted from directory
+            // falls through
             case DIRECTORY_ACTION.PERMANENT_DELETE:
               // permanent deleted, account unregisterred
               if (conversation) {

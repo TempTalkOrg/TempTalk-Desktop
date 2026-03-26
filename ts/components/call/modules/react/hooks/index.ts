@@ -14,11 +14,8 @@ export { usePrevValue } from './usePrevValue';
 export { useLocalParticipantPermissions } from './useLocalParticipantPermissions';
 export { usePersistentUserChoices } from './usePersistentUserChoices';
 
-export { useAddMemberButton } from './useAddMemberButton';
 export { useBackToMainButton } from './useBackToMainButton';
 export { useDisconnectButton } from './useDisconnectButton';
-export { useMemberListButton } from './useMemberListButton';
-export { useRaiseHandButton } from './useRaiseHandButton';
 
 export { useLocalParticipant } from './useLocalParticipant';
 export { useTrackToggle } from './useTrackToggle';

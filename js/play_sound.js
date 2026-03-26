@@ -1,9 +1,3 @@
-/* global
-  window,
-  AudioContext,
-  XMLHttpRequest,
-*/
-
 class Sound {
   constructor(options) {
     this.context = new AudioContext();

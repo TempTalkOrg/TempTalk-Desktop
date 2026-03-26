@@ -14,14 +14,20 @@ export type RemoveSidebarItemActionType = {
   payload: SidebarItemType;
 };
 
+export type UpdateSidebarStatusActionType = {
+  type: 'UPDATE_SIDEBAR_STATUS';
+};
+
 export type SIDEBAR_TYPES =
   | AddSidebarItemActionType
-  | RemoveSidebarItemActionType;
+  | RemoveSidebarItemActionType
+  | UpdateSidebarStatusActionType;
 
 // Action Creators
 export const actions = {
   addSidebarItem,
   removeSidebarItem,
+  updateSidebarStatus,
 };
 
 function addSidebarItem(item: SidebarItemType): AddSidebarItemActionType {
@@ -38,15 +44,25 @@ function removeSidebarItem(item: SidebarItemType): RemoveSidebarItemActionType {
   };
 }
 
+function updateSidebarStatus(): UpdateSidebarStatusActionType {
+  return {
+    type: 'UPDATE_SIDEBAR_STATUS',
+  };
+}
+
+export type SidebarStatusType = 'expanded' | 'collapsed';
+
 // State
 export type SidebarStateType = {
   itemList: SidebarItemType[];
+  status: SidebarStatusType;
 };
 
 // Reducer
 function getEmptyState(): SidebarStateType {
   return {
     itemList: [],
+    status: 'expanded',
   };
 }
 
@@ -84,6 +100,15 @@ export function reducer(
       itemList: state.itemList.filter(
         item => item.category !== payload.category
       ),
+    };
+  }
+
+  if (action.type === 'UPDATE_SIDEBAR_STATUS') {
+    const nextStatus = state.status === 'expanded' ? 'collapsed' : 'expanded';
+
+    return {
+      ...state,
+      status: nextStatus,
     };
   }
 

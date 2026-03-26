@@ -1,5 +1,3 @@
-/* eslint-env browser */
-
 const EventEmitter = require('events');
 
 const POLL_INTERVAL_MS = 5 * 1000;

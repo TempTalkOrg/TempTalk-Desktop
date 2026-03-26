@@ -39,7 +39,7 @@ function migrateCrashpad() {
 export function setup(): void {
   try {
     migrateCrashpad();
-  } catch (error) {
+  } catch (_error) {
     //
   }
 

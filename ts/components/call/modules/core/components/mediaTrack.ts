@@ -1,7 +1,6 @@
 import { Track } from '@cc-livekit/livekit-client';
 import { map, startWith } from 'rxjs';
 import { observeParticipantMedia } from '../observables/participant';
-import { prefixClass } from '../styles-interface';
 import { isTrackReference } from '../track-reference/track-reference.types';
 import type { TrackIdentifier } from '../types';
 
@@ -15,12 +14,11 @@ export function setupMediaTrack(trackIdentifier: TrackIdentifier) {
     }),
     startWith(initialPub)
   );
-  const className: string = prefixClass(
+  const className: string =
     trackIdentifier.source === Track.Source.Camera ||
-      trackIdentifier.source === Track.Source.ScreenShare
+    trackIdentifier.source === Track.Source.ScreenShare
       ? 'participant-media-video'
-      : 'participant-media-audio'
-  );
+      : 'participant-media-audio';
   return { className, trackObserver };
 }
 

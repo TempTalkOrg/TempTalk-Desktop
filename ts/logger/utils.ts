@@ -12,7 +12,7 @@ export function formatError(error: unknown) {
   let jsonStr = undefined;
   try {
     jsonStr = JSON.stringify(error);
-  } catch (error) {
+  } catch (_error) {
     jsonStr = undefined;
   }
 

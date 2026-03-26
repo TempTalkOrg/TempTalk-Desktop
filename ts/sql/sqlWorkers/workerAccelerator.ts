@@ -21,6 +21,7 @@ export class WorkerAccelerator {
     });
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
   private getLogger(log: Function): LoggerType {
     return {
       fatal(...args: Array<unknown>) {

@@ -3,30 +3,33 @@ import { mergeProps } from '../../utils';
 import type { TrackReferenceOrPlaceholder } from '../../../core';
 import { ParticipantTile } from '../participant/ParticipantTile';
 import type { ParticipantClickEvent } from '../../../core';
-import { TrackRefContext, useFeatureContext } from '../../context';
+import { useFeatureContext, useLayoutContext } from '../../context';
 import { RoomEvent, Track } from '@cc-livekit/livekit-client';
 import { useTracks } from '../../hooks';
 
 import { animated } from '@react-spring/web';
 import { createUseGesture, pinchAction } from '@use-gesture/react';
 import { useMemoizedFn } from 'ahooks';
-import { createPortal } from 'react-dom';
-import { DraggableWrapper } from '../../prefabs/DraggableWrapper';
+// import { createPortal } from 'react-dom';
+// import { DraggableWrapper } from '../../prefabs/DraggableWrapper';
 import classnames from 'classnames';
-import { deferredSpeakingParticipantAtom } from '../../../../atoms/deferredSpeakingParticipantAtom';
-import { useAtomValue } from 'jotai';
+import {
+  CSSProperties,
+  forwardRef,
+  HTMLAttributes,
+  useImperativeHandle,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
+import { ScreenShareView } from '../ScreenShareView';
+// import { deferredSpeakingParticipantAtom } from '../../../../atoms/deferredSpeakingParticipantAtom';
+// import { useAtomValue } from 'jotai';
 
-/** @public */
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface FocusLayoutContainerProps
-  extends React.HTMLAttributes<HTMLDivElement> {}
+  extends HTMLAttributes<HTMLDivElement> {}
 
-/**
- * The `FocusLayoutContainer` is a layout component that expects two children:
- * A small side component: In a video conference, this is usually a carousel of participants
- * who are not in focus. And a larger main component to display the focused participant.
- * For example, with the `FocusLayout` component.
- *  @public
- */
 export function FocusLayoutContainer(props: FocusLayoutContainerProps) {
   const featureFlags = useFeatureContext();
   const tracks = useTracks(
@@ -39,77 +42,71 @@ export function FocusLayoutContainer(props: FocusLayoutContainerProps) {
       onlySubscribed: false,
     }
   );
-  const [showCarouselList, setShowCarouselList] = React.useState(false);
-  const deferredSpeakingParticipant = useAtomValue(
-    deferredSpeakingParticipantAtom
-  );
+  // const [showCarouselList, setShowCarouselList] = useState(false);
+  const { asideList } = useLayoutContext();
+  const showCarouselList = asideList.state?.open ?? false;
+
+  // const deferredSpeakingParticipant = useAtomValue(
+  //   deferredSpeakingParticipantAtom
+  // );
 
   const SharingTrack = tracks.find(
     track => track.source === Track.Source.ScreenShare
   );
   const isSharingScreen = !!SharingTrack;
 
-  const speakingIndicatorTrackRef = React.useMemo(() => {
-    if (deferredSpeakingParticipant) {
-      const cameraTrack = tracks.find(
-        track =>
-          track.participant === deferredSpeakingParticipant &&
-          track.source === Track.Source.Camera
-      );
-      return (
-        cameraTrack || {
-          participant: deferredSpeakingParticipant,
-          source: Track.Source.Camera,
-          // publication: currentSpeaker.getTrack(Track.Source.Camera)!,
-        }
-      );
-    }
+  // const speakingIndicatorTrackRef = useMemo(() => {
+  //   if (deferredSpeakingParticipant) {
+  //     const cameraTrack = tracks.find(
+  //       track =>
+  //         track.participant === deferredSpeakingParticipant &&
+  //         track.source === Track.Source.Camera
+  //     );
+  //     return (
+  //       cameraTrack || {
+  //         participant: deferredSpeakingParticipant,
+  //         source: Track.Source.Camera,
+  //       }
+  //     );
+  //   }
 
-    if (SharingTrack) {
-      const cameraTrack = tracks.find(
-        track =>
-          track.participant === SharingTrack.participant &&
-          track.source === Track.Source.Camera
-      );
-      return (
-        cameraTrack || {
-          participant: SharingTrack.participant,
-          source: Track.Source.Camera,
-          // publication: SharingTrack.publication,
-        }
-      );
-    }
+  //   if (SharingTrack) {
+  //     const cameraTrack = tracks.find(
+  //       track =>
+  //         track.participant === SharingTrack.participant &&
+  //         track.source === Track.Source.Camera
+  //     );
+  //     return (
+  //       cameraTrack || {
+  //         participant: SharingTrack.participant,
+  //         source: Track.Source.Camera,
+  //       }
+  //     );
+  //   }
 
-    return null;
-  }, [deferredSpeakingParticipant, SharingTrack, tracks]);
+  //   return null;
+  // }, [deferredSpeakingParticipant, SharingTrack, tracks]);
 
   const elementProps = mergeProps(props, {
     className: classnames([
-      'lk-focus-layout',
-      isSharingScreen && !showCarouselList && 'lk-is-sharing-screen',
-      !isSharingScreen &&
-        featureFlags?.type === '1on1' &&
-        'adapt-1on1-call lk-adapt-1on1-call',
-      showCarouselList && 'lk-show-carousel-list',
+      'focus-layout',
+      isSharingScreen && !showCarouselList && 'is-sharing-screen',
+      !isSharingScreen && featureFlags?.type === '1on1' && 'adapt-1on1-call',
+      showCarouselList && 'show-carousel-list',
     ]),
   });
 
   const toggleCarouselList = useMemoizedFn(() => {
-    setShowCarouselList(prev => !prev);
+    asideList.dispatch?.({ msg: 'toggle_aside_list' });
   });
 
   return (
     <>
       {isSharingScreen ? (
         <div
-          className="lk-aside-control"
+          className="aside-control"
           style={{
-            position: 'fixed',
-            top: '50%',
-            right: showCarouselList ? 196 : 0,
-            transform: 'translateY(-50%)',
-            cursor: 'pointer',
-            zIndex: 2,
+            right: showCarouselList ? 188 : 0,
           }}
           onClick={toggleCarouselList}
         >
@@ -121,10 +118,10 @@ export function FocusLayoutContainer(props: FocusLayoutContainerProps) {
         </div>
       ) : null}
       <div {...elementProps}>{props.children}</div>
-      {isSharingScreen && speakingIndicatorTrackRef
+      {/* {isSharingScreen && speakingIndicatorTrackRef
         ? createPortal(
             <div
-              className={`lk-floating-speaking-indicator ${showCarouselList ? 'lk-show-carousel-list' : ''}`}
+              className={`floating-speaking-indicator ${showCarouselList ? 'show-carousel-list' : ''}`}
             >
               <TrackRefContext.Provider
                 value={speakingIndicatorTrackRef}
@@ -148,33 +145,32 @@ export function FocusLayoutContainer(props: FocusLayoutContainerProps) {
                 </DraggableWrapper>
               </TrackRefContext.Provider>
             </div>,
-            document.querySelector('.lk-focus-layout')!
+            document.querySelector('.focus-layout')!
           )
-        : null}
+        : null} */}
     </>
   );
 }
 
-/** @public */
-export interface FocusLayoutProps extends React.HTMLAttributes<HTMLElement> {
-  /** The track to display in the focus layout. */
+export interface FocusLayoutProps extends HTMLAttributes<HTMLElement> {
   trackRef?: TrackReferenceOrPlaceholder;
 
   onParticipantClick?: (evt: ParticipantClickEvent) => void;
 }
 
-/**
- * The `FocusLayout` component is just a light wrapper around the `ParticipantTile` to display a single participant.
- * @public
- */
 export function FocusLayout({ trackRef, ...htmlProps }: FocusLayoutProps) {
-  return <ParticipantTile isFocus trackRef={trackRef} {...htmlProps} />;
+  const isScreenShareTrack = trackRef?.source === Track.Source.ScreenShare;
+  if (isScreenShareTrack) {
+    return <ScreenShareView trackRef={trackRef} htmlProps={htmlProps} />;
+  } else {
+    return <ParticipantTile isFocus trackRef={trackRef} {...htmlProps} />;
+  }
 }
 
 export interface IPinchableBlockProps {
   minScale?: number;
   maxScale?: number;
-  style?: React.CSSProperties;
+  style?: CSSProperties;
   rotation?: number;
   [key: string]: any;
 }
@@ -188,7 +184,7 @@ export interface PinchableBlockInstance {
 
 const useGesture = createUseGesture([pinchAction]);
 
-export const PinchableBlock = React.forwardRef<
+export const PinchableBlock = forwardRef<
   PinchableBlockInstance,
   IPinchableBlockProps
 >((props, ref) => {
@@ -197,17 +193,17 @@ export const PinchableBlock = React.forwardRef<
     maxScale = 100,
     style: styleProps,
     getContainer = () => document.body,
-    rotation = 0,
+    // rotation = 0,
     ...extraProps
   } = props;
 
-  const [initSize, setInitSize] = React.useState({ height: 0, width: 0 });
+  const [initSize, setInitSize] = useState({ height: 0, width: 0 });
 
-  const imgRef = React.useRef<HTMLImageElement>(null);
+  const imgRef = useRef<HTMLImageElement>(null);
 
-  const [scale, setScale] = React.useState(1);
+  const [scale, setScale] = useState(1);
 
-  let counterRef = React.useRef({
+  const counterRef = useRef({
     plus: 0,
     minus: 0,
   });
@@ -215,7 +211,7 @@ export const PinchableBlock = React.forwardRef<
   const onPinch = useMemoizedFn(({ event, trigger, memo }) => {
     const container = getContainer();
 
-    let direction = event.deltaY < 0 ? 1 : -1;
+    const direction = event.deltaY < 0 ? 1 : -1;
 
     const imageBounds = imgRef.current!.getBoundingClientRect();
 
@@ -285,7 +281,7 @@ export const PinchableBlock = React.forwardRef<
     }
   );
 
-  React.useImperativeHandle(ref, () => ({
+  useImperativeHandle(ref, () => ({
     zoomIn() {
       onPinch({
         event: { deltaY: -1 },
@@ -306,7 +302,7 @@ export const PinchableBlock = React.forwardRef<
     },
   }));
 
-  React.useLayoutEffect(() => {
+  useLayoutEffect(() => {
     const container = getContainer();
     if (!container || !imgRef.current || initSize.height === 0) return;
 

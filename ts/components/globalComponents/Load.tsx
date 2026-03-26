@@ -328,7 +328,7 @@ export default function Load(props: PropsType) {
       const memoryConversation = (window as any).ConversationController.get(
         ev.detail.groupId
       );
-      let cacheMemberLastActive =
+      const cacheMemberLastActive =
         memoryConversation?.getCacheMemberLastActive();
       // 这边做一个标记位。而不是看 cacheMemberLastActive 是否为空，因为在没有移除成员前，新消息来，也存到了 cacheMemberLastActive 中。
       if (!cacheMemberLastActive?.flag) {

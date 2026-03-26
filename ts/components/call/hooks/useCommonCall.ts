@@ -169,13 +169,14 @@ export const useCommonCall = ({ i18n, room }: IProps) => {
         delayCloseWindow(e.response.reason ?? e?.reason);
         return;
       }
-      default:
+      default: {
         const reason = e?.response?.reason ?? e?.reason ?? '';
         if (reason) {
           message.error(reason, 0);
           return;
         }
         logger.info('[livekit call error]', e);
+      }
     }
   };
 

@@ -1,8 +1,5 @@
-/* global window, StringView */
+/* global StringView */
 
-/* eslint-disable no-bitwise, no-nested-ternary */
-
-// eslint-disable-next-line func-names
 (function () {
   window.StringView = {
     /*

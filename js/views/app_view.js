@@ -1,8 +1,5 @@
 /* global Backbone, Whisper, storage, _, ConversationController, $ */
 
-/* eslint-disable more/no-then */
-
-// eslint-disable-next-line func-names
 (function () {
   'use strict';
 

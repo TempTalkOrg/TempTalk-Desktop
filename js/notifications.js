@@ -1,15 +1,15 @@
-/* global Signal:false */
-/* global Backbone: false */
+/* global
+  Signal,
+  Backbone,
+  drawAttention,
+  i18n,
+  isFocused,
+  storage,
+  Whisper,
+  _,
+  Sound,
+*/
 
-/* global drawAttention: false */
-/* global i18n: false */
-/* global isFocused: false */
-/* global Signal: false */
-/* global storage: false */
-/* global Whisper: false */
-/* global _: false */
-
-// eslint-disable-next-line func-names
 (function () {
   'use strict';
 
@@ -125,7 +125,6 @@
           message = newMessageCountLabel;
           break;
         case SettingNames.NAME: {
-          // eslint-disable-next-line prefer-destructuring
           const sender = last.sender;
           iconUrl = last.iconUrl;
           if (numNotifications === 1) {
@@ -141,7 +140,7 @@
           }
           break;
         }
-        case SettingNames.MESSAGE:
+        case SettingNames.MESSAGE: {
           const sender = last.sender;
           title = last.title;
           if (numNotifications === 1) {
@@ -157,9 +156,10 @@
             }
             message += `\n${last.message}`;
           }
-          // eslint-disable-next-line prefer-destructuring
+
           iconUrl = last.iconUrl;
           break;
+        }
         default:
           window.log.error(
             `Error: Unknown user notification setting: '${userSetting}'`

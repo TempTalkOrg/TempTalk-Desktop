@@ -1,6 +1,5 @@
-/* global window, dcodeIO, textsecure */
+/* global dcodeIO, textsecure */
 
-// eslint-disable-next-line func-names
 (function () {
   window.textsecure = window.textsecure || {};
   window.textsecure.protobuf = {};
@@ -22,7 +21,7 @@
           window.log.error(text);
           throw new Error(text);
         }
-        // eslint-disable-next-line no-restricted-syntax, guard-for-in
+
         for (const protoName in protos) {
           textsecure.protobuf[protoName] = protos[protoName];
         }

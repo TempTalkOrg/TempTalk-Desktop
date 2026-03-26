@@ -1,17 +1,17 @@
 import * as React from 'react';
-import { useAddMemberButton } from '../../hooks/useAddMemberButton';
+import { forwardRef } from 'react';
+
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface AddMemberButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {}
 
-export const AddMemberButton = /* @__PURE__ */ React.forwardRef<
+export const AddMemberButton = forwardRef<
   HTMLButtonElement,
   AddMemberButtonProps
->(function AddMemberButton(props: AddMemberButtonProps, ref) {
-  const { buttonProps } = useAddMemberButton(props);
-
+>(function AddMemberButton({ children, onClick }: AddMemberButtonProps, ref) {
   return (
-    <button ref={ref} {...buttonProps}>
-      {props.children}
+    <button ref={ref} className="add-member-button" onClick={onClick}>
+      {children}
     </button>
   );
 });

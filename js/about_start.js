@@ -1,7 +1,10 @@
-/* global $: false */
+/* global
+  $,
+  moment,
+*/
 
 // 动态设置主题
-// eslint-disable-next-line strict
+
 const setTheme = async theme => {
   let newTheme = theme;
   if (theme === 'system') {
@@ -151,6 +154,6 @@ if (window.isInsiderUpdate()) {
   $('#check-for-update').text('Check for Updates (Insider)');
 }
 
-$('.check-for-update').on('click', e => {
+$('.check-for-update').on('click', _e => {
   window.checkForUpdate();
 });

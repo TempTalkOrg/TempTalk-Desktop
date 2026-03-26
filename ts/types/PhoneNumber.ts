@@ -17,7 +17,7 @@ export function format(
     }
 
     return instance.format(parsedNumber, PhoneNumberFormat.INTERNATIONAL);
-  } catch (error) {
+  } catch (_error) {
     return phoneNumber;
   }
 }
@@ -51,7 +51,7 @@ export function normalize(
     }
 
     return;
-  } catch (error) {
+  } catch (_error) {
     return;
   }
 }

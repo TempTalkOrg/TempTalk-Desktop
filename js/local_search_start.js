@@ -12,7 +12,6 @@ async function updateGlobalConfig() {
   }
 }
 
-// eslint-disable-next-line strict
 const getInitialData = async () => {
   await window.storage.fetch();
 
@@ -22,7 +21,6 @@ const getInitialData = async () => {
 
 window.initialRequest = getInitialData();
 
-// eslint-disable-next-line more/no-then
 window.initialRequest.then(
   () => {
     'use strict';
@@ -51,7 +49,7 @@ window.initialRequest.then(
 );
 
 // 动态设置主题
-// eslint-disable-next-line strict
+
 const setTheme = async theme => {
   let newTheme = theme;
   if (theme === 'system') {

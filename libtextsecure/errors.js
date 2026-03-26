@@ -1,11 +1,7 @@
-/* global window */
-
-// eslint-disable-next-line func-names
 (function () {
   window.textsecure = window.textsecure || {};
 
   function inherit(Parent, Child) {
-    // eslint-disable-next-line no-param-reassign
     Child.prototype = Object.create(Parent.prototype, {
       constructor: {
         value: Child,
@@ -15,7 +11,6 @@
     });
   }
   function appendStack(newError, originalError) {
-    // eslint-disable-next-line no-param-reassign
     newError.stack += `\nOriginal stack:\n${originalError.stack}`;
   }
 
@@ -36,7 +31,6 @@
   inherit(Error, ReplayableError);
 
   function IncomingIdentityKeyError(number, message, key) {
-    // eslint-disable-next-line prefer-destructuring
     this.number = number.split('.')[0];
     this.identityKey = key;
 
@@ -48,7 +42,6 @@
   inherit(ReplayableError, IncomingIdentityKeyError);
 
   function OutgoingIdentityKeyError(number, message, timestamp, identityKey) {
-    // eslint-disable-next-line prefer-destructuring
     this.number = number.split('.')[0];
     this.identityKey = identityKey;
 
@@ -60,7 +53,6 @@
   inherit(ReplayableError, OutgoingIdentityKeyError);
 
   function OutgoingMessageError(number, message, timestamp, httpError) {
-    // eslint-disable-next-line prefer-destructuring
     this.number = number.split('.')[0];
 
     ReplayableError.call(this, {

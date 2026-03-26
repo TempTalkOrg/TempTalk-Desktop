@@ -1,6 +1,5 @@
-/* global Whisper, extension, Backbone, moment, i18n */
+/* global Whisper, extension, Backbone, moment, i18n, _lodash, */
 
-// eslint-disable-next-line func-names
 (function () {
   'use strict';
 

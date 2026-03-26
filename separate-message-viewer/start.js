@@ -1,9 +1,5 @@
 /*
   global
-  window,
-  document,
-  Whisper,
-  $,
 */
 
 window.setImmediate = window.nodeSetImmediate;

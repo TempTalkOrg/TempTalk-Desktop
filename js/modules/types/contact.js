@@ -65,7 +65,7 @@ function idForLogging(message) {
   return `${message.source}.${message.sourceDevice} ${message.sent_at}`;
 }
 
-exports._validate = (contact, options = {}) => {
+exports._validate = (_contact, _options = {}) => {
   // const { messageId } = options;
   // const { name, number, email, address, organization } = contact;
 

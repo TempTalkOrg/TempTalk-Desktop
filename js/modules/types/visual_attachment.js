@@ -1,8 +1,5 @@
-/* global document, URL, Blob */
-
 const loadImage = require('blueimp-load-image');
 const { toLogFormat } = require('./errors');
-const dataURLToBlobSync = require('blueimp-canvas-to-blob');
 const { blobToArrayBuffer } = require('blob-util');
 const {
   arrayBufferToObjectURL,
@@ -37,7 +34,7 @@ exports.makeImageThumbnail = ({
   new Promise((resolve, reject) => {
     const image = document.createElement('img');
 
-    image.addEventListener('load', () => {
+    image.addEventListener('load', async () => {
       // using components/blueimp-load-image
 
       // first, make the correct size
@@ -60,7 +57,7 @@ exports.makeImageThumbnail = ({
         minHeight: size,
       });
 
-      const blob = dataURLToBlobSync(canvas.toDataURL(contentType));
+      const blob = await canvasToBlob(canvas, contentType);
 
       resolve(blob);
     });

@@ -207,7 +207,8 @@ export const ProfileCard = (props: PropsType) => {
       (window as any).noticeError('network error');
 
       console.log(
-        'Failed to successfully delete conversation after delete contact'
+        'Failed to successfully delete conversation after delete contact',
+        error
       );
     }
   });
@@ -221,6 +222,7 @@ export const ProfileCard = (props: PropsType) => {
       shareContact: userInfo?.directoryUser,
       addFriend: !userInfo?.directoryUser,
       deleteContact: !isBot && userInfo?.directoryUser,
+      editRemark: true,
     };
   }, [isBot, userInfo]);
 
@@ -258,7 +260,7 @@ export const ProfileCard = (props: PropsType) => {
 
   const onShareContact = useMemoizedFn(() => {
     const number = userInfo?.id;
-    let name = userInfo?.accountName;
+    const name = userInfo?.accountName;
     if (number) {
       const myEvent = new CustomEvent('event-share-user-contact', {
         detail: { number, name },

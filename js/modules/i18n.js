@@ -1,4 +1,3 @@
-/* eslint-env node */
 /* global log */
 
 exports.setup = (locale, messages) => {

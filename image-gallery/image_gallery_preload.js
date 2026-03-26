@@ -1,4 +1,3 @@
-/* global window */
 const { contextBridge, ipcRenderer } = require('electron');
 const url = require('url');
 const config = url.parse(window.location.toString(), true).query;

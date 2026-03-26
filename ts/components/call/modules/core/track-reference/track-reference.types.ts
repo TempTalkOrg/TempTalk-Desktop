@@ -27,9 +27,9 @@ function isTrackReferenceSubscribed(
     return false;
   }
   return (
-    trackReference.hasOwnProperty('participant') &&
-    trackReference.hasOwnProperty('source') &&
-    trackReference.hasOwnProperty('track') &&
+    Object.hasOwn(trackReference, 'participant') &&
+    Object.hasOwn(trackReference, 'source') &&
+    Object.hasOwn(trackReference, 'track') &&
     typeof trackReference.publication?.track !== 'undefined'
   );
 }
@@ -41,9 +41,9 @@ function isTrackReferencePublished(
     return false;
   }
   return (
-    trackReference.hasOwnProperty('participant') &&
-    trackReference.hasOwnProperty('source') &&
-    trackReference.hasOwnProperty('publication') &&
+    Object.hasOwn(trackReference, 'participant') &&
+    Object.hasOwn(trackReference, 'source') &&
+    Object.hasOwn(trackReference, 'publication') &&
     typeof trackReference.publication !== 'undefined'
   );
 }
@@ -67,8 +67,8 @@ export function isTrackReferencePlaceholder(
     return false;
   }
   return (
-    trackReference.hasOwnProperty('participant') &&
-    trackReference.hasOwnProperty('source') &&
+    Object.hasOwn(trackReference, 'participant') &&
+    Object.hasOwn(trackReference, 'source') &&
     typeof trackReference.publication === 'undefined'
   );
 }

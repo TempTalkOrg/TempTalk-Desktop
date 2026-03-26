@@ -38,7 +38,7 @@ export type ClickEvent = {
 
 type PropsHousekeeping = {
   i18n: LocalizerType;
-  style?: Object;
+  style?: object;
   onClick?: () => void;
 };
 
@@ -69,7 +69,7 @@ export class BotListItem extends React.Component<Props> {
     let groupMembersCount;
     if (type === 'group') {
       const c = (window as any).ConversationController.get(id);
-      let selfLeft = c?.isMeLeftGroup();
+      const selfLeft = c?.isMeLeftGroup();
       // already left group does not show members count
       if (!c.isPrivate() && !selfLeft) {
         groupMembersCount = c?.get('membersV2')?.length;

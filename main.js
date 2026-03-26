@@ -85,16 +85,14 @@ ipc.on('copy', () => {
     const newest = clipboard.readText('clipboard');
     if (prev !== newest) {
       clipboard.writeText(newest);
-      // eslint-disable-next-line no-unreachable
+
       clearInterval(interval);
       return;
     }
     if (prev === newest && num > 0) {
-      // eslint-disable-next-line no-plusplus
       num--;
     }
     if (num <= 0) {
-      // eslint-disable-next-line no-unreachable
       clearInterval(interval);
     }
   }, 100);
@@ -340,7 +338,6 @@ function prepareURL(pathSegments, moreKeys) {
     query: {
       systemTheme: nativeTheme.shouldUseDarkColors ? 'dark' : 'light',
       name: packageJson.productName,
-      locale: locale.name,
       version: app.getVersion(),
       buildExpiration: config.get('buildExpiration'),
       certificateAuthority: config.get('certificateAuthority'),
@@ -525,7 +522,6 @@ async function createWindow() {
 
   // Ingested in preload.js via a sendSync call
   ipc.on('locale-data', event => {
-    // eslint-disable-next-line no-param-reassign
     event.returnValue = locale.messages;
   });
 
@@ -1357,7 +1353,7 @@ installIpcHandler('confirmSecrets', async publicKey => {
   try {
     await fse.remove(backupDir);
   } catch (error) {
-    logger.warn('failed to remove backup folder');
+    logger.warn('failed to remove backup folder', error);
   }
 });
 
@@ -2422,7 +2418,7 @@ function handleIncomingCall(info) {
 
     // reset position
     let index = 0;
-    // eslint-disable-next-line no-restricted-syntax
+
     for (const item of incomingCallWindows.values()) {
       const offset = index * (incomingCallWindowHeight + incomingCallPadding);
       const [x] = item.getPosition();
@@ -2475,7 +2471,7 @@ ipc.on('dispatch-call-message', async (event, type, payload) => {
   // dispatch call messages to the meeting window
 });
 
-ipc.on('close-call-window', async event => {
+ipc.on('close-call-window', async _event => {
   if (callWindow) {
     callWindow.isClosing = true;
     callWindow.close();

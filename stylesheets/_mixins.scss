@@ -144,3 +144,22 @@
     overflow: hidden;
   }
 }
+
+@mixin accept-pointer-events() {
+  -webkit-app-region: no-drag;
+  pointer-events: auto;
+}
+
+@mixin confidential-mask() {
+  content: attr(data-mask-tips);
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+
+  color: var(--dst-color-text-white);
+  text-align: center;
+  font-size: 12px;
+  font-weight: 400;
+}

@@ -7,7 +7,6 @@ import {
 } from '@cc-livekit/livekit-client';
 import { BehaviorSubject } from 'rxjs';
 import { log } from '../logger';
-import { prefixClass } from '../styles-interface';
 import { createActiveDeviceObservable } from '../observables/room';
 
 export type SetMediaDeviceOptions = {
@@ -76,7 +75,7 @@ export function setupDeviceSelector(
       activeDeviceSubject.next(id);
     }
   };
-  const className: string = prefixClass('media-device-select');
+  const className: string = 'media-device-select';
   return {
     className,
     activeDeviceObservable,

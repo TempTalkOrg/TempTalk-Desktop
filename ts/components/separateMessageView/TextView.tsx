@@ -13,7 +13,6 @@ export const TextView = ({
     <div className="enlarge-view-container">
       <div className="enlarge-view-inner module-message__text">
         <MessageBody
-          allowExpand
           text={messageData?.text || ''}
           disableShowProfile={true}
           mentions={messageData?.mentions || []}

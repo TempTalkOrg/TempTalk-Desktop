@@ -13,7 +13,7 @@ export type Props = {
   lastMessageInfo: any;
   threadMessage: any;
   botInfo: any;
-  style?: Object;
+  style?: object;
   model?: any;
   onClick?: () => void;
 };

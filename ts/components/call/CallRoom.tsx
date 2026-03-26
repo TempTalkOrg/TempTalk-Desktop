@@ -17,7 +17,11 @@ import { useLocalAction } from './hooks/useLocalAction';
 import { LocalizerType } from '../../types/Util';
 import { useRemoteAction } from './hooks/useRemoteAction';
 import { useWaitCaller } from './hooks/useWaitCaller';
-import { roomAtom } from './atoms/roomAtom';
+import {
+  immersiveModeAtom,
+  pinnedControlsAtom,
+  roomAtom,
+} from './atoms/roomAtom';
 import { useAtom, useAtomValue } from 'jotai';
 import { currentCall } from './initCall';
 import { useGroupCall } from './hooks/useGroupCall';
@@ -42,7 +46,7 @@ import { RoomTitle } from './RoomTitle';
 import { CountdownTimer } from './CountdownTimer';
 import { useCountdownTimer } from './hooks/useCountdownTimer';
 import { useRaiseHand } from './hooks/useRaiseHand';
-import { VideoConference, LiveKitRoom, useParticipants } from './modules/react';
+import { VideoConference, LiveKitRoom } from './modules/react';
 import { LottieAnimation } from '../LottieAnimation';
 import { useDeferredSpeakingParticipant } from './hooks/useDeferredSpeakingParticipant';
 import { useSyncVideoFrame } from './hooks/useSyncVideoFrame';
@@ -51,13 +55,13 @@ import { useCriticalAlert } from './hooks/useCriticalAlert';
 import { Track } from '@cc-livekit/livekit-client';
 import { useMediaPermissionModal } from './hooks/useMediaPermissionModal';
 import { useUpdateCallConfig } from './hooks/useUpdateCallConfig';
-import { SpeedHint } from '../SpeedHint';
 import { useSpeedHint } from './hooks/useSpeedHint';
 import { useBubbleMessage } from './hooks/useBubbleMessage';
 import { BubbleMessageList } from './BubbleMessageList';
 import { ScreenShareApprovalModal } from './ScreenShareApprovalModal';
 import { ScreenShareStatus, screenShareAtom } from './atoms/screenShareAtom';
 import { ConfigProvider } from '../shared/ConfigProvider';
+import classNames from 'classnames';
 export interface ICallError {
   response: {
     status: number;
@@ -74,7 +78,8 @@ export const CallRoom = ({ i18n }: IProps) => {
   const roomCipherRef = useRef<CallRoomCipher>({} as CallRoomCipher);
   // const [roomInfo, setRoomInfo] = useState<IRoomInfo>({} as IRoomInfo);
   const roomInfo = useAtomValue(roomAtom);
-
+  const immersiveMode = useAtomValue(immersiveModeAtom);
+  const pinnedControls = useAtomValue(pinnedControlsAtom);
   const { e2eeSetupComplete, room } = useRoom({ key: roomInfo.key! });
 
   const {
@@ -107,8 +112,7 @@ export const CallRoom = ({ i18n }: IProps) => {
     mediaType,
   } = useMediaPermissionModal();
 
-  // @ts-ignore
-  const participants = useParticipants({ room });
+  // const participants = useParticipants({ room });
   // const { count } = useTimer(room);
   // @ts-ignore
   window.room = room;
@@ -246,9 +250,20 @@ export const CallRoom = ({ i18n }: IProps) => {
     i18n,
   });
 
-  const { denoiseEnable, onDenoiseEnableChange } = useDenoisePluginFilter({
+  const {
+    denoiseEnable,
+    onDenoiseEnableChange,
+    denoiseMode,
+    onDenoiseModeChange,
+  } = useDenoisePluginFilter({
     room,
-    filterOptions: { debugLogs: true, vadLogs: false },
+    filterOptions: {
+      debugLogs: true,
+      moduleConfigs: {
+        rnnoise: { vadLogs: false },
+      },
+      batchFrames: 1,
+    },
     defaultEnabled: true,
   });
 
@@ -372,10 +387,6 @@ export const CallRoom = ({ i18n }: IProps) => {
 
   useSyncVideoFrame(room);
 
-  const locale = useMemo(() => {
-    return i18n.getLocale();
-  }, [i18n]);
-
   const {
     visible: criticalAlertVisible,
     setVisible: setCriticalAlertVisible,
@@ -394,11 +405,15 @@ export const CallRoom = ({ i18n }: IProps) => {
     },
   });
 
-  const { speedHints, onSendSpeedHint, addSpeedHint } = useSpeedHint({
+  const { addSpeedHint, onSendSpeedHint } = useSpeedHint({
+    i18n,
     room,
     contactMap,
     handleSendSpeedHint: async (speed: 'slower' | 'faster') => {
       await sendSpeedHintMessage(speed);
+    },
+    handleSpeedHintMessage: async (text: string) => {
+      await sendBubbleMessage(text);
     },
   });
 
@@ -426,9 +441,15 @@ export const CallRoom = ({ i18n }: IProps) => {
         isPassive={currentCall.isPassive}
       />
       <div
-        data-lk-theme="default"
         style={{ height: '100vh' }}
-        className={`call-type-${currentCall.type}`}
+        className={classNames(
+          ['call-room-container', `call-type-${currentCall.type}`],
+          {
+            'has-screen-share': screenShareStatus.isSharing,
+            'immersive-mode': immersiveMode,
+            'pinned-controls': pinnedControls,
+          }
+        )}
       >
         <RoomTitle
           room={room}
@@ -438,13 +459,6 @@ export const CallRoom = ({ i18n }: IProps) => {
                 <CountdownTimer
                   {...countdownTimerProps}
                   ref={countdownTimerRef}
-                />
-              ) : null}
-              {roomInfo.type !== '1on1' ? (
-                <SpeedHint
-                  i18n={i18n}
-                  speedHints={speedHints}
-                  onSendSpeedHint={onSendSpeedHint}
                 />
               ) : null}
             </>
@@ -471,7 +485,8 @@ export const CallRoom = ({ i18n }: IProps) => {
               raiseHandList,
               denoiseEnable,
               onDenoiseEnableChange,
-              locale,
+              denoiseMode,
+              onDenoiseModeChange,
               criticalAlert: {
                 visible: criticalAlertVisible,
                 menuItems,
@@ -479,6 +494,7 @@ export const CallRoom = ({ i18n }: IProps) => {
               isSupportSystemMode,
               screenShareMode,
               onScreenShareModeChange,
+              onSendSpeedHint,
             }}
             style={{ height: 'calc(100vh - 32px)' }}
             connect={e2eeSetupComplete}

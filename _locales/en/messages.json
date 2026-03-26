@@ -3346,5 +3346,35 @@
   },
   "unknowUserIndicator": {
     "message": "🔒 Privacy first. Fully anonymous and end-to-end encrypted. DO NOT trust unknown users. "
+  },
+  "website": {
+    "message": "Website"
+  },
+  "officialAccountDesc": {
+    "message": "Official Account"
+  },
+  "notDirectoryUserMessageLimit": {
+    "message": "Non-friends can only send text messages"
+  },
+  "pin": {
+    "message": "Pin toolbar"
+  },
+  "unpin": {
+    "message": "Unpin toolbar"
+  },
+  "confidentialMessageMaskTips": {
+    "message": "Read once, then gone"
+  },
+  "micNoiseSuppression": {
+    "message": "Mic Noise Suppression"
+  },
+  "micDenoiseEngine": {
+    "message": "Denoise Mode"
+  },
+  "denoiseMode.standard": {
+    "message": "Standard"
+  },
+  "denoiseMode.enhanced": {
+    "message": "Enhanced"
   }
 }

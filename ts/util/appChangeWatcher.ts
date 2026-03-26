@@ -5,7 +5,7 @@ export function watchFileChange(
   onChange: (path: string) => void
 ) {
   const watcher = chokidar.watch(exePath, {
-    ignored: /[\/\\]\./,
+    ignored: /[/\\]\./,
     persistent: true,
     alwaysStat: true,
     awaitWriteFinish: true,

@@ -52,7 +52,7 @@ export class LongMark extends React.Component<Props> {
     }
 
     if (!(current === 0 || current === 1)) {
-      let scollNum = length === 3 ? 2 : 3;
+      const scollNum = length === 3 ? 2 : 3;
       const styleOld = {
         borderRadius: 8,
         width: '8px',

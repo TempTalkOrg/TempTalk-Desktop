@@ -1,9 +1,6 @@
 /* global
    dcodeIO, Backbone, _, libsignal, textsecure, ConversationController, stringObject */
 
-/* eslint-disable no-proto */
-
-// eslint-disable-next-line func-names
 (function () {
   'use strict';
 
@@ -92,7 +89,6 @@
     const ta1 = new Uint8Array(ab1);
     const ta2 = new Uint8Array(ab2);
     for (let i = 0; i < ab1.byteLength; i += 1) {
-      // eslint-disable-next-line no-bitwise
       result |= ta1[i] ^ ta2[i];
     }
     return result === 0;
@@ -159,7 +155,7 @@
     }
 
     window.log.info(`SignalProtocolStore: Finished caching ${field} data`);
-    // eslint-disable-next-line no-param-reassign
+
     object[field] = cache;
   }
 
@@ -485,11 +481,9 @@
         throw new Error('Tried to put identity key for undefined/null key');
       }
       if (!(publicKey instanceof ArrayBuffer)) {
-        // eslint-disable-next-line no-param-reassign
         publicKey = convertToArrayBuffer(publicKey);
       }
       if (typeof nonblockingApproval !== 'boolean') {
-        // eslint-disable-next-line no-param-reassign
         nonblockingApproval = false;
       }
 

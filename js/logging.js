@@ -1,8 +1,3 @@
-/* eslint-env node */
-
-/* eslint strict: ['error', 'never'] */
-/* eslint-disable no-console */
-
 const electron = require('electron');
 const ipc = electron.ipcRenderer;
 
@@ -156,12 +151,12 @@ function cleanArgsForIPC(args) {
         JSON.stringify(arg, (_, value) => {
           try {
             return jsonReplacer(objectCache, value);
-          } catch (error) {
+          } catch (_error) {
             return '[UnreadableValue]';
           }
         })
       );
-    } catch (error) {
+    } catch (_error) {
       return `[Unserializable]: ${Object.prototype.toString.call(arg)}`;
     }
   });

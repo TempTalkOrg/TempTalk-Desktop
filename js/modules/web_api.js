@@ -1,3 +1,5 @@
+/* global log */
+
 const WebSocket = require('websocket').w3cwebsocket;
 const fetch = require('node-fetch');
 const { ProxyAgent } = require('proxy-agent');
@@ -20,10 +22,6 @@ const validateMap = (dataMap, validatorWrapper) => {
 let _lastOssOrigin = undefined;
 
 // const { redactAll } = require('./privacy');
-
-/* global Buffer: false */
-/* global setTimeout: false */
-/* global log: false */
 
 let globalWebApiUrls = {};
 const websocketUrlSelect = {
@@ -132,7 +130,7 @@ function _ensureStringed(thing) {
     return res;
   } else if (thing === Object(thing)) {
     const res = {};
-    // eslint-disable-next-line guard-for-in, no-restricted-syntax
+
     for (const key in thing) {
       res[key] = _ensureStringed(thing[key]);
     }
@@ -151,13 +149,11 @@ function _jsonThing(thing) {
 
 function _validateResponse(response, schema) {
   try {
-    // eslint-disable-next-line guard-for-in, no-restricted-syntax
     for (const i in schema) {
       switch (schema[i]) {
         case 'object':
         case 'string':
         case 'number':
-          // eslint-disable-next-line valid-typeof
           if (typeof response[i] !== schema[i]) {
             return false;
           }
@@ -165,7 +161,7 @@ function _validateResponse(response, schema) {
         default:
       }
     }
-  } catch (ex) {
+  } catch (_e) {
     return false;
   }
   return true;
@@ -191,7 +187,6 @@ function _createSocket(url, { certificateAuthority, proxyUrl, authorization }) {
 
   const clientConfig = { maxReceivedFrameSize: 0x410000 };
 
-  // eslint-disable-next-line new-cap
   return new WebSocket(url, null, null, headers, requestOptions, clientConfig);
 }
 
@@ -362,7 +357,6 @@ function _promiseAjax(providedUrl, options) {
         }
         return resultPromise.then(result => {
           if (options.responseType === 'arraybuffer') {
-            // eslint-disable-next-line no-param-reassign
             result = result.buffer.slice(
               result.byteOffset,
               result.byteOffset + result.byteLength
@@ -611,7 +605,6 @@ function initialize({
       throw 'Bad domains list';
     }
 
-    // eslint-disable-next-line no-param-reassign
     options.stack = new Error().stack; // just in case, save stack here.
     return _retryDomain(options, domains);
   }
@@ -743,7 +736,6 @@ function initialize({
 
     function _ajax(param) {
       if (!param.urlParameters) {
-        // eslint-disable-next-line no-param-reassign
         param.urlParameters = '';
       }
 

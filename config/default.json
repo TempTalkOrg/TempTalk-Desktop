@@ -140,7 +140,8 @@
       "denoise": {
         "bluetooth": {
           "excludedNameRegex": "AirPods"
-        }
+        },
+        "mode": "enhanced"
       }
     },
     "group": {

@@ -6,6 +6,7 @@ import { Tooltip } from 'antd';
 import { simplifySeconds } from '../../util/formatRelativeTime';
 import { isBot } from '../../shims/Whisper';
 import { IconWrapper } from '../shared/IconWrapper';
+import { IconOfficialAccount } from '../shared/icons';
 
 interface Props {
   id: string;
@@ -24,6 +25,7 @@ interface Props {
   isGroupV2Admin: boolean;
   groupMembersCount?: number;
   isDirectoryUser?: boolean;
+  isOfficialAccount: boolean;
 
   expireTimer?: number;
 
@@ -65,6 +67,7 @@ export const ConversationHeader = (props: Props) => {
     onGroupV2AddMembers,
     onRequestFriend,
     accountName,
+    isOfficialAccount,
   } = props;
 
   const conversationType = isGroup ? 'group' : 'direct';
@@ -140,10 +143,13 @@ export const ConversationHeader = (props: Props) => {
                 }}
               />
             </span>
-            <div className="module-conversation-header__title">
+            <div className="module-conversation-header__title conversation-header">
               {title ? (
-                <span className="module-conversation-header__title-no-drag">
+                <span className="module-conversation-header__title-no-drag conversation-header-title">
                   {title}
+                  {isOfficialAccount && (
+                    <IconOfficialAccount className="official-account-icon" />
+                  )}
                 </span>
               ) : null}
               {profileName && !title ? (
@@ -151,11 +157,21 @@ export const ConversationHeader = (props: Props) => {
                   {profileName}
                 </span>
               ) : null}
-              {expireTimer && expireTimer > 0 ? (
-                <div className="module-conversation-header__title-sign">
-                  {simplifySeconds(expireTimer)}
-                </div>
-              ) : null}
+              <div className="extra-info">
+                {expireTimer && expireTimer > 0 ? (
+                  <div className="module-conversation-header__title-sign">
+                    {simplifySeconds(expireTimer)}
+                  </div>
+                ) : null}
+                {isOfficialAccount && (
+                  <>
+                    <span className="dot-divider">・</span>
+                    <span className="official-account-desc">
+                      {i18n('officialAccountDesc')}
+                    </span>
+                  </>
+                )}
+              </div>
             </div>
           </div>
         )}

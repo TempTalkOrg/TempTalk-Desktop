@@ -20,11 +20,11 @@ export const RaiseHandIndicator = ({ onClick }: { onClick: () => void }) => {
   }
 
   return (
-    <div className="lk-raise-hand-indicator" onClick={onClick}>
-      <div className="lk-raise-hand-indicator-icon">
+    <div className="raise-hand-indicator" onClick={onClick}>
+      <div className="raise-hand-indicator-icon">
         <IconRaiseHand className="call-icon raise-hand-icon" />
       </div>
-      <div className="lk-raise-hand-indicator-text">{text}</div>
+      <div className="raise-hand-indicator-text">{text}</div>
     </div>
   );
 };

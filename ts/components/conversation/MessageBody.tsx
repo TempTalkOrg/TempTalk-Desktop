@@ -161,6 +161,7 @@ export const MessageBody = (props: Props) => {
   });
 
   const messageBodyWrapperRef = useRef<HTMLSpanElement>(null);
+  const messageBodyWrapperForDisplayRef = useRef<HTMLSpanElement>(null);
   const [expandable, setExpandable] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const expandIconRef = useRef<HTMLDivElement>(null);
@@ -169,7 +170,7 @@ export const MessageBody = (props: Props) => {
   const stickyIndicatorRef = useRef<HTMLDivElement>(null);
   const stickyIndicatorIntersectionObserverRef = useRef<IntersectionObserver>();
 
-  const { run: onWindowResize } = useDebounceFn(
+  const { run: updateExpandable } = useDebounceFn(
     () => {
       const isTruncated = isTextTruncated(messageBodyWrapperRef.current);
 
@@ -212,7 +213,11 @@ export const MessageBody = (props: Props) => {
   }, [expanded]);
 
   useEffect(() => {
-    if (!allowExpand || !messageBodyWrapperRef.current) {
+    if (
+      !allowExpand ||
+      !messageBodyWrapperRef.current ||
+      !messageBodyWrapperForDisplayRef.current
+    ) {
       return;
     }
 
@@ -223,7 +228,7 @@ export const MessageBody = (props: Props) => {
       }
     }, 20);
 
-    window.addEventListener('resize', onWindowResize);
+    window.addEventListener('resize', updateExpandable);
 
     messageBodyIntersectionObserverRef.current = new IntersectionObserver(
       ([entry]) => {
@@ -239,18 +244,25 @@ export const MessageBody = (props: Props) => {
       }
     );
     messageBodyIntersectionObserverRef.current.observe(
-      messageBodyWrapperRef.current
+      messageBodyWrapperForDisplayRef.current
     );
 
     return () => {
       if (!allowExpand) {
         return;
       }
-      window.removeEventListener('resize', onWindowResize);
+      window.removeEventListener('resize', updateExpandable);
       messageBodyIntersectionObserverRef.current?.disconnect();
       messageBodyIntersectionObserverRef.current = undefined;
     };
   }, []);
+
+  useEffect(() => {
+    if (!allowExpand) {
+      return;
+    }
+    updateExpandable();
+  }, [allowExpand, textPending]);
 
   const onExpandChange = useMemoizedFn(() => {
     const iconOffsetTop = expandIconRef.current?.offsetTop ?? 0;
@@ -286,14 +298,19 @@ export const MessageBody = (props: Props) => {
 
   return (
     <>
-      <span>
+      <span
+        className={classNames({
+          'message-body-expandable': expandable,
+        })}
+      >
         <span
-          ref={messageBodyWrapperRef}
+          ref={messageBodyWrapperForDisplayRef}
           className={classNames([
             'module-message-body-wrapper',
             {
               'should-redacted': shouldRedacted,
               expanded,
+              'is-expandable': expandable,
             },
           ])}
         >
@@ -310,6 +327,31 @@ export const MessageBody = (props: Props) => {
             </span>
           ) : null}
         </span>
+        {allowExpand && (
+          <span
+            ref={messageBodyWrapperRef}
+            className={classNames([
+              'module-message-body-wrapper message-body-for-calc-size',
+              {
+                'should-redacted': shouldRedacted,
+                expanded,
+              },
+            ])}
+          >
+            {prefixText ? (
+              <span className="module-message-body__highligh_red">
+                {prefixText}
+              </span>
+            ) : null}
+            {shouldRedacted ? renderTextMask() : renderBodyText()}
+            {textPending ? (
+              <span className="module-message-body__highlight">
+                {' '}
+                {i18n('downloading')}
+              </span>
+            ) : null}
+          </span>
+        )}
       </span>
       {expandable && containerRef?.current ? (
         <>

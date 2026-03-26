@@ -1,5 +1,3 @@
-/* eslint-disable no-return-assign */
-/* eslint-disable no-underscore-dangle */
 import * as React from 'react';
 
 const useLatest = <T>(current: T) => {

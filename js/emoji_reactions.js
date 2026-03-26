@@ -1,15 +1,9 @@
 /* global
   Whisper,
   Backbone,
-  _,
-  ConversationController,
-  MessageController,
-  window
+  log,
 */
 
-/* eslint-disable more/no-then */
-
-// eslint-disable-next-line func-names
 (function () {
   'use strict';
 
@@ -127,6 +121,7 @@
           await window.Signal.Data.saveMessage(reactedMessage.attributes, {
             Message: Whisper.Message,
           });
+          // eslint-disable-next-line no-constant-condition
         } while (false);
 
         if (typeof confirm === 'function') {

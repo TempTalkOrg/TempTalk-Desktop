@@ -1,6 +1,11 @@
-/* global textsecure, libsignal, window, btoa, _ */
-
-/* eslint-disable more/no-then */
+/* global
+  textsecure,
+  _,
+  dcodeIO,
+  ConversationController,
+  UserSessionCipher,
+  GroupSessionCipher,
+*/
 
 // prettier-ignore
 const NotificationType = {
@@ -70,7 +75,7 @@ function OutgoingMessage(
   if (message instanceof textsecure.protobuf.DataMessage) {
     const content = new textsecure.protobuf.Content();
     content.dataMessage = message;
-    // eslint-disable-next-line no-param-reassign
+
     message = content;
   }
 
@@ -133,7 +138,6 @@ OutgoingMessage.prototype = {
   registerError(number, reason, error) {
     // error.message will be shown
     if (!error || (error.name === 'HTTPError' && error.code !== 404)) {
-      // eslint-disable-next-line no-param-reassign
       error = new textsecure.OutgoingMessageError(
         number,
         reason,
@@ -142,9 +146,8 @@ OutgoingMessage.prototype = {
       );
     }
 
-    // eslint-disable-next-line no-param-reassign
     error.number = number;
-    // eslint-disable-next-line no-param-reassign
+
     error.reason = reason;
     this.errors[this.errors.length] = error;
     this.numberCompleted();
@@ -259,6 +262,7 @@ OutgoingMessage.prototype = {
         }
         break;
       }
+      // eslint-disable-next-line no-constant-condition
     } while (false);
 
     return messageType;
@@ -878,7 +882,7 @@ OutgoingMessage.prototype = {
 
             try {
               await this.doBatchUpdateCiphers(staleNumbers, () => stale);
-            } catch (error) {
+            } catch (_error) {
               // already handle errors for every number
               return;
             }

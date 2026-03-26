@@ -2,12 +2,18 @@
   $,
   _,
   Backbone,
+  MessageController,
   ConversationController,
-  getAccountManager,
   Signal,
   storage,
   textsecure,
   Whisper,
+  log,
+  i18n,
+  dcodeIO,
+  moment,
+  setImmediate,
+  libsignal,
 */
 
 function generateGroupAvatar(items, sizePx = 512) {
@@ -167,7 +173,6 @@ async function getCallInfoByConversationId(conversationId) {
   return callList.find(call => call.conversation === conversationId);
 }
 
-// eslint-disable-next-line func-names
 (async function () {
   'use strict';
 
@@ -660,7 +665,6 @@ async function getCallInfoByConversationId(conversationId) {
         storage.put('quit-topic-setting', value);
       },
 
-      // eslint-disable-next-line eqeqeq
       isPrimary: () => textsecure.storage.user.getDeviceId() == '1',
 
       addDarkOverlay: () => {
@@ -733,6 +737,7 @@ async function getCallInfoByConversationId(conversationId) {
         );
       }
 
+      // eslint-disable-next-line no-constant-condition
       if (!storage.get('cleaned-up-orphaned-attachments') || true) {
         try {
           // cleanup orphaned attachments
@@ -909,6 +914,50 @@ async function getCallInfoByConversationId(conversationId) {
   async function start() {
     window.dispatchEvent(new Event('storage_ready'));
 
+    window.log.info('Correction: starting...');
+    const messagesForCorrection =
+      await window.Signal.Data.getOutgoingWithoutExpiresAt({
+        MessageCollection: Whisper.MessageCollection,
+      });
+    window.log.info(
+      `Correction: Found ${messagesForCorrection.length} messages for correction`
+    );
+    await Promise.all(
+      messagesForCorrection.map(async message => {
+        const delivered = message.get('delivered');
+        const sentAt = message.get('sent_at');
+        const expirationStartTimestamp = message.get(
+          'expirationStartTimestamp'
+        );
+
+        if (message.hasErrors()) {
+          return;
+        }
+
+        if (delivered) {
+          window.log.info(
+            `Correction: Starting timer for delivered message ${sentAt}`
+          );
+          message.set(
+            'expirationStartTimestamp',
+            expirationStartTimestamp || sentAt
+          );
+          await message.setToExpire();
+          return;
+        }
+
+        window.log.info(`Correction: set unsent message error`);
+
+        await message.saveErrors(new Error('unsent message error'));
+
+        const conversation = message.getConversation();
+        if (conversation) {
+          conversation.debouncedUpdateLastMessage();
+        }
+      })
+    );
+    window.log.info('Correction: complete');
+
     // correct history messages with improper expireTimer
     if (newVersion) {
       try {
@@ -959,6 +1008,8 @@ async function getCallInfoByConversationId(conversationId) {
               items.map(item => item.attributes)
             );
           } while (messages.length);
+
+          // eslint-disable-next-line no-constant-condition
         } while (true);
 
         for (const conversation of relatedSet) {
@@ -1303,7 +1354,7 @@ async function getCallInfoByConversationId(conversationId) {
             // group is full or member count exceeded
             i18nKey = 'groupMemberCountExceeded';
             break;
-          case API_STATUS.GroupMemberNotYouFriend:
+          case API_STATUS.GroupMemberNotYouFriend: {
             const { strangers } = data || {};
             const names = strangers
               ?.map(i => i?.name || i?.uid)
@@ -1312,6 +1363,7 @@ async function getCallInfoByConversationId(conversationId) {
             i18nOption = names + ' ';
             i18nKey = 'groupMemberNotYouFriend';
             break;
+          }
         }
       }
 
@@ -1858,7 +1910,7 @@ async function getCallInfoByConversationId(conversationId) {
       const messageDescriptor = getMessageDescriptor(data);
 
       const { PROFILE_KEY_UPDATE } = textsecure.protobuf.DataMessage.Flags;
-      // eslint-disable-next-line no-bitwise
+
       const isProfileUpdate = Boolean(data.message.flags & PROFILE_KEY_UPDATE);
       if (isProfileUpdate) {
         return handleProfileUpdate({ data, confirm, messageDescriptor });
@@ -2348,7 +2400,7 @@ async function getCallInfoByConversationId(conversationId) {
           'userStopped',
           callInfo.userStopped
         );
-      } catch (e) {
+      } catch (_e) {
         console.log('check call info error, already destroyed');
         return confirm?.();
       }
@@ -3582,7 +3634,7 @@ async function getCallInfoByConversationId(conversationId) {
     let groupApiLoaded = false;
 
     switch (groupNotifyType) {
-      case NOTIFY_TYPE.CHANGE_BASIC:
+      case NOTIFY_TYPE.CHANGE_BASIC: {
         // * create group (show message)
         // * disband group (show message)
         // * group basic info changed (show message)
@@ -3596,7 +3648,8 @@ async function getCallInfoByConversationId(conversationId) {
             groupUpdate = mergeMembers(conversation, members);
           // ADD may include UPDATE infos, so do not break here
           // break;
-          case CHANGE_ACTION.UPDATE:
+          // falls through
+          case CHANGE_ACTION.UPDATE: {
             const testAttributes = {
               ...group,
               commonAvatar: conversation.parseGroupAvatar(group.avatar),
@@ -3619,7 +3672,8 @@ async function getCallInfoByConversationId(conversationId) {
               }
             }
             break;
-          case CHANGE_ACTION.DELETE:
+          }
+          case CHANGE_ACTION.DELETE: {
             groupUpdate.disbanded = true;
             groupUpdate.isDisbandByOwner = false;
 
@@ -3633,6 +3687,7 @@ async function getCallInfoByConversationId(conversationId) {
             };
 
             break;
+          }
           default:
             log.error(
               '[',
@@ -3645,7 +3700,8 @@ async function getCallInfoByConversationId(conversationId) {
         }
 
         break;
-      case NOTIFY_TYPE.CHANGE_MEMBERS:
+      }
+      case NOTIFY_TYPE.CHANGE_MEMBERS: {
         // * add members (show message)
         // * remove members (show message)
         const me = members.filter(m => m.uid === ourNumber);
@@ -3674,6 +3730,7 @@ async function getCallInfoByConversationId(conversationId) {
           groupUpdate = mergeMembers(conversation, members, operator);
         }
         break;
+      }
       case NOTIFY_TYPE.CHANGE_MEMBER_INFO_RAPID:
       case NOTIFY_TYPE.CHANGE_MEMBER_INFO:
         // * member basic info changed
@@ -3974,7 +4031,7 @@ async function getCallInfoByConversationId(conversationId) {
     }
 
     switch (actionType) {
-      case FRIENDSHIP_ACTION.CONFIRM:
+      case FRIENDSHIP_ACTION.CONFIRM: {
         const { operatorName, avatar } = operatorInfo || {};
 
         conversation.set({
@@ -3986,6 +4043,7 @@ async function getCallInfoByConversationId(conversationId) {
 
         storage.put('directoryVersion', directoryVersion);
         break;
+      }
       case FRIENDSHIP_ACTION.REQUEST:
         break;
       default:
@@ -4051,9 +4109,9 @@ async function getCallInfoByConversationId(conversationId) {
     id,
     conversation,
     notifyTime,
-    ver,
+    _ver,
     data,
-    display
+    _display
   ) {
     log.info(
       `[${id} ${notifyTime}]`,

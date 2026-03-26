@@ -3382,5 +3382,35 @@
   },
   "unknowUserIndicator": {
     "message": "🔒 隐私优先 · 全程匿名 · 端到端消息加密。请勿轻信陌生人。"
+  },
+  "website": {
+    "message": "网站"
+  },
+  "officialAccountDesc": {
+    "message": "官方账号"
+  },
+  "notDirectoryUserMessageLimit": {
+    "message": "非好友仅支持发送文本消息"
+  },
+  "pin": {
+    "message": "固定"
+  },
+  "unpin": {
+    "message": "取消固定"
+  },
+  "confidentialMessageMaskTips": {
+    "message": "查看后，消息将消失"
+  },
+  "micNoiseSuppression": {
+    "message": "麦克风噪声抑制"
+  },
+  "micDenoiseEngine": {
+    "message": "降噪模式"
+  },
+  "denoiseMode.standard": {
+    "message": "标准降噪"
+  },
+  "denoiseMode.enhanced": {
+    "message": "增强降噪"
   }
 }

@@ -6,7 +6,9 @@ const g = global as any;
 g.Internal = {};
 
 // Because curve wrapper uses 'Module' to get at curve-provided functionality
+/* eslint-disable @typescript-eslint/no-require-imports */
 g.Module = require('../../js/curve/curve25519_compiled');
+/* eslint-disable @typescript-eslint/no-require-imports */
 require('../../js/curve/curve25519_wrapper');
 
 export type BinaryType = Uint8Array | Buffer;

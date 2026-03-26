@@ -148,10 +148,6 @@ body.dark-theme {
     }
   }
 
-  a {
-    color: $blue;
-  }
-
   .file-input {
     .translation {
       &:before {
@@ -1528,25 +1524,6 @@ body.dark-theme {
 
   // Module: Main Header
 
-  .module-main-header {
-    // border-bottom: 1px solid $color-gray-75;
-    .conversation-forward {
-      @include color-svg('../images/back.svg', rgb(187, 189, 190));
-    }
-
-    .conversation-forward-disable {
-      @include color-svg('../images/back.svg', rgb(90, 91, 93));
-    }
-
-    .conversation-back {
-      @include color-svg('../images/back.svg', rgb(187, 189, 190));
-    }
-
-    .conversation-back-disable {
-      @include color-svg('../images/back.svg', rgb(90, 91, 93));
-    }
-  }
-
   .module-main-header__entry__plus-icon {
     @include color-svg('../images/entry-plus.svg', $color-gray-25);
   }
@@ -1642,38 +1619,6 @@ body.dark-theme {
   .module-spinner__arc--outgoing {
     background-color: $color-gray-05;
   }
-
-  // Module: Caption Editor
-
-  .module-caption-editor {
-    background-color: $color-black;
-  }
-
-  .module-caption-editor__media-container {
-    background-color: $color-black;
-  }
-
-  .module-caption-editor__caption-input {
-    border: 1px solid $color-white;
-    color: $color-white;
-    background-color: $color-black;
-
-    &::placeholder {
-      color: $color-white-07;
-    }
-
-    &:focus {
-      border: 1px solid $color-signal-blue;
-      outline: none;
-    }
-  }
-
-  .module-caption-editor__save-button {
-    background-color: $color-signal-blue;
-    color: $color-white;
-  }
-
-  // Module: Highlighted Message Body
 
   // Module: Search Results
 
@@ -2017,10 +1962,6 @@ body.dark-theme {
     }
 
     .profile-name-text {
-      color: #eaecef;
-    }
-
-    .profile-account-name {
       color: #eaecef;
     }
 

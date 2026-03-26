@@ -43,7 +43,7 @@ export type DBConversationType = {
   disbanded?: boolean;
 };
 
-export type ProtectedConfigs = {};
+export type ProtectedConfigs = object;
 
 export type SearchMacthInfoType = {
   field: string;
@@ -82,6 +82,7 @@ export type ConversationType = {
   searchResultMembers?: Array<ConversationType>;
   protectedConfigs?: ProtectedConfigs;
   isAliveGroup?: boolean;
+  isOfficialAccount?: boolean;
 };
 export type ConversationLookupType = {
   [key: string]: ConversationType;

@@ -28,8 +28,8 @@ import {
 import { hexToBinary, verifySignature } from './signature';
 import { markShouldQuit } from '../../app/window_state';
 
-// @ts-ignore
-import * as packageJson from '../../package.json';
+// // @ts-ignore
+// import * as packageJson from '../../package.json';
 import { toLogFormat } from '../types/errors';
 import { Helpers } from '.';
 

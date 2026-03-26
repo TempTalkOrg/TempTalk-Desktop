@@ -34,7 +34,6 @@
   background-color: var(--dst-color-background-space);
 
   float: left;
-  width: 68px;
   user-select: none;
 
   .main-menu {
@@ -47,7 +46,7 @@
     position: fixed;
     height: 100%;
     padding-top: 40px;
-    width: 68px;
+    width: $first-pane-width;
 
     img {
       display: block;

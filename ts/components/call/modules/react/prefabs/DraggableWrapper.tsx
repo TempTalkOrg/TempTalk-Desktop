@@ -14,7 +14,7 @@ import { TrackReferenceOrPlaceholder } from '../../core';
 import { Track } from '@cc-livekit/livekit-client';
 
 const defaultVideoWidth = 128;
-const videoHeight = 96;
+// const videoHeight = 96;
 
 export const DraggableWrapper: FC<any> = ({
   bounds,
@@ -48,7 +48,8 @@ export const DraggableWrapper: FC<any> = ({
   const [position, setPosition] = useState(
     props.position ?? {
       x: 0,
-      y: document.body.clientHeight - videoHeight - 69 - 16 - 32,
+      // y: document.body.clientHeight - videoHeight - 69 - 16 - 32,
+      y: 0,
       direction: 'left',
     }
   );

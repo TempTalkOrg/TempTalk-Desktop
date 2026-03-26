@@ -93,10 +93,10 @@ export function useMediaTrackBySourceOrName(
     track,
     elementProps: mergeProps(options.props, {
       className,
-      'data-lk-local-participant': observerOptions.participant.isLocal,
-      'data-lk-source': publication?.source,
+      'data-local-participant': observerOptions.participant.isLocal,
+      'data-source': publication?.source,
       ...(publication?.kind === 'video' && {
-        'data-lk-orientation': orientation,
+        'data-orientation': orientation,
       }),
     }),
   };

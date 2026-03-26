@@ -87,7 +87,7 @@ export class ContactDetail extends React.Component<Props> {
 
     // We don't want the overall click handler for this element to fire, so we stop
     //   propagation before handing control to the caller's callback.
-    const onClick = (e: React.MouseEvent<{}>): void => {
+    const onClick = (e: React.MouseEvent): void => {
       e.stopPropagation();
       onSendMessage();
     };

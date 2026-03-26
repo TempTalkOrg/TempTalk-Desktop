@@ -1,6 +1,5 @@
-/* global window, textsecure */
+/* global textsecure */
 
-// eslint-disable-next-line func-names
 (function () {
   /** ***************************************
    *** Not-yet-processed message storage ***

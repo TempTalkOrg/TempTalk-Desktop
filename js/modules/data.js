@@ -1,5 +1,3 @@
-/* global window, setTimeout, IDBKeyRange */
-
 const electron = require('electron');
 
 const {
@@ -214,18 +212,14 @@ function _cleanData(data) {
     const value = data[key];
 
     if (value === null || value === undefined) {
-      // eslint-disable-next-line no-continue
       continue;
     }
 
     if (isFunction(value.toNumber)) {
-      // eslint-disable-next-line no-param-reassign
       data[key] = value.toNumber();
     } else if (Array.isArray(value)) {
-      // eslint-disable-next-line no-param-reassign
       data[key] = value.map(item => _cleanData(item));
     } else if (isObject(value)) {
-      // eslint-disable-next-line no-param-reassign
       data[key] = _cleanData(value);
     } else if (
       typeof value !== 'string' &&
@@ -379,7 +373,7 @@ function makeChannel(fnName) {
       // 不清楚 _cleanData 为什么不用json格式化，反而自己处理各种类型？？？
       try {
         ipcRenderer.send(SQL_CHANNEL_KEY, jobId, fnName, ...args);
-      } catch (e) {
+      } catch (_e) {
         const tmp = JSON.stringify(args);
         const newArgs = JSON.parse(tmp);
         ipcRenderer.send(SQL_CHANNEL_KEY, jobId, fnName, ...newArgs);
@@ -794,7 +788,7 @@ const removeMessagesBatcher = createBatcher({
 
         // Note: It's very important that these models are fully hydrated because
         //   we need to delete all associated on-disk files along with the database delete.
-        // eslint-disable-next-line no-await-in-loop
+
         await Promise.all(messages.map(message => message.cleanup()));
       } catch (error) {
         const errorInfo =
@@ -950,7 +944,6 @@ async function getAllMessageIds() {
 }
 
 async function getMessageBySender(
-  // eslint-disable-next-line camelcase
   { source, sourceDevice, sent_at, fromCurrentDevice },
   { Message }
 ) {
@@ -1016,7 +1009,7 @@ async function removeAllMessagesInConversation(
   do {
     // Yes, we really want the await in the loop. We're deleting 100 at a
     //   time so we don't use too much memory.
-    // eslint-disable-next-line no-await-in-loop
+
     messages = await getMessagesByConversation(conversationId, {
       limit: 100,
       MessageCollection,
@@ -1030,10 +1023,9 @@ async function removeAllMessagesInConversation(
 
     // Note: It's very important that these models are fully hydrated because
     //   we need to delete all associated on-disk files along with the database delete.
-    // eslint-disable-next-line no-await-in-loop
+
     await Promise.all(messages.map(message => message.cleanup()));
 
-    // eslint-disable-next-line no-await-in-loop
     await channels.removeMessage(ids);
   } while (messages.length > 0);
 }

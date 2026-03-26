@@ -1,5 +1,4 @@
-// @ts-ignore
-import Attachments from '../../app/attachments';
+// import Attachments from '../../app/attachments';
 // import { format as formatPhoneNumber } from '../types/PhoneNumber';
 
 export interface Contact {

@@ -1,3 +1,7 @@
+/* global
+  textsecure,
+*/
+
 window.textsecure = window.textsecure || {};
 
 class OuterRequest {

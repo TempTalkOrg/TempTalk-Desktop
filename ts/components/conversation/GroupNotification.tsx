@@ -158,7 +158,7 @@ export class GroupNotification extends React.Component<Props> {
             components={[otherPeopleWithCommas]}
           />
         );
-      case 'removeAdmin':
+      case 'removeAdmin': {
         if (isMe) {
           return i18n('removeAdminOfTheGroup', [i18n('you')]);
         }
@@ -176,6 +176,7 @@ export class GroupNotification extends React.Component<Props> {
             components={[otherPeopleWithCommas]}
           />
         );
+      }
       case 'name':
         if (operatorName) {
           // const someone = isMe ? i18n('you') : operatorName;
@@ -185,7 +186,7 @@ export class GroupNotification extends React.Component<Props> {
         }
       case 'avatar':
         return i18n('groupAvatarChange');
-      case 'add':
+      case 'add': {
         if (!contacts || !contacts.length) {
           throw new Error('Group update is missing contacts');
         }
@@ -225,8 +226,9 @@ export class GroupNotification extends React.Component<Props> {
           </>
         );
 
-      // return <Intl i18n={i18n} id={joinKey} components={[otherPeople]} />;
-      case 'leave':
+        // return <Intl i18n={i18n} id={joinKey} components={[otherPeople]} />;
+      }
+      case 'leave': {
         if (isMe) {
           return i18n('youLeftTheGroup');
         }
@@ -241,7 +243,8 @@ export class GroupNotification extends React.Component<Props> {
         return (
           <Intl i18n={i18n} id={leftKey} components={[otherPeopleWithCommas]} />
         );
-      case 'remove':
+      }
+      case 'remove': {
         if (isMe) {
           return (
             <>
@@ -290,6 +293,7 @@ export class GroupNotification extends React.Component<Props> {
             )}
           </>
         );
+      }
       case 'general':
         return i18n('updatedTheGroup');
       case 'onlyOwnerOrAdminPublishRule':

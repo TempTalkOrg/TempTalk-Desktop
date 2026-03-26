@@ -1,10 +1,10 @@
-/* global window, Event, textsecure */
+/* global textsecure */
 
 /*
  * Implements EventTarget
  * https://developer.mozilla.org/en-US/docs/Web/API/EventTarget
  */
-// eslint-disable-next-line func-names
+
 (function () {
   window.textsecure = window.textsecure || {};
 
@@ -70,7 +70,6 @@
       this.listeners[eventName] = listeners;
     },
     extend(obj) {
-      // eslint-disable-next-line no-restricted-syntax, guard-for-in
       for (const prop in obj) {
         this[prop] = obj[prop];
       }

@@ -1,3 +1,11 @@
+/* global
+  textsecure,
+  libCryptoClient,
+  log,
+  textsecure,
+  dcodeIO,
+*/
+
 const CURRENT_ENCRYPTION_VERSION = 2;
 const MINIMUM_ENCRYPTION_VERSION = 2;
 
@@ -27,7 +35,7 @@ async function getOurKeyPair() {
       publicKey: ourKeyPair.pubKey,
       privateKey: ourKeyPair.privKey,
     };
-  } catch (error) {
+  } catch (_error) {
     throw new Error('get our identity key error');
   }
 }
@@ -56,7 +64,7 @@ class UserSessionCipher {
 
     try {
       session = await window.Signal.Data.getSessionV2ById(this.#uid);
-    } catch (error) {
+    } catch (_error) {
       throw new Error('load session from storage error');
     }
 
@@ -98,11 +106,11 @@ class UserSessionCipher {
         registrationId,
         msgEncVersion,
       });
-    } catch (error) {
+    } catch (_error) {
       // try to load session if update failed
       try {
         await this.#loadSession(true);
-      } catch (error) {
+      } catch (_error) {
         // throw new Error('reload session error when updating');
       }
 
@@ -302,7 +310,7 @@ class UserSessionCipher {
         );
 
         return { ciphers, errorMap };
-      } catch (error) {
+      } catch (_error) {
         throw new Error('failed to batch update ciphers');
       }
     }
@@ -433,7 +441,7 @@ class CallRoomCipher {
         privateKey,
         emk
       );
-    } catch (error) {
+    } catch (_error) {
       throw new Error('decrypt emk error');
     }
 
@@ -455,7 +463,7 @@ class CallRoomCipher {
       }
 
       return new CallRoomCipher(mKey);
-    } catch (error) {
+    } catch (_error) {
       throw new Error('generate new mKey error');
     }
   }
@@ -489,7 +497,7 @@ class CallRoomCipher {
       }
 
       return { uidEmkMap: e_m_keys, publicKey: e_key };
-    } catch (error) {
+    } catch (_error) {
       //
       throw new Error('generate emkeys failed');
     }

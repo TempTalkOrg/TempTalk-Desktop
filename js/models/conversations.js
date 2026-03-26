@@ -7,20 +7,21 @@
   libsignal,
   storage,
   textsecure,
-  Whisper
+  Whisper,
+  log,
+  _lodash,
+  dcodeIO,
+  Signal,
+  setImmediate,
 */
 
-/* eslint-disable more/no-then */
-
-// eslint-disable-next-line func-names
 (function () {
   'use strict';
 
   window.Whisper = window.Whisper || {};
 
   const { Util } = window.Signal;
-  const { Conversation, Contact, Errors, Message, PhoneNumber } =
-    window.Signal.Types;
+  const { Conversation, Errors, Message, PhoneNumber } = window.Signal.Types;
   const {
     upgradeMessageSchema,
     loadAttachmentData,
@@ -44,7 +45,7 @@
     'blue_grey',
   ];
 
-  const INTERVAL = {
+  const _INTERVAL = {
     ONE_DAY: 24 * 60 * 60,
   };
 
@@ -74,7 +75,7 @@
     'customUid',
   ];
 
-  const GROUP_FIXED_ATTRS = [
+  const _GROUP_FIXED_ATTRS = [
     'name',
     'messageExpiry',
     'invitationRule',
@@ -308,6 +309,10 @@
 
     initialize() {
       this.ourNumber = textsecure.storage.user.getNumber();
+
+      if (this.id === '+10000') {
+        this.isOfficialAccount = true;
+      }
 
       this.cacheMemberLastActive = {};
       //已读机密消息列表
@@ -728,7 +733,7 @@
       });
     },
 
-    async onNewMessage(message) {
+    async onNewMessage(_message) {
       await this.debouncedUpdateLastMessage();
 
       this.set({ isArchived: false });
@@ -775,7 +780,6 @@
         uid: this.getUidBase58(),
         joinedAt: this.get('joinedAt') ? this.get('joinedAt') : '',
         met: this.get('sourceDescribe'),
-        //追加是否是好友
         directoryUser: this.isDirectoryUser(),
         isArchived: this.get('isArchived'),
         activeAt: this.get('active_at'),
@@ -810,7 +814,6 @@
           text: this.get('lastMessage'),
         },
         atPersons: this.get('atPersons') || '',
-        directoryUser: this.isPrivate() ? this.get('directoryUser') : undefined,
         members: this.isPrivate() ? null : this.get('members'),
         privateConfigs: this.get('privateConfigs'),
         protectedConfigs: this.get('protectedConfigs'),
@@ -823,6 +826,7 @@
         expireTimer: this.getConversationMessageExpiry(),
         latestCriticalAlert: this.get('latestCriticalAlert'),
         customUid: this.get('customUid'),
+        isOfficialAccount: this.isOfficialAccount,
       };
 
       return result;
@@ -1401,7 +1405,7 @@
                 messageMode
               );
               break;
-            case Message.GROUP:
+            case Message.GROUP: {
               const groupNumbers = recipients;
               dataMessage = await textsecure.messaging.getMessageToGroupProto(
                 destination,
@@ -1424,6 +1428,7 @@
                 messageMode
               );
               break;
+            }
             default:
               throw new TypeError(
                 `Invalid conversation type: '${conversationType}'`
@@ -1459,6 +1464,7 @@
         } else {
           return message.send(
             (async () => {
+              // eslint-disable-next-line no-useless-catch
               try {
                 const result =
                   await textsecure.messaging.sendMessageProtoNoSilent(
@@ -1585,7 +1591,7 @@
           }
 
           const index = messages.findLastIndex(model => {
-            model.correctExpireTimer();
+            model.correctMessage();
             return !model.isExpired() && !model.isRecallMessage();
           });
           if (index !== -1) {
@@ -1724,7 +1730,7 @@
       message.send(textsecure.messaging.syncNullMessage(extension));
     },
 
-    async updateGroup(providedGroupUpdate, members, targetNumbers) {
+    async updateGroup(providedGroupUpdate, _members, _targetNumbers) {
       if (this.isPrivate()) {
         throw new Error('Called update group on private conversation');
       }
@@ -1770,7 +1776,7 @@
       message.send(textsecure.messaging.syncNullMessage(extension));
     },
 
-    async leaveGroup(groupNumbers) {
+    async leaveGroup(_groupNumbers) {
       if (this.isPrivate()) {
         throw new Error('Called update group on private conversation');
       }
@@ -1847,7 +1853,7 @@
       try {
         await this.apiDisbandGroupV2();
         await this.destroyMessages(true); //群主解散群，清除所有消息
-        const now = Date.now();
+        // const now = Date.now();
         this.set({
           // active_at: now,
           isArchived: false,
@@ -2337,7 +2343,7 @@
       const groupV2Id = this.getGroupV2Id();
 
       try {
-        const result = textsecure.messaging.disbandGroupV2(groupV2Id);
+        const _result = textsecure.messaging.disbandGroupV2(groupV2Id);
       } catch (error) {
         log.error('call apiDisbandGroupV2 failed, ', error);
         throw new Error('call apiDisbandGroupV2 failed');
@@ -2605,6 +2611,9 @@
         return existLastPosition;
       }
 
+      let shouldUpdate = false;
+      let lastReadPosition = existLastPosition;
+
       try {
         const topPosition = await window.Signal.Data.topReadPosition(this.id);
         if (
@@ -2613,7 +2622,20 @@
             topPosition.maxServerTimestamp >
               existLastPosition.maxServerTimestamp)
         ) {
-          this.set({ lastReadPosition: { ...topPosition } });
+          lastReadPosition = topPosition;
+          shouldUpdate = true;
+        }
+
+        if (
+          lastReadPosition?.maxNotifySequenceId &&
+          lastReadPosition?.maxNotifySequenceId > Number.MAX_SAFE_INTEGER
+        ) {
+          lastReadPosition.maxNotifySequenceId = null;
+          shouldUpdate = true;
+        }
+
+        if (shouldUpdate) {
+          this.set({ lastReadPosition: { ...lastReadPosition } });
           await window.Signal.Data.updateConversation(this.attributes);
         }
 
@@ -2713,6 +2735,21 @@
         if (!lastPosition || last > lastPosition) {
           // never loaded or should update
           this.readPositionCollection.lastPosition = last;
+        }
+
+        const toFixPositions = positions.filter(p => {
+          if (
+            p.maxNotifySequenceId &&
+            p.maxNotifySequenceId > Number.MAX_SAFE_INTEGER
+          ) {
+            p.maxNotifySequenceId = null;
+            return true;
+          } else {
+            return false;
+          }
+        });
+        if (toFixPositions.length) {
+          await window.Signal.Data.saveReadPositions(toFixPositions);
         }
 
         this.readPositionCollection.addPosition(positions);
@@ -2946,8 +2983,25 @@
         lastSyncedMaxAt = maxPosition?.maxServerTimestamp;
 
         if (positionToSync.length >= maxLen) {
+          const toFixPositions = positionToSync.filter(p => {
+            if (
+              p.maxNotifySequenceId &&
+              p.maxNotifySequenceId > Number.MAX_SAFE_INTEGER
+            ) {
+              p.maxNotifySequenceId = null;
+              return true;
+            } else {
+              return false;
+            }
+          });
+          if (toFixPositions.length) {
+            await window.Signal.Data.saveReadPositions(toFixPositions);
+          }
+
           await doSyncRequest();
         }
+
+        // eslint-disable-next-line no-constant-condition
       } while (true);
     },
 
@@ -3166,6 +3220,7 @@
         if (unsentRead.length >= 100) {
           await doSendReceiptsAll(lastSentMaxAt);
         }
+        // eslint-disable-next-line no-constant-condition
       } while (true);
     },
 
@@ -3447,10 +3502,10 @@
 
         if (schemaVersion < Message.CURRENT_SCHEMA_VERSION) {
           // Yep, we really do want to wait for each of these
-          // eslint-disable-next-line no-await-in-loop
+
           const upgradedMessage = await upgradeMessageSchema(attributes);
           message.set(upgradedMessage);
-          // eslint-disable-next-line no-await-in-loop
+
           await window.Signal.Data.saveMessage(upgradedMessage, {
             Message: Whisper.Message,
           });
@@ -4032,7 +4087,7 @@
       );
     },
 
-    notifyTyping(options = {}) {
+    notifyTyping(_options = {}) {
       // const { isTyping, sender, senderDevice } = options;
 
       // // We don't do anything with typing messages from our other devices
@@ -4423,6 +4478,7 @@
       // block conversation archive feature.
       return false;
 
+      // eslint-disable-next-line no-unreachable
       if (this.isMe()) {
         return false;
       }

@@ -58,7 +58,7 @@ exports.decryptAttachment = async (ciphertext, keys) => {
       throw new Error('不是有效的加密音频文件');
     }
 
-    const version = headerBuffer.readUInt8(4);
+    // const version = headerBuffer.readUInt8(4);
     const iv = headerBuffer.subarray(5, 21);
     const storedHmac = headerBuffer.subarray(21, 53);
 

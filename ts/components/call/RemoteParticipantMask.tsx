@@ -49,7 +49,6 @@ export const RemoteParticipantMask: FC<IProps> = ({
         id={userInfo.id}
         name={userInfo.name}
         avatarPath={userInfo.avatarPath}
-        notShowStatus={true}
         noClickEvent={true}
       />
       <span

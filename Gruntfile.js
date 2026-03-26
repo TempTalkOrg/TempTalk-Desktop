@@ -1,25 +1,23 @@
 const packageJson = require('./package.json');
 const rimraf = require('rimraf');
 const mkdirp = require('mkdirp');
-const asar = require('@electron/asar');
-const fs = require('fs');
-const assert = require('assert');
+// const asar = require('@electron/asar');
+// const fs = require('fs');
+// const assert = require('assert');
 const sass = require('sass');
 const semver = require('semver');
 const moment = require('moment');
 
-/* eslint-disable more/no-then, no-console  */
-
 module.exports = grunt => {
   const bower = grunt.file.readJSON('bower.json');
   const components = [];
-  // eslint-disable-next-line guard-for-in, no-restricted-syntax
+
   for (const i in bower.concat.app) {
     components.push(bower.concat.app[i]);
   }
 
   const libtextsecurecomponents = [];
-  // eslint-disable-next-line guard-for-in, no-restricted-syntax
+
   for (const i in bower.concat.libtextsecure) {
     libtextsecurecomponents.push(bower.concat.libtextsecure[i]);
   }
@@ -179,7 +177,6 @@ module.exports = grunt => {
       }
       const messages = grunt.file.readJSON(abspath);
 
-      // eslint-disable-next-line no-restricted-syntax
       for (const key in messages) {
         if (en[key] !== undefined && messages[key] !== undefined) {
           if (
@@ -261,7 +258,7 @@ module.exports = grunt => {
     mkdirp.sync('release');
   });
 
-  function runTests(environment, cb) {
+  function runTests(_environment, _cb) {
     //remove spectron
     return;
 

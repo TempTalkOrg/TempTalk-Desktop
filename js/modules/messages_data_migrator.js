@@ -2,8 +2,6 @@
 // This includes avoiding usage of `storage` module which uses
 // Backbone under the hood.
 
-/* global window */
-
 const { isFunction, isNumber } = require('lodash');
 
 const Message = require('./types/message');

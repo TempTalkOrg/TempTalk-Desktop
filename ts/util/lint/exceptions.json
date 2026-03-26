@@ -988,105 +988,6 @@
   },
   {
     "rule": "jQuery-$(",
-    "path": "js/views/file_input_view.js",
-    "line": "      this.$input = this.$('input[type=file]');",
-    "lineNumber": 45,
-    "reasonCategory": "usageTrusted",
-    "updated": "2018-09-19T21:59:32.770Z",
-    "reasonDetail": "Protected from arbitrary input"
-  },
-  {
-    "rule": "jQuery-$(",
-    "path": "js/views/file_input_view.js",
-    "line": "      this.$('.avatar').hide();",
-    "lineNumber": 88,
-    "reasonCategory": "usageTrusted",
-    "updated": "2018-09-19T21:59:32.770Z",
-    "reasonDetail": "Protected from arbitrary input"
-  },
-  {
-    "rule": "jQuery-$(",
-    "path": "js/views/file_input_view.js",
-    "line": "      this.$('.attachment-previews').append(this.thumb.render().el);",
-    "lineNumber": 90,
-    "reasonCategory": "usageTrusted",
-    "updated": "2018-09-19T21:59:32.770Z",
-    "reasonDetail": "Protected from arbitrary input"
-  },
-  {
-    "rule": "jQuery-append(",
-    "path": "js/views/file_input_view.js",
-    "line": "      this.$('.attachment-previews').append(this.thumb.render().el);",
-    "lineNumber": 90,
-    "reasonCategory": "usageTrusted",
-    "updated": "2018-09-19T18:13:29.628Z",
-    "reasonDetail": "Interacting with already-existing DOM nodes"
-  },
-  {
-    "rule": "jQuery-$(",
-    "path": "js/views/file_input_view.js",
-    "line": "      this.thumb.$('img')[0].onload = () => {",
-    "lineNumber": 98,
-    "reasonCategory": "usageTrusted",
-    "updated": "2018-09-19T21:59:32.770Z",
-    "reasonDetail": "Protected from arbitrary input"
-  },
-  {
-    "rule": "jQuery-$(",
-    "path": "js/views/file_input_view.js",
-    "line": "      this.thumb.$('img')[0].onerror = () => {",
-    "lineNumber": 101,
-    "reasonCategory": "usageTrusted",
-    "updated": "2018-09-19T21:59:32.770Z",
-    "reasonDetail": "Protected from arbitrary input"
-  },
-  {
-    "rule": "jQuery-insertAfter(",
-    "path": "js/views/file_input_view.js",
-    "line": "      toast.$el.insertAfter(this.$el);",
-    "lineNumber": 108,
-    "reasonCategory": "usageTrusted",
-    "updated": "2018-09-19T18:13:29.628Z",
-    "reasonDetail": "Interacting with already-existing DOM nodes"
-  },
-  {
-    "rule": "jQuery-insertAfter(",
-    "path": "js/views/file_input_view.js",
-    "line": "        toast.$el.insertAfter(this.$el);",
-    "lineNumber": 190,
-    "reasonCategory": "usageTrusted",
-    "updated": "2018-10-11T19:22:47.331Z",
-    "reasonDetail": "Operating on already-existing DOM elements"
-  },
-  {
-    "rule": "jQuery-insertAfter(",
-    "path": "js/views/file_input_view.js",
-    "line": "          toast.$el.insertAfter(this.$el);",
-    "lineNumber": 284,
-    "reasonCategory": "usageTrusted",
-    "updated": "2018-09-19T18:13:29.628Z",
-    "reasonDetail": "Interacting with already-existing DOM nodes"
-  },
-  {
-    "rule": "jQuery-$(",
-    "path": "js/views/file_input_view.js",
-    "line": "      this.$('.avatar').show();",
-    "lineNumber": 388,
-    "reasonCategory": "usageTrusted",
-    "updated": "2018-09-19T21:59:32.770Z",
-    "reasonDetail": "Protected from arbitrary input"
-  },
-  {
-    "rule": "jQuery-wrap(",
-    "path": "js/views/file_input_view.js",
-    "line": "        .wrap('<form>')",
-    "lineNumber": 398,
-    "reasonCategory": "usageTrusted",
-    "updated": "2018-09-19T18:13:29.628Z",
-    "reasonDetail": "Hard-coded value"
-  },
-  {
-    "rule": "jQuery-$(",
     "path": "js/views/inbox_view.js",
     "line": "        let $el = this.$(`#${id}`);",
     "lineNumber": 26,
@@ -2067,21 +1968,6 @@
     "path": "node_modules/blob/index.js",
     "line": "    bb.append(ary[i]);",
     "lineNumber": 77,
-    "reasonCategory": "falseMatch",
-    "updated": "2018-09-19T18:13:29.628Z"
-  },
-  {
-    "rule": "jQuery-append(",
-    "path": "node_modules/blueimp-canvas-to-blob/js/canvas-to-blob.js",
-    "line": "      bb.append(arrayBuffer)",
-    "lineNumber": 93,
-    "reasonCategory": "falseMatch",
-    "updated": "2018-09-19T18:13:29.628Z"
-  },
-  {
-    "rule": "jQuery-append(",
-    "path": "node_modules/blueimp-canvas-to-blob/js/canvas-to-blob.min.js",
-    "lineNumber": 1,
     "reasonCategory": "falseMatch",
     "updated": "2018-09-19T18:13:29.628Z"
   },

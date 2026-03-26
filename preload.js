@@ -1,5 +1,10 @@
-/* global Whisper: false */
-/* global window: false */
+/* global
+  Whisper,
+  MessageController,
+  ConversationController,
+  textsecure,
+  log,
+*/
 
 const process = require('process');
 const electron = require('electron');
@@ -178,7 +183,7 @@ ipc.on('unlink-current-device', async () => {
 
 // We never do these in our code, so we'll prevent it everywhere
 window.open = () => null;
-// eslint-disable-next-line no-eval, no-multi-assign
+
 window.eval = global.eval = () => null;
 
 window.drawAttention = () => {
@@ -675,7 +680,6 @@ setInterval(() => {
 const { copyImage } = require('./js/modules/copy_image');
 window.copyImage = copyImage;
 
-window.dataURLToBlobSync = require('blueimp-canvas-to-blob');
 window.filesize = require('filesize');
 window.libphonenumber =
   require('google-libphonenumber').PhoneNumberUtil.getInstance();
@@ -747,7 +751,6 @@ window.electronConfirm = async (
 const { ipcRenderer } = require('electron');
 
 if (config.environment === 'test') {
-  /* eslint-disable global-require, import/no-extraneous-dependencies */
   window.test = {
     glob: require('glob'),
     fse: require('fs-extra'),
@@ -756,7 +759,6 @@ if (config.environment === 'test') {
     basePath: __dirname,
     attachmentsPath: window.Signal.Migrations.attachmentsPath,
   };
-  /* eslint-enable global-require, import/no-extraneous-dependencies */
 }
 
 // ###################### recent conversation switch ######################

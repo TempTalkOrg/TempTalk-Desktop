@@ -30,7 +30,6 @@ export const useParticipantRenderer = (
           name={contact?.getDisplayName()}
           accountName={contact?.getAccountName()}
           avatarPath={contact?.avatarPath}
-          notShowStatus={true}
           noClickEvent={true}
         />
       );

@@ -1,7 +1,4 @@
-/* eslint-env browser */
 /* global dcodeIO, libsignal */
-
-/* eslint-disable camelcase, no-bitwise */
 
 module.exports = {
   arrayBufferToBase64,
@@ -192,7 +189,6 @@ function constantTimeEqual(left, right) {
   const ta1 = new Uint8Array(left);
   const ta2 = new Uint8Array(right);
   for (let i = 0, max = left.byteLength; i < max; i += 1) {
-    // eslint-disable-next-line no-bitwise
     result |= ta1[i] ^ ta2[i];
   }
   return result === 0;

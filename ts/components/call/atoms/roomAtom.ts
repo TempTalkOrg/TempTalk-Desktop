@@ -14,3 +14,8 @@ export const roomAtom = atom<IRoomInfo>({} as IRoomInfo);
 export const roomDurationAtom = atom<number>(0);
 
 export const inviteMembersAtom = atom<Set<string>>(new Set([]));
+
+export const immersiveModeAtom = atom<boolean>(false);
+export const immersiveModeTimerAtom = atom<NodeJS.Timeout | null>(null);
+
+export const pinnedControlsAtom = atom<boolean>(false);

@@ -10,7 +10,6 @@ import type {
 import { Subject, map, startWith } from 'rxjs';
 import type { Observable } from 'rxjs';
 import { observeParticipantMedia } from '../observables/participant';
-import { prefixClass } from '../styles-interface';
 
 export type ToggleSource = Exclude<
   Track.Source,
@@ -146,7 +145,7 @@ export function setupMediaToggle<T extends ToggleSource>(
     }
   };
 
-  const className: string = prefixClass('button');
+  const className: string = 'button';
   return {
     className,
     toggle,
@@ -168,7 +167,7 @@ export function setupManualToggle() {
     enabledSubject.next(state);
     pendingSubject.next(false);
   };
-  const className: string = prefixClass('button');
+  const className: string = 'button';
   return {
     className,
     toggle,

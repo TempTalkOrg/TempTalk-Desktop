@@ -415,7 +415,6 @@ export class SqliteDatabase
   }
 
   public updateConversation(data: ConversationDBType): void {
-    // eslint-disable-next-line camelcase
     const {
       id,
       active_at = null,
@@ -1472,6 +1471,7 @@ export class SqliteDatabase
         messages = mapWithJsonToObject(jsons);
 
         break;
+        // eslint-disable-next-line no-constant-condition
       } while (true);
 
       db.exec(`DROP TABLE tmp_scaned;`);
@@ -2494,7 +2494,8 @@ export class SqliteDatabase
           maxNotifySequenceId = $maxNotifySequenceId
         WHERE readAt > $readAt
           OR sentAt IS NULL
-          OR maxNotifySequenceId IS NULL;
+          OR maxNotifySequenceId IS NULL
+          OR maxNotifySequenceId > (POWER(2, 53) - 1);
       `
     ).run({
       sourceDevice,
@@ -3576,7 +3577,7 @@ export class SqliteDatabase
           countTableRows(db, 'read_positions'),
         ],
       });
-    } catch (error) {
+    } catch (_error) {
       Object.assign(report, { error: 'database is not initialized.' });
     }
 

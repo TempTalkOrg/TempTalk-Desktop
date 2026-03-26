@@ -7,7 +7,8 @@ import { StateType } from '../reducer';
 import { getIntl, getUserNumber } from '../selectors/user';
 import { getMe } from '../selectors/conversations';
 import { getLeftPaneWidth } from '../selectors/preferences';
-import { getSidebarItemList } from '../selectors/sidebar';
+import { getSidebarItemList, getSidebarStatus } from '../selectors/sidebar';
+import { getCommonSettingOpen } from '../selectors/layout';
 
 const mapStateToProps = (state: StateType) => {
   return {
@@ -16,6 +17,8 @@ const mapStateToProps = (state: StateType) => {
     i18n: getIntl(state),
     leftPaneWidth: getLeftPaneWidth(state),
     sidebarItemList: getSidebarItemList(state),
+    sidebarStatus: getSidebarStatus(state),
+    commonSettingOpen: getCommonSettingOpen(state),
   };
 };
 

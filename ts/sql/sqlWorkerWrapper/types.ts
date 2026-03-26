@@ -5,4 +5,4 @@ export type WorkerData = {
   workerType: ThreadWorkerType;
 };
 
-export type WrappedCallResult = CallResult & { seqId: Number };
+export type WrappedCallResult = CallResult & { seqId: number };

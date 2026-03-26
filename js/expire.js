@@ -1,4 +1,3 @@
-// eslint-disable-next-line func-names
 (function () {
   'use strict';
 
@@ -11,7 +10,7 @@
         new Date(BUILD_EXPIRATION).toISOString()
       );
     }
-  } catch (e) {
+  } catch (_e) {
     // nothing
   }
 

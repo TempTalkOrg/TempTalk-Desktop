@@ -1,6 +1,12 @@
-/* global _, textsecure, WebAPI, libsignal, OutgoingMessage, window */
-
-/* eslint-disable more/no-then, no-bitwise */
+/* global
+  _,
+  textsecure,
+  WebAPI,
+  libsignal,
+  OutgoingMessage,
+  log,
+  dcodeIO,
+*/
 
 function stringToArrayBuffer(str) {
   if (typeof str !== 'string') {
@@ -884,7 +890,6 @@ MessageSender.prototype = {
         }
 
         return makePointer(thumbnail, message.recipients).then(pointer => {
-          // eslint-disable-next-line no-param-reassign
           attachment.attachmentPointer = pointer;
         });
       })
@@ -1200,6 +1205,11 @@ MessageSender.prototype = {
 
   sendReadReceipts(receipts, extension) {
     const { sender, timestamps, readPosition, messageMode } = receipts;
+
+    const ourNumber = textsecure.storage.user.getNumber();
+    if (sender === ourNumber) {
+      return Promise.resolve('');
+    }
 
     const receiptMessage = new textsecure.protobuf.ReceiptMessage();
     receiptMessage.type = textsecure.protobuf.ReceiptMessage.Type.READ;

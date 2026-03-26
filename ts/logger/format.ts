@@ -78,7 +78,7 @@ function safeSanitize(value: any) {
     }
 
     return value;
-  } catch (e) {
+  } catch (_e) {
     return '[UnreadableObject]';
   }
 }

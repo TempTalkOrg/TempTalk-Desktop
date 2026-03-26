@@ -14,7 +14,7 @@ export type PropsData = {
 
 type PropsHousekeeping = {
   i18n: LocalizerType;
-  style?: Object;
+  style?: object;
 };
 
 type Props = PropsData & PropsHousekeeping;

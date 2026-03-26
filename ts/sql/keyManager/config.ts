@@ -227,7 +227,7 @@ export class LegacyDBKey {
         try {
           this.save(legacyKey);
         } catch (error) {
-          this.logger.warn('failed to encrypt legacy db key');
+          this.logger.warn('failed to encrypt legacy db key', error);
         }
         return legacyKey;
       }

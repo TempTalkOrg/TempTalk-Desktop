@@ -27,6 +27,7 @@ exports.migrateDataToFileSystem = async (
   const isValidData = isArrayBuffer(data);
 
   if (isValidData) {
+    //
   } else if (typeof data === 'object' && attachment.path) {
     return omit(attachment, ['data']);
   } else {

@@ -1,11 +1,11 @@
 import * as React from 'react';
 import { MediaDeviceSelect } from '../components/controls/MediaDeviceSelect';
 import { log } from '../../core';
-import { Switch } from 'antd';
+import { Select, Switch } from 'antd';
 import { useFeatureContext } from '../context';
-import { useLocaleText } from '../hooks/useLocaleText';
 import { ContextMenu } from '../../../../shared/ContextMenu';
 import { useMemoizedFn } from 'ahooks';
+import { IconArrowUp } from '../../../../shared/icons';
 
 export interface MediaDeviceMenuProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -18,8 +18,13 @@ export function MediaDeviceMenu({
   onActiveDeviceChange,
   ...props
 }: MediaDeviceMenuProps) {
-  const { denoiseEnable, onDenoiseEnableChange } = useFeatureContext() ?? {};
-  const getLocaleText = useLocaleText();
+  const {
+    denoiseEnable,
+    onDenoiseEnableChange,
+    denoiseMode,
+    onDenoiseModeChange,
+    i18n,
+  } = useFeatureContext(true);
 
   const handleActiveDeviceChange = (
     kind: MediaDeviceKind,
@@ -64,11 +69,31 @@ export function MediaDeviceMenu({
             kind={'audiooutput'}
           />
           <div className="device-menu-noise-suppression">
-            {getLocaleText('micNoiseSuppression')}
+            {i18n('micNoiseSuppression')}
             <Switch
               size="small"
               checked={denoiseEnable}
               onChange={checked => onDenoiseEnableChange?.(checked)}
+            />
+          </div>
+          <div className="device-menu-denoise-engine">
+            {i18n('micDenoiseEngine')}
+            <Select
+              size="small"
+              className="device-menu-denoise-engine-select"
+              popupClassName="device-menu-denoise-engine-dropdown"
+              value={denoiseMode ?? 'enhanced'}
+              options={[
+                {
+                  label: i18n('denoiseMode.standard'),
+                  value: 'standard',
+                },
+                {
+                  label: i18n('denoiseMode.enhanced'),
+                  value: 'enhanced',
+                },
+              ]}
+              onChange={value => onDenoiseModeChange?.(value)}
             />
           </div>
         </div>
@@ -96,7 +121,8 @@ export function MediaDeviceMenu({
       trigger={['click']}
       placement="top"
     >
-      <button className="lk-button lk-button-menu" {...props} ref={button}>
+      <button className="button button-menu" {...props} ref={button}>
+        <IconArrowUp />
         {props.children}
       </button>
     </ContextMenu>

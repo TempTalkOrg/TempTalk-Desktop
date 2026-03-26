@@ -13,10 +13,8 @@ export interface ParticipantClickEvent {
 
 export type PinState = TrackReferenceOrPlaceholder[];
 
-export type WidgetState = {
-  showChat: boolean;
-  unreadMessages: number;
-  showSettings?: boolean;
+export type AsideListState = {
+  open: boolean;
 };
 
 export type TrackSourceWithOptions = {
@@ -69,3 +67,5 @@ export type ParticipantIdentifier = RequireAtLeastOne<
 >;
 
 export const PIN_DEFAULT_STATE: PinState = [];
+
+export const ASIDE_LIST_DEFAULT_STATE: AsideListState = { open: false };

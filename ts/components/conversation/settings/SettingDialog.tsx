@@ -381,7 +381,7 @@ export const SettingDialog = (props: Props) => {
     //   return;
     // }
 
-    let result = [];
+    const result = [];
     let hasManagers = false;
     let hasUsers = false;
     for (let i = 0; i < members.length; i += 1) {
@@ -1539,7 +1539,7 @@ export const SettingDialog = (props: Props) => {
         },
       });
     } catch (e) {
-      console.log('user cancel block user');
+      console.log('user cancel block user', e);
     }
   };
 

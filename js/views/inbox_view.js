@@ -1,17 +1,17 @@
-// /* global
-//   $,
-//   ConversationController,
-//   extension,
-//   getConversations,
-//   getInboxCollection,
-//   i18n,
-//   Whisper,
-//   textsecure,
-//   Signal
-//
-// */
+/* global
+  ConversationController,
+  extension,
+  getConversations,
+  getInboxCollection,
+  i18n,
+  Whisper,
+  textsecure,
+  Signal,
+  _,
+  log,
+  Backbone,
+*/
 
-// eslint-disable-next-line func-names
 (function () {
   'use strict';
 
@@ -36,7 +36,7 @@
             model: conversation,
             window: this.model.window,
           });
-          // eslint-disable-next-line prefer-destructuring
+
           $el = view.$el;
         }
         $el.prependTo(this.el);
@@ -266,6 +266,11 @@
         ? Number(storageLeftPaneWidth)
         : 300;
 
+      const storageSidebarStatus = localStorage.getItem('layout.sidebarStatus');
+      const sidebarStatus = storageSidebarStatus
+        ? storageSidebarStatus
+        : 'expanded';
+
       const initialState = {
         conversations: {
           conversationLookup: Signal.Util.makeLookup(conversations, 'id'),
@@ -279,6 +284,10 @@
         preferences: {
           leftPaneWidth,
         },
+        sidebar: {
+          status: sidebarStatus,
+          itemList: [],
+        },
       };
 
       this.store = Signal.State.createStore(initialState);
@@ -291,7 +300,7 @@
       // Enables our redux store to be updated by backbone events in the outside world
       const {
         conversationAdded,
-        conversationChanged,
+        // conversationChanged,
         conversationRemoved,
         removeAllConversations,
         conversationsBulkUpdate,
@@ -412,7 +421,7 @@
     async fastJoinCall(info) {
       const { conversationId, roomId } = info;
 
-      const store = inboxStore.getState();
+      const store = window.inboxStore.getState();
       const { calls } = store.conversations;
 
       if (_.isEmpty(calls)) {
@@ -619,7 +628,7 @@
               error && error.stack ? error.stack : error
             );
           }
-        } catch (error) {
+        } catch (_error) {
           // nothing to see here, user canceled out of dialog
         }
       }

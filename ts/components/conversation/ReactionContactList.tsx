@@ -10,8 +10,8 @@ type RowRendererParamsType = {
   isScrolling: boolean;
   isVisible: boolean;
   key: string;
-  parent: Object;
-  style: Object;
+  parent: object;
+  style: object;
 };
 
 export interface Contact {

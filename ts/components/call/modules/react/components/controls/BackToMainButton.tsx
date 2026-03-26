@@ -1,9 +1,9 @@
-import * as React from 'react';
 import { useBackToMainButton } from '../../hooks/useBackToMainButton';
-export interface BackToMainButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {}
+import React, { type ButtonHTMLAttributes, forwardRef } from 'react';
 
-export const BackToMainButton = /* @__PURE__ */ React.forwardRef<
+export type BackToMainButtonProps = ButtonHTMLAttributes<HTMLButtonElement>;
+
+export const BackToMainButton = forwardRef<
   HTMLButtonElement,
   BackToMainButtonProps
 >(function BackToMainButton(props: BackToMainButtonProps, ref) {

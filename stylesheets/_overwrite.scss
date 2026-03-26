@@ -118,6 +118,13 @@
     background: var(--dst-color-background-tooltip);
     padding: 5px 10px;
   }
+
+  &.feedback-profile-tooltip {
+    .ant-tooltip-inner {
+      padding: 0;
+      background-color: transparent;
+    }
+  }
 }
 
 .ant-modal-root.call-window-modal {

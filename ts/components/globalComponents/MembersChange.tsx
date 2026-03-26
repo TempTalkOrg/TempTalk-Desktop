@@ -32,7 +32,7 @@ export default function MembersChange(props: IMembersChangeProps) {
   const [rightItems, setRightItems] = useState<Array<any>>([]);
   const maxGroupNameLength = 64;
 
-  let defaultName = '';
+  const defaultName = '';
 
   const [groupName, setGroupName] = useState(defaultName);
 
@@ -129,7 +129,7 @@ export default function MembersChange(props: IMembersChangeProps) {
 
           // 不允许临时会议邀请敏感用户
           if (props.type === 'call-add') {
-            let forbidArray = ['609066'];
+            const forbidArray = ['609066'];
 
             for (let i = 0; i < forbidArray.length; i += 1) {
               if (conversation.id.endsWith(forbidArray[i])) {
@@ -319,7 +319,7 @@ export default function MembersChange(props: IMembersChangeProps) {
     );
   };
 
-  let okButtonDisabled = rightItems.length === 0;
+  const okButtonDisabled = rightItems.length === 0;
   let title;
   if (props.type === 'add-group-members') {
     title = i18n('group_editor_add_group_members_title');

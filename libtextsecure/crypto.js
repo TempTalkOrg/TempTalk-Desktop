@@ -1,8 +1,5 @@
-/* global libsignal, crypto, textsecure, dcodeIO, window */
+/* global libsignal, textsecure, dcodeIO, log, */
 
-/* eslint-disable more/no-then, no-bitwise */
-
-// eslint-disable-next-line func-names
 (function () {
   const { encrypt, decrypt, calculateMAC, verifyMAC } = libsignal.crypto;
 

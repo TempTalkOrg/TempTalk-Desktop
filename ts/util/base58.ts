@@ -10,8 +10,8 @@ export const base58Encode = (data: number | string) => {
 
     return bs58.encode(buffer);
   } else {
-    let bytes = Buffer.from(data);
-    let address = bs58.encode(bytes);
+    const bytes = Buffer.from(data);
+    const address = bs58.encode(bytes);
 
     return address;
   }

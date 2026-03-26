@@ -30,7 +30,7 @@ const middlewareList =
     ? [promise, localStorageMiddleware]
     : [promise, localStorageMiddleware, logger];
 
-const enhancer = applyMiddleware.apply(null, middlewareList);
+const enhancer = applyMiddleware(...middlewareList);
 
 export const createStore = (initialState: any) =>
   reduxCreateStore(reducer, initialState, enhancer);

@@ -1,4 +1,10 @@
-// eslint-disable-next-line func-names
+/* global
+  Whisper,
+  _lodash,
+  _,
+  Backbone,
+*/
+
 (function () {
   'use strict';
 

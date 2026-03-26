@@ -52,7 +52,7 @@ export const PinchableImage = forwardRef<
 
   const [scale, setScale] = useState(1);
 
-  let counterRef = useRef({
+  const counterRef = useRef({
     plus: 0,
     minus: 0,
   });
@@ -60,7 +60,7 @@ export const PinchableImage = forwardRef<
   const onPinch = useMemoizedFn(({ event, trigger, memo }) => {
     const container = getContainer();
 
-    let direction = event.deltaY < 0 ? 1 : -1;
+    const direction = event.deltaY < 0 ? 1 : -1;
 
     const imageBounds = imgRef.current!.getBoundingClientRect();
 

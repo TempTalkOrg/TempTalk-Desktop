@@ -1,5 +1,3 @@
-/* global crypto */
-
 const { isFunction, isNumber } = require('lodash');
 const { createLastMessageUpdate } = require('../../../ts/types/Conversation');
 const { arrayBufferToBase64, base64ToArrayBuffer } = require('../crypto');
@@ -114,7 +112,6 @@ async function migrateConversation(conversation, options = {}) {
     return conversation;
   }
   if (!isNumber(conversation.version)) {
-    // eslint-disable-next-line no-param-reassign
     conversation.version = 1;
   }
 

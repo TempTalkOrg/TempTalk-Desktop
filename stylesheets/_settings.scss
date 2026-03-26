@@ -6,6 +6,10 @@
   position: absolute;
   opacity: 1;
   border-right: 1px solid #eaecef;
+
+  .close-button {
+    @include accept-pointer-events();
+  }
 }
 
 .page-title {

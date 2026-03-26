@@ -2,15 +2,17 @@ import { useMemoizedFn } from 'ahooks';
 import { useEffect, useRef, useState } from 'react';
 import { Contact } from './useInitials';
 import { Room } from '@cc-livekit/livekit-client';
+import { LocalizerType } from '../../../types/Util';
 
 export const useSpeedHint = ({
-  contactMap,
-  handleSendSpeedHint,
-  room,
+  handleSpeedHintMessage,
+  i18n,
 }: {
   contactMap: Map<string, Contact>;
   handleSendSpeedHint: (action: 'slower' | 'faster') => Promise<void>;
   room: Room;
+  handleSpeedHintMessage: (text: string) => Promise<void>;
+  i18n: LocalizerType;
 }) => {
   const [speedHints, setSpeedHints] = useState<{
     slower: Contact | null;
@@ -47,16 +49,16 @@ export const useSpeedHint = ({
     }
   );
 
-  const onSendSpeedHint = useMemoizedFn(async (action: 'slower' | 'faster') => {
+  const onSendSpeedHint = useMemoizedFn(async (speed: 'slower' | 'faster') => {
+    const iconContent = {
+      slower: '🐢',
+      faster: '⚡️',
+    }[speed];
+    const textContent = i18n(`speedHint.${speed}`);
     try {
-      await handleSendSpeedHint?.(action);
-      addSpeedHint({
-        action,
-        contact:
-          contactMap.get(room.localParticipant.identity.split('.')[0]) || null,
-      });
+      handleSpeedHintMessage(textContent + iconContent);
     } catch (error) {
-      console.error('handleSendSpeedHint error', error);
+      console.error('handleSpeedHintMessage error', error);
     }
   });
 

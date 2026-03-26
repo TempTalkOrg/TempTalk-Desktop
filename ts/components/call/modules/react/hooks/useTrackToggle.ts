@@ -7,6 +7,7 @@ import { mergeProps } from '../mergeProps';
 import { useObservableState } from './internal';
 
 /** @public */
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface UseTrackToggleProps<T extends ToggleSource>
   extends Omit<TrackToggleProps<T>, 'showIcon'> {}
 
@@ -66,7 +67,6 @@ export function useTrackToggle<T extends ToggleSource>({
       toggle(initialState);
     }
     // only execute once at the beginning
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const newProps = React.useMemo(
@@ -101,8 +101,8 @@ export function useTrackToggle<T extends ToggleSource>({
     buttonProps: {
       ...newProps,
       'aria-pressed': enabled,
-      'data-lk-source': source,
-      'data-lk-enabled': enabled,
+      'data-source': source,
+      'data-enabled': enabled,
       disabled: pending || newProps.disabled,
       onClick: clickHandler,
     } as React.ButtonHTMLAttributes<HTMLButtonElement>,

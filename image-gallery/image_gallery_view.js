@@ -4,7 +4,8 @@
   document,
   Whisper,
   $,
-  ImageGalleryApis
+  ImageGalleryApis,
+  console,
 */
 
 if (window.console) {

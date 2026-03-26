@@ -2,12 +2,8 @@
   getAccountManager,
   Whisper,
   i18n,
-  log,
 */
 
-/* eslint-disable more/no-then */
-
-// eslint-disable-next-line func-names
 (function () {
   'use strict';
 
@@ -67,7 +63,7 @@
       this.Register = new Whisper.ReactWrapperView({
         className: 'button',
         Component: window.Signal.Components.Register,
-        // eslint-disable-next-line no-undef
+
         props: {
           doLogin: value => this.doLogin(value),
         },
@@ -113,8 +109,9 @@
               title: i18n('registerButton'),
               content: 'Enter Your Name',
             });
-            // eslint-disable-next-line no-empty
-          } catch (e) {}
+          } catch (_e) {
+            //
+          }
         }
 
         await this.accountManager
@@ -140,11 +137,11 @@
               title: 'Pin Code',
               content: 'Input your pin code',
             });
-            // eslint-disable-next-line no-empty
-          } catch (e) {}
+          } catch (_e) {
+            //
+          }
 
           if (!pinCode) {
-            // eslint-disable-next-line no-throw-literal
             throw 'Need Pin Code';
           }
         }

@@ -1,12 +1,11 @@
-import { log, setupLiveKitRoom } from '../../core';
+import { log } from '../../core';
 import {
   Room,
   MediaDeviceFailure,
   RoomEvent,
   DisconnectReason,
 } from '@cc-livekit/livekit-client';
-import * as React from 'react';
-import type { HTMLAttributes } from 'react';
+import { useState, useEffect, useMemo, type HTMLAttributes } from 'react';
 
 import type { LiveKitRoomProps } from '../components';
 import { mergeProps } from '../mergeProps';
@@ -37,7 +36,7 @@ export function useLiveKitRoom<T extends HTMLElement>(
     onEncryptionError,
     simulateParticipants,
     prepareConnection,
-    featureFlags,
+    // featureFlags,
     ...rest
   } = { ...defaultRoomProps, ...props };
   if (options && passedRoom) {
@@ -46,25 +45,26 @@ export function useLiveKitRoom<T extends HTMLElement>(
     );
   }
 
-  const [room, setRoom] = React.useState<Room | undefined>();
+  const [room, setRoom] = useState<Room | undefined>();
 
-  React.useEffect(() => {
+  useEffect(() => {
     setRoom(passedRoom ?? new Room(options));
   }, [passedRoom, JSON.stringify(options, roomOptionsStringifyReplacer)]);
 
-  const prewarm = React.useMemo(() => {
+  const prewarm = useMemo(() => {
     if (room && serverUrl && prepareConnection && token) {
       return room.prepareConnection(serverUrl, token);
     }
     return new Promise<void>(resolve => resolve(undefined));
   }, [serverUrl, prepareConnection, token, room]);
 
-  const htmlProps = React.useMemo(() => {
-    const { className } = setupLiveKitRoom();
-    return mergeProps(rest, { className }) as HTMLAttributes<T>;
+  const htmlProps = useMemo(() => {
+    return mergeProps(rest, {
+      className: 'room-container',
+    }) as HTMLAttributes<T>;
   }, [rest]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!room) return;
 
     const handleMediaDeviceError = (e: Error) => {
@@ -103,7 +103,7 @@ export function useLiveKitRoom<T extends HTMLElement>(
     onDisconnected,
   ]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!room) return;
 
     if (simulateParticipants) {
@@ -149,7 +149,7 @@ export function useLiveKitRoom<T extends HTMLElement>(
     simulateParticipants,
   ]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!room) return;
     return () => {
       log.info('disconnecting on onmount');

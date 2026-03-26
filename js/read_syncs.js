@@ -1,12 +1,11 @@
 /* global
   Backbone,
   Whisper,
-  MessageController
+  MessageController,
+  ConversationController,
+  textsecure,
 */
 
-/* eslint-disable more/no-then */
-
-// eslint-disable-next-line func-names
 (function () {
   'use strict';
 

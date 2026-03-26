@@ -15,7 +15,6 @@ const { Avatar } = require('../../ts/components/Avatar');
 const {
   AttachmentList,
 } = require('../../ts/components/conversation/AttachmentList');
-const { CaptionEditor } = require('../../ts/components/CaptionEditor');
 const {
   ContactDetail,
 } = require('../../ts/components/conversation/ContactDetail');
@@ -175,6 +174,7 @@ const {
 const {
   UnknowUserIndicator,
 } = require('../../ts/components/conversation/UnknowUserIndicator');
+const { FileInput } = require('../../ts/components/conversation/FileInput');
 
 // State
 const { createContactPane } = require('../../ts/state/roots/createContactPane');
@@ -232,7 +232,7 @@ function initializeMigrations({
     createAbsolutePathGetter,
     createWriterForNew,
     createWriterForExisting,
-    createDeleter,
+    // createDeleter,
   } = Attachments;
   const {
     makeObjectUrl,
@@ -320,7 +320,6 @@ exports.setup = (options = {}) => {
   const Components = {
     Avatar,
     AttachmentList,
-    CaptionEditor,
     ContactDetail,
     ContactListItem,
     ContactName,
@@ -384,6 +383,7 @@ exports.setup = (options = {}) => {
     ConfigProvider,
     ConfidentialMessageReadNotification,
     UnknowUserIndicator,
+    FileInput,
   };
 
   const Roots = {

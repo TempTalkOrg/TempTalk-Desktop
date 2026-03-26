@@ -2,16 +2,18 @@
   $,
   _,
   ConversationController
-  emojiData,
-  EmojiPanel,
   extension,
   i18n,
   Signal,
   storage,
   Whisper,
+  log,
+  MessageController,
+  textsecure,
+  _lodash,
+  Backbone,
 */
 
-// eslint-disable-next-line func-names
 (function () {
   'use strict';
 
@@ -227,7 +229,7 @@
       this.listenTo(
         this.model.messageCollection,
         'update-translate-cache',
-        async message => {
+        async _message => {
           // const doTranslate = message.updateTranslateCache();
           // if (doTranslate) {
           //   if (!this.translateTaskJobs) {
@@ -417,17 +419,13 @@
       this.showLoadingScreen();
 
       this.window = options.window;
-      this.fileInput = new Whisper.FileInputView({
+
+      this.initFileInputProps();
+
+      this.fileInput = new Whisper.ReactWrapperView({
         el: this.$('.attachment-list'),
-      });
-      this.listenTo(
-        this.fileInput,
-        'choose-attachment',
-        this.onChooseAttachment
-      );
-      this.listenTo(this.fileInput, 'staged-attachments-changed', () => {
-        this.view.resetScrollPosition();
-        this.toggleMicrophone();
+        Component: window.Signal.Components.FileInput,
+        props: this.fileInputProps,
       });
 
       this.defaultOnGoBack = () => {
@@ -520,6 +518,7 @@
           signature: this.model.get('signature'),
           isStick: this.model.get('isStick'),
           isDirectoryUser: this.model.isDirectoryUser(),
+          isOfficialAccount: this.model.isOfficialAccount,
 
           isVerified: false,
           isMe: this.model.isMe(),
@@ -698,7 +697,7 @@
       });
 
       if (!this.model.isPrivate()) {
-        this.listenTo(this.model, 'change:criticalAlert', value => {
+        this.listenTo(this.model, 'change:criticalAlert', _value => {
           const callInfo = this.checkCallOrMeetingAlreadyExist();
           if (callInfo) {
             window.updateCallConfig({
@@ -713,6 +712,65 @@
           }
         });
       }
+    },
+    initFileInputProps() {
+      this.fileInputProps = {
+        attachments: [],
+        newFile: null,
+        newAttachment: null,
+        newClipboardEvent: null,
+        VisualAttachment: window.Signal.Types.VisualAttachment,
+        onAttachmentsChange: attachments => {
+          this.updateFileInput({ attachments });
+        },
+        onClickAttachment: () => {},
+        onAddAttachment: () => {
+          this.onChooseAttachment();
+        },
+        onClose: () => {
+          this.updateFileInput({
+            resetCount: this.fileInputProps.resetCount + 1,
+          });
+        },
+        resetCount: 0,
+      };
+    },
+    updateFileInput(newProps) {
+      Object.entries(newProps).forEach(([key, value]) => {
+        _lodash.update(this.fileInputProps, key, () => value);
+      });
+
+      if (this.fileInput) {
+        this.fileInput.update(this.fileInputProps);
+      }
+
+      this.view?.resetScrollPosition?.();
+      this.toggleMicrophone();
+    },
+    maybeAddAttachment(file) {
+      this.updateFileInput({ newFile: file });
+    },
+    hasFiles() {
+      return this.fileInputProps.attachments.length > 0;
+    },
+    clearAttachments() {
+      this.fileInputProps.attachments.forEach(attachment => {
+        if (attachment.url) {
+          URL.revokeObjectURL(attachment.url);
+        }
+        if (attachment.videoUrl) {
+          URL.revokeObjectURL(attachment.videoUrl);
+        }
+      });
+
+      this.updateFileInput({ resetCount: this.fileInputProps.resetCount + 1 });
+    },
+    async getFiles() {
+      const files = await Promise.all(
+        this.fileInputProps.attachments.map(attachment => attachment.getFile())
+      );
+      this.clearAttachments();
+      return files;
     },
     updateMessageFieldPlaceholder() {
       if (this.$messageField) {
@@ -940,12 +998,26 @@
     getPropsForFriendRequestBar() {
       return {
         i18n,
+        sendFriendRequest: async () => this.onRequestFriend(),
         acceptFriendRequest: async () => this.model.acceptFriendRequest(),
         ignoreFriendRequest: () => this.unload('ignore friend request'),
+        addContact: this.shouldShowAddContact(),
       };
     },
+    shouldShowAddContact() {
+      return (
+        this.model.isPrivate() &&
+        !this.model.isDirectoryUser() &&
+        !this.model.isSentFriendRequest &&
+        !this.model.isFriendRequesting()
+      );
+    },
     updateFriendRequestBar() {
-      if (this.model.isFriendRequesting() || this.model.isBlocked()) {
+      if (
+        this.model.isFriendRequesting() ||
+        this.model.isBlocked() ||
+        this.shouldShowAddContact()
+      ) {
         if (this.friendRequestBar) {
           this.friendRequestBar.update(this.getPropsForFriendRequestBar());
         } else {
@@ -1116,8 +1188,8 @@
 
       for (let i = 0, max = files.length; i < max; i += 1) {
         const file = files[i];
-        // eslint-disable-next-line no-await-in-loop
-        await this.fileInput.maybeAddAttachment(file);
+
+        await this.maybeAddAttachment(file);
         this.toggleMicrophone();
       }
 
@@ -1539,27 +1611,43 @@
           null,
           null
         );
+
+        this.model.isSentFriendRequest = true;
+        this.updateFriendRequestBar();
       } catch (e) {
         console.log('send apply friend message error', e);
         window.noticeError('network error');
       }
     },
-    onDragOver(e) {
-      this.fileInput.onDragOver(e);
-    },
-    onDragLeave(e) {
-      this.fileInput.onDragLeave(e);
-    },
-    onDrop(e) {
-      this.fileInput.onDrop(e);
-    },
-    async onPaste(e) {
-      const text = await this.fileInput.onPaste(e);
-      if (text) {
-        this.insertMessage(text);
+    onDragOver() {},
+    onDragLeave() {},
+    async onDrop(e) {
+      if (e.originalEvent.dataTransfer.types[0] !== 'Files') {
+        return;
+      }
+
+      e.stopPropagation();
+      e.preventDefault();
+
+      if (this.model.isPrivate() && !this.model.isDirectoryUser()) {
+        this.showToast(i18n('notDirectoryUserMessageLimit'));
+        return;
+      }
+
+      const { files } = e.originalEvent.dataTransfer;
+      for (let i = 0, max = files.length; i < max; i += 1) {
+        const file = files[i];
+        await this.maybeAddAttachment(file);
       }
     },
-    onCopy(e) {
+    async onPaste(e) {
+      if (this.model.isPrivate() && !this.model.isDirectoryUser()) {
+        this.showToast(i18n('notDirectoryUserMessageLimit'));
+        return;
+      }
+      this.updateFileInput({ newClipboardEvent: e });
+    },
+    onCopy() {
       window.handleOnCopy();
     },
 
@@ -1630,6 +1718,7 @@
       this.model.syncedGroup = false;
       this.model.syncedMute = false;
       this.model.syncedBlock = false;
+      this.model.isSentFriendRequest = false;
 
       const objectCleanup = (objectName, cleanup) => {
         if (!Object.hasOwn(this, objectName)) {
@@ -1713,10 +1802,7 @@
     },
 
     toggleMicrophone() {
-      if (
-        this.$('.send-message').val().length > 0 ||
-        this.fileInput.hasFiles()
-      ) {
+      if (this.$('.send-message').val().length > 0 || this.hasFiles()) {
         this.updateComposeToolbar({
           captureAudio: { visible: false },
         });
@@ -1742,7 +1828,7 @@
         return;
       }
 
-      if (this.fileInput.hasFiles()) {
+      if (this.hasFiles()) {
         this.showVoiceNoteMustBeOnlyAttachmentToast();
         return;
       }
@@ -1832,11 +1918,14 @@
       }
     },
     handleAudioCapture(blob) {
-      this.fileInput.addAttachment({
-        contentType: blob.type,
-        file: blob,
-        isVoiceNote: true,
+      this.updateFileInput({
+        newAttachment: {
+          contentType: blob.type,
+          file: blob,
+          isVoiceNote: true,
+        },
       });
+
       this.$('.bottom-bar form').trigger('submit');
     },
     resetCaptureAudioStatus() {
@@ -2354,7 +2443,7 @@
             return;
           }
 
-          found.correctExpireTimer();
+          found.correctMessage();
           if (!found.isExpired()) {
             this.showLoadingScreen();
 
@@ -2441,9 +2530,9 @@
 
           if (schemaVersion < Message.CURRENT_SCHEMA_VERSION) {
             // Yep, we really do want to wait for each of these
-            // eslint-disable-next-line no-await-in-loop
+
             rawMedia[i] = await upgradeMessageSchema(message);
-            // eslint-disable-next-line no-await-in-loop
+
             await window.Signal.Data.saveMessage(rawMedia[i], {
               Message: Whisper.Message,
             });
@@ -2852,7 +2941,7 @@
 
           this.$('.bar-container').hide();
 
-          const { count, renderPromise } = result || {};
+          const { count: _count, renderPromise } = result || {};
           if (renderPromise && upward) {
             setTimeout(async () => {
               // wait for all message rendered
@@ -2981,7 +3070,7 @@
       this.handleMoreAfterNewMessage(message, renderPromise, lazyLoaded);
     },
 
-    onClick(event) {
+    onClick(_event) {
       // If there are sub-panels open, we don't want to respond to clicks
       if (!this.panels || !this.panels.length) {
         this.throttleMarkRead();
@@ -3013,7 +3102,6 @@
 
         // We're fully below the viewport, continue searching up.
         if (top > viewportBottom) {
-          // eslint-disable-next-line no-continue
           continue;
         }
 
@@ -3026,6 +3114,7 @@
         }
 
         // Continue searching up.
+        foundUnread;
       }
 
       return null;
@@ -3403,7 +3492,7 @@
       this.updateHeader();
     },
 
-    showForwardedMessageList(message, forwards, title, cid) {
+    showForwardedMessageList(message, forwards, title, _cid) {
       if (!forwards || forwards.length < 1) {
         return;
       }
@@ -3415,6 +3504,7 @@
       });
       return;
 
+      /* eslint-disable no-unreachable */
       const collection = new Backbone.Collection(
         forwards.map(forward => {
           const model = new Backbone.Model(
@@ -3493,6 +3583,7 @@
         showGroupEditButton: false,
         showGroupSaveButton: false,
       });
+      /* eslint-enable no-unreachable */
     },
 
     async openConversation(number) {
@@ -3547,7 +3638,7 @@
             error && error.stack ? error.stack : error
           );
         }
-      } catch (error) {
+      } catch (_error) {
         // nothing to see here, user canceled out of dialog
       }
     },
@@ -3610,7 +3701,7 @@
             error && error.stack ? error.stack : error
           );
         }
-      } catch (error) {
+      } catch (_error) {
         // nothing to see here, user canceled out of dialog
       }
     },
@@ -3631,12 +3722,12 @@
             error && error.stack ? error.stack : error
           );
         }
-      } catch (error) {
+      } catch (_error) {
         // nothing to see here, user canceled out of dialog
       }
     },
 
-    closeEmoji(e) {
+    closeEmoji(_e) {
       if (this.emojiView) {
         this.emojiView.remove();
         this.emojiView = null;
@@ -3663,7 +3754,7 @@
       });
       this.$('.discussion-container').append(this.emojiView.el);
     },
-    onMouseMove(event) {
+    onMouseMove(_event) {
       if (window.isShouldScrollToBottom) {
         //输入键盘按钮追加scrollToBottom 事件
         if (this.$el.css('display') !== 'none') {
@@ -4240,7 +4331,7 @@
 
       try {
         if (!toast) {
-          if (!originalMessage.length && !this.fileInput.hasFiles()) {
+          if (!originalMessage.length && !this.hasFiles()) {
             if (!this.quoteHolder) {
               return;
             }
@@ -4255,7 +4346,7 @@
           return;
         }
 
-        const attachments = await this.fileInput.getFiles();
+        const attachments = await this.getFiles();
         const atPersons = this.getFinalAtPersons(originalMessage);
 
         const { message, threadContext, isUseTopicCommand, isAtBotTopic } =
@@ -4351,7 +4442,7 @@
 
         this.focusMessageFieldAndClearDisabled();
         this.forceUpdateMessageFieldSize(e);
-        this.fileInput?.clearAttachments();
+        this.clearAttachments();
       } catch (error) {
         window.log.error(
           'Error pulling attached files before send',
@@ -4939,14 +5030,14 @@
 
       if (isSelecting) {
         this.$('.compose').hide();
-        if (this.fileInput.hasFiles()) {
+        if (this.hasFiles()) {
           this.$('.attachment-list').hide();
         }
 
         this.listenTo(this.model.messageCollection, 'add', initialSelection);
       } else {
         this.$('.compose').show();
-        if (this.fileInput.hasFiles()) {
+        if (this.hasFiles()) {
           this.$('.attachment-list').show();
         }
 

@@ -1,5 +1,4 @@
 /* global dcodeIO */
-/* eslint-disable strict */
 
 'use strict';
 

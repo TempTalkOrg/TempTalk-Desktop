@@ -1,15 +1,13 @@
-/* global window: false */
-/* global textsecure: false */
-/* global WebAPI: false */
-/* global libsignal: false */
-/* global WebSocketResource: false */
-/* global WebSocket: false */
-/* global Event: false */
-/* global dcodeIO: false */
-/* global _: false */
-/* global Worker: false */
-
-/* eslint-disable more/no-then */
+/* global
+  textsecure,
+  WebAPI,
+  libsignal,
+  WebSocketResource,
+  dcodeIO,
+  _,
+  i18n,
+  log,
+*/
 
 const RETRY_TIMEOUT = 2 * 60 * 1000;
 
@@ -126,6 +124,30 @@ _utilWorker.onmessage = e => {
 
   return resolve(result);
 };
+
+function longToNumber(obj) {
+  if (!obj || typeof obj !== 'object') {
+    return undefined;
+  }
+
+  const [name, value] = Object.entries(obj)[0];
+
+  if (!value) {
+    return undefined;
+  }
+
+  if (typeof value.gt !== 'function' || typeof value.toNumber !== 'function') {
+    console.warn('invalid long value type', name, value);
+    return undefined;
+  }
+
+  if (value.gt(Number.MAX_SAFE_INTEGER)) {
+    console.warn('invalid long value', name, value);
+    return undefined;
+  }
+
+  return value.toNumber();
+}
 
 function MessageReceiver(username, password, signalingKey, options = {}) {
   this.count = 0;
@@ -399,7 +421,7 @@ MessageReceiver.prototype.extend({
         readPosition,
         unreadCorrection,
         latestMessage,
-        onePageMessages = [],
+        // onePageMessages = [],
         latestMsgNtfSeqId,
         maxOutgoingMsgNtfSeqId,
         maxOutgoingMsgSeqId,
@@ -415,9 +437,9 @@ MessageReceiver.prototype.extend({
         conversationPreview: {
           conversationId: uniformId.getIdForCompatible(),
           unreadCorrection,
-          latestMsgNtfSeqId: latestMsgNtfSeqId?.toNumber(),
-          maxOutgoingMsgNtfSeqId: maxOutgoingMsgNtfSeqId?.toNumber(),
-          maxOutgoingMsgSeqId: maxOutgoingMsgSeqId?.toNumber(),
+          latestMsgNtfSeqId: longToNumber({ latestMsgNtfSeqId }),
+          maxOutgoingMsgNtfSeqId: longToNumber({ maxOutgoingMsgNtfSeqId }),
+          maxOutgoingMsgSeqId: longToNumber({ maxOutgoingMsgSeqId }),
         },
       };
 
@@ -442,10 +464,10 @@ MessageReceiver.prototype.extend({
         if (!hasError) {
           conversationInfo.conversationPreview.readPosition = {
             groupId: uniformId.getIdForCompatible().groupId,
-            readAt: readAt?.toNumber(),
-            maxServerTimestamp: maxServerTimestamp?.toNumber(),
-            maxNotifySequenceId: maxNotifySequenceId?.toNumber(),
-            maxSequenceId: maxSequenceId?.toNumber(),
+            readAt: longToNumber({ readAt }),
+            maxServerTimestamp: longToNumber({ maxServerTimestamp }),
+            maxNotifySequenceId: longToNumber({ maxNotifySequenceId }),
+            maxSequenceId: longToNumber({ maxSequenceId }),
           };
         }
       }
@@ -878,9 +900,8 @@ MessageReceiver.prototype.extend({
   },
   getEnvelopeId(envelope) {
     if (envelope?.source) {
-      return `${envelope.source}.${
-        envelope.sourceDevice
-      } ${envelope.timestamp.toNumber()} (${envelope.id})`;
+      const { source, sourceDevice, timestamp, id } = envelope;
+      return `${source}.${sourceDevice} ${longToNumber({ timestamp })} (${id})`;
     }
 
     return envelope?.id;
@@ -1319,8 +1340,8 @@ MessageReceiver.prototype.extend({
             ev.notification = JSON.parse(notification);
 
             ev.extraData = {
-              sequenceId: sequenceId?.toNumber(),
-              notifySequenceId: notifySequenceId?.toNumber(),
+              sequenceId: longToNumber({ sequenceId }),
+              notifySequenceId: longToNumber({ notifySequenceId }),
             };
           } catch (e) {
             log.error('JSON parse failed: ' + notification + ', err:' + e);
@@ -1399,7 +1420,7 @@ MessageReceiver.prototype.extend({
         window.log.info('1 message from', this.getEnvelopeId(envelope));
         promise = Promise.resolve(ciphertext.toArrayBuffer());
         break;
-      case textsecure.protobuf.Envelope.Type.ENCRYPTEDTEXT:
+      case textsecure.protobuf.Envelope.Type.ENCRYPTEDTEXT: {
         window.log.info(
           '1 ENCRYPTEDTEXT message from',
           this.getEnvelopeId(envelope)
@@ -1432,6 +1453,7 @@ MessageReceiver.prototype.extend({
 
         promise = Promise.resolve(this.unpad(plaintext));
         break;
+      }
       default:
         promise = Promise.reject(new Error('Unknown message type'));
     }
@@ -1503,7 +1525,7 @@ MessageReceiver.prototype.extend({
     } = sentContainer;
 
     let p = Promise.resolve();
-    // eslint-disable-next-line no-bitwise
+
     if (msg.flags & textsecure.protobuf.DataMessage.Flags.END_SESSION) {
       p = this.handleEndSession(destination);
     }
@@ -1517,31 +1539,34 @@ MessageReceiver.prototype.extend({
         };
         ev.data = {
           destination,
-          timestamp: timestamp.toNumber(),
+          timestamp: longToNumber({ timestamp }),
           device: envelope.sourceDevice,
           message,
           conversationPushedAt: envelope.conversationPushedAt,
         };
         if (expirationStartTimestamp) {
-          ev.data.expirationStartTimestamp =
-            expirationStartTimestamp.toNumber();
+          ev.data.expirationStartTimestamp = longToNumber({
+            expirationStartTimestamp,
+          });
         }
 
         if (rapidFiles && rapidFiles.length > 0) {
           ev.data.rapidFiles = rapidFiles;
         }
 
+        const { systemShowTimestamp } = envelope;
+
         ev.data.serverTimestamp =
-          serverTimestamp?.toNumber() ||
-          envelope.systemShowTimestamp?.toNumber() ||
+          longToNumber({ serverTimestamp }) ||
+          longToNumber({ systemShowTimestamp }) ||
           ev.data.timestamp;
 
         if (sequenceId) {
-          ev.data.sequenceId = sequenceId.toNumber();
+          ev.data.sequenceId = longToNumber({ sequenceId });
         }
 
         if (notifySequenceId) {
-          ev.data.notifySequenceId = notifySequenceId.toNumber();
+          ev.data.notifySequenceId = longToNumber({ notifySequenceId });
         }
 
         ev.priority = envelope.priority;
@@ -1553,7 +1578,7 @@ MessageReceiver.prototype.extend({
   handleDataMessage(envelope, msg) {
     window.log.info('data message from', this.getEnvelopeId(envelope));
     let p = Promise.resolve();
-    // eslint-disable-next-line no-bitwise
+
     if (msg.flags & textsecure.protobuf.DataMessage.Flags.END_SESSION) {
       p = this.handleEndSession(envelope.source);
     }
@@ -1575,33 +1600,39 @@ MessageReceiver.prototype.extend({
           }
         };
 
+        const { timestamp, sequenceId, systemShowTimestamp, notifySequenceId } =
+          envelope;
+
         if (eventName === 'sent') {
           const number = envelope.conversationId?.number || envelope.source;
 
           ev.data = {
             destination: groupId ? null : number,
-            timestamp: envelope.timestamp.toNumber(),
+            timestamp: longToNumber({ timestamp }),
             device: envelope.sourceDevice,
             message,
-            sequenceId: envelope.sequenceId?.toNumber(),
-            serverTimestamp: envelope.systemShowTimestamp?.toNumber(),
-            notifySequenceId: envelope.notifySequenceId?.toNumber(),
+            sequenceId: longToNumber({ sequenceId }),
+            serverTimestamp: longToNumber({ systemShowTimestamp }),
+            notifySequenceId: longToNumber({ notifySequenceId }),
             conversationPushedAt: envelope.conversationPushedAt,
           };
         } else {
           ev.data = {
-            source: envelope.source,
-            sourceDevice: envelope.sourceDevice,
-            timestamp: envelope.timestamp.toNumber(),
-            receivedAt: envelope.receivedAt,
+            ..._.pick(envelope, [
+              'source',
+              'sourceDevice',
+              'receivedAt',
+              'external',
+              'messageType',
+              'conversationPushedAt',
+            ]),
+
             message,
             envelopeType: envelope.type,
-            external: envelope.external,
-            sequenceId: envelope.sequenceId?.toNumber(),
-            serverTimestamp: envelope.systemShowTimestamp?.toNumber(),
-            notifySequenceId: envelope.notifySequenceId?.toNumber(),
-            messageType: envelope.messageType,
-            conversationPushedAt: envelope.conversationPushedAt,
+            timestamp: longToNumber({ timestamp }),
+            sequenceId: longToNumber({ sequenceId }),
+            serverTimestamp: longToNumber({ systemShowTimestamp }),
+            notifySequenceId: longToNumber({ notifySequenceId }),
           };
         }
 
@@ -1752,11 +1783,12 @@ MessageReceiver.prototype.extend({
           ev.confirm = () => {};
 
           const message = {};
+          const { timestamp, callees } = calling;
 
           const createCallMessageOptions = {
-            timestamp: calling.timestamp?.toNumber(),
+            timestamp: longToNumber({ timestamp }),
             action: controlType,
-            callees: calling.callees,
+            callees,
             source,
             ourNumber,
             id,
@@ -1773,6 +1805,9 @@ MessageReceiver.prototype.extend({
             };
           }
 
+          const { sequenceId, systemShowTimestamp, notifySequenceId } =
+            envelope;
+
           if (eventName === 'sent') {
             const number = id;
 
@@ -1780,9 +1815,9 @@ MessageReceiver.prototype.extend({
               destination: message.group ? null : number,
               device: envelope.sourceDevice,
               message,
-              sequenceId: envelope.sequenceId?.toNumber(),
-              serverTimestamp: envelope.systemShowTimestamp?.toNumber(),
-              notifySequenceId: envelope.notifySequenceId?.toNumber(),
+              sequenceId: longToNumber({ sequenceId }),
+              serverTimestamp: longToNumber({ systemShowTimestamp }),
+              notifySequenceId: longToNumber({ notifySequenceId }),
               conversationPushedAt: envelope.conversationPushedAt,
               createCallMessageOptions,
             };
@@ -1794,9 +1829,9 @@ MessageReceiver.prototype.extend({
               message,
               envelopeType: textsecure.protobuf.Envelope.Type.ENCRYPTEDTEXT,
               external: envelope.external,
-              sequenceId: envelope.sequenceId?.toNumber(),
-              serverTimestamp: envelope.systemShowTimestamp?.toNumber(),
-              notifySequenceId: envelope.notifySequenceId?.toNumber(),
+              sequenceId: longToNumber({ sequenceId }),
+              serverTimestamp: longToNumber({ systemShowTimestamp }),
+              notifySequenceId: longToNumber({ notifySequenceId }),
               messageType: textsecure.protobuf.Envelope.MsgType.MSG_NORMAL,
               conversationPushedAt: envelope.conversationPushedAt,
               createCallMessageOptions,
@@ -1829,10 +1864,12 @@ MessageReceiver.prototype.extend({
       return this.removeFromCache(envelope);
     }
 
+    const { systemShowTimestamp } = envelope;
+
     const ev = new Event('callMessage');
     ev.callMessage = newCallMessage;
     ev.source = envelope.source;
-    ev.serverTimestamp = envelope.systemShowTimestamp.toNumber();
+    ev.serverTimestamp = longToNumber({ systemShowTimestamp });
     ev.sourceDevice = envelope.sourceDevice;
     ev.confirm = this.removeFromCache.bind(this, envelope);
     return this.dispatchAndWait(ev);
@@ -1856,9 +1893,9 @@ MessageReceiver.prototype.extend({
 
       const ev = new Event('read');
       ev.confirm = this.removeFromCache.bind(this, envelope);
-      ev.timestamp = envelope.timestamp.toNumber();
+      ev.timestamp = longToNumber({ timestamp: envelope.timestamp });
       ev.reads = timestamps.map(timestamp => ({
-        timestamp: timestamp.toNumber(),
+        timestamp: longToNumber({ timestamp }),
         reader: envelope.source,
         envelopedAt: ev.timestamp,
         sourceDevice: envelope.sourceDevice,
@@ -1870,14 +1907,17 @@ MessageReceiver.prototype.extend({
         const reader = envelope.source;
         const groupId = readPosition.groupId?.toBinary();
 
+        const { readAt, maxServerTimestamp, maxNotifySequenceId } =
+          readPosition;
+
         ev.readPosition = {
           reader,
           groupId,
           conversationId: groupId || reader,
           sourceDevice: envelope.sourceDevice,
-          readAt: readPosition.readAt?.toNumber(),
-          maxServerTimestamp: readPosition.maxServerTimestamp?.toNumber(),
-          maxNotifySequenceId: readPosition.maxNotifySequenceId?.toNumber(),
+          readAt: longToNumber({ readAt }),
+          maxServerTimestamp: longToNumber({ maxServerTimestamp }),
+          maxNotifySequenceId: longToNumber({ maxNotifySequenceId }),
         };
       }
 
@@ -1887,7 +1927,7 @@ MessageReceiver.prototype.extend({
     }
     return Promise.all(results);
   },
-  handleTypingMessage(envelope, typingMessage) {
+  handleTypingMessage(envelope, _typingMessage) {
     window.log.info('typing');
 
     // typing message is not supported yet.
@@ -1937,7 +1977,7 @@ MessageReceiver.prototype.extend({
     if (envelope.source !== this.number) {
       throw new Error('Received sync message from another number');
     }
-    // eslint-disable-next-line eqeqeq
+
     // preview message and pulled message both has conversationId
     if (envelope.conversationId && envelope.sourceDevice == this.deviceId) {
       throw new Error('Received sync message from our own device');
@@ -1951,7 +1991,7 @@ MessageReceiver.prototype.extend({
       window.log.info(
         'sent message to',
         to,
-        sentMessage.timestamp.toNumber(),
+        longToNumber({ timestamp: sentMessage.timestamp }),
         'from',
         this.getEnvelopeId(envelope)
       );
@@ -1984,7 +2024,7 @@ MessageReceiver.prototype.extend({
     }
     throw new Error('Got empty SyncMessage');
   },
-  handleConfiguration(envelope, configuration) {
+  handleConfiguration(envelope, _configuration) {
     window.log.info('got configuration sync message');
 
     // mobile device no longer response the configuration sync request
@@ -2005,12 +2045,12 @@ MessageReceiver.prototype.extend({
 
     const ev = new Event('readSync');
     ev.confirm = this.removeFromCache.bind(this, envelope);
-    ev.timestamp = envelope.timestamp.toNumber();
+    ev.timestamp = longToNumber({ timestamp: envelope.timestamp });
     ev.reads = reads.map(read => {
       const { sender, timestamp, readPosition, messageMode } = read;
 
       const syncedRead = {
-        timestamp: timestamp.toNumber(),
+        timestamp: longToNumber({ timestamp }),
         sender,
         envelopedAt: ev.timestamp,
         sourceDevice: envelope.sourceDevice,
@@ -2019,6 +2059,8 @@ MessageReceiver.prototype.extend({
 
       if (readPosition) {
         const groupId = readPosition.groupId?.toBinary();
+        const { readAt, maxServerTimestamp, maxNotifySequenceId } =
+          readPosition;
 
         syncedRead.readPosition = {
           sender,
@@ -2026,9 +2068,9 @@ MessageReceiver.prototype.extend({
           groupId,
           conversationId: groupId || sender,
           sourceDevice: envelope.sourceDevice,
-          readAt: readPosition.readAt?.toNumber(),
-          maxServerTimestamp: readPosition.maxServerTimestamp?.toNumber(),
-          maxNotifySequenceId: readPosition.maxNotifySequenceId?.toNumber(),
+          readAt: longToNumber({ readAt }),
+          maxServerTimestamp: longToNumber({ maxServerTimestamp }),
+          maxNotifySequenceId: longToNumber({ maxNotifySequenceId }),
         };
       }
 
@@ -2069,7 +2111,7 @@ MessageReceiver.prototype.extend({
     const { conversationId, flag } = conversationArchive;
     const ev = new Event('onArchive');
     ev.confirm = this.removeFromCache.bind(this, envelope);
-    ev.timestamp = envelope.timestamp.toNumber();
+    ev.timestamp = longToNumber({ timestamp: envelope.timestamp });
     ev.conversationArchive = {
       timestamp: ev.timestamp,
       flag,
@@ -2089,7 +2131,7 @@ MessageReceiver.prototype.extend({
     const { conversationId, flag } = markAsUnread;
     const ev = new Event('markAsUnread');
     ev.confirm = this.removeFromCache.bind(this, envelope);
-    ev.timestamp = envelope.timestamp.toNumber();
+    ev.timestamp = longToNumber({ timestamp: envelope.timestamp });
     ev.markAsUnread = {
       timestamp: ev.timestamp,
       flag,
@@ -2222,25 +2264,24 @@ MessageReceiver.prototype.extend({
       realSource || {};
 
     if (timestamp) {
-      realSource.timestamp = timestamp.toNumber();
+      realSource.timestamp = longToNumber({ timestamp });
     }
 
     if (serverTimestamp) {
-      realSource.serverTimestamp = serverTimestamp.toNumber();
+      realSource.serverTimestamp = longToNumber({ serverTimestamp });
     }
 
     if (sequenceId) {
-      realSource.sequenceId = sequenceId.toNumber();
+      realSource.sequenceId = longToNumber({ sequenceId });
     }
 
     if (notifySequenceId) {
-      realSource.notifySequenceId = notifySequenceId.toNumber();
+      realSource.notifySequenceId = longToNumber({ notifySequenceId });
     }
 
     return realSource;
   },
   processDecrypted(envelope, decrypted) {
-    /* eslint-disable no-bitwise, no-param-reassign */
     const FLAGS = textsecure.protobuf.DataMessage.Flags;
 
     // Now that its decrypted, validate the message and clean it up for consumer
@@ -2348,7 +2389,7 @@ MessageReceiver.prototype.extend({
       unexpected = false;
 
       if (decrypted.quote.id) {
-        decrypted.quote.id = decrypted.quote.id.toNumber();
+        decrypted.quote.id = longToNumber({ quoteId: decrypted.quote.id });
       }
 
       decrypted.quote.attachments = (decrypted.quote.attachments || []).map(
@@ -2387,9 +2428,9 @@ MessageReceiver.prototype.extend({
     if (decrypted.task) {
       unexpected = false;
       const { timestamp, dueTime } = decrypted.task;
-      decrypted.task.timestamp = timestamp.toNumber();
+      decrypted.task.timestamp = longToNumber({ timestamp });
       if (dueTime) {
-        decrypted.task.dueTime = dueTime.toNumber();
+        decrypted.task.dueTime = longToNumber({ dueTime });
       }
     }
 
@@ -2397,14 +2438,14 @@ MessageReceiver.prototype.extend({
       unexpected = false;
       const { dueTime } = decrypted.vote;
       if (dueTime) {
-        decrypted.vote.dueTime = dueTime.toNumber();
+        decrypted.vote.dueTime = longToNumber({ dueTime });
       }
     }
 
     if (decrypted.card) {
       const { timestamp } = decrypted.card;
       if (timestamp) {
-        decrypted.card.timestamp = timestamp.toNumber();
+        decrypted.card.timestamp = longToNumber({ timestamp });
       }
 
       // set body with card content to support search
@@ -2500,7 +2541,6 @@ MessageReceiver.prototype.extend({
     decrypted.unexpected = unexpected;
 
     return Promise.all(promises).then(() => decrypted);
-    /* eslint-enable no-bitwise, no-param-reassign */
   },
   async reportException(description, envelope) {
     try {
@@ -2521,7 +2561,7 @@ MessageReceiver.prototype.extend({
         let timestamp;
 
         if (typeof envelope.timestamp?.toNumber === 'function') {
-          timestamp = envelope.timestamp.toNumber();
+          timestamp = longToNumber({ timestamp: envelope.timestamp });
         } else {
           timestamp = envelope.timestamp;
         }

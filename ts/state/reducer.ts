@@ -16,6 +16,7 @@ import {
   PreferencesStateType,
 } from './ducks/preferences';
 import { reducer as sidebar, SidebarStateType } from './ducks/sidebar';
+import { reducer as layout, LayoutStateType } from './ducks/layout';
 
 export type StateType = {
   search: SearchStateType;
@@ -25,6 +26,7 @@ export type StateType = {
   dock: DockType;
   preferences: PreferencesStateType;
   sidebar: SidebarStateType;
+  layout: LayoutStateType;
 };
 
 export const reducers = {
@@ -35,6 +37,7 @@ export const reducers = {
   dock,
   preferences,
   sidebar,
+  layout,
 };
 
 // Making this work would require that our reducer signature supported AnyAction, not

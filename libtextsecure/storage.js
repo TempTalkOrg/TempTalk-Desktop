@@ -1,6 +1,5 @@
-/* global window, textsecure, localStorage */
+/* global textsecure */
 
-// eslint-disable-next-line func-names
 (function () {
   /** **********************************************
    *** Utilities to store data in local storage ***

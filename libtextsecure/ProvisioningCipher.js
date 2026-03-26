@@ -1,8 +1,5 @@
 /* global libsignal, textsecure */
 
-/* eslint-disable more/no-then */
-
-// eslint-disable-next-line func-names
 (function () {
   function ProvisioningCipher() {}
 

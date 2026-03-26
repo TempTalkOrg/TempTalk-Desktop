@@ -47,7 +47,7 @@
     position: fixed;
     bottom: 0;
     width: 100%;
-    visibility: hidden;
+    // visibility: hidden;
     .button-item-wrapper {
       @include floating-bar-button;
       background-color: var(--dst-color-background-secondary);

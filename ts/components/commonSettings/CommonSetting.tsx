@@ -17,6 +17,7 @@ import { getBase58Id } from '../../util';
 import { AutoSizeInput } from '../shared/AutoSizeInput';
 import { ProfileCard } from './ProfileCard';
 import { ChatSetting } from './ChatSetting';
+import { CommonTooltip } from '../shared/CommonTooltip';
 
 export interface Props {
   closeSetting: () => void;
@@ -26,6 +27,8 @@ export interface Props {
   name?: string;
   id: string;
   leftPaneWidth: number;
+  leftPaneOffset: number;
+  closeIcon: boolean;
 }
 
 interface State {
@@ -182,7 +185,7 @@ export class CommonSetting extends React.Component<Props, State> {
         let newAvatar: Uint8Array;
         try {
           newAvatar = await processImageFile(file);
-        } catch (err) {
+        } catch (_err) {
           // Processing errors should be rare; if they do, we silently fail. In an ideal
           //   world, we may want to show a toast instead.
           return;
@@ -270,7 +273,7 @@ export class CommonSetting extends React.Component<Props, State> {
   };
 
   public nameEditComplete = async (textComplete: string | undefined) => {
-    let text = textComplete;
+    const text = textComplete;
     if (this.state.newName === text) {
       this.setState({ editNameMode: false });
       return;
@@ -399,7 +402,7 @@ export class CommonSetting extends React.Component<Props, State> {
   // }
 
   renderSettingItems() {
-    const { i18n } = this.props;
+    const { i18n, closeSetting } = this.props;
     return (
       <div>
         <div className="setting-device-line common-setting-line"></div>
@@ -452,15 +455,25 @@ export class CommonSetting extends React.Component<Props, State> {
             this.setState({ showLanguageSetting: true });
           }}
         />
-        <CommonSettingItem
-          title={i18n('helfAndFeedback')}
-          clickAction={() => {
-            const a = document.createElement('a');
-            a.href = 'https://yelling.pro/contactus.html';
-            a.click();
-            a.remove();
-          }}
-        />
+        <CommonTooltip
+          trigger={['click']}
+          title={
+            <ProfileCard
+              id={'+10000'}
+              i18n={i18n}
+              onClose={() => {
+                closeSetting();
+              }}
+            />
+          }
+          placement="rightBottom"
+          rootClassName="feedback-profile-tooltip"
+          arrow={false}
+        >
+          <div>
+            <CommonSettingItem title={i18n('helfAndFeedback')} />
+          </div>
+        </CommonTooltip>
         <CommonSettingItem
           title={i18n('aboutDesktop')}
           clickAction={() => {
@@ -528,7 +541,7 @@ export class CommonSetting extends React.Component<Props, State> {
   }
 
   public renderAccountSetting() {
-    const { i18n, id, leftPaneWidth } = this.props;
+    const { i18n, id, leftPaneWidth, leftPaneOffset } = this.props;
     const {
       userInfo,
       emailMasked,
@@ -552,7 +565,7 @@ export class CommonSetting extends React.Component<Props, State> {
         placement="left"
         open={showAccountSetting}
         width={leftPaneWidth}
-        rootStyle={{ marginLeft: 68 }}
+        rootStyle={{ marginLeft: leftPaneOffset }}
         styles={{
           wrapper: {
             boxShadow: 'none',
@@ -580,7 +593,7 @@ export class CommonSetting extends React.Component<Props, State> {
   }
 
   public renderThemeSetting() {
-    const { i18n, leftPaneWidth } = this.props;
+    const { i18n, leftPaneWidth, leftPaneOffset } = this.props;
     const { showThemeSetting } = this.state;
 
     if (!showThemeSetting) {
@@ -595,7 +608,7 @@ export class CommonSetting extends React.Component<Props, State> {
           placement="left"
           open={this.state.showThemeSetting}
           width={leftPaneWidth}
-          rootStyle={{ marginLeft: 68 }}
+          rootStyle={{ marginLeft: leftPaneOffset }}
           styles={{
             wrapper: {
               boxShadow: 'none',
@@ -617,7 +630,7 @@ export class CommonSetting extends React.Component<Props, State> {
   }
 
   public renderNotificationSetting() {
-    const { i18n, leftPaneWidth } = this.props;
+    const { i18n, leftPaneWidth, leftPaneOffset } = this.props;
     const { showNotificationSetting } = this.state;
 
     if (!showNotificationSetting) {
@@ -632,7 +645,7 @@ export class CommonSetting extends React.Component<Props, State> {
           placement="left"
           open={this.state.showNotificationSetting}
           width={leftPaneWidth}
-          rootStyle={{ left: 68 }}
+          rootStyle={{ left: leftPaneOffset }}
           styles={{
             wrapper: {
               boxShadow: 'none',
@@ -654,7 +667,7 @@ export class CommonSetting extends React.Component<Props, State> {
   }
 
   public renderGeneralSetting() {
-    const { i18n, leftPaneWidth } = this.props;
+    const { i18n, leftPaneWidth, leftPaneOffset } = this.props;
     const { showGeneralSetting } = this.state;
 
     if (!showGeneralSetting) {
@@ -669,7 +682,7 @@ export class CommonSetting extends React.Component<Props, State> {
           placement="left"
           open={this.state.showGeneralSetting}
           width={leftPaneWidth}
-          rootStyle={{ left: 68 }}
+          rootStyle={{ left: leftPaneOffset }}
           styles={{
             wrapper: {
               boxShadow: 'none',
@@ -691,7 +704,7 @@ export class CommonSetting extends React.Component<Props, State> {
   }
 
   public renderLanguageSetting() {
-    const { i18n, leftPaneWidth } = this.props;
+    const { i18n, leftPaneWidth, leftPaneOffset } = this.props;
     const { showLanguageSetting } = this.state;
     if (!showLanguageSetting) {
       return null;
@@ -705,7 +718,7 @@ export class CommonSetting extends React.Component<Props, State> {
         placement="left"
         open={this.state.showLanguageSetting}
         width={leftPaneWidth}
-        rootStyle={{ left: 68 }}
+        rootStyle={{ left: leftPaneOffset }}
         styles={{
           wrapper: {
             boxShadow: 'none',
@@ -727,14 +740,15 @@ export class CommonSetting extends React.Component<Props, State> {
 
   public renderMyCode() {
     const { showFriendCode } = this.state;
-    const { id, avatarPath, name, i18n, leftPaneWidth } = this.props;
+    const { id, avatarPath, name, i18n, leftPaneWidth, leftPaneOffset } =
+      this.props;
 
     return (
       <Drawer
         placement="left"
         open={showFriendCode}
         width={leftPaneWidth}
-        rootStyle={{ left: 68 }}
+        rootStyle={{ left: leftPaneOffset }}
         styles={{
           wrapper: {
             boxShadow: 'none',
@@ -758,14 +772,14 @@ export class CommonSetting extends React.Component<Props, State> {
 
   public renderChatSetting() {
     const { showChatSetting } = this.state;
-    const { leftPaneWidth, i18n } = this.props;
+    const { leftPaneWidth, i18n, leftPaneOffset } = this.props;
 
     return (
       <Drawer
         placement="left"
         open={showChatSetting}
         width={leftPaneWidth}
-        rootStyle={{ left: 68 }}
+        rootStyle={{ left: leftPaneOffset }}
         styles={{
           wrapper: {
             boxShadow: 'none',
@@ -785,13 +799,18 @@ export class CommonSetting extends React.Component<Props, State> {
   }
 
   render() {
+    const { closeIcon } = this.props;
+
     return (
       <div id="common-setting" className="common-setting">
         <div className="header-bg"></div>
         <div className=" bottom-bg"></div>
-        <div className="close-button" onClick={this.closeCommonSetting}>
-          <div className="close-button-inner"></div>
-        </div>
+        {closeIcon && (
+          <div className="close-button" onClick={this.closeCommonSetting}>
+            <div className="close-button-inner"></div>
+          </div>
+        )}
+
         <div className="setting-icon">
           <input
             type={'file'}

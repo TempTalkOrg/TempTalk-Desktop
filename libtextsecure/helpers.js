@@ -1,6 +1,4 @@
-/* global window, dcodeIO */
-
-/* eslint-disable no-proto, no-restricted-syntax, guard-for-in */
+/* global dcodeIO */
 
 window.textsecure = window.textsecure || {};
 

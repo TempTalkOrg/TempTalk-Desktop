@@ -1,22 +1,17 @@
 /* global
-  window,
   textsecure,
   libsignal,
   WebSocketResource,
-  btoa,
   getString,
   libphonenumber,
-  Event,
-  ConversationController
+  ConversationController,
+  log,
 */
 
-/* eslint-disable more/no-then */
-
-// eslint-disable-next-line func-names
 (function () {
   window.textsecure = window.textsecure || {};
 
-  const ARCHIVE_AGE = 30 * 24 * 60 * 60 * 1000;
+  // const ARCHIVE_AGE = 30 * 24 * 60 * 60 * 1000;
 
   function AccountManager(username, password) {
     this.server = window.WebAPI.connect({ username, password });
@@ -67,7 +62,7 @@
         })
       );
     },
-    registerSecondDevice(setProvisioningUrl, confirmNumber, progressCallback) {
+    registerSecondDevice(setProvisioningUrl, confirmNumber, _progressCallback) {
       const createAccount = this.createAccount.bind(this);
       const clearSessionsAndPreKeys = this.clearSessionsAndPreKeys.bind(this);
       const registrationDone = this.registrationDone.bind(this);

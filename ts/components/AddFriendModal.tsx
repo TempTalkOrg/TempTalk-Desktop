@@ -118,7 +118,7 @@ export const AddFriendModal = (
             type="primary"
             loading={loading}
           >
-            {i18n('add')}
+            {i18n('search')}
           </Button>
         </div>
       </Modal>

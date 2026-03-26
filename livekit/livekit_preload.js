@@ -1,10 +1,9 @@
-/* global window */
 const { ipcRenderer } = require('electron');
 const url = require('url');
 const i18n = require('../js/modules/i18n');
 
 const config = url.parse(window.location.toString(), true).query;
-// eslint-disable-next-line no-console
+
 const { locale } = config;
 const localeMessages = ipcRenderer.sendSync('locale-data');
 
@@ -232,7 +231,7 @@ window.getSources = async () => {
             return `data:image/png;base64,${(await thumbnail.toPng()).toString('base64')}`;
           },
         };
-      } catch (e) {
+      } catch (_e) {
         return null;
       }
     });
@@ -278,7 +277,7 @@ window.isSupportMacShareScreenKit = () => {
   return macScreenShare.isSupported;
 };
 
-window.getMacScreenShare = options => {
+window.getMacScreenShare = _options => {
   const macScreenShare = require('@indutny/mac-screen-share');
   return macScreenShare;
 };

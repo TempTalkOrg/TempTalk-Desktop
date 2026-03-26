@@ -64,7 +64,7 @@ export class AttachmentList extends React.Component<Props> {
               isVideoTypeSupported(contentType)
             ) {
               const imageKey =
-                getUrl(attachment) || attachment.fileName || index;
+                getUrl(attachment) || `${attachment.fileName}-${index}`;
               const clickCallback =
                 attachments.length > 1 ? onClickAttachment : undefined;
 
@@ -89,7 +89,7 @@ export class AttachmentList extends React.Component<Props> {
             }
 
             const genericKey =
-              getUrl(attachment) || attachment.fileName || index;
+              getUrl(attachment) || `${attachment.fileName}-${index}`;
 
             return (
               <StagedGenericAttachment

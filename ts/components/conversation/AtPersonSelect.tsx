@@ -208,7 +208,7 @@ export class AtPersonSelect extends React.Component<PropsType, StateType> {
 
     return (
       <ContactListItem
-        key={index}
+        key={c.id}
         id={c.id}
         style={style}
         phoneNumber={c.id === 'MENTIONS_ALL' ? '' : c.id}

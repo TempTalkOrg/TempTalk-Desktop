@@ -1,3 +1,12 @@
+/* global
+  textsecure,
+  OutgoingCall,
+  CallRoomCipher,
+  WebAPI,
+  bufferToAB,
+  _,
+*/
+
 // construct proto object
 
 const CallType = {

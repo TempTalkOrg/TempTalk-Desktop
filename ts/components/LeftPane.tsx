@@ -74,8 +74,8 @@ type RowRendererParamsType = {
   isScrolling: boolean;
   isVisible: boolean;
   key: string;
-  parent: Object;
-  style: Object;
+  parent: object;
+  style: object;
 };
 
 // 群通知类型状态代码 和 i18n key 映射关系
@@ -239,7 +239,7 @@ export class LeftPane extends React.Component<Props, State> {
     style,
   }: {
     key: string;
-    style: Object;
+    style: object;
   }): JSX.Element {
     const { archivedConversations, i18n, showArchivedConversations } =
       this.props;

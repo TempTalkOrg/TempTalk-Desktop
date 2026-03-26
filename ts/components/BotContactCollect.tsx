@@ -92,7 +92,7 @@ export class BotContactCollect extends React.Component<Props, State> {
   };
 
   public getFilterBotContacts = (contacts: any) => {
-    let result = [];
+    const result = [];
     for (let i = 0; i < contacts.length; i++) {
       result.push(contacts[i]);
     }
@@ -116,8 +116,6 @@ export class BotContactCollect extends React.Component<Props, State> {
 
   public render() {
     const { searchText, filterBotContacts } = this.state;
-    // @ts-ignore
-    const { i18n } = this.props;
 
     const topStyle = { height: '100%' };
     const bodyStyle = { height: 'calc(100% - 116px)', overflow: 'auto' };
@@ -177,8 +175,8 @@ export class BotContactCollect extends React.Component<Props, State> {
       this.getFilterBotContacts(contacts);
     } else {
       let f = [];
-      let filteredNameArr = [];
-      let filteredSignatureArr = [];
+      const filteredNameArr = [];
+      const filteredSignatureArr = [];
       let keyPosition;
       let sortNameArr = [];
       let sortSignatureArr = [];

@@ -33,26 +33,26 @@ const RaiseHandList = () => {
   }
 
   return (
-    <div className="lk-raise-hand-list">
-      <div className="lk-raise-hand-list-header">
-        <div className="lk-raise-hand-list-header-icon">
+    <div className="raise-hand-list">
+      <div className="raise-hand-list-header">
+        <div className="raise-hand-list-header-icon">
           <IconRaiseHand className="call-icon raise-hand-icon" />
         </div>
-        <span className="lk-raise-hand-list-header-text">
+        <span className="raise-hand-list-header-text">
           Raise hand ({raiseHandList.length})
         </span>
       </div>
-      <div className="lk-raise-hand-list-content">
+      <div className="raise-hand-list-content">
         {sortedRaiseHandList.map((participant, index) => (
-          <div key={index} className="lk-raise-hand-list-item">
-            <div className="lk-raise-hand-list-item-info">
-              <div className={`lk-raise-hand-list-item-avatar`}>
+          <div key={index} className="raise-hand-list-item">
+            <div className="raise-hand-list-item-info">
+              <div className={`raise-hand-list-item-avatar`}>
                 {renderParticipantPlaceholder?.(participant as any, {
                   size: 28,
                 })}
               </div>
-              <div className="lk-raise-hand-list-item-info-name">
-                <span className="lk-raise-hand-list-item-info-name-text">
+              <div className="raise-hand-list-item-info-name">
+                <span className="raise-hand-list-item-info-name-text">
                   {nameFormatter
                     ? nameFormatter(participant as any)
                     : participant.identity}
@@ -60,7 +60,7 @@ const RaiseHandList = () => {
               </div>
             </div>
             <div
-              className="lk-raise-hand-list-item-lower"
+              className="raise-hand-list-item-lower"
               onClick={() => cancelHand?.([participant.identity])}
             >
               Lower
@@ -69,7 +69,7 @@ const RaiseHandList = () => {
         ))}
         {raiseHandList.length > 5 && (
           <div
-            className="lk-raise-hand-list-collapse-toggle"
+            className="raise-hand-list-collapse-toggle"
             onClick={() => setIsCollapsed(prev => !prev)}
           >
             {isCollapsed ? (
@@ -113,48 +113,45 @@ export const ParticipantAsideList = (props: IProps) => {
   }
 
   return (
-    <div className="lk-participant-aside-list">
-      <div className="lk-participant-aside-list-header">
-        <span className="lk-participant-aside-list-header-title">
+    <div className="participant-aside-list">
+      <div className="participant-aside-list-header">
+        <span className="participant-aside-list-header-title">
           Attendees({participants.length})
         </span>
-        <div
-          className="lk-participant-aside-list-close-button"
-          onClick={onClose}
-        >
+        <div className="participant-aside-list-close-button" onClick={onClose}>
           <div className="call-icon call-close-icon"></div>
         </div>
       </div>
 
-      <div className="lk-participant-aside-list-search">
+      <div className="participant-aside-list-search">
         <input
           type="text"
           placeholder="Search"
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
-          className="lk-participant-aside-list-input"
+          className="participant-aside-list-input"
         />
       </div>
 
-      <div className="lk-participant-aside-list-list">
+      <div className="participant-aside-list-list">
         {!searchQuery && <RaiseHandList />}
         {filteredParticipants.map((participant, index) => (
-          <div key={index} className="lk-participant-aside-list-list-item">
+          <div key={index} className="participant-aside-list-list-item">
             <ContextMenu
               menu={{ items: getContextMenuItems(participant) }}
               disabled={getContextMenuItems(participant).length === 0}
             >
-              <div className="lk-participant-aside-list-list-item-info">
-                <div className={`lk-participant-aside-list-list-item-avatar`}>
+              <div className="participant-aside-list-list-item-info">
+                <div className={`participant-aside-list-list-item-avatar`}>
                   {renderParticipantPlaceholder?.(participant, { size: 28 })}
                 </div>
-                <div className="lk-participant-aside-list-list-item-info-name">
-                  <span className="lk-participant-aside-list-list-item-info-name-text">
+                <div className="participant-aside-list-list-item-info-name">
+                  <span className="participant-aside-list-list-item-info-name-text">
                     {nameFormatter
                       ? nameFormatter(participant)
                       : participant.identity}
                   </span>
-                  <span className="lk-participant-aside-list-list-item-sharing">
+                  <span className="participant-aside-list-list-item-sharing">
                     {screenShareTrack?.participant?.identity ===
                     participant.identity
                       ? 'Sharing'
@@ -164,8 +161,8 @@ export const ParticipantAsideList = (props: IProps) => {
               </div>
             </ContextMenu>
 
-            <div className="lk-participant-aside-list-list-item-status">
-              <div className="lk-participant-aside-list-list-item-status-audio">
+            <div className="participant-aside-list-list-item-status">
+              <div className="participant-aside-list-list-item-status-audio">
                 <TrackMutedIndicator
                   trackRef={{
                     participant,
@@ -175,7 +172,7 @@ export const ParticipantAsideList = (props: IProps) => {
                   singleColor={true}
                 ></TrackMutedIndicator>
               </div>
-              <div className="lk-participant-aside-list-list-item-status-video">
+              <div className="participant-aside-list-list-item-status-video">
                 <TrackMutedIndicator
                   trackRef={{
                     participant,

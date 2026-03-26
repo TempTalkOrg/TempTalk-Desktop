@@ -1,3 +1,12 @@
+/* global
+  ABToB64,
+  CallType,
+  DetailMessageType,
+  NotificationType,
+  UserSessionCipher,
+  textsecure,
+*/
+
 const MAX_RETRY_COUNT = 3;
 
 class OutgoingCall {
@@ -56,7 +65,7 @@ class OutgoingCall {
       if (errorMap) {
         throw new Error('do batch update ciphers return error');
       }
-    } catch (error) {
+    } catch (_error) {
       throw new Error('do batch update ciphers error');
     }
   }
@@ -73,7 +82,7 @@ class OutgoingCall {
       }
 
       return ciphers;
-    } catch (error) {
+    } catch (_error) {
       throw new Error('do batch load ciphers error');
     }
   }
@@ -82,7 +91,7 @@ class OutgoingCall {
     let res;
     try {
       res = await this.#server.getKeysV3ForUids(uids);
-    } catch (error) {
+    } catch (_error) {
       throw new Error('get keys for uids error');
     }
 
@@ -94,6 +103,7 @@ class OutgoingCall {
     return keys;
   }
 
+  // eslint-disable-next-line no-unused-private-class-members
   #getEncMeta(metaObj) {
     // all data in meta should be encrypted using roomCipher
     return Object.entries(metaObj).reduce(
@@ -206,7 +216,7 @@ class OutgoingCall {
       const staleUids = stale.map(key => key?.uid).filter(Boolean);
       try {
         await this.#doBatchUpdateCiphers(staleUids, () => stale);
-      } catch (error) {
+      } catch (_error) {
         throw new Error('could not update stale users');
       }
 
@@ -218,7 +228,7 @@ class OutgoingCall {
       const missingUids = missing.map(key => key?.uid).filter(Boolean);
       try {
         await this.#doBatchUpdateCiphers(missingUids, () => missing);
-      } catch (error) {
+      } catch (_error) {
         throw new Error('could not update missing users');
       }
 
@@ -312,7 +322,7 @@ class OutgoingCall {
         Array.from(new Set(total)),
         uids => this.#getKeys(uids)
       );
-    } catch (error) {
+    } catch (_error) {
       //
       throw new Error('can not load all users session');
     }
@@ -352,9 +362,9 @@ class OutgoingCall {
 
         return callMessage.toArrayBuffer(options);
       };
-    } catch (error) {
+    } catch (_error) {
       //
-      throw new Error('');
+      throw new Error('start call export emks error');
     }
 
     // encrypt content for all callees one by one
@@ -364,7 +374,7 @@ class OutgoingCall {
         fnGetProtoAB
       );
       assginCallData({ cipherMessages });
-    } catch (error) {
+    } catch (_error) {
       throw new Error('encrypt call content error');
     } finally {
       fnGetProtoAB = undefined;
@@ -514,7 +524,7 @@ class OutgoingCall {
       ciphers = await this.#doBatchLoadCiphers(total, uids =>
         this.#getKeys(uids)
       );
-    } catch (error) {
+    } catch (_error) {
       //
       throw new Error('can not load all users session');
     }
@@ -544,7 +554,7 @@ class OutgoingCall {
         };
         return callMessage.toArrayBuffer(options);
       };
-    } catch (error) {
+    } catch (_error) {
       //
       throw new Error('export emk for all users error');
     }
@@ -556,7 +566,7 @@ class OutgoingCall {
         fnGetProtoAB
       );
       assginCallData({ cipherMessages });
-    } catch (error) {
+    } catch (_error) {
       throw new Error('encrypt call content error');
     } finally {
       fnGetProtoAB = undefined;
@@ -629,7 +639,7 @@ class OutgoingCall {
         Array.from(new Set(total)),
         uids => this.#getKeys(uids)
       );
-    } catch (error) {
+    } catch (_error) {
       //
       throw new Error('can not load all users session');
     }
@@ -644,7 +654,7 @@ class OutgoingCall {
 
       const protoAB = callMessage.toArrayBuffer();
       fnGetProtoAB = () => protoAB;
-    } catch (error) {
+    } catch (_error) {
       //
       throw new Error('export emk for all users error');
     }
@@ -656,7 +666,7 @@ class OutgoingCall {
         fnGetProtoAB
       );
       assginCallData({ cipherMessages });
-    } catch (error) {
+    } catch (_error) {
       throw new Error('encrypt call content error');
     } finally {
       fnGetProtoAB = undefined;
@@ -682,3 +692,5 @@ class OutgoingCall {
     }
   }
 }
+
+window.OutgoingCall = OutgoingCall;

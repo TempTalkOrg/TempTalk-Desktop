@@ -1,28 +1,27 @@
 import type { Room } from '@cc-livekit/livekit-client';
 import { ConnectionState } from '@cc-livekit/livekit-client';
-import * as React from 'react';
 import { InfoCircleOutlined } from '@ant-design/icons';
 import { useConnectionState, usePrevValue } from '../hooks';
+import React, {
+  HTMLAttributes,
+  ReactElement,
+  useEffect,
+  useState,
+} from 'react';
 
-/** @public */
 export interface ConnectionStateToastProps
-  extends React.HTMLAttributes<HTMLDivElement> {
+  extends HTMLAttributes<HTMLDivElement> {
   room?: Room;
 }
 
-/**
- * The `ConnectionStateToast` component displays a toast
- * notification indicating the current connection state of the room.
- * @public
- */
 export function ConnectionStateToast(props: ConnectionStateToastProps) {
-  const [notification, setNotification] = React.useState<
-    React.ReactElement | undefined
-  >(undefined);
+  const [notification, setNotification] = useState<ReactElement | undefined>(
+    undefined
+  );
   const state = useConnectionState(props.room);
   const prevState = usePrevValue(state);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (state === prevState) {
       return;
     }
@@ -31,7 +30,7 @@ export function ConnectionStateToast(props: ConnectionStateToastProps) {
       case ConnectionState.Reconnecting:
         setNotification(
           <>
-            <div className="lk-spinner call-icon spinner-icon"></div>{' '}
+            <div className="connection-state-spinner call-icon spinner-icon"></div>{' '}
             Reconnecting
           </>
         );
@@ -39,7 +38,8 @@ export function ConnectionStateToast(props: ConnectionStateToastProps) {
       case ConnectionState.Connecting:
         setNotification(
           <>
-            <div className="lk-spinner call-icon spinner-icon"></div> Connecting
+            <div className="connection-state-spinner call-icon spinner-icon"></div>{' '}
+            Connecting
           </>
         );
         break;
@@ -47,7 +47,7 @@ export function ConnectionStateToast(props: ConnectionStateToastProps) {
         if (prevState === undefined) {
           setNotification(
             <>
-              <div className="lk-spinner call-icon spinner-icon"></div>{' '}
+              <div className="connection-state-spinner call-icon spinner-icon"></div>{' '}
               Connecting
             </>
           );
@@ -65,7 +65,7 @@ export function ConnectionStateToast(props: ConnectionStateToastProps) {
     }
   }, [state, prevState]);
   return notification ? (
-    <div className="lk-connection-state-container">{notification}</div>
+    <div className="connection-state-container">{notification}</div>
   ) : (
     <></>
   );

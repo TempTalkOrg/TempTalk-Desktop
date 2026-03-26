@@ -1,3 +1,7 @@
+/* global
+  log,
+*/
+
 const loadImage = require('blueimp-load-image');
 const { nativeImage, clipboard } = require('electron');
 

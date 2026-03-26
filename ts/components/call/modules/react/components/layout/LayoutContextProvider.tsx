@@ -1,4 +1,4 @@
-import type { PinState, WidgetState } from '../../../core';
+import type { PinState } from '../../../core';
 import { log } from '../../../core';
 import * as React from 'react';
 import type { LayoutContextType } from '../../context';
@@ -8,7 +8,6 @@ import { LayoutContext, useEnsureCreateLayoutContext } from '../../context';
 export interface LayoutContextProviderProps {
   value?: LayoutContextType;
   onPinChange?: (state: PinState) => void;
-  onWidgetChange?: (state: WidgetState) => void;
 }
 
 /** @alpha */

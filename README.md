@@ -43,7 +43,7 @@ This project is licensed under the GNU General Public License v3.0 - see the [LI
 
 If you encounter any issues or have questions, please:
 
-1. Check the [Building Guide](BUILDING.md) for common issues
+1. Check the [Building Guide](BUILDING.md) for common issues , See CONTRIBUTING.md
 2. Search [Issues](https://github.com/TempTalkOrg/TempTalk-Desktop/issues)
 3. Create a new Issue
 4. Contact the development team: opensource@temptalk.app

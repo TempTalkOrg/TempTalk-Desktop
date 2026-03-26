@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 
-const { ipcRenderer } = require('electron');
 import { AutoSizer, List } from 'react-virtualized';
 import { TextMessageListItem } from './TextMessageListItem';
 import { LocalizerType } from '../../types/Util';
@@ -13,6 +12,7 @@ import {
 } from '../../shims/Whisper';
 import { debounce } from 'lodash';
 import { IconClearCircle, IconSearch, IconSearchResult } from '../shared/icons';
+import { ipcRenderer, IpcRendererEvent } from 'electron/renderer';
 
 type DBMessageResult = {
   attachments?: Array<any>;
@@ -95,7 +95,7 @@ const doSearch = async ({
     collection.models
       .reverse()
       .filter((message: any) => {
-        message.correctExpireTimer();
+        message.correctMessage();
         return !message.isExpired() && !message.isConfidentialMessage();
       })
       .map((message: any) => message.attributes)
@@ -128,7 +128,7 @@ export const LocalSearch = (props: PropsType) => {
   useAsyncEffect(async () => {
     ipcRenderer.on(
       'receive-keywords',
-      (_: Event, keywords: string, conversationId: string) => {
+      (_: IpcRendererEvent, keywords: string, conversationId: string) => {
         setSearchTerm(keywords);
         setConversationId(conversationId);
         inputRef.current?.focus();

@@ -12,6 +12,7 @@ export type GlobalConfigType = {
     bluetooth: {
       excludedNameRegex: string;
     };
+    mode: 'standard' | 'enhanced';
   };
   bubbleMessage: {
     emojiPresets: string[];
@@ -37,6 +38,7 @@ export const globalConfigAtom = atom<GlobalConfigType>({
     bluetooth: {
       excludedNameRegex: '',
     },
+    mode: 'enhanced',
   },
   bubbleMessage: {
     emojiPresets: ['👍', '👏', '🎉', '🚀', '❤️', '😂'],

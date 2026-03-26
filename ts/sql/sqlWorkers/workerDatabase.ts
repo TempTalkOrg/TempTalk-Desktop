@@ -61,7 +61,7 @@ async function handleWorkRequest(
     let result = undefined;
 
     switch (type) {
-      case 'dbCall':
+      case 'dbCall': {
         const dbMethod = (db as any)[method];
         if (typeof dbMethod !== 'function') {
           throw new Error(`Invalid db method: ${method}`);
@@ -69,7 +69,8 @@ async function handleWorkRequest(
 
         dbMethod.apply(db, args);
         break;
-      case 'sqlCall':
+      }
+      case 'sqlCall': {
         const sqlMethod = (db as any)[method];
         if (typeof sqlMethod !== 'function') {
           throw new Error(`Invalid sql method: ${method}`);
@@ -77,6 +78,7 @@ async function handleWorkRequest(
 
         result = sqlMethod.apply(db, args);
         break;
+      }
       default:
         throw new Error(`Unexpected request type: ${type}`);
     }

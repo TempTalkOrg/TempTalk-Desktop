@@ -1,0 +1,201 @@
+name: Lint & Type Check
+
+on:
+  workflow_call:
+  workflow_dispatch:
+  pull_request:
+    types: [opened, ready_for_review]
+  issue_comment:
+    types: [created]
+
+jobs:
+  check:
+    name: Lint & Type Check
+    runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'workflow_call' ||
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'pull_request' && !github.event.pull_request.draft) ||
+      (github.event_name == 'issue_comment' &&
+       github.event.issue.pull_request &&
+       startsWith(github.event.comment.body, '/ci-check'))
+
+    # Declare env defaults so `if: env.X != ''` resolves cleanly.
+    # Values are overwritten at runtime by core.exportVariable() in "Get PR info".
+    env:
+      PR_NUMBER: ''
+      PR_SHA: ''
+      PR_REF: ''
+
+    permissions:
+      contents: read
+      pull-requests: write
+      statuses: write
+
+    steps:
+      # Resolve PR metadata and export PR_NUMBER, PR_SHA, PR_REF
+      - name: Get PR info
+        uses: actions/github-script@v7
+        with:
+          script: |
+            if (context.eventName === 'pull_request') {
+              const pr = context.payload.pull_request;
+              core.exportVariable('PR_NUMBER', pr.number);
+              core.exportVariable('PR_SHA', pr.head.sha);
+              core.exportVariable('PR_REF', `refs/pull/${pr.number}/head`);
+            } else if (context.eventName === 'issue_comment') {
+              await github.rest.reactions.createForIssueComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: context.payload.comment.id,
+                content: '+1',
+              });
+              const { data } = await github.rest.pulls.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.issue.number,
+              });
+              core.exportVariable('PR_NUMBER', context.issue.number);
+              core.exportVariable('PR_SHA', data.head.sha);
+              core.exportVariable('PR_REF', `refs/pull/${context.issue.number}/head`);
+            }
+
+      # Set commit status to pending so the PR shows an in-progress check.
+      # Only needed for issue_comment triggers since pull_request events get status automatically.
+      - name: Set status pending
+        if: github.event_name == 'issue_comment'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: process.env.PR_SHA,
+              state: 'pending',
+              context: 'Lint & Type Check',
+              description: 'Running...'
+            });
+
+      # For issue_comment triggers, check out the PR head; otherwise use the default ref.
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.PR_REF || github.ref }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+
+      # Cache node_modules keyed by yarn.lock to speed up subsequent runs.
+      - name: Restore node_modules cache
+        id: cache
+        uses: actions/cache/restore@v4
+        with:
+          path: node_modules
+          key: yarn-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
+          restore-keys: yarn-${{ runner.os }}-
+
+      - run: yarn prepare-linux-build && yarn install --frozen-lockfile --ignore-scripts
+
+      - name: Update node_modules cache
+        if: ${{ steps.cache.outputs.cache-hit != 'true' }}
+        uses: actions/cache/save@v4
+        with:
+          path: node_modules
+          key: yarn-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
+
+      # ── Run eslint and capture JSON output to file ──
+      - name: Run eslint
+        id: eslint
+        run: yarn eslint --quiet --format json | tee lint-results.json
+
+      - run: yarn generate
+
+      # ── Post results as a brief PR comment ──
+      # RUN_URL is declared per-step because it depends on github context, not on PR info.
+      - name: Comment success on PR
+        if: success() && env.PR_NUMBER != ''
+        uses: actions/github-script@v7
+        env:
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          ERROR_MAX_COMMENTS: ${{ vars.ERROR_MAX_COMMENTS }}
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: Number(process.env.PR_NUMBER),
+              body: `✅ **Lint & Type Check** passed.  [View run](${process.env.RUN_URL})`,
+            });
+
+      - name: Comment failure on PR
+        if: failure() && env.PR_NUMBER != ''
+        uses: actions/github-script@v7
+        env:
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        with:
+          script: |
+            const fs = require('fs');
+            let details = '';
+
+            try {
+              const raw = fs.readFileSync('lint-results.json', 'utf8');
+              const maxItems = Number(process.env.ERROR_MAX_COMMENTS) || 5;
+              const lines = [];
+              let total = 0;
+
+              for (const file of JSON.parse(raw)) {
+                for (const msg of file.messages) {
+                  if (msg.severity === 2) {
+                    total++;
+                    if (lines.length < maxItems) {
+                      lines.push(`> \`${file.filePath.replace(/^.*\//, '')}:${msg.line}:${msg.column}\` ${msg.message} (\`${msg.ruleId || '-'}\`)`);
+                    }
+                  }
+                }
+              }
+
+              if (total > maxItems) {
+                lines.push(`\n… and ${total - maxItems} more error(s)`);
+              }
+
+              if (lines.length > 0) {
+                details = `\n\n${lines.join('\n\n')}`;
+              }
+            } catch (e) {
+              core.warning(`Failed to parse lint-results.json: ${e.message}`);
+            }
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: Number(process.env.PR_NUMBER),
+              body: `❌ **Lint & Type Check** failed.${details}\n\n[View run](${process.env.RUN_URL})`,
+            });
+
+      - name: Set status success
+        if: github.event_name == 'issue_comment' && success()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: process.env.PR_SHA,
+              state: 'success',
+              context: 'Lint & Type Check',
+              description: 'Passed'
+            });
+
+      - name: Set status failure
+        if: github.event_name == 'issue_comment' && failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: process.env.PR_SHA,
+              state: 'failure',
+              context: 'Lint & Type Check',
+              description: 'Failed'
+            });

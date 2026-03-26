@@ -61,7 +61,7 @@ function adjustImageSize({ width, height }: { width: number; height: number }) {
  */
 function getImageSizeByUrl(imageUrl: string): Promise<ISize> {
   return new Promise((resolve, reject) => {
-    let image = new Image();
+    const image = new Image();
 
     // 加载成功时操作
     image.onload = function () {

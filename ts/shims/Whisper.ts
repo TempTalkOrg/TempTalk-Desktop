@@ -85,7 +85,7 @@ export async function getOrCreateConversationModel(
       type
     );
   } catch (error) {
-    console.warn('could not get or create conversation modal');
+    console.warn('could not get or create conversation modal', error);
     return null;
   }
 }

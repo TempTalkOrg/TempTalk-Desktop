@@ -77,7 +77,7 @@ export const useInitials = (room: Room) => {
     if (!initials) {
       return map;
     }
-    for (let contact of initials) {
+    for (const contact of initials) {
       map.set(contact.id, new Contact(contact));
     }
     return map;
@@ -121,7 +121,7 @@ export const useInitials = (room: Room) => {
 
   useEffect(() => {
     room.once(RoomEvent.SignalConnected, () => {
-      for (let participant of room.remoteParticipants.values()) {
+      for (const participant of room.remoteParticipants.values()) {
         supplementContactMap(participant);
       }
       update();

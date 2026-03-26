@@ -43,7 +43,7 @@ export const ParticipantName: (
   });
 
   const mergedProps = React.useMemo(() => {
-    return mergeProps(props, { className, 'data-lk-participant-name': name });
+    return mergeProps(props, { className, 'data-participant-name': name });
   }, [props, className, name]);
 
   return (

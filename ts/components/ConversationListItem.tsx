@@ -17,6 +17,7 @@ import {
 import { pick } from 'lodash';
 import MeetingTimer from './MeetingTimer';
 import { simplifySeconds } from '../util/formatRelativeTime';
+import { IconOfficialAccount } from './shared/icons';
 
 export type PropsData = {
   id: string;
@@ -30,7 +31,7 @@ export type PropsData = {
   isMe: boolean;
   signature?: string;
   timeZone?: string;
-
+  isOfficialAccount?: boolean;
   lastUpdated: number;
   unreadCount: number;
   isSelected: boolean;
@@ -72,7 +73,7 @@ export type ClickEvent = {
 
 type PropsHousekeeping = {
   i18n: LocalizerType;
-  style?: Object;
+  style?: object;
   onClick?: (id: string, event?: ClickEvent) => void;
   onDoubleClick?: (id: string, event?: any) => void;
   latestCriticalAlert?: {
@@ -129,7 +130,7 @@ export class ConversationListItem extends React.Component<Props> {
     let groupMembersCount;
     if (type === 'group') {
       const c = (window as any).ConversationController.get(id);
-      let selfLeft = c?.isMeLeftGroup();
+      const selfLeft = c?.isMeLeftGroup();
       // already left group does not show members count
       if (!c.isPrivate() && !selfLeft) {
         groupMembersCount = c?.get('membersV2')?.length;
@@ -207,6 +208,7 @@ export class ConversationListItem extends React.Component<Props> {
       isGroupOwnerSelect,
       isMyGroup,
       call,
+      isOfficialAccount,
     } = this.props;
 
     const showLocalTime = searchResultOfContacts || searchResultOfRecent;
@@ -218,30 +220,33 @@ export class ConversationListItem extends React.Component<Props> {
 
     return (
       <div className="module-conversation-list-item__header">
-        <div
-          className={classNames(
-            'module-conversation-list-item__header__name',
-            unreadCount > 0
-              ? 'module-conversation-list-item__header__name--with-unread'
-              : null
-          )}
-          style={{ flexGrow: 0 }}
-        >
-          {displayContent.length > 0 ? (
-            displayContent
-          ) : isMe && !isGroupOwnerSelect ? (
-            i18n('noteToSelf')
-          ) : (
-            <ContactName
-              phoneNumber={id}
-              name={name}
-              profileName={profileName}
-              i18n={i18n}
-            />
-          )}
-        </div>
+        <div className="module-conversation-list-item__header__left-content">
+          <div
+            className={classNames(
+              'module-conversation-list-item__header__name',
+              unreadCount > 0
+                ? 'module-conversation-list-item__header__name--with-unread'
+                : null
+            )}
+            style={{ flexGrow: 0 }}
+          >
+            {displayContent.length > 0 ? (
+              displayContent
+            ) : isMe && !isGroupOwnerSelect ? (
+              i18n('noteToSelf')
+            ) : (
+              <ContactName
+                phoneNumber={id}
+                name={name}
+                profileName={profileName}
+                i18n={i18n}
+              />
+            )}
+          </div>
+          {isOfficialAccount && <IconOfficialAccount />}
 
-        {this.renderExpireTimer()}
+          {this.renderExpireTimer()}
+        </div>
 
         {!isMyGroup ? (
           <div
@@ -374,7 +379,7 @@ export class ConversationListItem extends React.Component<Props> {
   }
 
   public getDisplayExtraInfo(items: Array<any>, limit: number) {
-    let result = Array<JSX.Element>();
+    const result = Array<JSX.Element>();
     items.forEach(element => {
       if (element && element.length > 0 && result.length < limit) {
         result.push(
@@ -413,7 +418,7 @@ export class ConversationListItem extends React.Component<Props> {
     if (timeZone >= -12 && timeZone <= 14) {
       const date = new Date(Date.now() + timeZone * 60 * 60 * 1000);
 
-      let hours = date.getUTCHours();
+      const hours = date.getUTCHours();
       const minutes = fn(date.getUTCMinutes(), 2);
 
       if (hours === 12) {
